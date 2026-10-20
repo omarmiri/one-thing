@@ -2,7 +2,8 @@ import { after, NextResponse } from "next/server";
 import { query } from "@/lib/db";
 import { designShop, geminiEnabled } from "@/lib/gemini";
 import { generateHero } from "@/lib/hero";
-import { newId, slugify } from "@/lib/ids";
+import { newId } from "@/lib/ids";
+import { claimSlug, pickSlug, slugProblem, slugTaken, toSlug } from "@/lib/slugs";
 import { saveBlob } from "@/lib/shops";
 
 export const maxDuration = 60;
@@ -47,6 +48,14 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "That PayPal email doesn't look right." }, { status: 400 });
   }
 
+  // Check a chosen link name before spending a Gemini call on the design.
+  const wantedSlug = str(form, "slug");
+  if (wantedSlug) {
+    const s = toSlug(wantedSlug);
+    const problem = slugProblem(s) ?? ((await slugTaken(s)) ? `That link is taken. Try another name.` : null);
+    if (problem) return NextResponse.json({ error: problem, field: "slug" }, { status: 400 });
+  }
+
   const photoBytes = photo ? new Uint8Array(await photo.arrayBuffer()) : null;
   let design;
   try {
@@ -64,7 +73,9 @@ export async function POST(req: Request) {
   const productType = spec.productType;
 
   const id = newId();
-  const slug = slugify(spec.productName);
+  const picked = await pickSlug(wantedSlug, spec.productName);
+  if ("error" in picked) return NextResponse.json({ error: picked.error, field: "slug" }, { status: 409 });
+  const slug = picked.slug;
   const adminToken = newId(24);
   const photoBlob = photoBytes && photo ? await saveBlob(photoBytes, photo.type, photo.name) : null;
   const digitalBlob = digital
@@ -89,6 +100,8 @@ export async function POST(req: Request) {
       productType === "digital" ? delivery : "file", productType === "digital" ? accessUrl : null,
     ],
   );
+
+  await claimSlug(slug, id);
 
   if (heroPending) after(() => generateHero({ id, spec, photo_blob: photoBlob }));
 

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import { BuyButton } from "@/components/shop/BuyButton";
 import { ShopPage } from "@/components/shop/ShopPage";
 import { tokensMatch } from "@/lib/ids";
@@ -8,7 +8,7 @@ import { getShopBySlug, shopView } from "@/lib/shops";
 
 export const dynamic = "force-dynamic";
 
-export async function generateMetadata(props: PageProps<"/s/[slug]">): Promise<Metadata> {
+export async function generateMetadata(props: PageProps<"/[slug]">): Promise<Metadata> {
   const shop = await getShopBySlug((await props.params).slug);
   if (!shop) return {};
   return {
@@ -18,10 +18,12 @@ export async function generateMetadata(props: PageProps<"/s/[slug]">): Promise<M
   };
 }
 
-export default async function Shop(props: PageProps<"/s/[slug]">) {
+export default async function Shop(props: PageProps<"/[slug]">) {
   const { slug } = await props.params;
   const { token } = await props.searchParams;
   const shop = await getShopBySlug(slug);
+  // A former name: send people (and search engines) to the current link.
+  if (shop && shop.slug !== slug) permanentRedirect(`/${shop.slug}${typeof token === "string" ? `?token=${token}` : ""}`);
   // Drafts are visible only to their seller (manage page preview link carries the token).
   const isOwner = shop && typeof token === "string" && tokensMatch(token, shop.admin_token);
   if (!shop || (shop.status !== "live" && !isOwner)) notFound();

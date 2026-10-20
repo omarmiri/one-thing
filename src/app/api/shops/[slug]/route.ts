@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { requireShop } from "@/lib/auth";
 import { updateShop } from "@/lib/shops";
+import { claimSlug, slugProblem, slugTaken, toSlug } from "@/lib/slugs";
 
 /** Polled by the manage page while hero art is generating. */
 export async function GET(req: Request, ctx: RouteContext<"/api/shops/[slug]">) {
@@ -22,6 +23,7 @@ const Settings = z.object({
   status: z.enum(["draft", "live"]).optional(),
   delivery: z.enum(["file", "access_code"]).optional(),
   access_url: z.url().startsWith("https://").nullable().optional(),
+  slug: z.string().max(60).optional(),
 });
 
 export async function PATCH(req: Request, ctx: RouteContext<"/api/shops/[slug]">) {
@@ -41,7 +43,16 @@ export async function PATCH(req: Request, ctx: RouteContext<"/api/shops/[slug]">
       return NextResponse.json({ error: "Add the link where buyers use their access code before publishing." }, { status: 400 });
     }
   }
+  // Renaming the link: the old name keeps redirecting (shop_slugs).
+  let slug: string | undefined;
+  if (s.slug !== undefined && toSlug(s.slug) !== shop.slug) {
+    slug = toSlug(s.slug);
+    const problem = slugProblem(slug) ?? ((await slugTaken(slug, shop.id)) ? "That link is taken. Try another name." : null);
+    if (problem) return NextResponse.json({ error: problem, field: "slug" }, { status: 400 });
+    await claimSlug(slug, shop.id);
+  }
   await updateShop(shop.id, {
+    ...(slug && { slug }),
     ...(s.price !== undefined && { price_cents: Math.round(s.price * 100) }),
     ...(s.shipping !== undefined && shop.product_type === "physical" && { shipping_cents: Math.round(s.shipping * 100) }),
     ...(s.stock !== undefined && { stock: s.stock }),
@@ -53,5 +64,5 @@ export async function PATCH(req: Request, ctx: RouteContext<"/api/shops/[slug]">
     ...(s.delivery && shop.product_type === "digital" && { delivery: s.delivery }),
     ...(s.access_url !== undefined && { access_url: s.access_url }),
   });
-  return NextResponse.json({ ok: true });
+  return NextResponse.json({ ok: true, slug: slug ?? shop.slug });
 }

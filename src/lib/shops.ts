@@ -63,8 +63,16 @@ function hydrate(row: Shop | null): Shop | null {
   return parsed.success ? { ...row, spec: parsed.data } : row;
 }
 
+/** By current or former link name. Compare shop.slug to what was asked for to redirect old links. */
 export const getShopBySlug = async (slug: string) =>
-  hydrate(await one<Shop>("SELECT * FROM shops WHERE slug = $1", [slug]));
+  hydrate(
+    await one<Shop>(
+      `SELECT s.* FROM shops s
+        WHERE s.slug = $1 OR s.id = (SELECT shop_id FROM shop_slugs WHERE slug = $1)
+        LIMIT 1`,
+      [slug],
+    ),
+  );
 
 /** Returns the shop only if the admin token is right. */
 export async function getOwnedShop(slug: string, token: string | null | undefined) {

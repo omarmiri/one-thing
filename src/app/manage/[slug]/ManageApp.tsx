@@ -47,7 +47,7 @@ export function ManageApp(props: {
   const [webhooks, setWebhooks] = useState(props.webhooks);
   const [frameKey, setFrameKey] = useState(0);
   const [toast, setToast] = useState<string | null>(null);
-  const shopPath = `/s/${slug}`;
+  const shopPath = `/${slug}`;
 
   useEffect(() => {
     if (!toast) return;
@@ -136,9 +136,9 @@ export function ManageApp(props: {
         <section className="overflow-hidden rounded-2xl border border-line bg-white">
           <div className="flex items-center gap-2 border-b border-line px-4 py-2 text-xs text-muted">
             <span className="truncate">{shopPath}</span>
-            <a href={`/s/${slug}?token=${token}`} target="_blank" className="ml-auto underline">Open</a>
+            <a href={`/${slug}?token=${token}`} target="_blank" className="ml-auto underline">Open</a>
           </div>
-          <iframe key={frameKey} src={`/s/${slug}?token=${token}`} title="Shop preview" className="h-[78vh] w-full" />
+          <iframe key={frameKey} src={`/${slug}?token=${token}`} title="Shop preview" className="h-[78vh] w-full" />
         </section>
 
         <aside className="space-y-6">

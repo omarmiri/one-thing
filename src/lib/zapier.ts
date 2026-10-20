@@ -15,7 +15,7 @@ export async function notifyZapier(shop: Shop, event: "order.paid" | "order.ship
       headers: { "content-type": "application/json" },
       body: JSON.stringify({
         event,
-        shop: { slug: shop.slug, name: shop.spec.productName, url: `${appUrl()}/s/${shop.slug}` },
+        shop: { slug: shop.slug, name: shop.spec.productName, url: `${appUrl()}/${shop.slug}` },
         order: {
           id: order.id,
           paypal_order_id: order.paypal_order_id,

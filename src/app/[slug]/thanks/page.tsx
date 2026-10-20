@@ -9,7 +9,7 @@ function withCode(url: string, code: string) {
   return u.toString();
 }
 
-export default async function Thanks(props: PageProps<"/s/[slug]/thanks">) {
+export default async function Thanks(props: PageProps<"/[slug]/thanks">) {
   const { slug } = await props.params;
   const { order: orderId } = await props.searchParams;
   const shop = await getShopBySlug(slug);
@@ -94,7 +94,7 @@ export default async function Thanks(props: PageProps<"/s/[slug]/thanks">) {
             Refresh in a moment. If you were charged, PayPal will confirm it shortly.
           </p>
         )}
-        <a href={`/s/${shop.slug}`} className="mt-8 block text-sm underline" style={{ color: p.muted }}>
+        <a href={`/${shop.slug}`} className="mt-8 block text-sm underline" style={{ color: p.muted }}>
           Back to the shop
         </a>
       </div>

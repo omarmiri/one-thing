@@ -77,6 +77,13 @@ ALTER TABLE orders ADD COLUMN IF NOT EXISTS access_code text UNIQUE;
 ALTER TABLE orders ADD COLUMN IF NOT EXISTS code_uses integer NOT NULL DEFAULT 0;
 ALTER TABLE orders ADD COLUMN IF NOT EXISTS code_last_used_at timestamptz;
 
+-- Every link name a shop has had (the current one is shops.slug). Old names redirect.
+CREATE TABLE IF NOT EXISTS shop_slugs (
+  slug     text PRIMARY KEY,
+  shop_id  text NOT NULL REFERENCES shops(id)
+);
+INSERT INTO shop_slugs (slug, shop_id) SELECT slug, id FROM shops ON CONFLICT (slug) DO NOTHING;
+
 -- Every PayPal webhook delivery we can tie to a shop, so sellers can see them arrive.
 CREATE TABLE IF NOT EXISTS webhook_events (
   id               text PRIMARY KEY,                  -- PayPal's event id (retries reuse it)

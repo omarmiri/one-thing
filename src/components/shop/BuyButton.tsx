@@ -58,7 +58,7 @@ export function BuyButton(props: { slug: string; clientId: string | null; sdkUrl
           const res = await fetch(`/api/orders/${orderId}/capture`, { method: "POST" });
           const json = await res.json();
           if (res.ok) {
-            router.push(`/s/${props.slug}/thanks?order=${json.orderId}`);
+            router.push(`/${props.slug}/thanks?order=${json.orderId}`);
           } else {
             setBusy(false);
             setMsg({ kind: "error", text: json.error === "INSTRUMENT_DECLINED" ? "That payment method was declined — please try another." : json.error });

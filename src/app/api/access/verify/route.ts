@@ -25,7 +25,8 @@ export async function POST(req: Request) {
   const row = await one<{ product: string }>(
     `UPDATE orders o SET code_uses = code_uses + 1, code_last_used_at = now()
        FROM shops s
-      WHERE o.shop_id = s.id AND s.slug = $1 AND o.access_code = $2 AND o.status = 'paid'
+      WHERE o.shop_id = s.id AND s.id = (SELECT shop_id FROM shop_slugs WHERE slug = $1)
+        AND o.access_code = $2 AND o.status = 'paid'
       RETURNING s.spec->>'productName' AS product`,
     [body.shop, code],
   );
