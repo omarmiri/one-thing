@@ -68,6 +68,14 @@ CREATE TABLE IF NOT EXISTS orders (
   paid_at            timestamptz
 );
 CREATE INDEX IF NOT EXISTS orders_shop_idx ON orders(shop_id, created_at DESC);
+
+-- Access codes: a digital product can be a web app or game the buyer unlocks with a code,
+-- instead of a file. The app checks codes with POST /api/access/verify.
+ALTER TABLE shops  ADD COLUMN IF NOT EXISTS delivery text NOT NULL DEFAULT 'file';  -- file | access_code
+ALTER TABLE shops  ADD COLUMN IF NOT EXISTS access_url text;                         -- where the buyer plays/uses it
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS access_code text UNIQUE;
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS code_uses integer NOT NULL DEFAULT 0;
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS code_last_used_at timestamptz;
 `;
 
 async function open(): Promise<Db> {

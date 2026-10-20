@@ -37,6 +37,11 @@ export async function POST(req: Request) {
   if (digital && digital.size > 25 * MB) {
     return NextResponse.json({ error: "Digital files are limited to 25 MB for now." }, { status: 400 });
   }
+  const delivery = str(form, "delivery") === "access_code" ? "access_code" : "file";
+  const accessUrl = str(form, "access_url");
+  if (accessUrl && !/^https:\/\/\S+$/.test(accessUrl)) {
+    return NextResponse.json({ error: "The app link must start with https://" }, { status: 400 });
+  }
   const paypalEmail = str(form, "paypal_email");
   if (paypalEmail && !email(paypalEmail)) {
     return NextResponse.json({ error: "That PayPal email doesn't look right." }, { status: 400 });
@@ -71,8 +76,8 @@ export async function POST(req: Request) {
   await query(
     `INSERT INTO shops (id, slug, admin_token, seller_email, paypal_email, zapier_hook_url, description,
        product_type, price_cents, shipping_cents, ship_countries, stock, photo_blob, digital_blob,
-       hero_status, spec, ai_source)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17)`,
+       hero_status, spec, ai_source, delivery, access_url)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19)`,
     [
       id, slug, adminToken, email(str(form, "seller_email")), paypalEmail, str(form, "zapier_hook_url"),
       description, productType,
@@ -81,6 +86,7 @@ export async function POST(req: Request) {
       productType === "physical" ? (str(form, "ship_countries")?.toUpperCase() ?? "US") : null,
       productType === "physical" && stock && Number.isInteger(Number(stock)) ? Number(stock) : null,
       photoBlob, digitalBlob, heroPending ? "pending" : "none", JSON.stringify(spec), source,
+      productType === "digital" ? delivery : "file", productType === "digital" ? accessUrl : null,
     ],
   );
 

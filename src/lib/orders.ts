@@ -1,6 +1,6 @@
 import "server-only";
 import { one, query } from "./db";
-import { newId } from "./ids";
+import { accessCode, newId } from "./ids";
 import type { Capture } from "./paypal";
 import type { Order, Shop } from "./shops";
 import { notifyZapier } from "./zapier";
@@ -23,7 +23,8 @@ export async function markPaid(paypalOrderId: string, capture?: Capture): Promis
         buyer_name = COALESCE($4, o.buyer_name),
         shipping_address = COALESCE($5::jsonb, o.shipping_address),
         fulfillment_status = CASE WHEN s.product_type = 'digital' THEN 'digital_sent' ELSE 'to_ship' END,
-        download_token = CASE WHEN s.product_type = 'digital' THEN $6 ELSE NULL END
+        download_token = CASE WHEN s.product_type = 'digital' AND s.delivery = 'file' THEN $6 ELSE NULL END,
+        access_code = CASE WHEN s.product_type = 'digital' AND s.delivery = 'access_code' THEN $7 ELSE NULL END
       FROM shops s
       WHERE o.shop_id = s.id AND o.paypal_order_id = $1 AND o.status <> 'paid'
       RETURNING o.*, s.product_type`,
@@ -34,6 +35,7 @@ export async function markPaid(paypalOrderId: string, capture?: Capture): Promis
       unit?.shipping?.name?.full_name || name || null,
       unit?.shipping?.address ? JSON.stringify(unit.shipping.address) : null,
       newId(24),
+      accessCode(),
     ],
   );
 

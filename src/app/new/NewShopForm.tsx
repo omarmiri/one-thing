@@ -10,6 +10,7 @@ const STAGES = ["Looking at your photo…", "Choosing colours and fonts…", "Wr
 export function NewShopForm({ geminiReady }: { geminiReady: boolean }) {
   const router = useRouter();
   const [kind, setKind] = useState<Kind>("auto");
+  const [delivery, setDelivery] = useState<"file" | "access_code">("file");
   const [preview, setPreview] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [stage, setStage] = useState(0);
@@ -131,11 +132,34 @@ export function NewShopForm({ geminiReady }: { geminiReady: boolean }) {
       </div>
 
       {kind !== "physical" && (
-        <div>
-          <label htmlFor="digital_file" className={label}>File buyers download {kind === "auto" && "(if it's digital)"}</label>
-          <input id="digital_file" name="digital_file" type="file" className={input} />
-          <p className="mt-1.5 text-sm text-muted">Up to 25 MB. You can add or replace it later.</p>
-        </div>
+        <fieldset className="space-y-3">
+          <legend className={label}>How buyers get it {kind === "auto" && "(if it's digital)"}</legend>
+          <div className="grid grid-cols-2 gap-2">
+            {(["file", "access_code"] as const).map((d) => (
+              <label
+                key={d}
+                className={`cursor-pointer rounded-lg border px-3 py-2.5 text-center text-sm ${delivery === d ? "border-accent bg-accent/5 font-semibold" : "border-line bg-white"}`}
+              >
+                <input type="radio" name="delivery" value={d} checked={delivery === d} onChange={() => setDelivery(d)} className="sr-only" />
+                {d === "file" ? "A file to download" : "An access code for my app or game"}
+              </label>
+            ))}
+          </div>
+          {delivery === "file" ? (
+            <div>
+              <input id="digital_file" name="digital_file" type="file" aria-label="File buyers download" className={input} />
+              <p className="mt-1.5 text-sm text-muted">Up to 25 MB. You can add or replace it later.</p>
+            </div>
+          ) : (
+            <div>
+              <input name="access_url" type="url" aria-label="Where buyers use the code" placeholder="https://yourgame.com/play/" className={input} />
+              <p className="mt-1.5 text-sm text-muted">
+                Each buyer gets a unique code and a link here with the code attached. Your app checks codes with
+                OneThing&apos;s verify API.
+              </p>
+            </div>
+          )}
+        </fieldset>
       )}
 
       <div className="grid gap-4 sm:grid-cols-2">

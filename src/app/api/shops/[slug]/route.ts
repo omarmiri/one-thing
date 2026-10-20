@@ -20,6 +20,8 @@ const Settings = z.object({
   seller_email: z.email().nullable().optional(),
   zapier_hook_url: z.url().startsWith("https://").nullable().optional(),
   status: z.enum(["draft", "live"]).optional(),
+  delivery: z.enum(["file", "access_code"]).optional(),
+  access_url: z.url().startsWith("https://").nullable().optional(),
 });
 
 export async function PATCH(req: Request, ctx: RouteContext<"/api/shops/[slug]">) {
@@ -30,8 +32,14 @@ export async function PATCH(req: Request, ctx: RouteContext<"/api/shops/[slug]">
   if (!parsed.success) return NextResponse.json({ error: parsed.error.issues[0]?.message }, { status: 400 });
   const s = parsed.data;
 
-  if (s.status === "live" && shop.product_type === "digital" && !shop.digital_blob) {
-    return NextResponse.json({ error: "Upload the file buyers will download before publishing." }, { status: 400 });
+  if (s.status === "live" && shop.product_type === "digital") {
+    const delivery = s.delivery ?? shop.delivery;
+    if (delivery === "file" && !shop.digital_blob) {
+      return NextResponse.json({ error: "Upload the file buyers will download before publishing." }, { status: 400 });
+    }
+    if (delivery === "access_code" && !(s.access_url ?? shop.access_url)) {
+      return NextResponse.json({ error: "Add the link where buyers use their access code before publishing." }, { status: 400 });
+    }
   }
   await updateShop(shop.id, {
     ...(s.price !== undefined && { price_cents: Math.round(s.price * 100) }),
@@ -42,6 +50,8 @@ export async function PATCH(req: Request, ctx: RouteContext<"/api/shops/[slug]">
     ...(s.seller_email !== undefined && { seller_email: s.seller_email }),
     ...(s.zapier_hook_url !== undefined && { zapier_hook_url: s.zapier_hook_url }),
     ...(s.status && { status: s.status }),
+    ...(s.delivery && shop.product_type === "digital" && { delivery: s.delivery }),
+    ...(s.access_url !== undefined && { access_url: s.access_url }),
   });
   return NextResponse.json({ ok: true });
 }

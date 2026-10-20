@@ -7,6 +7,7 @@ export type ShopView = {
   spec: DesignSpec;
   priceLabel: string;
   shippingLabel: string | null; // null for digital
+  digitalLabel: string;
   shipCountries: string | null;
   stock: number | null;
   photoUrl: string | null;
@@ -160,7 +161,7 @@ function BuyBox({ view, buy, centered }: { view: ShopView; buy: ReactNode; cente
         <span className="shop-heading text-4xl">{view.priceLabel}</span>
         <span style={{ color: "var(--muted)" }}>
           {view.shippingLabel === null
-            ? "Instant download"
+            ? view.digitalLabel
             : view.shippingLabel === "free"
               ? "Free shipping"
               : `+ ${view.shippingLabel} shipping`}

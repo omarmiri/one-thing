@@ -24,6 +24,8 @@ export default async function Manage(props: PageProps<"/manage/[slug]">) {
         name: shop.spec.productName,
         heroStatus: shop.hero_status,
         hasDigitalFile: Boolean(shop.digital_blob),
+        delivery: shop.delivery,
+        accessUrl: shop.access_url,
         aiSource: shop.ai_source,
         settings: {
           price: shop.price_cents / 100,

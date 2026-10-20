@@ -23,6 +23,8 @@ export type Shop = {
   hero_blob: string | null;
   hero_status: "none" | "pending" | "ready" | "failed";
   digital_blob: string | null;
+  delivery: "file" | "access_code";
+  access_url: string | null;
   spec: DesignSpec;
   ai_source: "gemini" | "fallback";
   created_at: string;
@@ -46,6 +48,9 @@ export type Order = {
   tracking_synced: boolean;
   download_token: string | null;
   downloads: number;
+  access_code: string | null;
+  code_uses: number;
+  code_last_used_at: string | null;
   created_at: string;
   paid_at: string | null;
 };
@@ -104,6 +109,8 @@ export function shopView(shop: Shop) {
   return {
     spec: shop.spec,
     priceLabel: money(shop.price_cents, shop.currency),
+    // Digital products show how they're delivered instead of a shipping cost.
+    digitalLabel: shop.delivery === "access_code" ? "Instant access" : "Instant download",
     shippingLabel:
       shop.product_type === "digital" ? null : shop.shipping_cents === 0 ? "free" : money(shop.shipping_cents, shop.currency),
     shipCountries: shop.product_type === "physical" ? shop.ship_countries : null,

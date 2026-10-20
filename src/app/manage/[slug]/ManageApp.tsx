@@ -21,6 +21,8 @@ type Initial = {
   name: string;
   heroStatus: "none" | "pending" | "ready" | "failed";
   hasDigitalFile: boolean;
+  delivery: "file" | "access_code";
+  accessUrl: string | null;
   aiSource: "gemini" | "fallback";
   settings: Settings;
 };
@@ -143,8 +145,11 @@ export function ManageApp(props: {
             onHero={() => setHeroStatus("pending")}
             onToast={setToast}
           />
-          {initial.productType === "digital" && (
+          {initial.productType === "digital" && initial.delivery === "file" && (
             <FilePanel api={api} hasFile={hasFile} onUploaded={() => setHasFile(true)} onToast={setToast} />
+          )}
+          {initial.productType === "digital" && initial.delivery === "access_code" && (
+            <AccessPanel api={api} slug={slug} initialUrl={initial.accessUrl} onToast={setToast} />
           )}
           <SettingsPanel
             api={api}
@@ -303,6 +308,44 @@ function FilePanel(props: { api: Api; hasFile: boolean; onUploaded(): void; onTo
           }
         }}
       />
+    </div>
+  );
+}
+
+function AccessPanel(props: { api: Api; slug: string; initialUrl: string | null; onToast(t: string): void }) {
+  const [url, setUrl] = useState(props.initialUrl ?? "");
+  const [busy, setBusy] = useState(false);
+  const [origin, setOrigin] = useState("");
+  return (
+    <div className={panel}>
+      <h2 className="font-semibold">Access codes</h2>
+      <p className="mt-1 text-sm text-muted">
+        Each buyer gets a unique code. After paying, they&apos;re sent to this link with <code>?code=</code> attached.
+      </p>
+      <form
+        className="mt-3 flex gap-2"
+        onSubmit={async (e) => {
+          e.preventDefault();
+          setBusy(true);
+          try {
+            await props.api("", { method: "PATCH", body: JSON.stringify({ access_url: url.trim() || null }) });
+            props.onToast("Saved");
+          } catch (err) {
+            props.onToast((err as Error).message);
+          } finally {
+            setBusy(false);
+          }
+        }}
+      >
+        <input value={url} onChange={(e) => setUrl(e.target.value)} type="url" placeholder="https://yourgame.com/play/" className={input} />
+        <button disabled={busy} className="rounded-lg bg-foreground px-4 text-sm font-semibold text-background">Save</button>
+      </form>
+      <details className="mt-3 text-sm" onToggle={() => setOrigin(window.location.origin)}>
+        <summary className="cursor-pointer text-muted">How your app checks a code</summary>
+        <pre className="mt-2 overflow-x-auto rounded-lg bg-background p-3 text-xs">{`POST ${origin}/api/access/verify
+{ "shop": "${props.slug}", "code": "K7QF-M2XP-9HTD" }
+→ { "valid": true, "product": "..." }`}</pre>
+      </details>
     </div>
   );
 }

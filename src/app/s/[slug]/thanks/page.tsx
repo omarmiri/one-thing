@@ -3,6 +3,12 @@ import { getOrder, getShopBySlug, money } from "@/lib/shops";
 
 export const dynamic = "force-dynamic";
 
+function withCode(url: string, code: string) {
+  const u = new URL(url);
+  u.searchParams.set("code", code);
+  return u.toString();
+}
+
 export default async function Thanks(props: PageProps<"/s/[slug]/thanks">) {
   const { slug } = await props.params;
   const { order: orderId } = await props.searchParams;
@@ -37,6 +43,28 @@ export default async function Thanks(props: PageProps<"/s/[slug]/thanks">) {
           <p className="mt-3 text-sm" style={{ color: p.muted }}>
             Bookmark this page — the link works 5 times over the next 14 days.
           </p>
+        )}
+
+        {paid && order.access_code && (
+          <div className="mt-8 space-y-4">
+            <div className="rounded-xl p-5" style={{ background: p.background }}>
+              <p className="text-sm" style={{ color: p.muted }}>Your access code</p>
+              <p className="mt-1 select-all font-mono text-3xl font-bold tracking-wider">{order.access_code}</p>
+            </div>
+            {shop.access_url && (
+              <a
+                href={withCode(shop.access_url, order.access_code)}
+                className="inline-block rounded-full px-8 py-4 font-bold"
+                style={{ background: p.accent, color: p.accentText }}
+              >
+                Start now
+              </a>
+            )}
+            <p className="text-sm" style={{ color: p.muted }}>
+              Keep this code. It works on any device. On iPhone, open the link in Safari and tap Share → Add to Home
+              Screen to install it like an app; the installed app asks for the code once.
+            </p>
+          </div>
         )}
 
         {paid && shop.product_type === "physical" && (
