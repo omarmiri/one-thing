@@ -165,3 +165,41 @@ Video: show one of each. The main demo is a physical item (photo → shop → Pa
 - Solo or team?
 - Stack preference (Next.js assumed)?
 - Is the name final? (Check the domain.)
+
+## 8. Next features (planned Oct 20)
+
+Build order: **games → earnings ledger + Payouts → Channel3 → subscriptions**. Channel3 and subscriptions both pay sellers through the same ledger and PayPal Payouts, so that piece is built once and comes first.
+
+### A. Demo products: Raptor Rush and Dragon Flight (your games)
+The point is to have real products in the demo, sold by a real seller.
+- **New ways to deliver a digital product.** Today it's only `file`. Add:
+  - `link`: the buyer gets an access URL after paying.
+  - `license_key`: a unique key per order, plus `GET /api/licenses/verify?shop=&key=` so a game can check it and unlock premium content.
+- **Seed script** (`scripts/seed-demo.mjs`): creates both shops through the API with real screenshots and art from the game repos, so a fresh Render database always has the demo shops.
+- **Open question: what does a buyer actually get?** For example a premium unlock key, a downloadable build (APK or desktop zip), or a supporter pack. If it's a key the game checks, the change to each game belongs in that game's repo, not this one.
+
+### B. Channel3: find a product, pick it, earn referrals
+1. `/new` gets a third choice: **"I don't have a product — find one."** The seller describes a niche, e.g. "gifts for trail runners under $60".
+2. Gemini turns that into 2–3 Channel3 searches with filters such as price. Channel3's own "agentic search" endpoint, which takes long requests, is the alternative.
+3. The server calls `POST https://api.trychannel3.com/v1/search` with `x-api-key` and **`x-user-id: <shop id>`**. Channel3 stamps that id on every buy link, so clicks and commissions are credited to that seller.
+4. The seller sees result cards (image, title, price, retailer, `max_commission_rate`, shown as "earn up to X%") and picks one.
+5. Gemini designs a recommendation page from Channel3's product data, using the same design spec and templates. The new `product_type: 'referral'` has a **Buy at <retailer>** button that uses Channel3's tracked buy link. There's no PayPal checkout on this page.
+6. **Earnings:** the Reporting API (`/v1/reporting/transactions?user_id=<shop id>`, which returns net commission) feeds an `earnings` table. The seller sees it in AG Grid and clicks **Pay out**, which sends their share with **PayPal Payouts** (sandbox).
+   - Retailer purchases won't happen during a demo, so add a clearly labelled "simulate a referral sale" button for the video.
+7. Credits: the hackathon key gets 20,000 searches with code `PAYPAL-HACKATHON-2026`.
+
+Schema: `shops.product_type` gains `'referral'`, plus `channel3_product jsonb` and `buy_url`. New tables:
+- `earnings`: id, shop_id, source (`channel3` | `subscription`), amount, status (`pending` | `paid`), payout_batch_id
+- `payouts`: one row per Payouts batch
+
+### C. Subscriptions
+**Constraint from PayPal's docs:** subscriptions that pay the *seller's* account directly ("platform" subscriptions) are open to **select partners only**. They need seller onboarding and a `PayPal-Auth-Assertion` header on every call. So:
+- **Hackathon approach (works in sandbox now):**
+  - Plans live in OneThing's own PayPal account: Catalog Products API → Billing Plans API (monthly or yearly, optional free trial).
+  - The buyer subscribes with the **JS SDK v5** subscription button. PayPal documents subscriptions for v5 only, so only subscription shops load v5, and other shops keep v6.
+  - Webhooks: `BILLING.SUBSCRIPTION.ACTIVATED / CANCELLED / SUSPENDED` and `PAYMENT.SALE.COMPLETED`. Each payment adds a row to the **earnings** ledger, minus a platform fee (e.g. 5%), and sellers are paid by Payouts, the same pipeline as Channel3.
+- **Delivery:** the subscriber gets an access page or license key that stays valid while the subscription is `ACTIVE`, plus a link to cancel in PayPal.
+- **Production approach:** Partner Referrals onboarding plus `PayPal-Auth-Assertion`, so plans live in the seller's own account and OneThing never holds money. The hackathon approach briefly holds funds between payment and payout, which is fine in sandbox but is a legal question in production. Say so in the write-up.
+- Schema: `shops.billing` (`one_time` | `subscription`), `interval`, `trial_days`, `paypal_product_id`, `paypal_plan_id`. New `subscriptions` table: id, shop_id, paypal_subscription_id, status, buyer, access_token, next_billing_at.
+- Seller UI: "per month / per year" and an optional trial. Gemini's copy adapts ("$2.99/month, cancel anytime").
+- Fits the games well: e.g. **"Raptor Rush Pass, $2.99/mo"** unlocks premium dinos for as long as the subscription is active.
