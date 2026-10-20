@@ -134,7 +134,15 @@ export async function designShop(input: DesignInput): Promise<{ spec: Generated;
       .filter(Boolean)
       .join("\n\n"),
   });
-  return { spec: await generateDesign(parts), source: "gemini" };
+  try {
+    return { spec: await generateDesign(parts), source: "gemini" };
+  } catch (err) {
+    // A photo Gemini can't read (odd encoding, huge, animated) shouldn't sink the whole shop:
+    // design from the words alone instead.
+    if (!input.photo || !/image/i.test(String((err as Error).message))) throw err;
+    console.warn("gemini rejected the photo; designing without it:", (err as Error).message);
+    return { spec: await generateDesign(parts.filter((p) => !("inlineData" in p))), source: "gemini" };
+  }
 }
 
 /** "Make it warmer" → the same spec with that change applied. */

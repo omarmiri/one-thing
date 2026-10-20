@@ -6,7 +6,8 @@ import { isIP } from "node:net";
 // Channel3 doesn't know it. The URL comes from the user, so the server only ever fetches public
 // addresses: no localhost, private ranges or cloud metadata, a few redirects, small bodies.
 
-const MAX_BYTES = 2 * 1024 * 1024;
+const MAX_HTML = 2 * 1024 * 1024;   // a page is still useful cut short
+const MAX_IMAGE = 8 * 1024 * 1024;  // an image is not: too big means skip it
 
 function privateAddress(ip: string): boolean {
   if (isIP(ip) === 6) {
@@ -43,17 +44,19 @@ async function safeFetch(raw: string, accept: string): Promise<Response> {
   throw new Error("Too many redirects.");
 }
 
-async function readCapped(res: Response): Promise<Uint8Array> {
+/** The body, or null if it's over max (truncate=false) / cut at max (truncate=true). */
+async function readCapped(res: Response, max: number, truncate: boolean): Promise<Uint8Array | null> {
   const reader = res.body?.getReader();
-  if (!reader) return new Uint8Array();
+  if (!reader) return truncate ? new Uint8Array() : null;
   const chunks: Uint8Array[] = [];
   let size = 0;
   for (;;) {
     const { done, value } = await reader.read();
     if (done) break;
     size += value.length;
-    if (size > MAX_BYTES) {
+    if (size > max) {
       await reader.cancel();
+      if (!truncate) return null;
       break;
     }
     chunks.push(value);
@@ -82,7 +85,7 @@ const decode = (s: string) =>
 export async function fetchPage(rawUrl: string): Promise<PageInfo> {
   const res = await safeFetch(rawUrl, "text/html,application/xhtml+xml");
   if (!res.ok) throw new Error(`That page answered ${res.status}.`);
-  const html = new TextDecoder().decode(await readCapped(res));
+  const html = new TextDecoder().decode((await readCapped(res, MAX_HTML, true)) ?? new Uint8Array());
   const title = decode(meta(html, "og:title") ?? html.match(/<title[^>]*>([^<]*)<\/title>/i)?.[1]?.trim() ?? "") || null;
   const description = decode(meta(html, "og:description") ?? meta(html, "description") ?? "") || null;
   const text = decode(
@@ -102,7 +105,9 @@ export async function fetchImage(url: string): Promise<{ data: Uint8Array; mime:
   try {
     const res = await safeFetch(url, "image/*");
     const mime = res.headers.get("content-type")?.split(";")[0] ?? "";
-    return res.ok && /^image\/(jpeg|png|webp|gif)$/.test(mime) ? { data: await readCapped(res), mime } : null;
+    if (!res.ok || !/^image\/(jpeg|png|webp|gif)$/.test(mime)) return null;
+    const data = await readCapped(res, MAX_IMAGE, false);
+    return data?.length ? { data, mime } : null;
   } catch {
     return null;
   }
