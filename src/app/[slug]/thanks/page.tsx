@@ -1,5 +1,7 @@
 import { notFound } from "next/navigation";
-import { getOrder, getShopBySlug, money } from "@/lib/shops";
+import { markPaid } from "@/lib/orders";
+import { captureOrder } from "@/lib/paypal";
+import { getOrder, getShopBySlug, money, type Order } from "@/lib/shops";
 
 export const dynamic = "force-dynamic";
 
@@ -11,10 +13,16 @@ function withCode(url: string, code: string) {
 
 export default async function Thanks(props: PageProps<"/[slug]/thanks">) {
   const { slug } = await props.params;
-  const { order: orderId } = await props.searchParams;
+  const { order: orderId, token } = await props.searchParams;
   const shop = await getShopBySlug(slug);
-  const order = typeof orderId === "string" ? await getOrder(orderId) : null;
+  let order = typeof orderId === "string" ? await getOrder(orderId) : null;
   if (!shop || !order || order.shop_id !== shop.id) notFound();
+
+  // Phones often come back from PayPal by redirect (return_url + ?token=<PayPal order id>)
+  // rather than through the popup callback, so nothing has captured the payment yet. Do it here.
+  if (order.status !== "paid" && typeof token === "string" && token === order.paypal_order_id) {
+    order = (await captureOnReturn(order)) ?? order;
+  }
 
   const p = shop.spec.palette;
   const paid = order.status === "paid";
@@ -100,4 +108,17 @@ export default async function Thanks(props: PageProps<"/[slug]/thanks">) {
       </div>
     </div>
   );
+}
+
+async function captureOnReturn(order: Order): Promise<Order | null> {
+  try {
+    const cap = await captureOrder(order.paypal_order_id!);
+    const c = cap.purchase_units?.[0]?.payments?.captures?.[0];
+    if (cap.status !== "COMPLETED" || !c || c.status === "DECLINED") return null;
+    await markPaid(order.paypal_order_id!, cap);
+    return getOrder(order.id);
+  } catch (err) {
+    console.error("capture on return failed:", err);
+    return null;
+  }
 }

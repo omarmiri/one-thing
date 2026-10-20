@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS shops (
   paypal_merchant_id text,                            -- set by Partner Referrals onboarding; wins over paypal_email
   zapier_hook_url text,
   description     text NOT NULL,                      -- what the seller typed
-  product_type    text NOT NULL,                      -- digital | physical
+  product_type    text NOT NULL,                      -- digital | physical | referral
   price_cents     integer NOT NULL,
   currency        text NOT NULL DEFAULT 'USD',
   shipping_cents  integer NOT NULL DEFAULT 0,
@@ -76,6 +76,11 @@ ALTER TABLE shops  ADD COLUMN IF NOT EXISTS access_url text;                    
 ALTER TABLE orders ADD COLUMN IF NOT EXISTS access_code text UNIQUE;
 ALTER TABLE orders ADD COLUMN IF NOT EXISTS code_uses integer NOT NULL DEFAULT 0;
 ALTER TABLE orders ADD COLUMN IF NOT EXISTS code_last_used_at timestamptz;
+
+-- Referral shops (product_type 'referral'): a Channel3 product the seller recommends. Buyers
+-- purchase at the retailer through Channel3's tracked links; the shop earns the commission.
+ALTER TABLE shops ADD COLUMN IF NOT EXISTS referral jsonb;          -- src/lib/channel3.ts Referral
+ALTER TABLE shops ADD COLUMN IF NOT EXISTS source_url text;         -- the link the seller pasted
 
 -- Every link name a shop has had (the current one is shops.slug). Old names redirect.
 CREATE TABLE IF NOT EXISTS shop_slugs (

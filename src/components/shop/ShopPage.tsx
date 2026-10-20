@@ -1,5 +1,7 @@
 import type { CSSProperties, ReactNode } from "react";
 import { fontsHref, type DesignSpec } from "@/lib/design";
+import type { Referral } from "@/lib/channel3";
+import { PayOnPhone } from "./PayOnPhone";
 
 // Renders a design spec. Server component, no client JS except the buy button passed in.
 
@@ -12,6 +14,8 @@ export type ShopView = {
   stock: number | null;
   photoUrl: string | null;
   heroUrl: string | null;
+  referral: Referral | null; // a recommendation: buyers purchase at the retailer
+  shareUrl?: string | null; // absolute link, for the pay-on-your-phone QR code
 };
 
 export function ShopPage({ view, buy }: { view: ShopView; buy: ReactNode }) {
@@ -153,7 +157,39 @@ function Hero({ view, buy }: { view: ShopView; buy: ReactNode }) {
   }
 }
 
+const fmt = (n: number, c: string) => new Intl.NumberFormat("en-US", { style: "currency", currency: c }).format(n);
+
+/** Recommendations: one button per retailer, through Channel3's tracked links. */
+function RetailerBox({ referral, centered }: { referral: Referral; centered?: boolean }) {
+  const [best, ...rest] = referral.offers;
+  return (
+    <div className={`buybox flex flex-col gap-3 pt-2 ${centered ? "items-center" : ""}`}>
+      <span className="shop-heading text-4xl">{fmt(best.price, best.currency)}</span>
+      <a href={best.url} target="_blank" rel="sponsored noopener" className="shop-buy block max-w-sm text-center">
+        Buy at {best.domain}
+      </a>
+      {rest.length > 0 && (
+        <p className="text-sm" style={{ color: "var(--muted)" }}>
+          Also at{" "}
+          {rest.map((o, i) => (
+            <span key={o.domain}>
+              {i > 0 && ", "}
+              <a href={o.url} target="_blank" rel="sponsored noopener" className="underline">
+                {o.domain} {fmt(o.price, o.currency)}
+              </a>
+            </span>
+          ))}
+        </p>
+      )}
+      <p className="text-xs" style={{ color: "var(--muted)" }}>
+        A recommendation. If you buy through these links, this shop may earn a commission at no cost to you.
+      </p>
+    </div>
+  );
+}
+
 function BuyBox({ view, buy, centered }: { view: ShopView; buy: ReactNode; centered?: boolean }) {
+  if (view.referral?.offers.length) return <RetailerBox referral={view.referral} centered={centered} />;
   const soldOut = view.stock !== null && view.stock <= 0;
   return (
     <div className={`buybox flex flex-col gap-3 pt-2 ${centered ? "items-center" : ""}`}>
@@ -177,6 +213,7 @@ function BuyBox({ view, buy, centered }: { view: ShopView; buy: ReactNode; cente
         {view.shipCountries && `Ships to ${view.shipCountries.split(",").join(", ")} · `}
         Secure checkout with PayPal
       </p>
+      {!centered && !soldOut && view.shareUrl && <PayOnPhone url={view.shareUrl} />}
     </div>
   );
 }

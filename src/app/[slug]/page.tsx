@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound, permanentRedirect } from "next/navigation";
 import { BuyButton } from "@/components/shop/BuyButton";
 import { ShopPage } from "@/components/shop/ShopPage";
-import { tokensMatch } from "@/lib/ids";
+import { appUrl, tokensMatch } from "@/lib/ids";
 import { sdkUrl } from "@/lib/paypal";
 import { getShopBySlug, shopView } from "@/lib/shops";
 
@@ -32,11 +32,11 @@ export default async function Shop(props: PageProps<"/[slug]">) {
     <>
       {shop.status !== "live" && (
         <div className="sticky top-0 z-10 bg-amber-300 px-4 py-2 text-center text-sm font-medium text-black">
-          Draft preview — only you can see this. Publish it from your manage page.
+          Draft preview: only you can see this. Go live from your manage page.
         </div>
       )}
       <ShopPage
-        view={shopView(shop)}
+        view={{ ...shopView(shop), shareUrl: `${appUrl()}/${shop.slug}` }}
         buy={
           shop.status === "live" ? (
             <BuyButton slug={shop.slug} clientId={process.env.PAYPAL_CLIENT_ID ?? null} sdkUrl={sdkUrl()} label={shop.spec.ctaLabel} />

@@ -10,6 +10,7 @@ export async function POST(req: Request) {
   const body = (await req.json().catch(() => null)) as { slug?: string } | null;
   const shop = body?.slug ? await getShopBySlug(body.slug) : null;
   if (!shop || shop.status !== "live") return NextResponse.json({ error: "Shop not found." }, { status: 404 });
+  if (shop.product_type === "referral") return NextResponse.json({ error: "This product is bought at the retailer." }, { status: 400 });
   if (shop.stock !== null && shop.stock <= 0) return NextResponse.json({ error: "Sold out." }, { status: 409 });
 
   const localId = newId();

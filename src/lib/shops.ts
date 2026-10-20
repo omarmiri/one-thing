@@ -2,6 +2,7 @@ import "server-only";
 import { one, query } from "./db";
 import { newId, tokensMatch } from "./ids";
 import { DesignSpec } from "./design";
+import type { Referral } from "./channel3";
 
 export type Shop = {
   id: string;
@@ -13,7 +14,7 @@ export type Shop = {
   paypal_merchant_id: string | null;
   zapier_hook_url: string | null;
   description: string;
-  product_type: "digital" | "physical";
+  product_type: "digital" | "physical" | "referral";
   price_cents: number;
   currency: string;
   shipping_cents: number;
@@ -25,6 +26,8 @@ export type Shop = {
   digital_blob: string | null;
   delivery: "file" | "access_code";
   access_url: string | null;
+  referral: Referral | null;
+  source_url: string | null;
   spec: DesignSpec;
   ai_source: "gemini" | "fallback";
   created_at: string;
@@ -137,7 +140,8 @@ export function shopView(shop: Shop) {
     // Digital products show how they're delivered instead of a shipping cost.
     digitalLabel: shop.delivery === "access_code" ? "Instant access" : "Instant download",
     shippingLabel:
-      shop.product_type === "digital" ? null : shop.shipping_cents === 0 ? "free" : money(shop.shipping_cents, shop.currency),
+      shop.product_type !== "physical" ? null : shop.shipping_cents === 0 ? "free" : money(shop.shipping_cents, shop.currency),
+    referral: shop.product_type === "referral" ? shop.referral : null,
     shipCountries: shop.product_type === "physical" ? shop.ship_countries : null,
     stock: shop.product_type === "physical" ? shop.stock : null,
     photoUrl: blobUrl(shop.photo_blob),

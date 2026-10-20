@@ -119,7 +119,9 @@ export type Capture = {
 export const captureOrder = (paypalOrderId: string) =>
   call<Capture>("capture order", `/v2/checkout/orders/${encodeURIComponent(paypalOrderId)}/capture`, {
     method: "POST",
-    requestId: `capture-${paypalOrderId}`,
+    // Unique per attempt: a fixed id would make PayPal replay a cached decline when the buyer
+    // retries the same order with another card. PayPal itself refuses to capture an order twice.
+    requestId: `capture-${paypalOrderId}-${Date.now().toString(36)}`,
   });
 
 export const CARRIERS = ["USPS", "UPS", "FEDEX", "DHL", "OTHER"] as const;

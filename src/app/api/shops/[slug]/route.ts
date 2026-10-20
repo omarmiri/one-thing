@@ -24,6 +24,7 @@ const Settings = z.object({
   delivery: z.enum(["file", "access_code"]).optional(),
   access_url: z.url().startsWith("https://").nullable().optional(),
   slug: z.string().max(60).optional(),
+  product_type: z.enum(["physical", "digital", "referral"]).optional(),
 });
 
 export async function PATCH(req: Request, ctx: RouteContext<"/api/shops/[slug]">) {
@@ -34,7 +35,11 @@ export async function PATCH(req: Request, ctx: RouteContext<"/api/shops/[slug]">
   if (!parsed.success) return NextResponse.json({ error: parsed.error.issues[0]?.message }, { status: 400 });
   const s = parsed.data;
 
-  if (s.status === "live" && shop.product_type === "digital") {
+  const kind = s.product_type ?? shop.product_type;
+  if (kind === "referral" && !shop.referral?.offers.length) {
+    return NextResponse.json({ error: "Only products found through Channel3 can be recommendations." }, { status: 400 });
+  }
+  if (s.status === "live" && kind === "digital") {
     const delivery = s.delivery ?? shop.delivery;
     if (delivery === "file" && !shop.digital_blob) {
       return NextResponse.json({ error: "Upload the file buyers will download before publishing." }, { status: 400 });
@@ -54,14 +59,15 @@ export async function PATCH(req: Request, ctx: RouteContext<"/api/shops/[slug]">
   await updateShop(shop.id, {
     ...(slug && { slug }),
     ...(s.price !== undefined && { price_cents: Math.round(s.price * 100) }),
-    ...(s.shipping !== undefined && shop.product_type === "physical" && { shipping_cents: Math.round(s.shipping * 100) }),
+    ...(s.product_type && { product_type: s.product_type }),
+    ...(s.shipping !== undefined && kind === "physical" && { shipping_cents: Math.round(s.shipping * 100) }),
     ...(s.stock !== undefined && { stock: s.stock }),
     ...(s.ship_countries !== undefined && { ship_countries: s.ship_countries?.toUpperCase() ?? null }),
     ...(s.paypal_email !== undefined && { paypal_email: s.paypal_email }),
     ...(s.seller_email !== undefined && { seller_email: s.seller_email }),
     ...(s.zapier_hook_url !== undefined && { zapier_hook_url: s.zapier_hook_url }),
     ...(s.status && { status: s.status }),
-    ...(s.delivery && shop.product_type === "digital" && { delivery: s.delivery }),
+    ...(s.delivery && kind === "digital" && { delivery: s.delivery }),
     ...(s.access_url !== undefined && { access_url: s.access_url }),
   });
   return NextResponse.json({ ok: true, slug: slug ?? shop.slug });

@@ -29,13 +29,13 @@ export const DesignSpec = z.object({
   }),
   fonts: z.object({ heading: z.enum(HEADING_FONTS), body: z.enum(BODY_FONTS) }),
   eyebrow: z.string().max(40),
-  headline: z.string().max(90),
-  subheadline: z.string().max(200),
-  story: z.string().max(900),
-  bullets: z.array(z.string().max(120)).min(2).max(5),
+  headline: z.string().max(70),
+  subheadline: z.string().max(160),
+  story: z.string().max(480),
+  bullets: z.array(z.string().max(100)).min(2).max(4),
   // Physical: materials, size, care. Digital: what's inside, format, length.
-  details: z.array(z.object({ label: z.string().max(30), value: z.string().max(120) })).max(6),
-  faq: z.array(z.object({ q: z.string().max(140), a: z.string().max(400) })).min(2).max(5),
+  details: z.array(z.object({ label: z.string().max(30), value: z.string().max(100) })).max(5),
+  faq: z.array(z.object({ q: z.string().max(120), a: z.string().max(300) })).min(2).max(4),
   ctaLabel: z.string().max(28),
   suggestedPriceUsd: z.number().min(0.5).max(10000),
   suggestedShippingUsd: z.number().min(0).max(500),
@@ -45,8 +45,17 @@ export const DesignSpec = z.object({
 });
 export type DesignSpec = z.infer<typeof DesignSpec>;
 
+/** What Gemini returns: the spec plus its guesses for the seller's setup step. */
+export const Generated = DesignSpec.extend({
+  // A short, memorable shop link: lowercase letters/numbers, 3–20 chars, dashes only if needed.
+  suggestedLink: z.string().max(30),
+  // For digital products: a downloadable file, or an access code for an app/game/web course.
+  digitalDelivery: z.enum(["file", "access_code"]),
+});
+export type Generated = z.infer<typeof Generated>;
+
 /** JSON Schema for Gemini's responseJsonSchema, derived from the zod schema so they can't drift. */
-export function designJsonSchema(): object {
+export function designJsonSchema(schema: z.ZodType = Generated): object {
   const strip = (node: unknown): unknown => {
     if (Array.isArray(node)) return node.map(strip);
     if (node && typeof node === "object") {
@@ -60,7 +69,7 @@ export function designJsonSchema(): object {
     }
     return node;
   };
-  return strip(z.toJSONSchema(DesignSpec)) as object;
+  return strip(z.toJSONSchema(schema)) as object;
 }
 
 // ---- Contrast guard: Gemini picks good palettes, but not always readable ones. ----

@@ -1,6 +1,6 @@
 import "server-only";
-import { GoogleGenAI } from "@google/genai";
-import { DesignSpec, designJsonSchema, ensureReadable, fallbackSpec, LAYOUTS } from "./design";
+import { GoogleGenAI, ThinkingLevel } from "@google/genai";
+import { DesignSpec, designJsonSchema, ensureReadable, fallbackSpec, Generated, LAYOUTS } from "./design";
 
 // Model ids differ by key and change over time — `npm run gemini:models` lists yours.
 const TEXT_MODEL = process.env.GEMINI_MODEL ?? "gemini-flash-latest";
@@ -10,100 +10,196 @@ export const geminiEnabled = () => Boolean(process.env.GEMINI_API_KEY);
 const client = () => new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
 
 export type Photo = { data: Uint8Array; mime: string };
+const inline = (p: Photo) => ({ inlineData: { mimeType: p.mime, data: Buffer.from(p.data).toString("base64") } });
 
-const DESIGNER_BRIEF = `You are the designer and copywriter for a one-product online shop.
+const DESIGNER_BRIEF = `You are the art director and copywriter for a one-product shop page.
 You return a JSON design spec that our templates render — never HTML.
 
-Design:
-- Choose the layout that suits the product: ${LAYOUTS.join(", ")}.
-  bold-hero = big product photo, punchy; editorial = magazine, story-led, premium;
-  minimal = lots of whitespace, quiet luxury or tech; playful = rounded, colourful, fun.
-- Build the palette from the product photo's own colours. Background and text must be highly
-  readable (contrast 7:1); accent is the buy button colour, accentText sits on it.
-- Pick a heading/body font pair that matches the mood.
+TASTE. Quiet confidence over decoration. One idea per page. Restraint reads as premium.
 
-Copy (plain text, no markdown, no emoji, no invented reviews or awards, no false claims):
-- eyebrow: 2–4 words above the headline. headline: under 10 words, specific to THIS product.
-- story: 2 short paragraphs separated by a blank line, in the seller's voice.
-- bullets: 3–5 concrete benefits. details: physical → materials, size, care;
-  digital → what's inside, format, length. Only state facts the seller gave or the photo shows;
-  leave a detail out rather than guess a measurement.
-- faq: 3–4 questions a buyer would really ask (shipping or delivery, returns, use).
-- suggestedPriceUsd / suggestedShippingUsd: realistic for this product (shipping 0 if digital).
-- heroPrompt: describe a lifestyle or backdrop scene for this product, in the palette, for an
-  image model. No text in the image.`;
+Palette (build it from the product photo):
+- background: a calm tinted neutral pulled from the photo, never pure #ffffff and never a loud
+  saturated colour. Go dark (deep charcoal, ink, forest) when the product or photo is moody,
+  nocturnal, gaming or luxury; light (paper, stone, warm white) otherwise.
+- surface: one step lighter or darker than background, for cards.
+- text: near-black on light, near-white on dark (contrast at least 7:1). muted: same hue, softer.
+- accent: the single most distinctive colour in the photo, adjusted until it reads clearly on the
+  background. It is used only for the buy button and tiny details. accentText sits on it.
 
-async function generateJson(parts: object[]): Promise<DesignSpec> {
-  const res = await client().models.generateContent({
-    model: TEXT_MODEL,
-    contents: [{ role: "user", parts }],
-    config: {
-      responseMimeType: "application/json",
-      responseJsonSchema: designJsonSchema(),
-      temperature: 0.9,
-    },
-  });
-  const spec = DesignSpec.parse(JSON.parse(res.text ?? ""));
-  return ensureReadable(spec);
+Type: pair one characterful heading font with a quiet body font.
+- Premium, crafted, editorial: Fraunces or Playfair Display or DM Serif Display + Inter or Lora.
+- Modern, tech, digital, minimal: Space Grotesk or Bricolage Grotesque + Inter or IBM Plex Sans.
+- Bold, games, sport, loud: Archivo Black or Syne + DM Sans or Work Sans.
+- Playful, kids, handmade fun: Caveat Brush or Bricolage Grotesque + Nunito.
+
+Layout: ${LAYOUTS.join(", ")}.
+bold-hero = big image first, punchy (games, sport, dramatic photos); editorial = magazine,
+story-led (crafted, premium); minimal = whitespace, quiet (tech, beauty, design objects);
+playful = rounded, colourful (kids, gifts, fun).
+
+COPY. Plain text, sentence case, no markdown, no emoji. Specific beats clever.
+- Never use: elevate, unleash, unlock your, game-changer, seamless, ultimate, revolutionary,
+  "look no further", "take it to the next level", exclamation marks.
+- No invented reviews, awards, statistics or guarantees. Only facts the seller gave, the page
+  shows, or the photo makes obvious. Leave a detail out rather than guess a measurement.
+- productName: the real name, short. eyebrow: 2–4 words of category or context.
+- headline: at most 8 words, about what the buyer gets, not the product's name again.
+- subheadline: one sentence, at most 22 words.
+- story: two or three short sentences in the seller's voice. Why it exists, who it's for.
+- bullets: exactly 3, each at most 12 words, concrete.
+- details: physical → materials, size, care; digital → what's included, format, platform.
+- faq: 3 questions a real buyer asks (delivery, returns or refunds, use).
+- ctaLabel: 2–4 words, e.g. "Get it now", "Play now", "Buy the mug".
+- suggestedPriceUsd / suggestedShippingUsd: realistic (shipping 0 for digital).
+- heroPrompt: a lifestyle or backdrop scene for this product, in the palette, for an image
+  model. Photographic, no text.
+
+SETUP GUESSES (the seller confirms them next):
+- suggestedLink: a short memorable link name, lowercase, 3–20 characters, like "raptorrush" or
+  "bluemug". Prefer one word; use a dash only if it reads badly without.
+- digitalDelivery: "access_code" for games, apps, software, memberships and online courses the
+  buyer uses on a website; "file" for downloads (PDFs, presets, templates, music, photos).`;
+
+// Thinking makes designs slower without making them better. Gemini 3 takes thinkingLevel,
+// 2.5 takes thinkingBudget, others take neither; try in that order and remember what worked.
+const THINKING = [
+  { thinkingConfig: { thinkingLevel: ThinkingLevel.LOW } },
+  { thinkingConfig: { thinkingBudget: 0 } },
+  {},
+];
+let thinkingIndex = 0;
+
+async function generate(parts: object[], extra: object) {
+  for (;;) {
+    try {
+      return await client().models.generateContent({
+        model: TEXT_MODEL,
+        contents: [{ role: "user", parts }],
+        config: { ...THINKING[thinkingIndex], ...extra },
+      });
+    } catch (err) {
+      const msg = String((err as Error).message ?? err);
+      if (thinkingIndex < THINKING.length - 1 && /thinking/i.test(msg)) {
+        thinkingIndex++;
+        continue;
+      }
+      throw err;
+    }
+  }
 }
 
-/** Photo + the seller's sentence → a full design spec. */
-export async function designShop(input: {
-  description: string;
+async function generateDesign(parts: object[]): Promise<Generated> {
+  const t0 = Date.now();
+  const res = await generate(parts, {
+    responseMimeType: "application/json",
+    responseJsonSchema: designJsonSchema(),
+    temperature: 0.8,
+  });
+  const out = Generated.parse(JSON.parse(res.text ?? ""));
+  console.info(`gemini design: ${TEXT_MODEL} in ${((Date.now() - t0) / 1000).toFixed(1)}s`);
+  return { ...out, ...ensureReadable(out) };
+}
+
+export type DesignInput = {
   type: "digital" | "physical" | "auto";
+  description?: string | null;
   photo?: Photo;
-}): Promise<{ spec: DesignSpec; source: "gemini" | "fallback" }> {
+  // Text gathered from a pasted link (the seller's own page) or a Channel3 product.
+  context?: string | null;
+  /** Recommending someone else's product (Channel3 referral) rather than selling your own. */
+  referral?: boolean;
+};
+
+/** Everything the seller gave us → a full design spec plus setup guesses. */
+export async function designShop(input: DesignInput): Promise<{ spec: Generated; source: "gemini" | "fallback" }> {
   if (!geminiEnabled()) {
-    return { spec: fallbackSpec(input.description, input.type === "digital" ? "digital" : "physical"), source: "fallback" };
+    const type = input.type === "digital" ? "digital" : "physical";
+    // Without Gemini: name it from the seller's words, or the page/product title we found.
+    const titled = input.context?.match(/^(?:Title|Product): (.+)$/m)?.[1];
+    const base = fallbackSpec(input.description || titled || "My product", type);
+    return { spec: { ...base, suggestedLink: "", digitalDelivery: "file" }, source: "fallback" };
   }
   const parts: object[] = [{ text: DESIGNER_BRIEF }];
-  if (input.photo) {
-    parts.push({ inlineData: { mimeType: input.photo.mime, data: Buffer.from(input.photo.data).toString("base64") } });
-  }
+  if (input.photo) parts.push(inline(input.photo));
   parts.push({
-    text:
-      `Seller's description: """${input.description}"""\n` +
-      (input.type === "auto"
-        ? "Decide productType from the photo and description."
-        : `productType must be "${input.type}".`),
+    text: [
+      input.description ? `The seller says: """${input.description}"""` : "The seller gave no description: work from the photo and context.",
+      input.context ? `What we know about the product:\n"""${input.context}"""` : "",
+      input.referral
+        ? "This is a recommendation page: the seller curates someone else's product and buyers purchase it at the " +
+          "retailer. Write as a trusted recommendation (why it's worth buying), not as the maker. FAQ about where it ships from and returns: answer that the retailer handles them."
+        : "",
+      input.type === "auto" ? "Decide productType from everything above." : `productType must be "${input.type}".`,
+    ]
+      .filter(Boolean)
+      .join("\n\n"),
   });
-  return { spec: await generateJson(parts), source: "gemini" };
+  return { spec: await generateDesign(parts), source: "gemini" };
 }
 
 /** "Make it warmer" → the same spec with that change applied. */
 export async function refineShop(spec: DesignSpec, instruction: string): Promise<DesignSpec> {
   if (!geminiEnabled()) throw new Error("Set GEMINI_API_KEY to edit the design with AI.");
-  const refined = await generateJson([
+  const refined = await generateDesign([
     { text: DESIGNER_BRIEF },
     { text: `Current spec:\n${JSON.stringify(spec)}` },
     {
       text:
         `The seller asks: """${instruction}"""\n` +
         "Return the full spec with that change applied. Keep everything they didn't ask to change, " +
-        "including productType and productName.",
+        "including productType and productName. Keep suggestedLink and digitalDelivery as they were if present.",
     },
   ]);
-  return { ...refined, productType: spec.productType };
+  const { suggestedLink: _l, digitalDelivery: _d, ...rest } = refined;
+  return { ...rest, productType: spec.productType };
 }
 
-/** Hero art from the seller's photo. Returns null if the model returned no image. */
-export async function heroImage(spec: DesignSpec, photo?: Photo): Promise<Photo | null> {
-  if (!geminiEnabled() || !spec.heroPrompt) return null;
-  const parts: object[] = [];
-  if (photo) {
-    parts.push({ inlineData: { mimeType: photo.mime, data: Buffer.from(photo.data).toString("base64") } });
+// ---- Hero art ---------------------------------------------------------------------------------
+
+// The configured image model may not exist for this key. On a "not found" we look one up from
+// the key's own model list and remember it for the life of the process.
+let imageModel: string | null = null;
+
+async function findImageModel(): Promise<string | null> {
+  const names: string[] = [];
+  for await (const m of await client().models.list()) {
+    if (m.name && /image/i.test(m.name) && m.supportedActions?.includes("generateContent")) names.push(m.name.replace(/^models\//, ""));
   }
-  parts.push({
-    text:
-      `${spec.heroPrompt}\n\nWide 16:9 hero image for a product landing page.` +
-      (photo ? " Feature this exact product, unchanged, as the subject." : "") +
-      " Photographic, soft natural light, no text, no logos, no watermark.",
-  });
-  const res = await client().models.generateContent({
-    model: IMAGE_MODEL,
+  // Prefer fast "flash" image models, then anything else that makes images.
+  names.sort((a, b) => Number(/flash/.test(b)) - Number(/flash/.test(a)));
+  console.info(`gemini image models available: ${names.join(", ") || "none"}`);
+  return names[0] ?? null;
+}
+
+async function imageCall(model: string, parts: object[]) {
+  return client().models.generateContent({
+    model,
     contents: [{ role: "user", parts }],
     config: { responseModalities: ["IMAGE", "TEXT"] },
   });
+}
+
+/** Hero art from the seller's photo. Returns null if no image model can make one. */
+export async function heroImage(spec: DesignSpec, photo?: Photo): Promise<Photo | null> {
+  if (!geminiEnabled() || !spec.heroPrompt) return null;
+  const parts: object[] = [];
+  if (photo) parts.push(inline(photo));
+  parts.push({
+    text:
+      `${spec.heroPrompt}\n\nWide 16:9 hero image for a product landing page, colours ${spec.palette.background} and ${spec.palette.accent}.` +
+      (photo ? " Feature this exact product, unchanged, as the subject." : "") +
+      " Photographic, soft natural light, generous negative space, no text, no logos, no watermark.",
+  });
+  let res;
+  try {
+    res = await imageCall(imageModel ?? IMAGE_MODEL, parts);
+  } catch (err) {
+    const msg = String((err as Error).message ?? err);
+    if (imageModel || !/not found|404|not supported|unsupported/i.test(msg)) throw err;
+    imageModel = await findImageModel();
+    if (!imageModel) return null;
+    res = await imageCall(imageModel, parts);
+  }
   for (const part of res.candidates?.[0]?.content?.parts ?? []) {
     if (part.inlineData?.data) {
       return { data: Buffer.from(part.inlineData.data, "base64"), mime: part.inlineData.mimeType ?? "image/png" };
