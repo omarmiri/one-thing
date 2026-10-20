@@ -103,7 +103,9 @@ export async function POST(req: Request) {
     });
   } catch (err) {
     console.error("Gemini design failed:", err);
-    return fail("The AI designer hit a snag. Please try again.", 502);
+    // The model's own message (no secrets in it) makes "hit a snag" debuggable from the browser.
+    const detail = String((err as Error).message ?? err).replace(/\s+/g, " ").slice(0, 300);
+    return NextResponse.json({ error: "The AI designer hit a snag. Please try again.", detail }, { status: 502 });
   }
   const { spec: generated, source: aiSource } = design;
   const { suggestedLink, digitalDelivery, ...spec } = generated;
