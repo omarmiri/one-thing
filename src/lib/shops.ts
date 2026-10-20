@@ -23,6 +23,7 @@ export type Shop = {
   photo_blob: string | null;
   hero_blob: string | null;
   hero_status: "none" | "pending" | "ready" | "failed";
+  hero_error: string | null;
   digital_blob: string | null;
   delivery: "file" | "access_code";
   access_url: string | null;

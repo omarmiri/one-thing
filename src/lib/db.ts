@@ -81,6 +81,7 @@ ALTER TABLE orders ADD COLUMN IF NOT EXISTS code_last_used_at timestamptz;
 -- purchase at the retailer through Channel3's tracked links; the shop earns the commission.
 ALTER TABLE shops ADD COLUMN IF NOT EXISTS referral jsonb;          -- src/lib/channel3.ts Referral
 ALTER TABLE shops ADD COLUMN IF NOT EXISTS source_url text;         -- the link the seller pasted
+ALTER TABLE shops ADD COLUMN IF NOT EXISTS hero_error text;         -- why hero art failed, for the seller/debugging
 
 -- Every link name a shop has had (the current one is shops.slug). Old names redirect.
 CREATE TABLE IF NOT EXISTS shop_slugs (

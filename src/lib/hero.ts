@@ -8,13 +8,14 @@ export async function generateHero(shop: Pick<Shop, "id" | "spec" | "photo_blob"
     const photo = shop.photo_blob ? await getBlob(shop.photo_blob) : null;
     const img = await heroImage(shop.spec, photo ? { data: photo.data, mime: photo.mime } : undefined);
     if (!img) {
-      await updateShop(shop.id, { hero_status: "failed" });
+      await updateShop(shop.id, { hero_status: "failed", hero_error: "No image model on this key returned an image." });
       return;
     }
     const blob = await saveBlob(img.data, img.mime, "hero");
-    await updateShop(shop.id, { hero_blob: blob, hero_status: "ready" });
+    await updateShop(shop.id, { hero_blob: blob, hero_status: "ready", hero_error: null });
   } catch (err) {
     console.error("hero image failed:", err);
-    await updateShop(shop.id, { hero_status: "failed" });
+    const msg = String((err as Error).message ?? err).replace(/\s+/g, " ").slice(0, 400);
+    await updateShop(shop.id, { hero_status: "failed", hero_error: msg });
   }
 }
