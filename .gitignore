@@ -43,3 +43,8 @@ next-env.d.ts
 # allow the template
 !.env.example
 
+
+# APIMatic CLI output (regenerated from apimatic/src)
+/apimatic/portal/
+/apimatic/sdk/
+/apimatic/plugin/

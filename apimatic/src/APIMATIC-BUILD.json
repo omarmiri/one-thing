@@ -1,0 +1,52 @@
+{
+  "$schema": "https://titan.apimatic.io/api/build/schema",
+  "buildFileVersion": "1",
+  "generatePortal": {
+    "debug": {
+      "publishReport": true
+    },
+    "pageTitle": "OneThing API",
+    "navTitle": "OneThing Developers",
+    "logoUrl": "static/images/logo.png",
+    "logoLink": "https://one-thing-ash0.onrender.com",
+    "languageConfig": {
+      "typescript": {
+        "packageRepository": "Npm",
+        "packageSettings": {
+          "PackageName": "one-thing-sdk",
+          "Version": "1.0.0"
+        }
+      },
+      "python": {
+        "packageRepository": "PyPI",
+        "packageSettings": {
+          "PackageName": "one-thing-sdk",
+          "Version": "1.0.0"
+        }
+      },
+      "http": {}
+    },
+    "portalSettings": {
+      "enableHttpVerbsForAllLangs": true,
+      "enableExport": true,
+      "enableConsoleCalls": true,
+      "theme": {
+        "baseTheme": "cosmos",
+        "colorMode": {
+          "defaultMode": "light",
+          "disableSwitch": false
+        },
+        "colors": {
+          "primaryColor": {
+            "light": "#1F4FD8",
+            "dark": "#8EA8FF"
+          },
+          "linkColor": {
+            "light": "#1F4FD8",
+            "dark": "#A9BDFF"
+          }
+        }
+      }
+    }
+  }
+}

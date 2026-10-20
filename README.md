@@ -73,6 +73,8 @@ PayPal ──► POST /api/paypal/webhook               → signature verified �
 | **AG Grid** | The seller's orders table (sort, filter, search, mark shipped) |
 | **Zapier** | Optional per-shop Catch Hook: every paid or shipped order is posted to it, for Sheets, Slack, label printing |
 | **Postman** | [postman/one-thing.postman_collection.json](postman/one-thing.postman_collection.json) covers the whole API |
+| **APIMatic** | OneThing's API is described in OpenAPI 3.1 ([apimatic/src/spec/openapi.yaml](apimatic/src/spec/openapi.yaml), live at `/openapi.yaml`); APIMatic generates the TypeScript and Python SDKs and the docs portal from it (see [apimatic/README.md](apimatic/README.md)). APIMatic's PayPal Context Plugin gives Claude Code PayPal's API reference while building the PayPal features |
+| **Channel3** | "Find a product" and store links: search and URL lookup, with recommendation shops earning through Channel3's tracked buy links |
 | Next.js 16, PostgreSQL / PGlite, Tailwind, zod | App framework and data |
 
 ## License

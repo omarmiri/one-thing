@@ -1,0 +1,17 @@
+{
+  "ImportSettings": {
+    "AutoGenerateTestCases": false,
+    "ImportAdditionalHeader": false
+  },
+  "CodeGenSettings": {
+    "Timeout": 60,
+    "ValidateRequiredParameters": true,
+    "EnableGlobalUserAgent": true,
+    "UserAgent": "OneThing-{language}-SDK/{version}",
+    "ReturnCompleteHttpResponse": false,
+    "UserConfigurableRetries": true,
+    "UseEnumPrefix": false,
+    "EnforceStandardizedCasing": true,
+    "ControllerPostfix": "Api"
+  }
+}

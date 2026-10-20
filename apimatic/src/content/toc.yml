@@ -1,0 +1,19 @@
+toc:
+  - group: Getting Started
+    items:
+      - page: How OneThing works
+        file: guides/how-it-works.md
+      - page: Sell an app or game with access codes
+        file: guides/access-codes.md
+      - generate: SDK Quickstart
+        from: getting-started
+  - generate: API Endpoints
+    from: endpoints
+  - group: Events
+    items:
+      - generate:
+        from: webhooks
+  - generate: Models
+    from: models
+  - generate: SDK Infrastructure
+    from: sdk-infra

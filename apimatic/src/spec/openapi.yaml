@@ -1,0 +1,1082 @@
+openapi: 3.1.0
+info:
+  title: OneThing API
+  version: 1.0.0
+  summary: One product, one page, paid with PayPal. Designed by AI.
+  description: |
+    OneThing turns a photo, a link or a picked product into a live one-product shop that takes
+    PayPal payments, or a recommendation page that earns referral commissions through Channel3.
+
+    **How a shop is made**
+    1. `createShop`: start from a photo, a link, or a Channel3 product. Gemini guesses what it
+       is, how it's delivered, the price, a short link and the page design. You get back the
+       shop's link name and an **admin token**.
+    2. `updateShop`: correct anything the AI guessed, then set `status: live`.
+    3. Buyers pay on `https://<host>/<slug>` with PayPal. Sellers read orders and ship them.
+
+    **Auth.** Seller endpoints take the shop's admin token in the `x-admin-token` header. Buyer
+    endpoints (checkout, access-code verification, downloads) are public.
+
+    **Access codes.** A digital product can unlock an app or game instead of shipping a file.
+    Each paid order gets a code such as `K7QF-M2XP-9HTD`; your app calls `verifyAccessCode`
+    before unlocking. Raptor Rush on miriogames.com is a live example.
+
+    All money moves through PayPal (sandbox in this deployment). OneThing never holds card data.
+  contact:
+    name: OneThing
+    url: https://github.com/omarmiri/one-thing
+  license:
+    name: MIT
+    identifier: MIT
+servers:
+  - url: https://one-thing-ash0.onrender.com
+    description: Hackathon deployment (PayPal sandbox)
+  - url: http://localhost:3000
+    description: Local development
+tags:
+  - name: Shops
+    description: Create a shop and manage it as its seller.
+  - name: Links
+    description: Short shop links (`/<slug>`).
+  - name: Products
+    description: Find products to recommend (Channel3 catalog).
+  - name: Checkout
+    description: Buyer-side PayPal checkout.
+  - name: Access codes
+    description: Unlock a paid app or game with a buyer's code.
+  - name: Orders
+    description: The seller's orders, fulfilment and PayPal webhook log.
+  - name: Files
+    description: Digital downloads and shop images.
+
+security: []
+
+paths:
+  /api/shops:
+    post:
+      tags: [Shops]
+      operationId: createShop
+      summary: Create a shop (AI draft)
+      description: |
+        Starts a draft shop from one of three sources. Gemini designs the page and guesses the
+        setup; check it with `getShop`, adjust with `updateShop`, then go live.
+
+        - `source=photo`: a `photo` and/or a `description` of your own product.
+        - `source=link`: a `url`. If Channel3 recognises it as a store's product page, the shop
+          becomes a recommendation (`product_type: referral`); otherwise the page is read and you
+          sell the product yourself with PayPal.
+        - `source=channel3`: a `productId` from `searchProducts` (a recommendation).
+
+        Takes 15–40 seconds. Hero art, if available, is generated afterwards (`hero_status`).
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CreateShopForm'
+            encoding:
+              photo:
+                contentType: image/jpeg, image/png, image/webp
+      responses:
+        '200':
+          description: Draft created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreatedShop'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '502':
+          $ref: '#/components/responses/UpstreamError'
+
+  /api/shops/{slug}:
+    parameters:
+      - $ref: '#/components/parameters/Slug'
+    get:
+      tags: [Shops]
+      operationId: getShop
+      summary: Get a shop
+      description: Everything about the shop, including the AI's design spec and guesses.
+      security:
+        - AdminToken: []
+      responses:
+        '200':
+          description: The shop.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Shop'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    patch:
+      tags: [Shops]
+      operationId: updateShop
+      summary: Update settings or go live
+      description: |
+        Changes only the fields you send. Renaming `slug` keeps the old link working (it
+        redirects). Set `status: live` to publish; a digital product needs its file (or, for
+        access codes, `access_url`) first.
+      security:
+        - AdminToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ShopUpdate'
+      responses:
+        '200':
+          description: Saved.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [ok, slug]
+                properties:
+                  ok:
+                    type: boolean
+                  slug:
+                    type: string
+                    description: The shop's link name after this change.
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/shops/{slug}/refine:
+    parameters:
+      - $ref: '#/components/parameters/Slug'
+    post:
+      tags: [Shops]
+      operationId: refineShopDesign
+      summary: Change the design by asking
+      description: '"Make it warmer", "shorter copy", "more premium". Gemini edits the design spec.'
+      security:
+        - AdminToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [instruction]
+              properties:
+                instruction:
+                  type: string
+                  maxLength: 500
+                  examples: [Make it feel more premium]
+      responses:
+        '200':
+          description: The new design.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [spec]
+                properties:
+                  spec:
+                    $ref: '#/components/schemas/DesignSpec'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '502':
+          $ref: '#/components/responses/UpstreamError'
+
+  /api/shops/{slug}/hero:
+    parameters:
+      - $ref: '#/components/parameters/Slug'
+    post:
+      tags: [Shops]
+      operationId: regenerateHeroArt
+      summary: Regenerate hero art
+      description: Starts generation in the background. Poll `getShop` for `hero_status`.
+      security:
+        - AdminToken: []
+      responses:
+        '200':
+          $ref: '#/components/responses/Ok'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/shops/{slug}/file:
+    parameters:
+      - $ref: '#/components/parameters/Slug'
+    post:
+      tags: [Shops]
+      operationId: uploadDigitalFile
+      summary: Upload the file buyers download
+      security:
+        - AdminToken: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file]
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: Up to 25 MB.
+      responses:
+        '200':
+          description: Uploaded.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [ok, filename]
+                properties:
+                  ok:
+                    type: boolean
+                  filename:
+                    type: string
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/shops/{slug}/orders:
+    parameters:
+      - $ref: '#/components/parameters/Slug'
+    get:
+      tags: [Orders]
+      operationId: listOrders
+      summary: List paid orders
+      description: Newest first. Checkouts that were never approved are left out.
+      security:
+        - AdminToken: []
+      responses:
+        '200':
+          description: Orders.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Order'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/shops/{slug}/orders/{orderId}/ship:
+    parameters:
+      - $ref: '#/components/parameters/Slug'
+      - name: orderId
+        in: path
+        required: true
+        description: OneThing's order id (`Order.id`).
+        schema:
+          type: string
+    post:
+      tags: [Orders]
+      operationId: markOrderShipped
+      summary: Mark a physical order shipped
+      description: Saves the tracking number and pushes it to PayPal, so the buyer sees it in PayPal.
+      security:
+        - AdminToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [carrier, trackingNumber]
+              properties:
+                carrier:
+                  type: string
+                  enum: [USPS, UPS, FEDEX, DHL, OTHER]
+                carrierName:
+                  type: string
+                  maxLength: 60
+                  description: Required when `carrier` is `OTHER`.
+                trackingNumber:
+                  type: string
+                  minLength: 4
+                  maxLength: 64
+      responses:
+        '200':
+          description: Shipped.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [ok, synced]
+                properties:
+                  ok:
+                    type: boolean
+                  synced:
+                    type: boolean
+                    description: Whether PayPal accepted the tracking number.
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/shops/{slug}/webhooks:
+    parameters:
+      - $ref: '#/components/parameters/Slug'
+    get:
+      tags: [Orders]
+      operationId: listWebhookEvents
+      summary: PayPal webhook log
+      description: The last 50 PayPal webhook deliveries about this shop's orders, with signature results.
+      security:
+        - AdminToken: []
+      responses:
+        '200':
+          description: Events, newest first.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/WebhookEvent'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/slugs/check:
+    get:
+      tags: [Links]
+      operationId: checkLinkName
+      summary: Is a link name free?
+      parameters:
+        - name: name
+          in: query
+          required: true
+          description: Anything; it is normalised (`Raptor Rush` becomes `raptor-rush`).
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The normalised name and whether it can be used.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [slug, available]
+                properties:
+                  slug:
+                    type: string
+                  available:
+                    type: boolean
+                  problem:
+                    type: string
+                    description: Why not, when unavailable.
+
+  /api/channel3/search:
+    get:
+      tags: [Products]
+      operationId: searchProducts
+      summary: Find products to recommend
+      description: Searches 100M+ products from 25k+ stores through Channel3. Pass a result's `id` to `createShop` with `source=channel3`.
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema:
+            type: string
+            maxLength: 200
+            examples: [gifts for trail runners under $60]
+      responses:
+        '200':
+          description: Up to 12 products.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [products]
+                properties:
+                  products:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ProductCard'
+        '502':
+          $ref: '#/components/responses/UpstreamError'
+        '503':
+          $ref: '#/components/responses/UpstreamError'
+
+  /api/orders:
+    post:
+      tags: [Checkout]
+      operationId: createCheckoutOrder
+      summary: Start a PayPal checkout
+      description: |
+        Creates the PayPal order for one unit of a live shop's product. The amount always comes
+        from the shop, never from the caller. Pass the returned `id` to the PayPal JS SDK.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [slug]
+              properties:
+                slug:
+                  type: string
+      responses:
+        '200':
+          description: PayPal order created.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [id]
+                properties:
+                  id:
+                    type: string
+                    description: PayPal order id.
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '502':
+          $ref: '#/components/responses/UpstreamError'
+        '503':
+          $ref: '#/components/responses/UpstreamError'
+
+  /api/orders/{paypalOrderId}/capture:
+    parameters:
+      - name: paypalOrderId
+        in: path
+        required: true
+        schema:
+          type: string
+    post:
+      tags: [Checkout]
+      operationId: captureCheckoutOrder
+      summary: Capture an approved PayPal order
+      description: Call after the buyer approves. Records the sale; digital orders get a download link or access code.
+      responses:
+        '200':
+          description: Paid.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [orderId, status]
+                properties:
+                  orderId:
+                    type: string
+                    description: OneThing's order id; the thank-you page is `/<slug>/thanks?order=<orderId>`.
+                  status:
+                    type: string
+                    const: paid
+        '402':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          description: The buyer's funding source was declined (`INSTRUMENT_DECLINED`); they can try another.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '502':
+          $ref: '#/components/responses/UpstreamError'
+
+  /api/access/verify:
+    post:
+      tags: [Access codes]
+      operationId: verifyAccessCode
+      summary: Verify a buyer's access code
+      description: |
+        For apps and games sold with access codes. Callable from any origin (CORS `*`): it only
+        answers valid or not for one shop, and counts uses. Accepts the shop's current or former
+        link names, and codes typed loosely (lower case, spaces, no dashes).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [shop, code]
+              properties:
+                shop:
+                  type: string
+                  description: The shop's link name.
+                  examples: [raptorrush]
+                code:
+                  type: string
+                  examples: [K7QF-M2XP-9HTD]
+      responses:
+        '200':
+          description: The answer. Invalid codes are also a 200.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [valid]
+                properties:
+                  valid:
+                    type: boolean
+                  product:
+                    type: string
+                    description: The product name, when valid.
+
+  /api/download/{token}:
+    parameters:
+      - name: token
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      tags: [Files]
+      operationId: downloadFile
+      summary: Download a purchased file
+      description: A paid digital order's private link. Works 5 times within 14 days.
+      responses:
+        '200':
+          description: The file.
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        '410':
+          description: Expired or used up.
+          content:
+            text/plain:
+              schema:
+                type: string
+
+  /api/blobs/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      tags: [Files]
+      operationId: getImage
+      summary: A shop's product photo or hero art
+      description: Public images only. Purchased files are never served here.
+      responses:
+        '200':
+          description: The image.
+          content:
+            image/*:
+              schema:
+                type: string
+                format: binary
+        '404':
+          description: Not a public shop image.
+
+webhooks:
+  orderEvent:
+    post:
+      operationId: onOrderEvent
+      summary: Order paid or shipped (Zapier hook)
+      description: |
+        If a shop sets `zapier_hook_url` (a `https://hooks.zapier.com/` Catch Hook), every paid
+        and shipped order is POSTed to it. Best effort: a failing hook never affects the sale.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderEvent'
+      responses:
+        '200':
+          description: Any 2xx.
+
+components:
+  securitySchemes:
+    AdminToken:
+      type: apiKey
+      in: header
+      name: x-admin-token
+      description: The shop's admin token, returned once by `createShop`. Keep it secret.
+
+  parameters:
+    Slug:
+      name: slug
+      in: path
+      required: true
+      description: The shop's link name (current or former).
+      schema:
+        type: string
+        examples: [raptorrush]
+
+  responses:
+    Ok:
+      description: Done.
+      content:
+        application/json:
+          schema:
+            type: object
+            required: [ok]
+            properties:
+              ok:
+                type: boolean
+    BadRequest:
+      description: Something in the request needs fixing; `error` says what.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Conflict:
+      description: Taken or unavailable (a link name, or a sold-out product).
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFound:
+      description: No such shop, or the admin token doesn't match it.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    UpstreamError:
+      description: Gemini, PayPal or Channel3 failed or isn't configured.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+  schemas:
+    Error:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: string
+          description: A sentence you can show to a person.
+        field:
+          type: string
+          description: The form field at fault, when there is one.
+        detail:
+          type: string
+          description: The upstream service's own message, for debugging.
+
+    CreateShopForm:
+      type: object
+      required: [source]
+      properties:
+        source:
+          type: string
+          enum: [photo, link, channel3]
+        photo:
+          type: string
+          format: binary
+          description: '`source=photo`: the product photo, up to 8 MB.'
+        description:
+          type: string
+          description: '`source=photo`: a sentence or two about the product. Required if there is no photo.'
+        url:
+          type: string
+          format: uri
+          description: '`source=link`: a product page, or your own app or game page.'
+        productId:
+          type: string
+          description: '`source=channel3`: a product id from `searchProducts`.'
+        slug:
+          type: string
+          description: The link name you want. If omitted, the AI suggests one.
+        type:
+          type: string
+          enum: [auto, physical, digital]
+          default: auto
+        delivery:
+          type: string
+          enum: [file, access_code]
+          description: For digital products. If omitted, the AI guesses.
+        access_url:
+          type: string
+          format: uri
+          description: Where buyers use an access code.
+        price:
+          type: number
+          description: USD. If omitted, the AI suggests a price.
+        shipping:
+          type: number
+        stock:
+          type: integer
+        ship_countries:
+          type: string
+          examples: [US,CA]
+        paypal_email:
+          type: string
+          format: email
+        seller_email:
+          type: string
+          format: email
+        digital_file:
+          type: string
+          format: binary
+
+    CreatedShop:
+      type: object
+      required: [slug, token, manageUrl]
+      properties:
+        slug:
+          type: string
+          examples: [dragonflight]
+        token:
+          type: string
+          description: The admin token. Shown once; store it.
+        manageUrl:
+          type: string
+          description: The seller's private manage page (contains the token).
+
+    ShopUpdate:
+      type: object
+      properties:
+        slug:
+          type: string
+        status:
+          type: string
+          enum: [draft, live]
+        product_type:
+          type: string
+          enum: [physical, digital, referral]
+          description: '`referral` only for shops created from Channel3.'
+        price:
+          type: number
+          minimum: 0.5
+          maximum: 10000
+        shipping:
+          type: number
+          minimum: 0
+          maximum: 500
+        stock:
+          type: [integer, 'null']
+          minimum: 0
+        ship_countries:
+          type: [string, 'null']
+        delivery:
+          type: string
+          enum: [file, access_code]
+        access_url:
+          type: [string, 'null']
+          format: uri
+        paypal_email:
+          type: [string, 'null']
+          format: email
+        seller_email:
+          type: [string, 'null']
+          format: email
+        zapier_hook_url:
+          type: [string, 'null']
+          format: uri
+
+    Shop:
+      type: object
+      required: [id, slug, status, product_type, price_cents, currency, spec]
+      properties:
+        id:
+          type: string
+        slug:
+          type: string
+        status:
+          type: string
+          enum: [draft, live]
+        product_type:
+          type: string
+          enum: [physical, digital, referral]
+        price_cents:
+          type: integer
+        currency:
+          type: string
+          examples: [USD]
+        shipping_cents:
+          type: integer
+        ship_countries:
+          type: [string, 'null']
+        stock:
+          type: [integer, 'null']
+        delivery:
+          type: string
+          enum: [file, access_code]
+        access_url:
+          type: [string, 'null']
+        paypal_email:
+          type: [string, 'null']
+        seller_email:
+          type: [string, 'null']
+        zapier_hook_url:
+          type: [string, 'null']
+        photo_blob:
+          type: [string, 'null']
+          description: Image id for `getImage`.
+        hero_blob:
+          type: [string, 'null']
+        hero_status:
+          type: string
+          enum: [none, pending, ready, failed]
+        hero_error:
+          type: [string, 'null']
+        ai_source:
+          type: string
+          enum: [gemini, fallback]
+        source_url:
+          type: [string, 'null']
+        referral:
+          oneOf:
+            - $ref: '#/components/schemas/Referral'
+            - type: 'null'
+        spec:
+          $ref: '#/components/schemas/DesignSpec'
+        created_at:
+          type: string
+          format: date-time
+
+    DesignSpec:
+      type: object
+      description: What Gemini designed. OneThing's templates render it; Gemini never writes HTML.
+      required: [productType, productName, layout, palette, fonts, headline, bullets, faq, ctaLabel]
+      properties:
+        productType:
+          type: string
+          enum: [digital, physical]
+        productName:
+          type: string
+        layout:
+          type: string
+          enum: [bold-hero, editorial, minimal, playful]
+        palette:
+          type: object
+          required: [background, surface, text, muted, accent, accentText]
+          properties:
+            background: { $ref: '#/components/schemas/HexColor' }
+            surface: { $ref: '#/components/schemas/HexColor' }
+            text: { $ref: '#/components/schemas/HexColor' }
+            muted: { $ref: '#/components/schemas/HexColor' }
+            accent: { $ref: '#/components/schemas/HexColor' }
+            accentText: { $ref: '#/components/schemas/HexColor' }
+        fonts:
+          type: object
+          required: [heading, body]
+          properties:
+            heading:
+              type: string
+            body:
+              type: string
+        eyebrow:
+          type: string
+        headline:
+          type: string
+        subheadline:
+          type: string
+        story:
+          type: string
+        bullets:
+          type: array
+          items:
+            type: string
+        details:
+          type: array
+          items:
+            type: object
+            required: [label, value]
+            properties:
+              label:
+                type: string
+              value:
+                type: string
+        faq:
+          type: array
+          items:
+            type: object
+            required: [q, a]
+            properties:
+              q:
+                type: string
+              a:
+                type: string
+        ctaLabel:
+          type: string
+        suggestedPriceUsd:
+          type: number
+        suggestedShippingUsd:
+          type: number
+        imageAlt:
+          type: string
+        heroPrompt:
+          type: string
+
+    HexColor:
+      type: string
+      pattern: '^#[0-9a-fA-F]{6}$'
+      examples: ['#14171a']
+
+    Referral:
+      type: object
+      description: A recommended Channel3 product. Buy links are Channel3-tracked, credited to this shop.
+      required: [productId, title, offers]
+      properties:
+        productId:
+          type: string
+        title:
+          type: string
+        brand:
+          type: [string, 'null']
+        image:
+          type: [string, 'null']
+        offers:
+          type: array
+          items:
+            type: object
+            required: [domain, url, price, currency, inStock, commission]
+            properties:
+              domain:
+                type: string
+              url:
+                type: string
+              price:
+                type: number
+              currency:
+                type: string
+              inStock:
+                type: boolean
+              commission:
+                type: number
+                description: Maximum commission rate, 0–1 (0.08 = 8%).
+
+    ProductCard:
+      type: object
+      required: [id, title, image, price, currency, retailer, retailers, commission]
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        brand:
+          type: [string, 'null']
+        image:
+          type: string
+        price:
+          type: number
+        currency:
+          type: string
+        retailer:
+          type: string
+          description: The store with the best offer.
+        retailers:
+          type: integer
+        commission:
+          type: number
+          description: Best commission rate across offers, 0–1.
+
+    Order:
+      type: object
+      required: [id, status, amount_cents, currency, fulfillment_status]
+      properties:
+        id:
+          type: string
+        paypal_order_id:
+          type: [string, 'null']
+        status:
+          type: string
+          enum: [created, paid, failed]
+        amount_cents:
+          type: integer
+        shipping_cents:
+          type: integer
+        currency:
+          type: string
+        buyer_email:
+          type: [string, 'null']
+        buyer_name:
+          type: [string, 'null']
+        shipping_address:
+          type: [object, 'null']
+          additionalProperties:
+            type: string
+        capture_id:
+          type: [string, 'null']
+        fulfillment_status:
+          type: string
+          enum: [none, to_ship, shipped, digital_sent]
+        carrier:
+          type: [string, 'null']
+        tracking_number:
+          type: [string, 'null']
+        tracking_synced:
+          type: boolean
+        downloads:
+          type: integer
+        access_code:
+          type: [string, 'null']
+        code_uses:
+          type: integer
+        paid_at:
+          type: [string, 'null']
+          format: date-time
+        created_at:
+          type: string
+          format: date-time
+
+    WebhookEvent:
+      type: object
+      required: [id, event_type, verified, outcome, received_at]
+      properties:
+        id:
+          type: string
+          description: PayPal's event id.
+        event_type:
+          type: string
+          examples: [PAYMENT.CAPTURE.COMPLETED]
+        paypal_order_id:
+          type: [string, 'null']
+        summary:
+          type: [string, 'null']
+          examples: [2.99 USD]
+        verified:
+          type: boolean
+          description: Whether PayPal confirmed the delivery's signature.
+        outcome:
+          type: string
+          examples: ['Confirmed: order already paid']
+        received_at:
+          type: string
+          format: date-time
+
+    OrderEvent:
+      type: object
+      required: [event, shop, order]
+      properties:
+        event:
+          type: string
+          enum: [order.paid, order.shipped]
+        shop:
+          type: object
+          properties:
+            slug:
+              type: string
+            name:
+              type: string
+            url:
+              type: string
+        order:
+          type: object
+          properties:
+            id:
+              type: string
+            paypal_order_id:
+              type: [string, 'null']
+            amount:
+              type: string
+              examples: ['2.99']
+            currency:
+              type: string
+            buyer_name:
+              type: [string, 'null']
+            buyer_email:
+              type: [string, 'null']
+            shipping_address:
+              type: [object, 'null']
+            fulfillment_status:
+              type: string
+            tracking_number:
+              type: [string, 'null']
+            carrier:
+              type: [string, 'null']
