@@ -1,26 +1,70 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #fbfaf8;
+  --foreground: #1a1a1a;
+  --ms-muted: #5f5a54;
+  --ms-line: #e7e3dd;
+  --ms-accent: #1f4fd8;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-muted: var(--ms-muted);
+  --color-line: var(--ms-line);
+  --color-accent: var(--ms-accent);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
 }
+
+/* ---- Generated shops (src/components/shop/ShopPage.tsx): every value comes from the spec ---- */
+.shop {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-b);
+}
+.shop-heading {
+  font-family: var(--font-h);
+  line-height: 1.05;
+}
+.shop-h1 {
+  font-size: clamp(2.4rem, 6vw, 4.5rem);
+  letter-spacing: -0.02em;
+}
+.shop-h2 {
+  font-family: var(--font-h);
+  font-size: 1.9rem;
+  margin-bottom: 1.25rem;
+}
+.shop-card {
+  background: var(--surface);
+  border-radius: 0.9rem;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.05), 0 8px 30px rgb(0 0 0 / 0.06);
+}
+.shop-editorial .shop-card { border-radius: 0; box-shadow: none; border: 1px solid color-mix(in srgb, var(--text) 14%, transparent); }
+.shop-editorial .shop-h1 { font-weight: 400; }
+.shop-minimal .shop-card { box-shadow: none; border-radius: 0.5rem; }
+.shop-minimal .shop-h1 { font-size: clamp(2rem, 4.5vw, 3.3rem); }
+.shop-playful .shop-card { border-radius: 1.75rem; }
+.shop-playful .shop-h1 { transform: rotate(-1deg); }
+
+.shop-buy {
+  width: 100%;
+  border-radius: 999px;
+  padding: 0.95rem 1.5rem;
+  font-weight: 700;
+  font-size: 1.05rem;
+  background: var(--accent);
+  color: var(--accent-text);
+}
+.shop-editorial .shop-buy, .shop-minimal .shop-buy { border-radius: 0.4rem; }
+
+/* PayPal v6 web component */
+paypal-button { display: block; width: 100%; }

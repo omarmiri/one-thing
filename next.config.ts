@@ -1,9 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
-  cacheComponents: true,
-  partialPrefetching: true,
+  // Cache Components is off: shop pages read live data (stock, orders) on every request.
+  serverExternalPackages: ["@electric-sql/pglite", "pg"],
   turbopack: {
     rules: {
       "*.css": {

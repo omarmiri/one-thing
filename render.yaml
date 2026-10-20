@@ -1,0 +1,35 @@
+# Render Blueprint — New → Blueprint → pick this repo. Creates the web service and Postgres.
+# Free Postgres expires after 30 days, and judging runs into December, so this uses paid plans
+# (covered by the hackathon's $50 Render credit).
+services:
+  - type: web
+    name: micro-shop
+    runtime: node
+    plan: starter
+    buildCommand: npm ci && npm run build
+    startCommand: npm start
+    healthCheckPath: /
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: micro-shop-db
+          property: connectionString
+      - key: PAYPAL_ENV
+        value: sandbox
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: PAYPAL_CLIENT_ID
+        sync: false
+      - key: PAYPAL_CLIENT_SECRET
+        sync: false
+      - key: PAYPAL_WEBHOOK_ID
+        sync: false
+      - key: APP_URL
+        sync: false # e.g. https://micro-shop.onrender.com
+
+databases:
+  - name: micro-shop-db
+    plan: basic-256mb
+    databaseName: micro_shop

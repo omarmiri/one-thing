@@ -1,0 +1,47 @@
+import { NextResponse } from "next/server";
+import { z } from "zod";
+import { requireShop } from "@/lib/auth";
+import { updateShop } from "@/lib/shops";
+
+/** Polled by the manage page while hero art is generating. */
+export async function GET(req: Request, ctx: RouteContext<"/api/shops/[slug]">) {
+  const r = await requireShop(req, (await ctx.params).slug);
+  if ("error" in r) return r.error;
+  const { admin_token: _t, ...shop } = r.shop;
+  return NextResponse.json(shop);
+}
+
+const Settings = z.object({
+  price: z.number().min(0.5).max(10000).optional(),
+  shipping: z.number().min(0).max(500).optional(),
+  stock: z.number().int().min(0).nullable().optional(),
+  ship_countries: z.string().max(200).nullable().optional(),
+  paypal_email: z.email().nullable().optional(),
+  seller_email: z.email().nullable().optional(),
+  zapier_hook_url: z.url().startsWith("https://").nullable().optional(),
+  status: z.enum(["draft", "live"]).optional(),
+});
+
+export async function PATCH(req: Request, ctx: RouteContext<"/api/shops/[slug]">) {
+  const r = await requireShop(req, (await ctx.params).slug);
+  if ("error" in r) return r.error;
+  const { shop } = r;
+  const parsed = Settings.safeParse(await req.json().catch(() => null));
+  if (!parsed.success) return NextResponse.json({ error: parsed.error.issues[0]?.message }, { status: 400 });
+  const s = parsed.data;
+
+  if (s.status === "live" && shop.product_type === "digital" && !shop.digital_blob) {
+    return NextResponse.json({ error: "Upload the file buyers will download before publishing." }, { status: 400 });
+  }
+  await updateShop(shop.id, {
+    ...(s.price !== undefined && { price_cents: Math.round(s.price * 100) }),
+    ...(s.shipping !== undefined && shop.product_type === "physical" && { shipping_cents: Math.round(s.shipping * 100) }),
+    ...(s.stock !== undefined && { stock: s.stock }),
+    ...(s.ship_countries !== undefined && { ship_countries: s.ship_countries?.toUpperCase() ?? null }),
+    ...(s.paypal_email !== undefined && { paypal_email: s.paypal_email }),
+    ...(s.seller_email !== undefined && { seller_email: s.seller_email }),
+    ...(s.zapier_hook_url !== undefined && { zapier_hook_url: s.zapier_hook_url }),
+    ...(s.status && { status: s.status }),
+  });
+  return NextResponse.json({ ok: true });
+}

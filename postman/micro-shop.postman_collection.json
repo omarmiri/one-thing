@@ -1,0 +1,125 @@
+{
+  "info": {
+    "name": "micro-shop API",
+    "description": "Sponsor tool: Postman. The micro-shop API end to end — create a shop with Gemini, refine it, publish, check out with PayPal (sandbox), ship. Set baseUrl, then run 'Create shop' first: its test script stores slug and token for the rest.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:3000" },
+    { "key": "slug", "value": "" },
+    { "key": "token", "value": "" },
+    { "key": "paypalOrderId", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Seller",
+      "item": [
+        {
+          "name": "Create shop (Gemini designs it)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const j = pm.response.json();",
+                  "pm.test('created', () => pm.expect(j.slug).to.be.a('string'));",
+                  "pm.collectionVariables.set('slug', j.slug);",
+                  "pm.collectionVariables.set('token', j.token);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/shops",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "description", "value": "Hand-thrown stoneware mug, 12 oz, glazed in ocean blue. Dishwasher safe.", "type": "text" },
+                { "key": "type", "value": "physical", "type": "text", "description": "auto | physical | digital" },
+                { "key": "price", "value": "34", "type": "text" },
+                { "key": "shipping", "value": "6", "type": "text" },
+                { "key": "stock", "value": "8", "type": "text" },
+                { "key": "ship_countries", "value": "US,CA", "type": "text" },
+                { "key": "paypal_email", "value": "", "type": "text", "description": "A sandbox business account email" },
+                { "key": "photo", "type": "file", "src": [] }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get shop",
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/shops/{{slug}}", "header": [{ "key": "x-admin-token", "value": "{{token}}" }] }
+        },
+        {
+          "name": "Refine design with Gemini",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/shops/{{slug}}/refine",
+            "header": [{ "key": "x-admin-token", "value": "{{token}}" }, { "key": "content-type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{ \"instruction\": \"Make it feel more premium\" }" }
+          }
+        },
+        {
+          "name": "Regenerate hero art",
+          "request": { "method": "POST", "url": "{{baseUrl}}/api/shops/{{slug}}/hero", "header": [{ "key": "x-admin-token", "value": "{{token}}" }] }
+        },
+        {
+          "name": "Update settings / publish",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/api/shops/{{slug}}",
+            "header": [{ "key": "x-admin-token", "value": "{{token}}" }, { "key": "content-type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{ \"price\": 36, \"stock\": 5, \"status\": \"live\" }" }
+          }
+        },
+        {
+          "name": "Upload digital file",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/shops/{{slug}}/file",
+            "header": [{ "key": "x-admin-token", "value": "{{token}}" }],
+            "body": { "mode": "formdata", "formdata": [{ "key": "file", "type": "file", "src": [] }] }
+          }
+        },
+        {
+          "name": "List orders",
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/shops/{{slug}}/orders", "header": [{ "key": "x-admin-token", "value": "{{token}}" }] }
+        },
+        {
+          "name": "Mark order shipped (pushes tracking to PayPal)",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/shops/{{slug}}/orders/:orderId/ship",
+            "header": [{ "key": "x-admin-token", "value": "{{token}}" }, { "key": "content-type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{ \"carrier\": \"USPS\", \"trackingNumber\": \"9400111899223817502345\" }" }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Buyer",
+      "item": [
+        {
+          "name": "Create PayPal order",
+          "event": [
+            {
+              "listen": "test",
+              "script": { "exec": ["pm.collectionVariables.set('paypalOrderId', pm.response.json().id);"] }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/orders",
+            "header": [{ "key": "content-type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{ \"slug\": \"{{slug}}\" }" }
+          }
+        },
+        {
+          "name": "Capture PayPal order (after buyer approval)",
+          "request": { "method": "POST", "url": "{{baseUrl}}/api/orders/{{paypalOrderId}}/capture" }
+        }
+      ]
+    }
+  ]
+}
