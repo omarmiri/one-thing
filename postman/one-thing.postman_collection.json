@@ -1,7 +1,7 @@
 {
   "info": {
-    "name": "micro-shop API",
-    "description": "Sponsor tool: Postman. The micro-shop API end to end — create a shop with Gemini, refine it, publish, check out with PayPal (sandbox), ship. Set baseUrl, then run 'Create shop' first: its test script stores slug and token for the rest.",
+    "name": "OneThing API",
+    "description": "Sponsor tool: Postman. The OneThing API end to end — create a shop with Gemini, refine it, publish, check out with PayPal (sandbox), ship. Set baseUrl, then run 'Create shop' first: its test script stores slug and token for the rest.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [

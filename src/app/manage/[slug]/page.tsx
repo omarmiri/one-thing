@@ -5,7 +5,7 @@ import { paypalEnabled } from "@/lib/paypal";
 import { ManageApp } from "./ManageApp";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Manage your shop · micro-shop", robots: { index: false } };
+export const metadata = { title: "Manage your shop · OneThing", robots: { index: false } };
 
 export default async function Manage(props: PageProps<"/manage/[slug]">) {
   const { slug } = await props.params;

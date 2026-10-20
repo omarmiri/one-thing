@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "micro-shop — sell your one thing",
+  title: "OneThing — sell your one product",
   description: "Snap a photo, and AI builds a one-product shop that takes PayPal payments.",
 };
 

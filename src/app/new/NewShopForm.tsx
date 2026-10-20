@@ -35,7 +35,7 @@ export function NewShopForm({ geminiReady }: { geminiReady: boolean }) {
     }
     // The manage link is the seller's key to this shop — keep a copy on this device.
     try {
-      localStorage.setItem(`micro-shop:${json.slug}`, json.token);
+      localStorage.setItem(`one-thing:${json.slug}`, json.token);
     } catch {}
     router.push(json.manageUrl);
   }

@@ -1,4 +1,4 @@
-# micro-shop
+# OneThing
 
 **Sell your one thing in about a minute.** Upload a photo and a few sentences. Gemini designs a
 one-product landing page and writes the copy. PayPal takes the payments, which go straight to the
@@ -59,7 +59,7 @@ PayPal ──► POST /api/paypal/webhook               → signature verified �
   render it, and our code always places the PayPal button. So a bad generation can't break
   checkout or inject script, and a contrast check keeps every palette readable.
 - **Money goes straight to sellers**: the order's `payee` is the seller's PayPal account, so
-  micro-shop never holds funds.
+  OneThing never holds funds.
 - **Mark-paid is idempotent** ([src/lib/orders.ts](src/lib/orders.ts)). The capture call and the
   webhook can arrive in either order, and stock, download tokens and Zapier still fire exactly once.
 
@@ -72,7 +72,7 @@ PayPal ──► POST /api/paypal/webhook               → signature verified �
 | **Render** | Hosting and Postgres via `render.yaml` |
 | **AG Grid** | The seller's orders table (sort, filter, search, mark shipped) |
 | **Zapier** | Optional per-shop Catch Hook: every paid or shipped order is posted to it, for Sheets, Slack, label printing |
-| **Postman** | [postman/micro-shop.postman_collection.json](postman/micro-shop.postman_collection.json) covers the whole API |
+| **Postman** | [postman/one-thing.postman_collection.json](postman/one-thing.postman_collection.json) covers the whole API |
 | Next.js 16, PostgreSQL / PGlite, Tailwind, zod | App framework and data |
 
 ## License

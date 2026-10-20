@@ -10,7 +10,7 @@ export default function Home() {
   return (
     <main className="flex-1">
       <header className="mx-auto flex max-w-6xl items-center px-4 py-5 sm:px-6">
-        <span className="font-semibold tracking-tight">micro-shop</span>
+        <span className="font-semibold tracking-tight">OneThing</span>
         <Link href="/new" className="ml-auto rounded-full bg-foreground px-4 py-2 text-sm font-semibold text-background">
           Create a shop
         </Link>
@@ -24,7 +24,7 @@ export default function Home() {
           in about a minute.
         </h1>
         <p className="mx-auto mt-6 max-w-2xl text-xl text-muted">
-          You don&apos;t need a whole store to sell one product. Give micro-shop a photo — AI builds the page, PayPal takes the payments.
+          You don&apos;t need a whole store to sell one product. Give OneThing a photo — AI builds the page, PayPal takes the payments.
         </p>
         <Link href="/new" className="mt-10 inline-block rounded-full bg-foreground px-8 py-4 text-lg font-semibold text-background">
           Design my shop — free

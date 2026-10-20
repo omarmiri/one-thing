@@ -81,7 +81,7 @@ async function open(): Promise<Db> {
     return { query: async (sql, params) => (await pool.query(sql, params)).rows };
   }
   const { PGlite } = await import("@electric-sql/pglite");
-  const dir = process.env.PGLITE_DIR ?? "./node_modules/.cache/micro-shop-pglite";
+  const dir = process.env.PGLITE_DIR ?? "./node_modules/.cache/one-thing-pglite";
   (await import("node:fs")).mkdirSync(dir, { recursive: true });
   const pg: PGlite = await PGlite.create(dir);
   await pg.exec(SCHEMA);
@@ -91,14 +91,14 @@ async function open(): Promise<Db> {
 }
 
 // Survive dev-server hot reloads: one connection per process.
-const g = globalThis as unknown as { __microShopDb?: Promise<Db> };
+const g = globalThis as unknown as { __oneThingDb?: Promise<Db> };
 
 export function db(): Promise<Db> {
-  g.__microShopDb ??= open().catch((err) => {
-    g.__microShopDb = undefined;
+  g.__oneThingDb ??= open().catch((err) => {
+    g.__oneThingDb = undefined;
     throw err;
   });
-  return g.__microShopDb;
+  return g.__oneThingDb;
 }
 
 export async function query<T = Row>(sql: string, params?: unknown[]): Promise<T[]> {

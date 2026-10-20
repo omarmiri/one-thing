@@ -1,4 +1,6 @@
-# micro-shop — hackathon plan (working draft)
+# OneThing — hackathon plan (working draft)
+
+(Formerly "OneThing". Renamed Oct 20; repo: https://github.com/omarmiri/one-thing)
 
 Target: **PayPal AI Hackathon — "Build what's next with PayPal and AI"** (Devpost)
 https://paypalaihackathon.devpost.com/
@@ -17,7 +19,7 @@ https://paypalaihackathon.devpost.com/
 
 **Judging:** Technological Implementation · Design (a complete product, not a PoC) · Potential Impact (a real problem for a real audience) · Innovation · Presentation (the video shows it end to end).
 
-**Prizes that fit micro-shop:**
+**Prizes that fit OneThing:**
 - 1st / 2nd / 3rd overall: $12k / $8k / $5k
 - **Best Use of Agentic Commerce**: $5k
 - **Best Use of PayPal + AI**: $5k
@@ -29,7 +31,7 @@ https://paypalaihackathon.devpost.com/
 
 **Sponsor tools: use every one that actually fits.** Judges score "best use", and a tool that's only mentioned doesn't count.
 
-| Sponsor | Fits? | How micro-shop uses it | When |
+| Sponsor | Fits? | How OneThing uses it | When |
 |---|---|---|---|
 | Render | Yes | Hosting + Postgres (`render.yaml`). Later, Render Workflows run shop generation and hero art as jobs | Week 1 / 2 |
 | AG Grid | Yes | Seller's orders grid. Week 2 adds commissions and payouts grids | Week 1 ✓ |
@@ -37,8 +39,8 @@ https://paypalaihackathon.devpost.com/
 | Zapier | Yes | Per-shop Catch Hook on paid and shipped orders (Sheets, Slack, labels) | Week 1 ✓ |
 | Channel3 | Yes | Optional referral mode + "goes great with" add-ons, with commissions paid out through PayPal Payouts | Week 2 |
 | APIMatic | Yes | Context Plugin for PayPal APIs in Claude Code while building. Claim the free month and say so in the write-up | Now (dev tool) |
-| KERNEL | Yes, for the demo | Cloud browser where an AI shopping agent visits a micro-shop and checks out. This is the Agentic Commerce demo | Week 3 |
-| Elastic | Maybe | Search across all live shops ("discover micro-shops") with vector search, or grounding for the buyer concierge | Stretch |
+| KERNEL | Yes, for the demo | Cloud browser where an AI shopping agent visits a OneThing shop and checks out. This is the Agentic Commerce demo | Week 3 |
+| Elastic | Maybe | Search across all live shops ("discover OneThing shops") with vector search, or grounding for the buyer concierge | Stretch |
 | Astropods | Maybe | Host the seller copilot agent with observability. Overlaps with running it ourselves | Stretch |
 | Bryntum | No | Scheduling/Gantt components. Nothing in a one-product shop needs them, and forcing it would read as box-ticking | Skip |
 
@@ -48,7 +50,7 @@ https://paypalaihackathon.devpost.com/
 
 **Problem:** someone with *one* thing to sell (a handmade item, an ebook, a preset pack, a local service) doesn't need Shopify. Today they glue together Carrd, a PayPal button, and copy they write themselves. Gumroad and Stan Store take a cut and look generic.
 
-**micro-shop:** upload a photo and a sentence. About 60 seconds later you have a live, good-looking landing page with PayPal checkout. AI writes the copy, the FAQ and the pricing suggestion, and answers buyer questions.
+**OneThing:** upload a photo and a sentence. About 60 seconds later you have a live, good-looking landing page with PayPal checkout. AI writes the copy, the FAQ and the pricing suggestion, and answers buyer questions.
 
 **"No product? Sell one anyway" (Channel3):** the creator describes their audience ("trail runners on a budget"). The AI searches Channel3's 100M+ products and proposes a pick with a curated review page. The creator earns a commission when a buyer purchases through the link.
 
@@ -64,25 +66,25 @@ The core product is **bring your own product**. Channel3 is an optional extra: a
 
 Two details from Channel3's docs shape how it's built:
 - Referral purchases happen **on the retailer's site**, so PayPal isn't in that checkout. The PayPal-checkout sale stays the main thing.
-- Commissions go to **the developer account (micro-shop)**, paid out via **Stripe**, not to each seller. So micro-shop tracks referrals with Channel3's Reporting API and pays each seller their share with **PayPal Payouts**. That keeps PayPal in this mode too.
+- Commissions go to **the developer account (OneThing)**, paid out via **Stripe**, not to each seller. So OneThing tracks referrals with Channel3's Reporting API and pays each seller their share with **PayPal Payouts**. That keeps PayPal in this mode too.
 
 ## 4. Architecture
 
 ```
-Seller (web) ──► micro-shop app (Next.js on Render)
+Seller (web) ──► OneThing app (Next.js on Render)
                    ├─ AI: Gemini (vision → design spec + copy; image gen → hero art; concierge chat; seller copilot)
                    ├─ PayPal: JS SDK v6 Checkout + Orders API (sandbox), Webhooks,
                    │          Payouts (affiliate earnings), Invoicing/Refunds via Agent Toolkit
                    ├─ Channel3: product search (no-product mode + add-on recs), Reporting API
                    ├─ Postgres (Render) — shops, products, orders, payouts
                    └─ Render Workflows — async "generate my shop" job
-Buyer ──► shop.micro.shop/<slug>  (static-fast page + chat + PayPal buttons)
+Buyer ──► <app>/s/<slug>  (static-fast page + chat + PayPal buttons)
 AI agent ──► /<slug>/agent  (product JSON + MCP endpoint: get_product, create_order)
 ```
 
 **How sellers get paid (decide this early):**
-- *Hackathon path (recommended):* each seller enters their PayPal email. Orders set `purchase_units[].payee` to the seller, so money goes straight to them and micro-shop never holds funds. This works in sandbox today.
-- *Upgrade: "Connect PayPal" onboarding (Partner Referrals API).* micro-shop calls `POST /v2/customer/partner-referrals`, prefilled with the seller's email and shop name, and gets back an `action_url`. The seller opens it, logs in to PayPal or signs up (prefilled), and grants consent. PayPal then redirects back with their `merchantIdInPayPal`, and sends `MERCHANT.ONBOARDING.COMPLETED` by webhook. Orders then use `payee.merchant_id` and can take a `platform_fees` cut, sent with the `PayPal-Partner-Attribution-Id` header. **The seller still has to click through and consent:** no API creates a PayPal account silently on someone's behalf, for KYC reasons. Sandbox lets us build and demo it. Live use needs PayPal to approve micro-shop as a partner. The schema already has `paypal_merchant_id`, and `createOrder` prefers it over the email. *Do this in week 2*, after confirming that partner referrals work on our sandbox app.
+- *Hackathon path (recommended):* each seller enters their PayPal email. Orders set `purchase_units[].payee` to the seller, so money goes straight to them and OneThing never holds funds. This works in sandbox today.
+- *Upgrade: "Connect PayPal" onboarding (Partner Referrals API).* OneThing calls `POST /v2/customer/partner-referrals`, prefilled with the seller's email and shop name, and gets back an `action_url`. The seller opens it, logs in to PayPal or signs up (prefilled), and grants consent. PayPal then redirects back with their `merchantIdInPayPal`, and sends `MERCHANT.ONBOARDING.COMPLETED` by webhook. Orders then use `payee.merchant_id` and can take a `platform_fees` cut, sent with the `PayPal-Partner-Attribution-Id` header. **The seller still has to click through and consent:** no API creates a PayPal account silently on someone's behalf, for KYC reasons. Sandbox lets us build and demo it. Live use needs PayPal to approve OneThing as a partner. The schema already has `paypal_merchant_id`, and `createOrder` prefers it over the email. *Do this in week 2*, after confirming that partner referrals work on our sandbox app.
 
 ### AI site design (Gemini)
 

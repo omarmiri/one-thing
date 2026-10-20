@@ -3,7 +3,7 @@
 # (covered by the hackathon's $50 Render credit).
 services:
   - type: web
-    name: micro-shop
+    name: one-thing
     runtime: node
     plan: starter
     buildCommand: npm ci && npm run build
@@ -14,7 +14,7 @@ services:
         value: "22"
       - key: DATABASE_URL
         fromDatabase:
-          name: micro-shop-db
+          name: one-thing-db
           property: connectionString
       - key: PAYPAL_ENV
         value: sandbox
@@ -27,9 +27,9 @@ services:
       - key: PAYPAL_WEBHOOK_ID
         sync: false
       - key: APP_URL
-        sync: false # e.g. https://micro-shop.onrender.com
+        sync: false # e.g. https://one-thing.onrender.com
 
 databases:
-  - name: micro-shop-db
+  - name: one-thing-db
     plan: basic-256mb
-    databaseName: micro_shop
+    databaseName: one_thing

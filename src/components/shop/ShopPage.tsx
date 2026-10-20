@@ -84,7 +84,7 @@ export function ShopPage({ view, buy }: { view: ShopView; buy: ReactNode }) {
         </section>
       </main>
       <footer className="pb-10 text-center text-sm" style={{ color: "var(--muted)" }}>
-        Made with micro-shop · Payments by PayPal
+        Made with OneThing · Payments by PayPal
       </footer>
     </div>
   );
