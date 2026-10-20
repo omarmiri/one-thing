@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { OrdersGrid, type SellerOrder } from "./OrdersGrid";
+import type { WebhookEvent } from "@/lib/shops";
 
 type Settings = {
   price: number;
@@ -33,6 +34,7 @@ export function ManageApp(props: {
   token: string;
   initial: Initial;
   orders: SellerOrder[];
+  webhooks: WebhookEvent[];
   geminiReady: boolean;
   paypalReady: boolean;
 }) {
@@ -42,6 +44,7 @@ export function ManageApp(props: {
   const [heroStatus, setHeroStatus] = useState(initial.heroStatus);
   const [hasFile, setHasFile] = useState(initial.hasDigitalFile);
   const [orders, setOrders] = useState(props.orders);
+  const [webhooks, setWebhooks] = useState(props.webhooks);
   const [frameKey, setFrameKey] = useState(0);
   const [toast, setToast] = useState<string | null>(null);
   const shopPath = `/s/${slug}`;
@@ -81,7 +84,10 @@ export function ManageApp(props: {
   // New sales show up without a reload.
   useEffect(() => {
     if (status !== "live") return;
-    const t = setInterval(() => api("/orders").then(setOrders).catch(() => {}), 15000);
+    const t = setInterval(() => {
+      api("/orders").then(setOrders).catch(() => {});
+      api("/webhooks").then(setWebhooks).catch(() => {});
+    }, 15000);
     return () => clearInterval(t);
   }, [status, api]);
 
@@ -183,12 +189,51 @@ export function ManageApp(props: {
         />
       </section>
 
+      <section className="mx-auto max-w-7xl px-4 pb-16">
+        <div className="mb-3 flex items-baseline gap-3">
+          <h2 className="text-xl font-semibold">PayPal webhooks</h2>
+          <span className="text-sm text-muted">Events PayPal sent about this shop&apos;s orders, newest first</span>
+        </div>
+        <WebhookLog events={webhooks} />
+      </section>
+
       {toast && (
         <div role="status" className="fixed bottom-6 left-1/2 z-30 -translate-x-1/2 rounded-full bg-foreground px-5 py-3 text-sm text-background shadow-lg">
           {toast}
         </div>
       )}
     </div>
+  );
+}
+
+function WebhookLog({ events }: { events: WebhookEvent[] }) {
+  if (!events.length) {
+    return (
+      <p className="rounded-2xl border border-dashed border-line bg-white p-6 text-sm text-muted">
+        Nothing yet. After a sale, PayPal sends PAYMENT.CAPTURE.COMPLETED here within a few seconds; each delivery is
+        checked against PayPal&apos;s signature before it can change an order.
+      </p>
+    );
+  }
+  return (
+    <ul className="divide-y divide-line overflow-hidden rounded-2xl border border-line bg-white">
+      {events.map((e) => (
+        <li key={e.id} className="flex flex-wrap items-center gap-x-4 gap-y-1 px-4 py-3 text-sm">
+          <code className="font-semibold">{e.event_type}</code>
+          <span
+            className={`rounded-full px-2 py-0.5 text-xs font-semibold ${e.verified ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}
+          >
+            {e.verified ? "Signature verified" : "Not verified"}
+          </span>
+          {e.summary && <span>{e.summary}</span>}
+          <span className="text-muted">{e.outcome}</span>
+          <span className="ml-auto text-xs text-muted">
+            {new Date(e.received_at).toLocaleString([], { dateStyle: "medium", timeStyle: "medium" })}
+            {e.paypal_order_id && ` · order ${e.paypal_order_id}`}
+          </span>
+        </li>
+      ))}
+    </ul>
   );
 }
 

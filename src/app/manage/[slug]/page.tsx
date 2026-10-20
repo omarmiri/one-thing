@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { getOwnedShop, listOrders } from "@/lib/shops";
+import { getOwnedShop, listOrders, listWebhookEvents } from "@/lib/shops";
 import { geminiEnabled } from "@/lib/gemini";
 import { paypalEnabled } from "@/lib/paypal";
 import { ManageApp } from "./ManageApp";
@@ -13,6 +13,7 @@ export default async function Manage(props: PageProps<"/manage/[slug]">) {
   const shop = typeof token === "string" ? await getOwnedShop(slug, token) : null;
   if (!shop) notFound();
   const orders = (await listOrders(shop.id)).filter((o) => o.status !== "created");
+  const webhooks = await listWebhookEvents(shop.id);
 
   return (
     <ManageApp
@@ -38,6 +39,7 @@ export default async function Manage(props: PageProps<"/manage/[slug]">) {
         },
       }}
       orders={orders.map(({ download_token: _d, ...o }) => o)}
+      webhooks={webhooks}
       geminiReady={geminiEnabled()}
       paypalReady={paypalEnabled()}
     />

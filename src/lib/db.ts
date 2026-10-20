@@ -76,6 +76,19 @@ ALTER TABLE shops  ADD COLUMN IF NOT EXISTS access_url text;                    
 ALTER TABLE orders ADD COLUMN IF NOT EXISTS access_code text UNIQUE;
 ALTER TABLE orders ADD COLUMN IF NOT EXISTS code_uses integer NOT NULL DEFAULT 0;
 ALTER TABLE orders ADD COLUMN IF NOT EXISTS code_last_used_at timestamptz;
+
+-- Every PayPal webhook delivery we can tie to a shop, so sellers can see them arrive.
+CREATE TABLE IF NOT EXISTS webhook_events (
+  id               text PRIMARY KEY,                  -- PayPal's event id (retries reuse it)
+  shop_id          text REFERENCES shops(id),
+  event_type       text NOT NULL,
+  paypal_order_id  text,
+  summary          text,                              -- e.g. "$2.99 USD captured"
+  verified         boolean NOT NULL,
+  outcome          text NOT NULL,                     -- what we did with it
+  received_at      timestamptz NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS webhook_events_shop_idx ON webhook_events(shop_id, received_at DESC);
 `;
 
 async function open(): Promise<Db> {

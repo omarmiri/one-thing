@@ -100,7 +100,24 @@ export const getBlob = (id: string) =>
 export const listOrders = (shopId: string) =>
   query<Order>("SELECT * FROM orders WHERE shop_id = $1 ORDER BY created_at DESC", [shopId]);
 
-export const getOrder = (id: string) => one<Order>("SELECT * FROM orders WHERE id = $1", [id]);
+export type WebhookEvent = {
+  id: string;
+  event_type: string;
+  paypal_order_id: string | null;
+  summary: string | null;
+  verified: boolean;
+  outcome: string;
+  received_at: string;
+};
+
+export const listWebhookEvents = (shopId: string) =>
+  query<WebhookEvent>(
+    `SELECT id, event_type, paypal_order_id, summary, verified, outcome, received_at
+       FROM webhook_events WHERE shop_id = $1 ORDER BY received_at DESC LIMIT 50`,
+    [shopId],
+  );
+
+export const getOrder =(id: string) => one<Order>("SELECT * FROM orders WHERE id = $1", [id]);
 
 export const blobUrl = (id: string | null) => (id ? `/api/blobs/${id}` : null);
 
