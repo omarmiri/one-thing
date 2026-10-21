@@ -1,0 +1,2453 @@
+<?xml version="1.0" encoding="utf-8"?>
+<definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:schemas="https://one-thing-ash0.onrender.com/schemas" xmlns:wsdl="https://one-thing-ash0.onrender.com/wsdl" targetNamespace="https://one-thing-ash0.onrender.com/wsdl" xmlns="http://schemas.xmlsoap.org/wsdl/">
+  <types>
+    <xs:schema xmlns:tns="https://one-thing-ash0.onrender.com/schemas" targetNamespace="https://one-thing-ash0.onrender.com/schemas" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+      <xs:element name="POST_signIn_InputMessage" type="schemas:POST_signIn_InputMessage" />
+      <xs:element name="POST_signIn_OutputMessage" type="schemas:POST_signIn_OutputMessage" />
+      <xs:element name="POST_signIn_400" type="schemas:POST_signIn_400" />
+      <xs:element name="POST_signOut_InputMessage" type="schemas:POST_signOut_InputMessage" />
+      <xs:element name="POST_signOut_OutputMessage" type="schemas:POST_signOut_OutputMessage" />
+      <xs:element name="POST_createShop_InputMessage" type="schemas:POST_createShop_InputMessage" />
+      <xs:element name="POST_createShop_OutputMessage" type="schemas:POST_createShop_OutputMessage" />
+      <xs:element name="POST_createShop_400" type="schemas:POST_createShop_400" />
+      <xs:element name="POST_createShop_409" type="schemas:POST_createShop_409" />
+      <xs:element name="POST_createShop_502" type="schemas:POST_createShop_502" />
+      <xs:element name="GET_getShop_InputMessage" type="schemas:GET_getShop_InputMessage" />
+      <xs:element name="GET_getShop_OutputMessage" type="schemas:GET_getShop_OutputMessage" />
+      <xs:element name="GET_getShop_404" type="schemas:GET_getShop_404" />
+      <xs:element name="PATCH_updateShop_InputMessage" type="schemas:PATCH_updateShop_InputMessage" />
+      <xs:element name="PATCH_updateShop_OutputMessage" type="schemas:PATCH_updateShop_OutputMessage" />
+      <xs:element name="PATCH_updateShop_400" type="schemas:PATCH_updateShop_400" />
+      <xs:element name="PATCH_updateShop_404" type="schemas:PATCH_updateShop_404" />
+      <xs:element name="POST_refineShopDesign_InputMessage" type="schemas:POST_refineShopDesign_InputMessage" />
+      <xs:element name="POST_refineShopDesign_OutputMessage" type="schemas:POST_refineShopDesign_OutputMessage" />
+      <xs:element name="POST_refineShopDesign_400" type="schemas:POST_refineShopDesign_400" />
+      <xs:element name="POST_refineShopDesign_404" type="schemas:POST_refineShopDesign_404" />
+      <xs:element name="POST_refineShopDesign_502" type="schemas:POST_refineShopDesign_502" />
+      <xs:element name="POST_regenerateHeroArt_InputMessage" type="schemas:POST_regenerateHeroArt_InputMessage" />
+      <xs:element name="POST_regenerateHeroArt_OutputMessage" type="schemas:POST_regenerateHeroArt_OutputMessage" />
+      <xs:element name="POST_regenerateHeroArt_400" type="schemas:POST_regenerateHeroArt_400" />
+      <xs:element name="POST_regenerateHeroArt_404" type="schemas:POST_regenerateHeroArt_404" />
+      <xs:element name="POST_uploadDigitalFile_InputMessage" type="schemas:POST_uploadDigitalFile_InputMessage" />
+      <xs:element name="POST_uploadDigitalFile_OutputMessage" type="schemas:POST_uploadDigitalFile_OutputMessage" />
+      <xs:element name="POST_uploadDigitalFile_400" type="schemas:POST_uploadDigitalFile_400" />
+      <xs:element name="POST_uploadDigitalFile_404" type="schemas:POST_uploadDigitalFile_404" />
+      <xs:element name="POST_addPhotos_InputMessage" type="schemas:POST_addPhotos_InputMessage" />
+      <xs:element name="POST_addPhotos_OutputMessage" type="schemas:POST_addPhotos_OutputMessage" />
+      <xs:element name="POST_addPhotos_400" type="schemas:POST_addPhotos_400" />
+      <xs:element name="POST_addPhotos_404" type="schemas:POST_addPhotos_404" />
+      <xs:element name="PUT_setPhotoOrder_InputMessage" type="schemas:PUT_setPhotoOrder_InputMessage" />
+      <xs:element name="PUT_setPhotoOrder_OutputMessage" type="schemas:PUT_setPhotoOrder_OutputMessage" />
+      <xs:element name="PUT_setPhotoOrder_400" type="schemas:PUT_setPhotoOrder_400" />
+      <xs:element name="PUT_setPhotoOrder_404" type="schemas:PUT_setPhotoOrder_404" />
+      <xs:element name="GET_checkLinkName_InputMessage" type="schemas:GET_checkLinkName_InputMessage" />
+      <xs:element name="GET_checkLinkName_OutputMessage" type="schemas:GET_checkLinkName_OutputMessage" />
+      <xs:element name="GET_searchProducts_InputMessage" type="schemas:GET_searchProducts_InputMessage" />
+      <xs:element name="GET_searchProducts_OutputMessage" type="schemas:GET_searchProducts_OutputMessage" />
+      <xs:element name="GET_searchProducts_502" type="schemas:GET_searchProducts_502" />
+      <xs:element name="GET_searchProducts_503" type="schemas:GET_searchProducts_503" />
+      <xs:element name="GET_getPayPalClientToken_InputMessage" type="schemas:GET_getPayPalClientToken_InputMessage" />
+      <xs:element name="GET_getPayPalClientToken_OutputMessage" type="schemas:GET_getPayPalClientToken_OutputMessage" />
+      <xs:element name="GET_getPayPalClientToken_502" type="schemas:GET_getPayPalClientToken_502" />
+      <xs:element name="GET_getPayPalClientToken_503" type="schemas:GET_getPayPalClientToken_503" />
+      <xs:element name="POST_createCheckoutOrder_InputMessage" type="schemas:POST_createCheckoutOrder_InputMessage" />
+      <xs:element name="POST_createCheckoutOrder_OutputMessage" type="schemas:POST_createCheckoutOrder_OutputMessage" />
+      <xs:element name="POST_createCheckoutOrder_400" type="schemas:POST_createCheckoutOrder_400" />
+      <xs:element name="POST_createCheckoutOrder_404" type="schemas:POST_createCheckoutOrder_404" />
+      <xs:element name="POST_createCheckoutOrder_409" type="schemas:POST_createCheckoutOrder_409" />
+      <xs:element name="POST_createCheckoutOrder_502" type="schemas:POST_createCheckoutOrder_502" />
+      <xs:element name="POST_createCheckoutOrder_503" type="schemas:POST_createCheckoutOrder_503" />
+      <xs:element name="POST_captureCheckoutOrder_InputMessage" type="schemas:POST_captureCheckoutOrder_InputMessage" />
+      <xs:element name="POST_captureCheckoutOrder_OutputMessage" type="schemas:POST_captureCheckoutOrder_OutputMessage" />
+      <xs:element name="POST_captureCheckoutOrder_402" type="schemas:POST_captureCheckoutOrder_402" />
+      <xs:element name="POST_captureCheckoutOrder_404" type="schemas:POST_captureCheckoutOrder_404" />
+      <xs:element name="POST_captureCheckoutOrder_409" type="schemas:POST_captureCheckoutOrder_409" />
+      <xs:element name="POST_captureCheckoutOrder_422" type="schemas:POST_captureCheckoutOrder_422" />
+      <xs:element name="POST_captureCheckoutOrder_502" type="schemas:POST_captureCheckoutOrder_502" />
+      <xs:element name="POST_verifyAccessCode_InputMessage" type="schemas:POST_verifyAccessCode_InputMessage" />
+      <xs:element name="POST_verifyAccessCode_OutputMessage" type="schemas:POST_verifyAccessCode_OutputMessage" />
+      <xs:element name="GET_listOrders_InputMessage" type="schemas:GET_listOrders_InputMessage" />
+      <xs:element name="GET_listOrders_OutputMessage" type="schemas:GET_listOrders_OutputMessage" />
+      <xs:element name="GET_listOrders_404" type="schemas:GET_listOrders_404" />
+      <xs:element name="POST_markOrderShipped_InputMessage" type="schemas:POST_markOrderShipped_InputMessage" />
+      <xs:element name="POST_markOrderShipped_OutputMessage" type="schemas:POST_markOrderShipped_OutputMessage" />
+      <xs:element name="POST_markOrderShipped_400" type="schemas:POST_markOrderShipped_400" />
+      <xs:element name="POST_markOrderShipped_404" type="schemas:POST_markOrderShipped_404" />
+      <xs:element name="GET_listWebhookEvents_InputMessage" type="schemas:GET_listWebhookEvents_InputMessage" />
+      <xs:element name="GET_listWebhookEvents_OutputMessage" type="schemas:GET_listWebhookEvents_OutputMessage" />
+      <xs:element name="GET_listWebhookEvents_404" type="schemas:GET_listWebhookEvents_404" />
+      <xs:element name="GET_downloadFile_InputMessage" type="schemas:GET_downloadFile_InputMessage" />
+      <xs:element name="GET_downloadFile_OutputMessage" type="schemas:GET_downloadFile_OutputMessage" />
+      <xs:element name="GET_downloadFile_410" type="schemas:GET_downloadFile_410" />
+      <xs:element name="GET_getImage_InputMessage" type="schemas:GET_getImage_InputMessage" />
+      <xs:element name="GET_getImage_OutputMessage" type="schemas:GET_getImage_OutputMessage" />
+      <xs:element name="GET_getImage_404" type="schemas:GET_getImage_404" />
+      <xs:complexType name="Error">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="error" type="xs:string">
+            <xs:annotation>
+              <xs:documentation>A sentence you can show to a person.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element minOccurs="0" name="field" type="xs:string">
+            <xs:annotation>
+              <xs:documentation>The form field at fault, when there is one.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element minOccurs="0" name="detail" type="xs:string">
+            <xs:annotation>
+              <xs:documentation>The upstream service's own message, for debugging.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="CreateShopForm">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="source" type="schemas:Source" />
+          <xs:element minOccurs="0" name="photo" type="xs:hexBinary">
+            <xs:annotation>
+              <xs:documentation>`source=photo`: the product photo, up to 8 MB.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element minOccurs="0" name="description" type="xs:string">
+            <xs:annotation>
+              <xs:documentation>`source=photo`: a sentence or two about the product. Required if there is no photo.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element minOccurs="0" name="url">
+            <xs:simpleType>
+              <xs:annotation>
+                <xs:documentation>`source=link`: a product page, or your own app or game page.</xs:documentation>
+              </xs:annotation>
+              <xs:restriction base="xs:string" />
+            </xs:simpleType>
+          </xs:element>
+          <xs:element minOccurs="0" name="productId" type="xs:string">
+            <xs:annotation>
+              <xs:documentation>`source=channel3`: a product id from `searchProducts`.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element minOccurs="0" name="slug" type="xs:string">
+            <xs:annotation>
+              <xs:documentation>The link name you want. If omitted, the AI suggests one.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element minOccurs="0" default="auto" name="type" type="schemas:Type" />
+          <xs:element minOccurs="0" name="delivery" type="schemas:Delivery">
+            <xs:annotation>
+              <xs:documentation>For digital products. If omitted, the AI guesses.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element minOccurs="0" name="access_url">
+            <xs:simpleType>
+              <xs:annotation>
+                <xs:documentation>Where buyers use an access code.</xs:documentation>
+              </xs:annotation>
+              <xs:restriction base="xs:string" />
+            </xs:simpleType>
+          </xs:element>
+          <xs:element minOccurs="0" name="price" type="xs:double">
+            <xs:annotation>
+              <xs:documentation>USD. If omitted, the AI suggests a price.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element minOccurs="0" name="shipping" type="xs:double" />
+          <xs:element minOccurs="0" name="stock" type="xs:integer" />
+          <xs:element minOccurs="0" name="ship_countries" type="xs:string" />
+          <xs:element minOccurs="0" name="paypal_email">
+            <xs:simpleType>
+              <xs:restriction base="xs:string" />
+            </xs:simpleType>
+          </xs:element>
+          <xs:element minOccurs="0" name="seller_email">
+            <xs:simpleType>
+              <xs:restriction base="xs:string" />
+            </xs:simpleType>
+          </xs:element>
+          <xs:element minOccurs="0" name="digital_file" type="xs:hexBinary" />
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="CreatedShop">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="slug" type="xs:string" />
+          <xs:element minOccurs="1" name="token" type="xs:string">
+            <xs:annotation>
+              <xs:documentation>The admin token. Shown once; store it.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element minOccurs="1" name="manageUrl" type="xs:string">
+            <xs:annotation>
+              <xs:documentation>The seller's private manage page (contains the token).</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="ShopUpdate">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="slug" type="xs:string" />
+          <xs:element minOccurs="0" name="status" type="schemas:Status" />
+          <xs:element minOccurs="0" name="product_type" type="schemas:ProductType">
+            <xs:annotation>
+              <xs:documentation>`referral` only for shops created from Channel3.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element minOccurs="0" name="price">
+            <xs:simpleType>
+              <xs:restriction base="xs:double">
+                <xs:maxInclusive value="10000" />
+                <xs:minInclusive value="0.5" />
+              </xs:restriction>
+            </xs:simpleType>
+          </xs:element>
+          <xs:element minOccurs="0" name="shipping">
+            <xs:simpleType>
+              <xs:restriction base="xs:double">
+                <xs:maxInclusive value="500" />
+                <xs:minInclusive value="0" />
+              </xs:restriction>
+            </xs:simpleType>
+          </xs:element>
+          <xs:element minOccurs="0" name="stock" nillable="true">
+            <xs:simpleType>
+              <xs:restriction base="xs:integer">
+                <xs:minInclusive value="0" />
+              </xs:restriction>
+            </xs:simpleType>
+          </xs:element>
+          <xs:element minOccurs="0" name="ship_countries" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="delivery" type="schemas:Delivery1" />
+          <xs:element minOccurs="0" name="access_url" nillable="true">
+            <xs:simpleType>
+              <xs:restriction base="xs:string" />
+            </xs:simpleType>
+          </xs:element>
+          <xs:element minOccurs="0" name="paypal_email" nillable="true">
+            <xs:simpleType>
+              <xs:restriction base="xs:string" />
+            </xs:simpleType>
+          </xs:element>
+          <xs:element minOccurs="0" name="seller_email" nillable="true">
+            <xs:simpleType>
+              <xs:restriction base="xs:string" />
+            </xs:simpleType>
+          </xs:element>
+          <xs:element minOccurs="0" name="zapier_hook_url" nillable="true">
+            <xs:simpleType>
+              <xs:restriction base="xs:string" />
+            </xs:simpleType>
+          </xs:element>
+          <xs:element minOccurs="0" name="in_gallery" type="xs:boolean">
+            <xs:annotation>
+              <xs:documentation>Feature the shop at `/gallery` while it's live. Off by default.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="Shop">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="id" type="xs:string" />
+          <xs:element minOccurs="1" name="slug" type="xs:string" />
+          <xs:element minOccurs="1" name="status" type="schemas:Status" />
+          <xs:element minOccurs="1" name="product_type" type="schemas:ProductType1" />
+          <xs:element minOccurs="1" name="price_cents" type="xs:integer" />
+          <xs:element minOccurs="1" name="currency" type="xs:string" />
+          <xs:element minOccurs="0" name="shipping_cents" type="xs:integer" />
+          <xs:element minOccurs="0" name="ship_countries" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="stock" nillable="true" type="xs:integer" />
+          <xs:element minOccurs="0" name="delivery" type="schemas:Delivery1" />
+          <xs:element minOccurs="0" name="access_url" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="paypal_email" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="seller_email" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="zapier_hook_url" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="in_gallery" type="xs:boolean" />
+          <xs:element minOccurs="0" name="photo_blob" nillable="true" type="xs:string">
+            <xs:annotation>
+              <xs:documentation>Image id for `getImage`.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element minOccurs="0" name="hero_blob" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="hero_status" type="schemas:HeroStatus" />
+          <xs:element minOccurs="0" name="hero_error" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="ai_source" type="schemas:AiSource" />
+          <xs:element minOccurs="0" name="source_url" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="referral" nillable="true" type="schemas:Referral" />
+          <xs:element minOccurs="1" name="spec" type="schemas:DesignSpec">
+            <xs:annotation>
+              <xs:documentation>What Gemini designed. OneThing's templates render it; Gemini never writes HTML.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element minOccurs="0" name="created_at" type="xs:dateTime" />
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="DesignSpec">
+        <xs:annotation>
+          <xs:documentation>What Gemini designed. OneThing's templates render it; Gemini never writes HTML.</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+          <xs:element minOccurs="1" name="productType" type="schemas:ProductType2" />
+          <xs:element minOccurs="1" name="productName" type="xs:string" />
+          <xs:element minOccurs="1" name="layout" type="schemas:Layout" />
+          <xs:element minOccurs="1" name="palette" type="schemas:Palette" />
+          <xs:element minOccurs="1" name="fonts" type="schemas:Fonts" />
+          <xs:element minOccurs="0" name="eyebrow" type="xs:string" />
+          <xs:element minOccurs="1" name="headline" type="xs:string" />
+          <xs:element minOccurs="0" name="subheadline" type="xs:string" />
+          <xs:element minOccurs="0" name="story" type="xs:string" />
+          <xs:element minOccurs="1" maxOccurs="unbounded" name="bullets" type="xs:string" />
+          <xs:element minOccurs="0" maxOccurs="unbounded" name="details" type="schemas:Detail" />
+          <xs:element minOccurs="1" maxOccurs="unbounded" name="faq" type="schemas:Faq" />
+          <xs:element minOccurs="1" name="ctaLabel" type="xs:string" />
+          <xs:element minOccurs="0" name="suggestedPriceUsd" type="xs:double" />
+          <xs:element minOccurs="0" name="suggestedShippingUsd" type="xs:double" />
+          <xs:element minOccurs="0" name="imageAlt" type="xs:string" />
+          <xs:element minOccurs="0" name="heroPrompt" type="xs:string" />
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="Referral">
+        <xs:annotation>
+          <xs:documentation>A recommended Channel3 product. Buy links are Channel3-tracked, credited to this shop.</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+          <xs:element minOccurs="1" name="productId" type="xs:string" />
+          <xs:element minOccurs="1" name="title" type="xs:string" />
+          <xs:element minOccurs="0" name="brand" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="image" nillable="true" type="xs:string" />
+          <xs:element minOccurs="1" maxOccurs="unbounded" name="offers" type="schemas:Offer" />
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="ProductCard">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="id" type="xs:string" />
+          <xs:element minOccurs="1" name="title" type="xs:string" />
+          <xs:element minOccurs="0" name="brand" nillable="true" type="xs:string" />
+          <xs:element minOccurs="1" name="image" type="xs:string" />
+          <xs:element minOccurs="1" name="price" type="xs:double" />
+          <xs:element minOccurs="1" name="currency" type="xs:string" />
+          <xs:element minOccurs="1" name="retailer" type="xs:string">
+            <xs:annotation>
+              <xs:documentation>The store with the best offer.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element minOccurs="1" name="retailers" type="xs:integer" />
+          <xs:element minOccurs="1" name="commission" type="xs:double">
+            <xs:annotation>
+              <xs:documentation>Best commission rate across offers, 0–1.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="Order">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="id" type="xs:string" />
+          <xs:element minOccurs="0" name="paypal_order_id" nillable="true" type="xs:string" />
+          <xs:element minOccurs="1" name="status" type="schemas:Status2" />
+          <xs:element minOccurs="1" name="amount_cents" type="xs:integer" />
+          <xs:element minOccurs="0" name="shipping_cents" type="xs:integer" />
+          <xs:element minOccurs="1" name="currency" type="xs:string" />
+          <xs:element minOccurs="0" name="buyer_email" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="buyer_name" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="shipping_address" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="capture_id" nillable="true" type="xs:string" />
+          <xs:element minOccurs="1" name="fulfillment_status" type="schemas:FulfillmentStatus" />
+          <xs:element minOccurs="0" name="carrier" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="tracking_number" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="tracking_synced" type="xs:boolean" />
+          <xs:element minOccurs="0" name="downloads" type="xs:integer" />
+          <xs:element minOccurs="0" name="access_code" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="code_uses" type="xs:integer" />
+          <xs:element minOccurs="0" name="paid_at" nillable="true" type="xs:dateTime" />
+          <xs:element minOccurs="0" name="created_at" type="xs:dateTime" />
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="WebhookEvent">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="id" type="xs:string">
+            <xs:annotation>
+              <xs:documentation>PayPal's event id.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element minOccurs="1" name="event_type" type="xs:string" />
+          <xs:element minOccurs="0" name="paypal_order_id" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="summary" nillable="true" type="xs:string" />
+          <xs:element minOccurs="1" name="verified" type="xs:boolean">
+            <xs:annotation>
+              <xs:documentation>Whether PayPal confirmed the delivery's signature.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element minOccurs="1" name="outcome" type="xs:string" />
+          <xs:element minOccurs="1" name="received_at" type="xs:dateTime" />
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="OrderEvent">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="event" type="schemas:Event" />
+          <xs:element minOccurs="1" name="shop" type="schemas:Shop1" />
+          <xs:element minOccurs="1" name="order" type="schemas:Order1" />
+        </xs:sequence>
+      </xs:complexType>
+      <xs:simpleType name="AiSource">
+        <xs:restriction base="xs:string">
+          <xs:enumeration value="gemini" />
+          <xs:enumeration value="fallback" />
+        </xs:restriction>
+      </xs:simpleType>
+      <xs:complexType name="ApiAccessVerifyRequest">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="shop" type="xs:string">
+            <xs:annotation>
+              <xs:documentation>The shop's link name.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element minOccurs="1" name="code" type="xs:string" />
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="ApiAccessVerifyResponse">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="valid" type="xs:boolean" />
+          <xs:element minOccurs="0" name="product" type="xs:string">
+            <xs:annotation>
+              <xs:documentation>The product name, when valid.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="ApiAccountSigninRequest">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="identifier" type="xs:string">
+            <xs:annotation>
+              <xs:documentation>An email address, or a phone number (spaces, dashes and brackets are ignored; keep a leading +).</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="ApiAccountSigninResponse">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="id" type="xs:string" />
+          <xs:element minOccurs="1" name="email" nillable="true" type="xs:string">
+            <xs:annotation>
+              <xs:documentation>Lower-cased.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element minOccurs="1" name="phone" nillable="true" type="xs:string">
+            <xs:annotation>
+              <xs:documentation>Digits, with a leading + if one was given.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="ApiChannel3SearchResponse">
+        <xs:sequence>
+          <xs:element minOccurs="1" maxOccurs="unbounded" name="products" type="schemas:ProductCard" />
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="ApiOrdersCapture409Error1">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="status" type="schemas:Status3" />
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="ApiOrdersCaptureResponse">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="orderId" type="xs:string">
+            <xs:annotation>
+              <xs:documentation>OneThing's order id; the thank-you page is `/&lt;slug&gt;/thanks?order=&lt;orderId&gt;`.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element minOccurs="1" fixed="paid" name="status" type="xs:string" />
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="ApiOrdersRequest">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="slug" type="xs:string" />
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="ApiOrdersResponse">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="id" type="xs:string">
+            <xs:annotation>
+              <xs:documentation>PayPal order id.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="ApiPaypalClientTokenResponse">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="clientToken" type="xs:string">
+            <xs:annotation>
+              <xs:documentation>Pass to `createInstance` in the PayPal JavaScript SDK v6.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="ApiShopsFileResponse">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="ok" type="xs:boolean" />
+          <xs:element minOccurs="1" name="filename" type="xs:string" />
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="ApiShopsOrdersShipRequest">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="carrier" type="schemas:Carrier" />
+          <xs:element minOccurs="0" name="carrierName">
+            <xs:simpleType>
+              <xs:annotation>
+                <xs:documentation>Required when `carrier` is `OTHER`.</xs:documentation>
+              </xs:annotation>
+              <xs:restriction base="xs:string">
+                <xs:maxLength value="60" />
+              </xs:restriction>
+            </xs:simpleType>
+          </xs:element>
+          <xs:element minOccurs="1" name="trackingNumber">
+            <xs:simpleType>
+              <xs:restriction base="xs:string">
+                <xs:maxLength value="64" />
+                <xs:minLength value="4" />
+              </xs:restriction>
+            </xs:simpleType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="ApiShopsOrdersShipResponse">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="ok" type="xs:boolean" />
+          <xs:element minOccurs="1" name="synced" type="xs:boolean">
+            <xs:annotation>
+              <xs:documentation>Whether PayPal accepted the tracking number.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="ApiShopsPhotosRequest">
+        <xs:sequence>
+          <xs:element minOccurs="1" maxOccurs="unbounded" name="photos" type="xs:string">
+            <xs:annotation>
+              <xs:documentation>Photo ids, in order.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="ApiShopsRefineRequest">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="instruction">
+            <xs:simpleType>
+              <xs:restriction base="xs:string">
+                <xs:maxLength value="500" />
+              </xs:restriction>
+            </xs:simpleType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="ApiShopsRefineResponse">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="spec" type="schemas:DesignSpec">
+            <xs:annotation>
+              <xs:documentation>What Gemini designed. OneThing's templates render it; Gemini never writes HTML.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="ApiShopsResponse">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="ok" type="xs:boolean" />
+          <xs:element minOccurs="1" name="slug" type="xs:string">
+            <xs:annotation>
+              <xs:documentation>The shop's link name after this change.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="ApiSlugsCheckResponse">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="slug" type="xs:string" />
+          <xs:element minOccurs="1" name="available" type="xs:boolean" />
+          <xs:element minOccurs="0" name="problem" type="xs:string">
+            <xs:annotation>
+              <xs:documentation>Why not, when unavailable.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:simpleType name="Carrier">
+        <xs:restriction base="xs:string">
+          <xs:enumeration value="USPS" />
+          <xs:enumeration value="UPS" />
+          <xs:enumeration value="FEDEX" />
+          <xs:enumeration value="DHL" />
+          <xs:enumeration value="OTHER" />
+        </xs:restriction>
+      </xs:simpleType>
+      <xs:simpleType name="Delivery">
+        <xs:annotation>
+          <xs:documentation>For digital products. If omitted, the AI guesses.</xs:documentation>
+        </xs:annotation>
+        <xs:restriction base="xs:string">
+          <xs:enumeration value="file" />
+          <xs:enumeration value="access_code" />
+        </xs:restriction>
+      </xs:simpleType>
+      <xs:simpleType name="Delivery1">
+        <xs:restriction base="xs:string">
+          <xs:enumeration value="file" />
+          <xs:enumeration value="access_code" />
+        </xs:restriction>
+      </xs:simpleType>
+      <xs:complexType name="Detail">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="label" type="xs:string" />
+          <xs:element minOccurs="1" name="value" type="xs:string" />
+        </xs:sequence>
+      </xs:complexType>
+      <xs:simpleType name="Event">
+        <xs:restriction base="xs:string">
+          <xs:enumeration value="order.paid" />
+          <xs:enumeration value="order.shipped" />
+        </xs:restriction>
+      </xs:simpleType>
+      <xs:complexType name="Faq">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="q" type="xs:string" />
+          <xs:element minOccurs="1" name="a" type="xs:string" />
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="Fonts">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="heading" type="xs:string" />
+          <xs:element minOccurs="1" name="body" type="xs:string" />
+        </xs:sequence>
+      </xs:complexType>
+      <xs:simpleType name="FulfillmentStatus">
+        <xs:restriction base="xs:string">
+          <xs:enumeration value="none" />
+          <xs:enumeration value="to_ship" />
+          <xs:enumeration value="shipped" />
+          <xs:enumeration value="digital_sent" />
+        </xs:restriction>
+      </xs:simpleType>
+      <xs:simpleType name="HeroStatus">
+        <xs:restriction base="xs:string">
+          <xs:enumeration value="none" />
+          <xs:enumeration value="pending" />
+          <xs:enumeration value="ready" />
+          <xs:enumeration value="failed" />
+        </xs:restriction>
+      </xs:simpleType>
+      <xs:simpleType name="Layout">
+        <xs:restriction base="xs:string">
+          <xs:enumeration value="bold-hero" />
+          <xs:enumeration value="editorial" />
+          <xs:enumeration value="minimal" />
+          <xs:enumeration value="playful" />
+        </xs:restriction>
+      </xs:simpleType>
+      <xs:complexType name="Offer">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="domain" type="xs:string" />
+          <xs:element minOccurs="1" name="url" type="xs:string" />
+          <xs:element minOccurs="1" name="price" type="xs:double" />
+          <xs:element minOccurs="1" name="currency" type="xs:string" />
+          <xs:element minOccurs="1" name="inStock" type="xs:boolean" />
+          <xs:element minOccurs="1" name="commission" type="xs:double">
+            <xs:annotation>
+              <xs:documentation>Maximum commission rate, 0–1 (0.08 = 8%).</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="Ok">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="ok" type="xs:boolean" />
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="Order1">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="id" type="xs:string" />
+          <xs:element minOccurs="0" name="paypal_order_id" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="amount" type="xs:string" />
+          <xs:element minOccurs="0" name="currency" type="xs:string" />
+          <xs:element minOccurs="0" name="buyer_name" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="buyer_email" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="shipping_address" nillable="true">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:any />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element minOccurs="0" name="fulfillment_status" type="xs:string" />
+          <xs:element minOccurs="0" name="tracking_number" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="carrier" nillable="true" type="xs:string" />
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="Palette">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="background">
+            <xs:simpleType>
+              <xs:restriction base="xs:string">
+                <xs:pattern value="^#[0-9a-fA-F]{6}$" />
+              </xs:restriction>
+            </xs:simpleType>
+          </xs:element>
+          <xs:element minOccurs="1" name="surface">
+            <xs:simpleType>
+              <xs:restriction base="xs:string">
+                <xs:pattern value="^#[0-9a-fA-F]{6}$" />
+              </xs:restriction>
+            </xs:simpleType>
+          </xs:element>
+          <xs:element minOccurs="1" name="text">
+            <xs:simpleType>
+              <xs:restriction base="xs:string">
+                <xs:pattern value="^#[0-9a-fA-F]{6}$" />
+              </xs:restriction>
+            </xs:simpleType>
+          </xs:element>
+          <xs:element minOccurs="1" name="muted">
+            <xs:simpleType>
+              <xs:restriction base="xs:string">
+                <xs:pattern value="^#[0-9a-fA-F]{6}$" />
+              </xs:restriction>
+            </xs:simpleType>
+          </xs:element>
+          <xs:element minOccurs="1" name="accent">
+            <xs:simpleType>
+              <xs:restriction base="xs:string">
+                <xs:pattern value="^#[0-9a-fA-F]{6}$" />
+              </xs:restriction>
+            </xs:simpleType>
+          </xs:element>
+          <xs:element minOccurs="1" name="accentText">
+            <xs:simpleType>
+              <xs:restriction base="xs:string">
+                <xs:pattern value="^#[0-9a-fA-F]{6}$" />
+              </xs:restriction>
+            </xs:simpleType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="Photo">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="id" type="xs:string" />
+          <xs:element minOccurs="1" name="url" type="xs:string">
+            <xs:annotation>
+              <xs:documentation>Public image URL on this site.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:simpleType name="ProductType">
+        <xs:annotation>
+          <xs:documentation>`referral` only for shops created from Channel3.</xs:documentation>
+        </xs:annotation>
+        <xs:restriction base="xs:string">
+          <xs:enumeration value="physical" />
+          <xs:enumeration value="digital" />
+          <xs:enumeration value="referral" />
+        </xs:restriction>
+      </xs:simpleType>
+      <xs:simpleType name="ProductType1">
+        <xs:restriction base="xs:string">
+          <xs:enumeration value="physical" />
+          <xs:enumeration value="digital" />
+          <xs:enumeration value="referral" />
+        </xs:restriction>
+      </xs:simpleType>
+      <xs:simpleType name="ProductType2">
+        <xs:restriction base="xs:string">
+          <xs:enumeration value="digital" />
+          <xs:enumeration value="physical" />
+        </xs:restriction>
+      </xs:simpleType>
+      <xs:complexType name="Shop1">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="slug" type="xs:string" />
+          <xs:element minOccurs="0" name="name" type="xs:string" />
+          <xs:element minOccurs="0" name="url" type="xs:string" />
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="ShopPhotos">
+        <xs:sequence>
+          <xs:element minOccurs="1" maxOccurs="unbounded" name="photos" type="schemas:Photo" />
+        </xs:sequence>
+      </xs:complexType>
+      <xs:simpleType name="Source">
+        <xs:restriction base="xs:string">
+          <xs:enumeration value="photo" />
+          <xs:enumeration value="link" />
+          <xs:enumeration value="channel3" />
+        </xs:restriction>
+      </xs:simpleType>
+      <xs:simpleType name="Status">
+        <xs:restriction base="xs:string">
+          <xs:enumeration value="draft" />
+          <xs:enumeration value="live" />
+        </xs:restriction>
+      </xs:simpleType>
+      <xs:simpleType name="Status2">
+        <xs:restriction base="xs:string">
+          <xs:enumeration value="created" />
+          <xs:enumeration value="paid" />
+          <xs:enumeration value="failed" />
+        </xs:restriction>
+      </xs:simpleType>
+      <xs:simpleType name="Status3">
+        <xs:restriction base="xs:string">
+          <xs:enumeration value="pending" />
+        </xs:restriction>
+      </xs:simpleType>
+      <xs:simpleType name="Type">
+        <xs:restriction base="xs:string">
+          <xs:enumeration value="auto" />
+          <xs:enumeration value="physical" />
+          <xs:enumeration value="digital" />
+        </xs:restriction>
+      </xs:simpleType>
+      <xs:complexType name="POST_signIn_InputMessage">
+        <xs:sequence>
+          <xs:element minOccurs="1" fixed="application/json" name="Content-Type" type="xs:string" />
+          <xs:element minOccurs="1" name="body" type="schemas:ApiAccountSigninRequest" />
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="POST_signIn_OutputMessage">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="response200" type="schemas:ApiAccountSigninResponse">
+            <xs:annotation>
+              <xs:documentation>Signed in. The `ot_session` cookie is set.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="POST_signIn_400">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="response400" type="schemas:Error">
+            <xs:annotation>
+              <xs:documentation>Something in the request needs fixing; `error` says what.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="POST_signOut_InputMessage">
+        <xs:sequence>
+          <xs:any />
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="POST_signOut_OutputMessage">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="response200" type="schemas:Ok">
+            <xs:annotation>
+              <xs:documentation>Done.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="POST_createShop_InputMessage">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="source" type="schemas:Source" />
+          <xs:element minOccurs="0" name="photo" type="xs:hexBinary">
+            <xs:annotation>
+              <xs:documentation>`source=photo`: the product photo, up to 8 MB.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element minOccurs="0" name="description" type="xs:string">
+            <xs:annotation>
+              <xs:documentation>`source=photo`: a sentence or two about the product. Required if there is no photo.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element minOccurs="0" name="url">
+            <xs:simpleType>
+              <xs:annotation>
+                <xs:documentation>`source=link`: a product page, or your own app or game page.</xs:documentation>
+              </xs:annotation>
+              <xs:restriction base="xs:string" />
+            </xs:simpleType>
+          </xs:element>
+          <xs:element minOccurs="0" name="productId" type="xs:string">
+            <xs:annotation>
+              <xs:documentation>`source=channel3`: a product id from `searchProducts`.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element minOccurs="0" name="slug" type="xs:string">
+            <xs:annotation>
+              <xs:documentation>The link name you want. If omitted, the AI suggests one.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element minOccurs="0" default="auto" name="type" type="schemas:Type" />
+          <xs:element minOccurs="0" name="delivery" type="schemas:Delivery">
+            <xs:annotation>
+              <xs:documentation>For digital products. If omitted, the AI guesses.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element minOccurs="0" name="access_url">
+            <xs:simpleType>
+              <xs:annotation>
+                <xs:documentation>Where buyers use an access code.</xs:documentation>
+              </xs:annotation>
+              <xs:restriction base="xs:string" />
+            </xs:simpleType>
+          </xs:element>
+          <xs:element minOccurs="0" name="price" type="xs:double">
+            <xs:annotation>
+              <xs:documentation>USD. If omitted, the AI suggests a price.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element minOccurs="0" name="shipping" type="xs:double" />
+          <xs:element minOccurs="0" name="stock" type="xs:integer" />
+          <xs:element minOccurs="0" name="ship_countries" type="xs:string" />
+          <xs:element minOccurs="0" name="paypal_email">
+            <xs:simpleType>
+              <xs:restriction base="xs:string" />
+            </xs:simpleType>
+          </xs:element>
+          <xs:element minOccurs="0" name="seller_email">
+            <xs:simpleType>
+              <xs:restriction base="xs:string" />
+            </xs:simpleType>
+          </xs:element>
+          <xs:element minOccurs="0" name="digital_file" type="xs:hexBinary" />
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="POST_createShop_OutputMessage">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="response200" type="schemas:CreatedShop">
+            <xs:annotation>
+              <xs:documentation>Draft created.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="POST_createShop_400">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="response400" type="schemas:Error">
+            <xs:annotation>
+              <xs:documentation>Something in the request needs fixing; `error` says what.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="POST_createShop_409">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="response409" type="schemas:Error">
+            <xs:annotation>
+              <xs:documentation>Taken or unavailable (a link name, or a sold-out product).</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="POST_createShop_502">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="response502" type="schemas:Error">
+            <xs:annotation>
+              <xs:documentation>Gemini, PayPal or Channel3 failed or isn't configured.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="GET_getShop_InputMessage">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="slug" type="xs:string">
+            <xs:annotation>
+              <xs:documentation>The shop's link name (current or former).</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="GET_getShop_OutputMessage">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="response200" type="schemas:Shop">
+            <xs:annotation>
+              <xs:documentation>The shop.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="GET_getShop_404">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="response404" type="schemas:Error">
+            <xs:annotation>
+              <xs:documentation>No such shop, or the admin token doesn't match it.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="PATCH_updateShop_InputMessage">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="slug" type="xs:string">
+            <xs:annotation>
+              <xs:documentation>The shop's link name (current or former).</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element minOccurs="1" fixed="application/json" name="Content-Type" type="xs:string" />
+          <xs:element minOccurs="1" name="body" type="schemas:ShopUpdate" />
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="PATCH_updateShop_OutputMessage">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="response200" type="schemas:ApiShopsResponse">
+            <xs:annotation>
+              <xs:documentation>Saved.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="PATCH_updateShop_400">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="response400" type="schemas:Error">
+            <xs:annotation>
+              <xs:documentation>Something in the request needs fixing; `error` says what.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="PATCH_updateShop_404">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="response404" type="schemas:Error">
+            <xs:annotation>
+              <xs:documentation>No such shop, or the admin token doesn't match it.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="POST_refineShopDesign_InputMessage">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="slug" type="xs:string">
+            <xs:annotation>
+              <xs:documentation>The shop's link name (current or former).</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element minOccurs="1" fixed="application/json" name="Content-Type" type="xs:string" />
+          <xs:element minOccurs="1" name="body" type="schemas:ApiShopsRefineRequest" />
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="POST_refineShopDesign_OutputMessage">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="response200" type="schemas:ApiShopsRefineResponse">
+            <xs:annotation>
+              <xs:documentation>The new design.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="POST_refineShopDesign_400">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="response400" type="schemas:Error">
+            <xs:annotation>
+              <xs:documentation>Something in the request needs fixing; `error` says what.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="POST_refineShopDesign_404">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="response404" type="schemas:Error">
+            <xs:annotation>
+              <xs:documentation>No such shop, or the admin token doesn't match it.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="POST_refineShopDesign_502">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="response502" type="schemas:Error">
+            <xs:annotation>
+              <xs:documentation>Gemini, PayPal or Channel3 failed or isn't configured.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="POST_regenerateHeroArt_InputMessage">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="slug" type="xs:string">
+            <xs:annotation>
+              <xs:documentation>The shop's link name (current or former).</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="POST_regenerateHeroArt_OutputMessage">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="response200" type="schemas:Ok">
+            <xs:annotation>
+              <xs:documentation>Done.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="POST_regenerateHeroArt_400">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="response400" type="schemas:Error">
+            <xs:annotation>
+              <xs:documentation>Something in the request needs fixing; `error` says what.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="POST_regenerateHeroArt_404">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="response404" type="schemas:Error">
+            <xs:annotation>
+              <xs:documentation>No such shop, or the admin token doesn't match it.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="POST_uploadDigitalFile_InputMessage">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="slug" type="xs:string">
+            <xs:annotation>
+              <xs:documentation>The shop's link name (current or former).</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element minOccurs="1" name="file" type="xs:hexBinary">
+            <xs:annotation>
+              <xs:documentation>Up to 25 MB.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="POST_uploadDigitalFile_OutputMessage">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="response200" type="schemas:ApiShopsFileResponse">
+            <xs:annotation>
+              <xs:documentation>Uploaded.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="POST_uploadDigitalFile_400">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="response400" type="schemas:Error">
+            <xs:annotation>
+              <xs:documentation>Something in the request needs fixing; `error` says what.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="POST_uploadDigitalFile_404">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="response404" type="schemas:Error">
+            <xs:annotation>
+              <xs:documentation>No such shop, or the admin token doesn't match it.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="POST_addPhotos_InputMessage">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="slug" type="xs:string">
+            <xs:annotation>
+              <xs:documentation>The shop's link name (current or former).</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element minOccurs="1" name="photo" type="xs:hexBinary">
+            <xs:annotation>
+              <xs:documentation>An image, up to 15 MB. The endpoint also accepts the field repeated, to add several in one request.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="POST_addPhotos_OutputMessage">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="response200" type="schemas:ShopPhotos">
+            <xs:annotation>
+              <xs:documentation>The shop's photos, cover first.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="POST_addPhotos_400">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="response400" type="schemas:Error">
+            <xs:annotation>
+              <xs:documentation>Something in the request needs fixing; `error` says what.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="POST_addPhotos_404">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="response404" type="schemas:Error">
+            <xs:annotation>
+              <xs:documentation>No such shop, or the admin token doesn't match it.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="PUT_setPhotoOrder_InputMessage">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="slug" type="xs:string">
+            <xs:annotation>
+              <xs:documentation>The shop's link name (current or former).</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element minOccurs="1" fixed="application/json" name="Content-Type" type="xs:string" />
+          <xs:element minOccurs="1" name="body" type="schemas:ApiShopsPhotosRequest" />
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="PUT_setPhotoOrder_OutputMessage">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="response200" type="schemas:ShopPhotos">
+            <xs:annotation>
+              <xs:documentation>The shop's photos, cover first.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="PUT_setPhotoOrder_400">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="response400" type="schemas:Error">
+            <xs:annotation>
+              <xs:documentation>Something in the request needs fixing; `error` says what.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="PUT_setPhotoOrder_404">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="response404" type="schemas:Error">
+            <xs:annotation>
+              <xs:documentation>No such shop, or the admin token doesn't match it.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="GET_checkLinkName_InputMessage">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="name" type="xs:string">
+            <xs:annotation>
+              <xs:documentation>Anything; it is normalised (`Raptor Rush` becomes `raptor-rush`).</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="GET_checkLinkName_OutputMessage">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="response200" type="schemas:ApiSlugsCheckResponse">
+            <xs:annotation>
+              <xs:documentation>The normalised name and whether it can be used.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="GET_searchProducts_InputMessage">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="q">
+            <xs:simpleType>
+              <xs:annotation>
+                <xs:documentation>What to look for, in plain words.</xs:documentation>
+              </xs:annotation>
+              <xs:restriction base="xs:string">
+                <xs:maxLength value="200" />
+              </xs:restriction>
+            </xs:simpleType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="GET_searchProducts_OutputMessage">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="response200" type="schemas:ApiChannel3SearchResponse">
+            <xs:annotation>
+              <xs:documentation>Up to 12 products.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="GET_searchProducts_502">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="response502" type="schemas:Error">
+            <xs:annotation>
+              <xs:documentation>Gemini, PayPal or Channel3 failed or isn't configured.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="GET_searchProducts_503">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="response503" type="schemas:Error">
+            <xs:annotation>
+              <xs:documentation>Gemini, PayPal or Channel3 failed or isn't configured.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="GET_getPayPalClientToken_InputMessage">
+        <xs:sequence>
+          <xs:any />
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="GET_getPayPalClientToken_OutputMessage">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="response200" type="schemas:ApiPaypalClientTokenResponse">
+            <xs:annotation>
+              <xs:documentation>A token for this site's domain.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="GET_getPayPalClientToken_502">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="response502" type="schemas:Error">
+            <xs:annotation>
+              <xs:documentation>Gemini, PayPal or Channel3 failed or isn't configured.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="GET_getPayPalClientToken_503">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="response503" type="schemas:Error">
+            <xs:annotation>
+              <xs:documentation>Gemini, PayPal or Channel3 failed or isn't configured.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="POST_createCheckoutOrder_InputMessage">
+        <xs:sequence>
+          <xs:element minOccurs="1" fixed="application/json" name="Content-Type" type="xs:string" />
+          <xs:element minOccurs="1" name="body" type="schemas:ApiOrdersRequest" />
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="POST_createCheckoutOrder_OutputMessage">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="response200" type="schemas:ApiOrdersResponse">
+            <xs:annotation>
+              <xs:documentation>PayPal order created.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="POST_createCheckoutOrder_400">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="response400" type="schemas:Error">
+            <xs:annotation>
+              <xs:documentation>Something in the request needs fixing; `error` says what.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="POST_createCheckoutOrder_404">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="response404" type="schemas:Error">
+            <xs:annotation>
+              <xs:documentation>No such shop, or the admin token doesn't match it.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="POST_createCheckoutOrder_409">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="response409" type="schemas:Error">
+            <xs:annotation>
+              <xs:documentation>Taken or unavailable (a link name, or a sold-out product).</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="POST_createCheckoutOrder_502">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="response502" type="schemas:Error">
+            <xs:annotation>
+              <xs:documentation>Gemini, PayPal or Channel3 failed or isn't configured.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="POST_createCheckoutOrder_503">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="response503" type="schemas:Error">
+            <xs:annotation>
+              <xs:documentation>Gemini, PayPal or Channel3 failed or isn't configured.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="POST_captureCheckoutOrder_InputMessage">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="paypalOrderId" type="xs:string">
+            <xs:annotation>
+              <xs:documentation>The PayPal order id that `createCheckoutOrder` returned.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="POST_captureCheckoutOrder_OutputMessage">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="response200" type="schemas:ApiOrdersCaptureResponse">
+            <xs:annotation>
+              <xs:documentation>Paid.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="POST_captureCheckoutOrder_402">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="response402" type="schemas:Error">
+            <xs:annotation>
+              <xs:documentation>Something in the request needs fixing; `error` says what.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="POST_captureCheckoutOrder_404">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="response404" type="schemas:Error">
+            <xs:annotation>
+              <xs:documentation>No such shop, or the admin token doesn't match it.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="POST_captureCheckoutOrder_409">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="response409" type="schemas:ApiOrdersCapture409Error1">
+            <xs:annotation>
+              <xs:documentation>The buyer hasn't approved the order yet.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="POST_captureCheckoutOrder_422">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="response422" type="schemas:Error">
+            <xs:annotation>
+              <xs:documentation>The buyer's funding source was declined (`INSTRUMENT_DECLINED`); they can try another.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="POST_captureCheckoutOrder_502">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="response502" type="schemas:Error">
+            <xs:annotation>
+              <xs:documentation>Gemini, PayPal or Channel3 failed or isn't configured.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="POST_verifyAccessCode_InputMessage">
+        <xs:sequence>
+          <xs:element minOccurs="1" fixed="application/json" name="Content-Type" type="xs:string" />
+          <xs:element minOccurs="1" name="body" type="schemas:ApiAccessVerifyRequest" />
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="POST_verifyAccessCode_OutputMessage">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="response200" type="schemas:ApiAccessVerifyResponse">
+            <xs:annotation>
+              <xs:documentation>The answer. Invalid codes are also a 200.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="GET_listOrders_InputMessage">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="slug" type="xs:string">
+            <xs:annotation>
+              <xs:documentation>The shop's link name (current or former).</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="GET_listOrders_OutputMessage">
+        <xs:sequence>
+          <xs:element minOccurs="1" maxOccurs="unbounded" name="response200" type="schemas:Order">
+            <xs:annotation>
+              <xs:documentation>Orders.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="GET_listOrders_404">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="response404" type="schemas:Error">
+            <xs:annotation>
+              <xs:documentation>No such shop, or the admin token doesn't match it.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="POST_markOrderShipped_InputMessage">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="slug" type="xs:string">
+            <xs:annotation>
+              <xs:documentation>The shop's link name (current or former).</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element minOccurs="1" name="orderId" type="xs:string">
+            <xs:annotation>
+              <xs:documentation>OneThing's order id (`Order.id`).</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element minOccurs="1" fixed="application/json" name="Content-Type" type="xs:string" />
+          <xs:element minOccurs="1" name="body" type="schemas:ApiShopsOrdersShipRequest" />
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="POST_markOrderShipped_OutputMessage">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="response200" type="schemas:ApiShopsOrdersShipResponse">
+            <xs:annotation>
+              <xs:documentation>Shipped.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="POST_markOrderShipped_400">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="response400" type="schemas:Error">
+            <xs:annotation>
+              <xs:documentation>Something in the request needs fixing; `error` says what.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="POST_markOrderShipped_404">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="response404" type="schemas:Error">
+            <xs:annotation>
+              <xs:documentation>No such shop, or the admin token doesn't match it.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="GET_listWebhookEvents_InputMessage">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="slug" type="xs:string">
+            <xs:annotation>
+              <xs:documentation>The shop's link name (current or former).</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="GET_listWebhookEvents_OutputMessage">
+        <xs:sequence>
+          <xs:element minOccurs="1" maxOccurs="unbounded" name="response200" type="schemas:WebhookEvent">
+            <xs:annotation>
+              <xs:documentation>Events, newest first.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="GET_listWebhookEvents_404">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="response404" type="schemas:Error">
+            <xs:annotation>
+              <xs:documentation>No such shop, or the admin token doesn't match it.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="GET_downloadFile_InputMessage">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="token" type="xs:string">
+            <xs:annotation>
+              <xs:documentation>The download token from a paid order's thank-you page.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="GET_downloadFile_OutputMessage">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="response200" type="xs:hexBinary">
+            <xs:annotation>
+              <xs:documentation>The file.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="GET_downloadFile_410">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="response410" type="xs:string">
+            <xs:annotation>
+              <xs:documentation>Expired or used up.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="GET_getImage_InputMessage">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="id" type="xs:string">
+            <xs:annotation>
+              <xs:documentation>A shop's `photo_blob` or `hero_blob`.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="GET_getImage_OutputMessage">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="response200" type="xs:anyType">
+            <xs:annotation>
+              <xs:documentation>The image.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="GET_getImage_404">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="response404">
+            <xs:annotation>
+              <xs:documentation>Not a public shop image.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:schema>
+  </types>
+  <message name="POST_signIn_InputMessage">
+    <part name="POST_signIn_InputMessage" element="schemas:POST_signIn_InputMessage" />
+  </message>
+  <message name="POST_signIn_OutputMessage">
+    <part name="POST_signIn_OutputMessage" element="schemas:POST_signIn_OutputMessage" />
+  </message>
+  <message name="POST_signIn_400">
+    <part name="POST_signIn_400" element="schemas:POST_signIn_400" />
+  </message>
+  <message name="POST_signOut_InputMessage">
+    <part name="POST_signOut_InputMessage" element="schemas:POST_signOut_InputMessage" />
+  </message>
+  <message name="POST_signOut_OutputMessage">
+    <part name="POST_signOut_OutputMessage" element="schemas:POST_signOut_OutputMessage" />
+  </message>
+  <message name="POST_createShop_InputMessage">
+    <part name="POST_createShop_InputMessage" element="schemas:POST_createShop_InputMessage" />
+  </message>
+  <message name="POST_createShop_OutputMessage">
+    <part name="POST_createShop_OutputMessage" element="schemas:POST_createShop_OutputMessage" />
+  </message>
+  <message name="POST_createShop_400">
+    <part name="POST_createShop_400" element="schemas:POST_createShop_400" />
+  </message>
+  <message name="POST_createShop_409">
+    <part name="POST_createShop_409" element="schemas:POST_createShop_409" />
+  </message>
+  <message name="POST_createShop_502">
+    <part name="POST_createShop_502" element="schemas:POST_createShop_502" />
+  </message>
+  <message name="GET_getShop_InputMessage">
+    <part name="GET_getShop_InputMessage" element="schemas:GET_getShop_InputMessage" />
+  </message>
+  <message name="GET_getShop_OutputMessage">
+    <part name="GET_getShop_OutputMessage" element="schemas:GET_getShop_OutputMessage" />
+  </message>
+  <message name="GET_getShop_404">
+    <part name="GET_getShop_404" element="schemas:GET_getShop_404" />
+  </message>
+  <message name="PATCH_updateShop_InputMessage">
+    <part name="PATCH_updateShop_InputMessage" element="schemas:PATCH_updateShop_InputMessage" />
+  </message>
+  <message name="PATCH_updateShop_OutputMessage">
+    <part name="PATCH_updateShop_OutputMessage" element="schemas:PATCH_updateShop_OutputMessage" />
+  </message>
+  <message name="PATCH_updateShop_400">
+    <part name="PATCH_updateShop_400" element="schemas:PATCH_updateShop_400" />
+  </message>
+  <message name="PATCH_updateShop_404">
+    <part name="PATCH_updateShop_404" element="schemas:PATCH_updateShop_404" />
+  </message>
+  <message name="POST_refineShopDesign_InputMessage">
+    <part name="POST_refineShopDesign_InputMessage" element="schemas:POST_refineShopDesign_InputMessage" />
+  </message>
+  <message name="POST_refineShopDesign_OutputMessage">
+    <part name="POST_refineShopDesign_OutputMessage" element="schemas:POST_refineShopDesign_OutputMessage" />
+  </message>
+  <message name="POST_refineShopDesign_400">
+    <part name="POST_refineShopDesign_400" element="schemas:POST_refineShopDesign_400" />
+  </message>
+  <message name="POST_refineShopDesign_404">
+    <part name="POST_refineShopDesign_404" element="schemas:POST_refineShopDesign_404" />
+  </message>
+  <message name="POST_refineShopDesign_502">
+    <part name="POST_refineShopDesign_502" element="schemas:POST_refineShopDesign_502" />
+  </message>
+  <message name="POST_regenerateHeroArt_InputMessage">
+    <part name="POST_regenerateHeroArt_InputMessage" element="schemas:POST_regenerateHeroArt_InputMessage" />
+  </message>
+  <message name="POST_regenerateHeroArt_OutputMessage">
+    <part name="POST_regenerateHeroArt_OutputMessage" element="schemas:POST_regenerateHeroArt_OutputMessage" />
+  </message>
+  <message name="POST_regenerateHeroArt_400">
+    <part name="POST_regenerateHeroArt_400" element="schemas:POST_regenerateHeroArt_400" />
+  </message>
+  <message name="POST_regenerateHeroArt_404">
+    <part name="POST_regenerateHeroArt_404" element="schemas:POST_regenerateHeroArt_404" />
+  </message>
+  <message name="POST_uploadDigitalFile_InputMessage">
+    <part name="POST_uploadDigitalFile_InputMessage" element="schemas:POST_uploadDigitalFile_InputMessage" />
+  </message>
+  <message name="POST_uploadDigitalFile_OutputMessage">
+    <part name="POST_uploadDigitalFile_OutputMessage" element="schemas:POST_uploadDigitalFile_OutputMessage" />
+  </message>
+  <message name="POST_uploadDigitalFile_400">
+    <part name="POST_uploadDigitalFile_400" element="schemas:POST_uploadDigitalFile_400" />
+  </message>
+  <message name="POST_uploadDigitalFile_404">
+    <part name="POST_uploadDigitalFile_404" element="schemas:POST_uploadDigitalFile_404" />
+  </message>
+  <message name="POST_addPhotos_InputMessage">
+    <part name="POST_addPhotos_InputMessage" element="schemas:POST_addPhotos_InputMessage" />
+  </message>
+  <message name="POST_addPhotos_OutputMessage">
+    <part name="POST_addPhotos_OutputMessage" element="schemas:POST_addPhotos_OutputMessage" />
+  </message>
+  <message name="POST_addPhotos_400">
+    <part name="POST_addPhotos_400" element="schemas:POST_addPhotos_400" />
+  </message>
+  <message name="POST_addPhotos_404">
+    <part name="POST_addPhotos_404" element="schemas:POST_addPhotos_404" />
+  </message>
+  <message name="PUT_setPhotoOrder_InputMessage">
+    <part name="PUT_setPhotoOrder_InputMessage" element="schemas:PUT_setPhotoOrder_InputMessage" />
+  </message>
+  <message name="PUT_setPhotoOrder_OutputMessage">
+    <part name="PUT_setPhotoOrder_OutputMessage" element="schemas:PUT_setPhotoOrder_OutputMessage" />
+  </message>
+  <message name="PUT_setPhotoOrder_400">
+    <part name="PUT_setPhotoOrder_400" element="schemas:PUT_setPhotoOrder_400" />
+  </message>
+  <message name="PUT_setPhotoOrder_404">
+    <part name="PUT_setPhotoOrder_404" element="schemas:PUT_setPhotoOrder_404" />
+  </message>
+  <message name="GET_checkLinkName_InputMessage">
+    <part name="GET_checkLinkName_InputMessage" element="schemas:GET_checkLinkName_InputMessage" />
+  </message>
+  <message name="GET_checkLinkName_OutputMessage">
+    <part name="GET_checkLinkName_OutputMessage" element="schemas:GET_checkLinkName_OutputMessage" />
+  </message>
+  <message name="GET_searchProducts_InputMessage">
+    <part name="GET_searchProducts_InputMessage" element="schemas:GET_searchProducts_InputMessage" />
+  </message>
+  <message name="GET_searchProducts_OutputMessage">
+    <part name="GET_searchProducts_OutputMessage" element="schemas:GET_searchProducts_OutputMessage" />
+  </message>
+  <message name="GET_searchProducts_502">
+    <part name="GET_searchProducts_502" element="schemas:GET_searchProducts_502" />
+  </message>
+  <message name="GET_searchProducts_503">
+    <part name="GET_searchProducts_503" element="schemas:GET_searchProducts_503" />
+  </message>
+  <message name="GET_getPayPalClientToken_InputMessage">
+    <part name="GET_getPayPalClientToken_InputMessage" element="schemas:GET_getPayPalClientToken_InputMessage" />
+  </message>
+  <message name="GET_getPayPalClientToken_OutputMessage">
+    <part name="GET_getPayPalClientToken_OutputMessage" element="schemas:GET_getPayPalClientToken_OutputMessage" />
+  </message>
+  <message name="GET_getPayPalClientToken_502">
+    <part name="GET_getPayPalClientToken_502" element="schemas:GET_getPayPalClientToken_502" />
+  </message>
+  <message name="GET_getPayPalClientToken_503">
+    <part name="GET_getPayPalClientToken_503" element="schemas:GET_getPayPalClientToken_503" />
+  </message>
+  <message name="POST_createCheckoutOrder_InputMessage">
+    <part name="POST_createCheckoutOrder_InputMessage" element="schemas:POST_createCheckoutOrder_InputMessage" />
+  </message>
+  <message name="POST_createCheckoutOrder_OutputMessage">
+    <part name="POST_createCheckoutOrder_OutputMessage" element="schemas:POST_createCheckoutOrder_OutputMessage" />
+  </message>
+  <message name="POST_createCheckoutOrder_400">
+    <part name="POST_createCheckoutOrder_400" element="schemas:POST_createCheckoutOrder_400" />
+  </message>
+  <message name="POST_createCheckoutOrder_404">
+    <part name="POST_createCheckoutOrder_404" element="schemas:POST_createCheckoutOrder_404" />
+  </message>
+  <message name="POST_createCheckoutOrder_409">
+    <part name="POST_createCheckoutOrder_409" element="schemas:POST_createCheckoutOrder_409" />
+  </message>
+  <message name="POST_createCheckoutOrder_502">
+    <part name="POST_createCheckoutOrder_502" element="schemas:POST_createCheckoutOrder_502" />
+  </message>
+  <message name="POST_createCheckoutOrder_503">
+    <part name="POST_createCheckoutOrder_503" element="schemas:POST_createCheckoutOrder_503" />
+  </message>
+  <message name="POST_captureCheckoutOrder_InputMessage">
+    <part name="POST_captureCheckoutOrder_InputMessage" element="schemas:POST_captureCheckoutOrder_InputMessage" />
+  </message>
+  <message name="POST_captureCheckoutOrder_OutputMessage">
+    <part name="POST_captureCheckoutOrder_OutputMessage" element="schemas:POST_captureCheckoutOrder_OutputMessage" />
+  </message>
+  <message name="POST_captureCheckoutOrder_402">
+    <part name="POST_captureCheckoutOrder_402" element="schemas:POST_captureCheckoutOrder_402" />
+  </message>
+  <message name="POST_captureCheckoutOrder_404">
+    <part name="POST_captureCheckoutOrder_404" element="schemas:POST_captureCheckoutOrder_404" />
+  </message>
+  <message name="POST_captureCheckoutOrder_409">
+    <part name="POST_captureCheckoutOrder_409" element="schemas:POST_captureCheckoutOrder_409" />
+  </message>
+  <message name="POST_captureCheckoutOrder_422">
+    <part name="POST_captureCheckoutOrder_422" element="schemas:POST_captureCheckoutOrder_422" />
+  </message>
+  <message name="POST_captureCheckoutOrder_502">
+    <part name="POST_captureCheckoutOrder_502" element="schemas:POST_captureCheckoutOrder_502" />
+  </message>
+  <message name="POST_verifyAccessCode_InputMessage">
+    <part name="POST_verifyAccessCode_InputMessage" element="schemas:POST_verifyAccessCode_InputMessage" />
+  </message>
+  <message name="POST_verifyAccessCode_OutputMessage">
+    <part name="POST_verifyAccessCode_OutputMessage" element="schemas:POST_verifyAccessCode_OutputMessage" />
+  </message>
+  <message name="GET_listOrders_InputMessage">
+    <part name="GET_listOrders_InputMessage" element="schemas:GET_listOrders_InputMessage" />
+  </message>
+  <message name="GET_listOrders_OutputMessage">
+    <part name="GET_listOrders_OutputMessage" element="schemas:GET_listOrders_OutputMessage" />
+  </message>
+  <message name="GET_listOrders_404">
+    <part name="GET_listOrders_404" element="schemas:GET_listOrders_404" />
+  </message>
+  <message name="POST_markOrderShipped_InputMessage">
+    <part name="POST_markOrderShipped_InputMessage" element="schemas:POST_markOrderShipped_InputMessage" />
+  </message>
+  <message name="POST_markOrderShipped_OutputMessage">
+    <part name="POST_markOrderShipped_OutputMessage" element="schemas:POST_markOrderShipped_OutputMessage" />
+  </message>
+  <message name="POST_markOrderShipped_400">
+    <part name="POST_markOrderShipped_400" element="schemas:POST_markOrderShipped_400" />
+  </message>
+  <message name="POST_markOrderShipped_404">
+    <part name="POST_markOrderShipped_404" element="schemas:POST_markOrderShipped_404" />
+  </message>
+  <message name="GET_listWebhookEvents_InputMessage">
+    <part name="GET_listWebhookEvents_InputMessage" element="schemas:GET_listWebhookEvents_InputMessage" />
+  </message>
+  <message name="GET_listWebhookEvents_OutputMessage">
+    <part name="GET_listWebhookEvents_OutputMessage" element="schemas:GET_listWebhookEvents_OutputMessage" />
+  </message>
+  <message name="GET_listWebhookEvents_404">
+    <part name="GET_listWebhookEvents_404" element="schemas:GET_listWebhookEvents_404" />
+  </message>
+  <message name="GET_downloadFile_InputMessage">
+    <part name="GET_downloadFile_InputMessage" element="schemas:GET_downloadFile_InputMessage" />
+  </message>
+  <message name="GET_downloadFile_OutputMessage">
+    <part name="GET_downloadFile_OutputMessage" element="schemas:GET_downloadFile_OutputMessage" />
+  </message>
+  <message name="GET_downloadFile_410">
+    <part name="GET_downloadFile_410" element="schemas:GET_downloadFile_410" />
+  </message>
+  <message name="GET_getImage_InputMessage">
+    <part name="GET_getImage_InputMessage" element="schemas:GET_getImage_InputMessage" />
+  </message>
+  <message name="GET_getImage_OutputMessage">
+    <part name="GET_getImage_OutputMessage" element="schemas:GET_getImage_OutputMessage" />
+  </message>
+  <message name="GET_getImage_404">
+    <part name="GET_getImage_404" element="schemas:GET_getImage_404" />
+  </message>
+  <portType name="OneThing_x0020_API_PortType">
+    <operation name="POST_signIn">
+      <documentation>Signs in with an email address or a phone number, creating the account the first time. There's no password and no verification (sandbox). The response sets the `ot_session` cookie; shops created with it belong to the account and are listed on `/account`. Signing in with an email also claims older shops whose seller email matches. In a browser, sellers can instead use Log in with PayPal (`/api/account/paypal`), which also records the PayPal account their sales are paid into.</documentation>
+      <input message="wsdl:POST_signIn_InputMessage" />
+      <output message="wsdl:POST_signIn_OutputMessage">
+        <documentation>Signed in. The `ot_session` cookie is set.</documentation>
+      </output>
+      <fault name="POST_signIn_400" message="wsdl:POST_signIn_400">
+        <documentation>Something in the request needs fixing; `error` says what.</documentation>
+      </fault>
+    </operation>
+    <operation name="POST_signOut">
+      <documentation>Ends this browser's session and clears the `ot_session` cookie.</documentation>
+      <input message="wsdl:POST_signOut_InputMessage" />
+      <output message="wsdl:POST_signOut_OutputMessage">
+        <documentation>Done.</documentation>
+      </output>
+    </operation>
+    <operation name="POST_createShop">
+      <documentation>Starts a draft shop from one of three sources. Gemini designs the page and guesses the
+setup; check it with `getShop`, adjust with `updateShop`, then go live.
+
+Sent with a session cookie from `signIn`, the shop belongs to that account, which also
+becomes its seller email (and PayPal email, after Log in with PayPal) unless you give one.
+
+- `source=photo`: a `photo` and/or a `description` of your own product.
+- `source=link`: a `url`. If Channel3 recognises it as a store's product page, the shop
+  becomes a recommendation (`product_type: referral`); otherwise the page is read and you
+  sell the product yourself with PayPal.
+- `source=channel3`: a `productId` from `searchProducts` (a recommendation).
+
+Takes 15–40 seconds. Hero art, if available, is generated afterwards (`hero_status`).
+</documentation>
+      <input message="wsdl:POST_createShop_InputMessage" />
+      <output message="wsdl:POST_createShop_OutputMessage">
+        <documentation>Draft created.</documentation>
+      </output>
+      <fault name="POST_createShop_400" message="wsdl:POST_createShop_400">
+        <documentation>Something in the request needs fixing; `error` says what.</documentation>
+      </fault>
+      <fault name="POST_createShop_409" message="wsdl:POST_createShop_409">
+        <documentation>Taken or unavailable (a link name, or a sold-out product).</documentation>
+      </fault>
+      <fault name="POST_createShop_502" message="wsdl:POST_createShop_502">
+        <documentation>Gemini, PayPal or Channel3 failed or isn't configured.</documentation>
+      </fault>
+    </operation>
+    <operation name="GET_getShop">
+      <documentation>Everything about the shop, including the AI's design spec and guesses.</documentation>
+      <input message="wsdl:GET_getShop_InputMessage" />
+      <output message="wsdl:GET_getShop_OutputMessage">
+        <documentation>The shop.</documentation>
+      </output>
+      <fault name="GET_getShop_404" message="wsdl:GET_getShop_404">
+        <documentation>No such shop, or the admin token doesn't match it.</documentation>
+      </fault>
+    </operation>
+    <operation name="PATCH_updateShop">
+      <documentation>Changes only the fields you send. Renaming `slug` keeps the old link working (it
+redirects). Set `status: live` to publish; a digital product needs its file (or, for
+access codes, `access_url`) first.
+</documentation>
+      <input message="wsdl:PATCH_updateShop_InputMessage" />
+      <output message="wsdl:PATCH_updateShop_OutputMessage">
+        <documentation>Saved.</documentation>
+      </output>
+      <fault name="PATCH_updateShop_400" message="wsdl:PATCH_updateShop_400">
+        <documentation>Something in the request needs fixing; `error` says what.</documentation>
+      </fault>
+      <fault name="PATCH_updateShop_404" message="wsdl:PATCH_updateShop_404">
+        <documentation>No such shop, or the admin token doesn't match it.</documentation>
+      </fault>
+    </operation>
+    <operation name="POST_refineShopDesign">
+      <documentation>"Make it warmer", "shorter copy", "more premium". Gemini edits the design spec.</documentation>
+      <input message="wsdl:POST_refineShopDesign_InputMessage" />
+      <output message="wsdl:POST_refineShopDesign_OutputMessage">
+        <documentation>The new design.</documentation>
+      </output>
+      <fault name="POST_refineShopDesign_400" message="wsdl:POST_refineShopDesign_400">
+        <documentation>Something in the request needs fixing; `error` says what.</documentation>
+      </fault>
+      <fault name="POST_refineShopDesign_404" message="wsdl:POST_refineShopDesign_404">
+        <documentation>No such shop, or the admin token doesn't match it.</documentation>
+      </fault>
+      <fault name="POST_refineShopDesign_502" message="wsdl:POST_refineShopDesign_502">
+        <documentation>Gemini, PayPal or Channel3 failed or isn't configured.</documentation>
+      </fault>
+    </operation>
+    <operation name="POST_regenerateHeroArt">
+      <documentation>Starts generation in the background. Poll `getShop` for `hero_status`.</documentation>
+      <input message="wsdl:POST_regenerateHeroArt_InputMessage" />
+      <output message="wsdl:POST_regenerateHeroArt_OutputMessage">
+        <documentation>Done.</documentation>
+      </output>
+      <fault name="POST_regenerateHeroArt_400" message="wsdl:POST_regenerateHeroArt_400">
+        <documentation>Something in the request needs fixing; `error` says what.</documentation>
+      </fault>
+      <fault name="POST_regenerateHeroArt_404" message="wsdl:POST_regenerateHeroArt_404">
+        <documentation>No such shop, or the admin token doesn't match it.</documentation>
+      </fault>
+    </operation>
+    <operation name="POST_uploadDigitalFile">
+      <documentation>Uploads or replaces a digital product's file, up to 25 MB. Each paid order gets a download link for it.</documentation>
+      <input message="wsdl:POST_uploadDigitalFile_InputMessage" />
+      <output message="wsdl:POST_uploadDigitalFile_OutputMessage">
+        <documentation>Uploaded.</documentation>
+      </output>
+      <fault name="POST_uploadDigitalFile_400" message="wsdl:POST_uploadDigitalFile_400">
+        <documentation>Something in the request needs fixing; `error` says what.</documentation>
+      </fault>
+      <fault name="POST_uploadDigitalFile_404" message="wsdl:POST_uploadDigitalFile_404">
+        <documentation>No such shop, or the admin token doesn't match it.</documentation>
+      </fault>
+    </operation>
+    <operation name="POST_addPhotos">
+      <documentation>Adds one or more photos after the cover. Each is turned upright, resized to at most 2000 px and stored as WebP. A shop holds up to 8 photos; buyers swipe through them on the shop page. Not for recommendations, which show the retailer's photos.</documentation>
+      <input message="wsdl:POST_addPhotos_InputMessage" />
+      <output message="wsdl:POST_addPhotos_OutputMessage">
+        <documentation>The shop's photos, cover first.</documentation>
+      </output>
+      <fault name="POST_addPhotos_400" message="wsdl:POST_addPhotos_400">
+        <documentation>Something in the request needs fixing; `error` says what.</documentation>
+      </fault>
+      <fault name="POST_addPhotos_404" message="wsdl:POST_addPhotos_404">
+        <documentation>No such shop, or the admin token doesn't match it.</documentation>
+      </fault>
+    </operation>
+    <operation name="PUT_setPhotoOrder">
+      <documentation>Sets the photo order; the first becomes the cover. Leaving a photo out removes it.</documentation>
+      <input message="wsdl:PUT_setPhotoOrder_InputMessage" />
+      <output message="wsdl:PUT_setPhotoOrder_OutputMessage">
+        <documentation>The shop's photos, cover first.</documentation>
+      </output>
+      <fault name="PUT_setPhotoOrder_400" message="wsdl:PUT_setPhotoOrder_400">
+        <documentation>Something in the request needs fixing; `error` says what.</documentation>
+      </fault>
+      <fault name="PUT_setPhotoOrder_404" message="wsdl:PUT_setPhotoOrder_404">
+        <documentation>No such shop, or the admin token doesn't match it.</documentation>
+      </fault>
+    </operation>
+    <operation name="GET_checkLinkName">
+      <documentation>Normalises a proposed link name and says whether a new shop can use it.</documentation>
+      <input message="wsdl:GET_checkLinkName_InputMessage" />
+      <output message="wsdl:GET_checkLinkName_OutputMessage">
+        <documentation>The normalised name and whether it can be used.</documentation>
+      </output>
+    </operation>
+    <operation name="GET_searchProducts">
+      <documentation>Searches 100M+ products from 25k+ stores through Channel3. Pass a result's `id` to `createShop` with `source=channel3`.</documentation>
+      <input message="wsdl:GET_searchProducts_InputMessage" />
+      <output message="wsdl:GET_searchProducts_OutputMessage">
+        <documentation>Up to 12 products.</documentation>
+      </output>
+      <fault name="GET_searchProducts_502" message="wsdl:GET_searchProducts_502">
+        <documentation>Gemini, PayPal or Channel3 failed or isn't configured.</documentation>
+      </fault>
+      <fault name="GET_searchProducts_503" message="wsdl:GET_searchProducts_503">
+        <documentation>Gemini, PayPal or Channel3 failed or isn't configured.</documentation>
+      </fault>
+    </operation>
+    <operation name="GET_getPayPalClientToken">
+      <documentation>A browser-safe client token for the PayPal JavaScript SDK v6
+(`paypal.createInstance({ clientToken })`), bound to the requesting site's domain.
+Shop pages call this before showing the PayPal button.
+</documentation>
+      <input message="wsdl:GET_getPayPalClientToken_InputMessage" />
+      <output message="wsdl:GET_getPayPalClientToken_OutputMessage">
+        <documentation>A token for this site's domain.</documentation>
+      </output>
+      <fault name="GET_getPayPalClientToken_502" message="wsdl:GET_getPayPalClientToken_502">
+        <documentation>Gemini, PayPal or Channel3 failed or isn't configured.</documentation>
+      </fault>
+      <fault name="GET_getPayPalClientToken_503" message="wsdl:GET_getPayPalClientToken_503">
+        <documentation>Gemini, PayPal or Channel3 failed or isn't configured.</documentation>
+      </fault>
+    </operation>
+    <operation name="POST_createCheckoutOrder">
+      <documentation>Creates the PayPal order for one unit of a live shop's product. The amount always comes
+from the shop, never from the caller. Pass the returned `id` to the PayPal JS SDK.
+</documentation>
+      <input message="wsdl:POST_createCheckoutOrder_InputMessage" />
+      <output message="wsdl:POST_createCheckoutOrder_OutputMessage">
+        <documentation>PayPal order created.</documentation>
+      </output>
+      <fault name="POST_createCheckoutOrder_400" message="wsdl:POST_createCheckoutOrder_400">
+        <documentation>Something in the request needs fixing; `error` says what.</documentation>
+      </fault>
+      <fault name="POST_createCheckoutOrder_404" message="wsdl:POST_createCheckoutOrder_404">
+        <documentation>No such shop, or the admin token doesn't match it.</documentation>
+      </fault>
+      <fault name="POST_createCheckoutOrder_409" message="wsdl:POST_createCheckoutOrder_409">
+        <documentation>Taken or unavailable (a link name, or a sold-out product).</documentation>
+      </fault>
+      <fault name="POST_createCheckoutOrder_502" message="wsdl:POST_createCheckoutOrder_502">
+        <documentation>Gemini, PayPal or Channel3 failed or isn't configured.</documentation>
+      </fault>
+      <fault name="POST_createCheckoutOrder_503" message="wsdl:POST_createCheckoutOrder_503">
+        <documentation>Gemini, PayPal or Channel3 failed or isn't configured.</documentation>
+      </fault>
+    </operation>
+    <operation name="POST_captureCheckoutOrder">
+      <documentation>Call after the buyer approves. Records the sale; digital orders get a download link or access code.
+Safe to call repeatedly: before approval it answers 409, so a page can poll it while the PayPal window is open.
+</documentation>
+      <input message="wsdl:POST_captureCheckoutOrder_InputMessage" />
+      <output message="wsdl:POST_captureCheckoutOrder_OutputMessage">
+        <documentation>Paid.</documentation>
+      </output>
+      <fault name="POST_captureCheckoutOrder_402" message="wsdl:POST_captureCheckoutOrder_402">
+        <documentation>Something in the request needs fixing; `error` says what.</documentation>
+      </fault>
+      <fault name="POST_captureCheckoutOrder_404" message="wsdl:POST_captureCheckoutOrder_404">
+        <documentation>No such shop, or the admin token doesn't match it.</documentation>
+      </fault>
+      <fault name="POST_captureCheckoutOrder_409" message="wsdl:POST_captureCheckoutOrder_409">
+        <documentation>The buyer hasn't approved the order yet.</documentation>
+      </fault>
+      <fault name="POST_captureCheckoutOrder_422" message="wsdl:POST_captureCheckoutOrder_422">
+        <documentation>The buyer's funding source was declined (`INSTRUMENT_DECLINED`); they can try another.</documentation>
+      </fault>
+      <fault name="POST_captureCheckoutOrder_502" message="wsdl:POST_captureCheckoutOrder_502">
+        <documentation>Gemini, PayPal or Channel3 failed or isn't configured.</documentation>
+      </fault>
+    </operation>
+    <operation name="POST_verifyAccessCode">
+      <documentation>For apps and games sold with access codes. Callable from any origin (CORS `*`): it only
+answers valid or not for one shop, and counts uses. Accepts the shop's current or former
+link names, and codes typed loosely (lower case, spaces, no dashes).
+</documentation>
+      <input message="wsdl:POST_verifyAccessCode_InputMessage" />
+      <output message="wsdl:POST_verifyAccessCode_OutputMessage">
+        <documentation>The answer. Invalid codes are also a 200.</documentation>
+      </output>
+    </operation>
+    <operation name="GET_listOrders">
+      <documentation>Newest first. Checkouts that were never approved are left out.</documentation>
+      <input message="wsdl:GET_listOrders_InputMessage" />
+      <output message="wsdl:GET_listOrders_OutputMessage">
+        <documentation>Orders.</documentation>
+      </output>
+      <fault name="GET_listOrders_404" message="wsdl:GET_listOrders_404">
+        <documentation>No such shop, or the admin token doesn't match it.</documentation>
+      </fault>
+    </operation>
+    <operation name="POST_markOrderShipped">
+      <documentation>Saves the tracking number and pushes it to PayPal, so the buyer sees it in PayPal.</documentation>
+      <input message="wsdl:POST_markOrderShipped_InputMessage" />
+      <output message="wsdl:POST_markOrderShipped_OutputMessage">
+        <documentation>Shipped.</documentation>
+      </output>
+      <fault name="POST_markOrderShipped_400" message="wsdl:POST_markOrderShipped_400">
+        <documentation>Something in the request needs fixing; `error` says what.</documentation>
+      </fault>
+      <fault name="POST_markOrderShipped_404" message="wsdl:POST_markOrderShipped_404">
+        <documentation>No such shop, or the admin token doesn't match it.</documentation>
+      </fault>
+    </operation>
+    <operation name="GET_listWebhookEvents">
+      <documentation>The last 50 PayPal webhook deliveries about this shop's orders, with signature results.</documentation>
+      <input message="wsdl:GET_listWebhookEvents_InputMessage" />
+      <output message="wsdl:GET_listWebhookEvents_OutputMessage">
+        <documentation>Events, newest first.</documentation>
+      </output>
+      <fault name="GET_listWebhookEvents_404" message="wsdl:GET_listWebhookEvents_404">
+        <documentation>No such shop, or the admin token doesn't match it.</documentation>
+      </fault>
+    </operation>
+    <operation name="GET_downloadFile">
+      <documentation>A paid digital order's private link. Works 5 times within 14 days.</documentation>
+      <input message="wsdl:GET_downloadFile_InputMessage" />
+      <output message="wsdl:GET_downloadFile_OutputMessage">
+        <documentation>The file.</documentation>
+      </output>
+      <fault name="GET_downloadFile_410" message="wsdl:GET_downloadFile_410">
+        <documentation>Expired or used up.</documentation>
+      </fault>
+    </operation>
+    <operation name="GET_getImage">
+      <documentation>Public images only. Purchased files are never served here.</documentation>
+      <input message="wsdl:GET_getImage_InputMessage" />
+      <output message="wsdl:GET_getImage_OutputMessage">
+        <documentation>The image.</documentation>
+      </output>
+      <fault name="GET_getImage_404" message="wsdl:GET_getImage_404">
+        <documentation>Not a public shop image.</documentation>
+      </fault>
+    </operation>
+  </portType>
+  <binding name="OneThing_x0020_API_Binding" type="wsdl:OneThing_x0020_API_PortType">
+    <soap:binding transport="http://schemas.xmlsoap.org/soap/http" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+    <operation name="POST_signIn">
+      <soap:operation soapAction="POST_signIn" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+      <input>
+        <soap:body use="literal" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+      </input>
+      <output>
+        <soap:body use="literal" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+      </output>
+      <fault name="POST_signIn_400">
+        <soap:fault use="literal" name="POST_signIn_400" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+      </fault>
+    </operation>
+    <operation name="POST_signOut">
+      <soap:operation soapAction="POST_signOut" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+      <input>
+        <soap:body use="literal" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+      </input>
+      <output>
+        <soap:body use="literal" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+      </output>
+    </operation>
+    <operation name="POST_createShop">
+      <soap:operation soapAction="POST_createShop" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+      <input>
+        <soap:body use="literal" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+      </input>
+      <output>
+        <soap:body use="literal" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+      </output>
+      <fault name="POST_createShop_400">
+        <soap:fault use="literal" name="POST_createShop_400" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+      </fault>
+      <fault name="POST_createShop_409">
+        <soap:fault use="literal" name="POST_createShop_409" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+      </fault>
+      <fault name="POST_createShop_502">
+        <soap:fault use="literal" name="POST_createShop_502" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+      </fault>
+    </operation>
+    <operation name="GET_getShop">
+      <soap:operation soapAction="GET_getShop" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+      <input>
+        <soap:body use="literal" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+      </input>
+      <output>
+        <soap:body use="literal" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+      </output>
+      <fault name="GET_getShop_404">
+        <soap:fault use="literal" name="GET_getShop_404" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+      </fault>
+    </operation>
+    <operation name="PATCH_updateShop">
+      <soap:operation soapAction="PATCH_updateShop" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+      <input>
+        <soap:body use="literal" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+      </input>
+      <output>
+        <soap:body use="literal" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+      </output>
+      <fault name="PATCH_updateShop_400">
+        <soap:fault use="literal" name="PATCH_updateShop_400" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+      </fault>
+      <fault name="PATCH_updateShop_404">
+        <soap:fault use="literal" name="PATCH_updateShop_404" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+      </fault>
+    </operation>
+    <operation name="POST_refineShopDesign">
+      <soap:operation soapAction="POST_refineShopDesign" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+      <input>
+        <soap:body use="literal" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+      </input>
+      <output>
+        <soap:body use="literal" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+      </output>
+      <fault name="POST_refineShopDesign_400">
+        <soap:fault use="literal" name="POST_refineShopDesign_400" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+      </fault>
+      <fault name="POST_refineShopDesign_404">
+        <soap:fault use="literal" name="POST_refineShopDesign_404" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+      </fault>
+      <fault name="POST_refineShopDesign_502">
+        <soap:fault use="literal" name="POST_refineShopDesign_502" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+      </fault>
+    </operation>
+    <operation name="POST_regenerateHeroArt">
+      <soap:operation soapAction="POST_regenerateHeroArt" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+      <input>
+        <soap:body use="literal" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+      </input>
+      <output>
+        <soap:body use="literal" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+      </output>
+      <fault name="POST_regenerateHeroArt_400">
+        <soap:fault use="literal" name="POST_regenerateHeroArt_400" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+      </fault>
+      <fault name="POST_regenerateHeroArt_404">
+        <soap:fault use="literal" name="POST_regenerateHeroArt_404" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+      </fault>
+    </operation>
+    <operation name="POST_uploadDigitalFile">
+      <soap:operation soapAction="POST_uploadDigitalFile" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+      <input>
+        <soap:body use="literal" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+      </input>
+      <output>
+        <soap:body use="literal" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+      </output>
+      <fault name="POST_uploadDigitalFile_400">
+        <soap:fault use="literal" name="POST_uploadDigitalFile_400" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+      </fault>
+      <fault name="POST_uploadDigitalFile_404">
+        <soap:fault use="literal" name="POST_uploadDigitalFile_404" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+      </fault>
+    </operation>
+    <operation name="POST_addPhotos">
+      <soap:operation soapAction="POST_addPhotos" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+      <input>
+        <soap:body use="literal" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+      </input>
+      <output>
+        <soap:body use="literal" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+      </output>
+      <fault name="POST_addPhotos_400">
+        <soap:fault use="literal" name="POST_addPhotos_400" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+      </fault>
+      <fault name="POST_addPhotos_404">
+        <soap:fault use="literal" name="POST_addPhotos_404" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+      </fault>
+    </operation>
+    <operation name="PUT_setPhotoOrder">
+      <soap:operation soapAction="PUT_setPhotoOrder" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+      <input>
+        <soap:body use="literal" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+      </input>
+      <output>
+        <soap:body use="literal" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+      </output>
+      <fault name="PUT_setPhotoOrder_400">
+        <soap:fault use="literal" name="PUT_setPhotoOrder_400" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+      </fault>
+      <fault name="PUT_setPhotoOrder_404">
+        <soap:fault use="literal" name="PUT_setPhotoOrder_404" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+      </fault>
+    </operation>
+    <operation name="GET_checkLinkName">
+      <soap:operation soapAction="GET_checkLinkName" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+      <input>
+        <soap:body use="literal" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+      </input>
+      <output>
+        <soap:body use="literal" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+      </output>
+    </operation>
+    <operation name="GET_searchProducts">
+      <soap:operation soapAction="GET_searchProducts" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+      <input>
+        <soap:body use="literal" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+      </input>
+      <output>
+        <soap:body use="literal" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+      </output>
+      <fault name="GET_searchProducts_502">
+        <soap:fault use="literal" name="GET_searchProducts_502" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+      </fault>
+      <fault name="GET_searchProducts_503">
+        <soap:fault use="literal" name="GET_searchProducts_503" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+      </fault>
+    </operation>
+    <operation name="GET_getPayPalClientToken">
+      <soap:operation soapAction="GET_getPayPalClientToken" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+      <input>
+        <soap:body use="literal" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+      </input>
+      <output>
+        <soap:body use="literal" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+      </output>
+      <fault name="GET_getPayPalClientToken_502">
+        <soap:fault use="literal" name="GET_getPayPalClientToken_502" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+      </fault>
+      <fault name="GET_getPayPalClientToken_503">
+        <soap:fault use="literal" name="GET_getPayPalClientToken_503" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+      </fault>
+    </operation>
+    <operation name="POST_createCheckoutOrder">
+      <soap:operation soapAction="POST_createCheckoutOrder" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+      <input>
+        <soap:body use="literal" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+      </input>
+      <output>
+        <soap:body use="literal" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+      </output>
+      <fault name="POST_createCheckoutOrder_400">
+        <soap:fault use="literal" name="POST_createCheckoutOrder_400" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+      </fault>
+      <fault name="POST_createCheckoutOrder_404">
+        <soap:fault use="literal" name="POST_createCheckoutOrder_404" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+      </fault>
+      <fault name="POST_createCheckoutOrder_409">
+        <soap:fault use="literal" name="POST_createCheckoutOrder_409" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+      </fault>
+      <fault name="POST_createCheckoutOrder_502">
+        <soap:fault use="literal" name="POST_createCheckoutOrder_502" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+      </fault>
+      <fault name="POST_createCheckoutOrder_503">
+        <soap:fault use="literal" name="POST_createCheckoutOrder_503" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+      </fault>
+    </operation>
+    <operation name="POST_captureCheckoutOrder">
+      <soap:operation soapAction="POST_captureCheckoutOrder" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+      <input>
+        <soap:body use="literal" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+      </input>
+      <output>
+        <soap:body use="literal" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+      </output>
+      <fault name="POST_captureCheckoutOrder_402">
+        <soap:fault use="literal" name="POST_captureCheckoutOrder_402" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+      </fault>
+      <fault name="POST_captureCheckoutOrder_404">
+        <soap:fault use="literal" name="POST_captureCheckoutOrder_404" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+      </fault>
+      <fault name="POST_captureCheckoutOrder_409">
+        <soap:fault use="literal" name="POST_captureCheckoutOrder_409" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+      </fault>
+      <fault name="POST_captureCheckoutOrder_422">
+        <soap:fault use="literal" name="POST_captureCheckoutOrder_422" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+      </fault>
+      <fault name="POST_captureCheckoutOrder_502">
+        <soap:fault use="literal" name="POST_captureCheckoutOrder_502" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+      </fault>
+    </operation>
+    <operation name="POST_verifyAccessCode">
+      <soap:operation soapAction="POST_verifyAccessCode" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+      <input>
+        <soap:body use="literal" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+      </input>
+      <output>
+        <soap:body use="literal" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+      </output>
+    </operation>
+    <operation name="GET_listOrders">
+      <soap:operation soapAction="GET_listOrders" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+      <input>
+        <soap:body use="literal" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+      </input>
+      <output>
+        <soap:body use="literal" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+      </output>
+      <fault name="GET_listOrders_404">
+        <soap:fault use="literal" name="GET_listOrders_404" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+      </fault>
+    </operation>
+    <operation name="POST_markOrderShipped">
+      <soap:operation soapAction="POST_markOrderShipped" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+      <input>
+        <soap:body use="literal" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+      </input>
+      <output>
+        <soap:body use="literal" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+      </output>
+      <fault name="POST_markOrderShipped_400">
+        <soap:fault use="literal" name="POST_markOrderShipped_400" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+      </fault>
+      <fault name="POST_markOrderShipped_404">
+        <soap:fault use="literal" name="POST_markOrderShipped_404" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+      </fault>
+    </operation>
+    <operation name="GET_listWebhookEvents">
+      <soap:operation soapAction="GET_listWebhookEvents" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+      <input>
+        <soap:body use="literal" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+      </input>
+      <output>
+        <soap:body use="literal" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+      </output>
+      <fault name="GET_listWebhookEvents_404">
+        <soap:fault use="literal" name="GET_listWebhookEvents_404" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+      </fault>
+    </operation>
+    <operation name="GET_downloadFile">
+      <soap:operation soapAction="GET_downloadFile" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+      <input>
+        <soap:body use="literal" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+      </input>
+      <output>
+        <soap:body use="literal" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+      </output>
+      <fault name="GET_downloadFile_410">
+        <soap:fault use="literal" name="GET_downloadFile_410" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+      </fault>
+    </operation>
+    <operation name="GET_getImage">
+      <soap:operation soapAction="GET_getImage" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+      <input>
+        <soap:body use="literal" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+      </input>
+      <output>
+        <soap:body use="literal" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+      </output>
+      <fault name="GET_getImage_404">
+        <soap:fault use="literal" name="GET_getImage_404" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+      </fault>
+    </operation>
+  </binding>
+  <service name="OneThing_x0020_API">
+    <documentation>OneThing turns a photo, a link or a picked product into a live one-product shop that takes
+PayPal payments, or a recommendation page that earns referral commissions through Channel3.
+
+**How a shop is made**
+1. `createShop`: start from a photo, a link, or a Channel3 product. Gemini guesses what it
+   is, how it's delivered, the price, a short link and the page design. You get back the
+   shop's link name and an **admin token**.
+2. `updateShop`: correct anything the AI guessed, then set `status: live`.
+3. Buyers pay on `https://&lt;host&gt;/&lt;slug&gt;` with PayPal. Sellers read orders and ship them.
+
+**Auth.** Seller endpoints take the shop's admin token in the `x-admin-token` header. Buyer
+endpoints (checkout, access-code verification, downloads) are public.
+
+**Access codes.** A digital product can unlock an app or game instead of shipping a file.
+Each paid order gets a code such as `K7QF-M2XP-9HTD`; your app calls `verifyAccessCode`
+before unlocking. Raptor Rush on miriogames.com is a live example.
+
+All money moves through PayPal (sandbox in this deployment). OneThing never holds card data.
+</documentation>
+    <port name="default_Port" binding="wsdl:OneThing_x0020_API_Binding">
+      <soap:address location="https://one-thing-ash0.onrender.com" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+    </port>
+  </service>
+</definitions>

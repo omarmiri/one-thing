@@ -1,0 +1,2599 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "1.0.0",
+    "title": "OneThing API",
+    "description": "OneThing turns a photo, a link or a picked product into a live one-product shop that takes\nPayPal payments, or a recommendation page that earns referral commissions through Channel3.\n\n**How a shop is made**\n1. `createShop`: start from a photo, a link, or a Channel3 product. Gemini guesses what it\n   is, how it's delivered, the price, a short link and the page design. You get back the\n   shop's link name and an **admin token**.\n2. `updateShop`: correct anything the AI guessed, then set `status: live`.\n3. Buyers pay on `https://<host>/<slug>` with PayPal. Sellers read orders and ship them.\n\n**Auth.** Seller endpoints take the shop's admin token in the `x-admin-token` header. Buyer\nendpoints (checkout, access-code verification, downloads) are public.\n\n**Access codes.** A digital product can unlock an app or game instead of shipping a file.\nEach paid order gets a code such as `K7QF-M2XP-9HTD`; your app calls `verifyAccessCode`\nbefore unlocking. Raptor Rush on miriogames.com is a live example.\n\nAll money moves through PayPal (sandbox in this deployment). OneThing never holds card data.\n",
+    "contact": {
+      "name": "OneThing",
+      "url": "https://github.com/omarmiri/one-thing"
+    }
+  },
+  "host": "one-thing-ash0.onrender.com",
+  "basePath": "/",
+  "securityDefinitions": {
+    "AdminToken": {
+      "type": "apiKey",
+      "description": "The shop's admin token, returned once by `createShop`. Keep it secret.",
+      "name": "x-admin-token",
+      "in": "header"
+    }
+  },
+  "schemes": [
+    "https",
+    "http"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/api/account/signin": {
+      "post": {
+        "description": "Signs in with an email address or a phone number, creating the account the first time. There's no password and no verification (sandbox). The response sets the `ot_session` cookie; shops created with it belong to the account and are listed on `/account`. Signing in with an email also claims older shops whose seller email matches. In a browser, sellers can instead use Log in with PayPal (`/api/account/paypal`), which also records the PayPal account their sales are paid into.",
+        "summary": "signIn",
+        "tags": [
+          "Accounts"
+        ],
+        "operationId": "signIn",
+        "deprecated": false,
+        "produces": [
+          "application/json"
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "Content-Type",
+            "in": "header",
+            "required": false,
+            "enum": [
+              "application/json"
+            ],
+            "type": "string",
+            "description": ""
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/ApiAccountSigninRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Signed in. The `ot_session` cookie is set.",
+            "schema": {
+              "$ref": "#/definitions/ApiAccountSigninResponse"
+            },
+            "headers": {
+              "Set-Cookie": {
+                "description": "The session cookie: `ot_session=<token>`, HttpOnly, for a year.",
+                "type": "string"
+              }
+            }
+          },
+          "400": {
+            "description": "Something in the request needs fixing; `error` says what.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            },
+            "headers": {}
+          }
+        }
+      }
+    },
+    "/api/account/signout": {
+      "post": {
+        "description": "Ends this browser's session and clears the `ot_session` cookie.",
+        "summary": "signOut",
+        "tags": [
+          "Accounts"
+        ],
+        "operationId": "signOut",
+        "deprecated": false,
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Done.",
+            "schema": {
+              "$ref": "#/definitions/Ok"
+            },
+            "headers": {}
+          }
+        }
+      }
+    },
+    "/api/shops": {
+      "post": {
+        "description": "Starts a draft shop from one of three sources. Gemini designs the page and guesses the\nsetup; check it with `getShop`, adjust with `updateShop`, then go live.\n\nSent with a session cookie from `signIn`, the shop belongs to that account, which also\nbecomes its seller email (and PayPal email, after Log in with PayPal) unless you give one.\n\n- `source=photo`: a `photo` and/or a `description` of your own product.\n- `source=link`: a `url`. If Channel3 recognises it as a store's product page, the shop\n  becomes a recommendation (`product_type: referral`); otherwise the page is read and you\n  sell the product yourself with PayPal.\n- `source=channel3`: a `productId` from `searchProducts` (a recommendation).\n\nTakes 15–40 seconds. Hero art, if available, is generated afterwards (`hero_status`).\n",
+        "summary": "createShop",
+        "tags": [
+          "Shops"
+        ],
+        "operationId": "createShop",
+        "deprecated": false,
+        "produces": [
+          "application/json"
+        ],
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "parameters": [
+          {
+            "name": "source",
+            "in": "formData",
+            "required": true,
+            "enum": [
+              "photo",
+              "link",
+              "channel3"
+            ],
+            "type": "string"
+          },
+          {
+            "name": "photo",
+            "in": "formData",
+            "required": false,
+            "type": "file",
+            "format": "file",
+            "description": "`source=photo`: the product photo, up to 8 MB."
+          },
+          {
+            "name": "description",
+            "in": "formData",
+            "required": false,
+            "type": "string",
+            "description": "`source=photo`: a sentence or two about the product. Required if there is no photo."
+          },
+          {
+            "name": "url",
+            "in": "formData",
+            "required": false,
+            "type": "string",
+            "format": "uri",
+            "description": "`source=link`: a product page, or your own app or game page."
+          },
+          {
+            "name": "productId",
+            "in": "formData",
+            "required": false,
+            "type": "string",
+            "description": "`source=channel3`: a product id from `searchProducts`."
+          },
+          {
+            "name": "slug",
+            "in": "formData",
+            "required": false,
+            "type": "string",
+            "description": "The link name you want. If omitted, the AI suggests one."
+          },
+          {
+            "name": "type",
+            "in": "formData",
+            "required": false,
+            "enum": [
+              "auto",
+              "physical",
+              "digital"
+            ],
+            "default": "auto",
+            "type": "string"
+          },
+          {
+            "name": "delivery",
+            "in": "formData",
+            "required": false,
+            "enum": [
+              "file",
+              "access_code"
+            ],
+            "type": "string",
+            "description": "For digital products. If omitted, the AI guesses."
+          },
+          {
+            "name": "access_url",
+            "in": "formData",
+            "required": false,
+            "type": "string",
+            "format": "uri",
+            "description": "Where buyers use an access code."
+          },
+          {
+            "name": "price",
+            "in": "formData",
+            "required": false,
+            "type": "number",
+            "format": "double",
+            "description": "USD. If omitted, the AI suggests a price."
+          },
+          {
+            "name": "shipping",
+            "in": "formData",
+            "required": false,
+            "type": "number",
+            "format": "double",
+            "description": ""
+          },
+          {
+            "name": "stock",
+            "in": "formData",
+            "required": false,
+            "type": "integer",
+            "format": "int32",
+            "description": ""
+          },
+          {
+            "name": "ship_countries",
+            "in": "formData",
+            "required": false,
+            "type": "string",
+            "description": ""
+          },
+          {
+            "name": "paypal_email",
+            "in": "formData",
+            "required": false,
+            "type": "string",
+            "format": "email",
+            "description": ""
+          },
+          {
+            "name": "seller_email",
+            "in": "formData",
+            "required": false,
+            "type": "string",
+            "format": "email",
+            "description": ""
+          },
+          {
+            "name": "digital_file",
+            "in": "formData",
+            "required": false,
+            "type": "file",
+            "format": "file",
+            "description": ""
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Draft created.",
+            "schema": {
+              "$ref": "#/definitions/CreatedShop"
+            },
+            "headers": {}
+          },
+          "400": {
+            "description": "Something in the request needs fixing; `error` says what.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            },
+            "headers": {}
+          },
+          "409": {
+            "description": "Taken or unavailable (a link name, or a sold-out product).",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            },
+            "headers": {}
+          },
+          "502": {
+            "description": "Gemini, PayPal or Channel3 failed or isn't configured.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            },
+            "headers": {}
+          }
+        }
+      }
+    },
+    "/api/shops/{slug}": {
+      "get": {
+        "description": "Everything about the shop, including the AI's design spec and guesses.",
+        "summary": "getShop",
+        "tags": [
+          "Shops"
+        ],
+        "operationId": "getShop",
+        "deprecated": false,
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The shop's link name (current or former)."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The shop.",
+            "schema": {
+              "$ref": "#/definitions/Shop"
+            },
+            "headers": {}
+          },
+          "404": {
+            "description": "No such shop, or the admin token doesn't match it.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            },
+            "headers": {}
+          }
+        },
+        "security": [
+          {
+            "AdminToken": []
+          }
+        ]
+      },
+      "patch": {
+        "description": "Changes only the fields you send. Renaming `slug` keeps the old link working (it\nredirects). Set `status: live` to publish; a digital product needs its file (or, for\naccess codes, `access_url`) first.\n",
+        "summary": "updateShop",
+        "tags": [
+          "Shops"
+        ],
+        "operationId": "updateShop",
+        "deprecated": false,
+        "produces": [
+          "application/json"
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The shop's link name (current or former)."
+          },
+          {
+            "name": "Content-Type",
+            "in": "header",
+            "required": false,
+            "enum": [
+              "application/json"
+            ],
+            "type": "string",
+            "description": ""
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/ShopUpdate"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Saved.",
+            "schema": {
+              "$ref": "#/definitions/ApiShopsResponse"
+            },
+            "headers": {}
+          },
+          "400": {
+            "description": "Something in the request needs fixing; `error` says what.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            },
+            "headers": {}
+          },
+          "404": {
+            "description": "No such shop, or the admin token doesn't match it.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            },
+            "headers": {}
+          }
+        },
+        "security": [
+          {
+            "AdminToken": []
+          }
+        ]
+      }
+    },
+    "/api/shops/{slug}/refine": {
+      "post": {
+        "description": "\"Make it warmer\", \"shorter copy\", \"more premium\". Gemini edits the design spec.",
+        "summary": "refineShopDesign",
+        "tags": [
+          "Shops"
+        ],
+        "operationId": "refineShopDesign",
+        "deprecated": false,
+        "produces": [
+          "application/json"
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The shop's link name (current or former)."
+          },
+          {
+            "name": "Content-Type",
+            "in": "header",
+            "required": false,
+            "enum": [
+              "application/json"
+            ],
+            "type": "string",
+            "description": ""
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/ApiShopsRefineRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The new design.",
+            "schema": {
+              "$ref": "#/definitions/ApiShopsRefineResponse"
+            },
+            "headers": {}
+          },
+          "400": {
+            "description": "Something in the request needs fixing; `error` says what.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            },
+            "headers": {}
+          },
+          "404": {
+            "description": "No such shop, or the admin token doesn't match it.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            },
+            "headers": {}
+          },
+          "502": {
+            "description": "Gemini, PayPal or Channel3 failed or isn't configured.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            },
+            "headers": {}
+          }
+        },
+        "security": [
+          {
+            "AdminToken": []
+          }
+        ]
+      }
+    },
+    "/api/shops/{slug}/hero": {
+      "post": {
+        "description": "Starts generation in the background. Poll `getShop` for `hero_status`.",
+        "summary": "regenerateHeroArt",
+        "tags": [
+          "Shops"
+        ],
+        "operationId": "regenerateHeroArt",
+        "deprecated": false,
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The shop's link name (current or former)."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Done.",
+            "schema": {
+              "$ref": "#/definitions/Ok"
+            },
+            "headers": {}
+          },
+          "400": {
+            "description": "Something in the request needs fixing; `error` says what.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            },
+            "headers": {}
+          },
+          "404": {
+            "description": "No such shop, or the admin token doesn't match it.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            },
+            "headers": {}
+          }
+        },
+        "security": [
+          {
+            "AdminToken": []
+          }
+        ]
+      }
+    },
+    "/api/shops/{slug}/file": {
+      "post": {
+        "description": "Uploads or replaces a digital product's file, up to 25 MB. Each paid order gets a download link for it.",
+        "summary": "uploadDigitalFile",
+        "tags": [
+          "Shops"
+        ],
+        "operationId": "uploadDigitalFile",
+        "deprecated": false,
+        "produces": [
+          "application/json"
+        ],
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The shop's link name (current or former)."
+          },
+          {
+            "name": "file",
+            "in": "formData",
+            "required": true,
+            "type": "file",
+            "format": "file",
+            "description": "Up to 25 MB."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Uploaded.",
+            "schema": {
+              "$ref": "#/definitions/ApiShopsFileResponse"
+            },
+            "headers": {}
+          },
+          "400": {
+            "description": "Something in the request needs fixing; `error` says what.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            },
+            "headers": {}
+          },
+          "404": {
+            "description": "No such shop, or the admin token doesn't match it.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            },
+            "headers": {}
+          }
+        },
+        "security": [
+          {
+            "AdminToken": []
+          }
+        ]
+      }
+    },
+    "/api/shops/{slug}/photos": {
+      "post": {
+        "description": "Adds one or more photos after the cover. Each is turned upright, resized to at most 2000 px and stored as WebP. A shop holds up to 8 photos; buyers swipe through them on the shop page. Not for recommendations, which show the retailer's photos.",
+        "summary": "addPhotos",
+        "tags": [
+          "Shops"
+        ],
+        "operationId": "addPhotos",
+        "deprecated": false,
+        "produces": [
+          "application/json"
+        ],
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The shop's link name (current or former)."
+          },
+          {
+            "name": "photo",
+            "in": "formData",
+            "required": true,
+            "type": "file",
+            "format": "file",
+            "description": "An image, up to 15 MB. The endpoint also accepts the field repeated, to add several in one request."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The shop's photos, cover first.",
+            "schema": {
+              "$ref": "#/definitions/ShopPhotos"
+            },
+            "headers": {}
+          },
+          "400": {
+            "description": "Something in the request needs fixing; `error` says what.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            },
+            "headers": {}
+          },
+          "404": {
+            "description": "No such shop, or the admin token doesn't match it.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            },
+            "headers": {}
+          }
+        },
+        "security": [
+          {
+            "AdminToken": []
+          }
+        ]
+      },
+      "put": {
+        "description": "Sets the photo order; the first becomes the cover. Leaving a photo out removes it.",
+        "summary": "setPhotoOrder",
+        "tags": [
+          "Shops"
+        ],
+        "operationId": "setPhotoOrder",
+        "deprecated": false,
+        "produces": [
+          "application/json"
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The shop's link name (current or former)."
+          },
+          {
+            "name": "Content-Type",
+            "in": "header",
+            "required": false,
+            "enum": [
+              "application/json"
+            ],
+            "type": "string",
+            "description": ""
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/ApiShopsPhotosRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The shop's photos, cover first.",
+            "schema": {
+              "$ref": "#/definitions/ShopPhotos"
+            },
+            "headers": {}
+          },
+          "400": {
+            "description": "Something in the request needs fixing; `error` says what.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            },
+            "headers": {}
+          },
+          "404": {
+            "description": "No such shop, or the admin token doesn't match it.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            },
+            "headers": {}
+          }
+        },
+        "security": [
+          {
+            "AdminToken": []
+          }
+        ]
+      }
+    },
+    "/api/slugs/check": {
+      "get": {
+        "description": "Normalises a proposed link name and says whether a new shop can use it.",
+        "summary": "checkLinkName",
+        "tags": [
+          "Links"
+        ],
+        "operationId": "checkLinkName",
+        "deprecated": false,
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "name",
+            "in": "query",
+            "required": true,
+            "type": "string",
+            "description": "Anything; it is normalised (`Raptor Rush` becomes `raptor-rush`)."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The normalised name and whether it can be used.",
+            "schema": {
+              "$ref": "#/definitions/ApiSlugsCheckResponse"
+            },
+            "headers": {}
+          }
+        }
+      }
+    },
+    "/api/channel3/search": {
+      "get": {
+        "description": "Searches 100M+ products from 25k+ stores through Channel3. Pass a result's `id` to `createShop` with `source=channel3`.",
+        "summary": "searchProducts",
+        "tags": [
+          "Products"
+        ],
+        "operationId": "searchProducts",
+        "deprecated": false,
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": true,
+            "type": "string",
+            "maxLength": 200,
+            "description": "What to look for, in plain words."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Up to 12 products.",
+            "schema": {
+              "$ref": "#/definitions/ApiChannel3SearchResponse"
+            },
+            "headers": {}
+          },
+          "502": {
+            "description": "Gemini, PayPal or Channel3 failed or isn't configured.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            },
+            "headers": {}
+          },
+          "503": {
+            "description": "Gemini, PayPal or Channel3 failed or isn't configured.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            },
+            "headers": {}
+          }
+        }
+      }
+    },
+    "/api/paypal/client-token": {
+      "get": {
+        "description": "A browser-safe client token for the PayPal JavaScript SDK v6\n(`paypal.createInstance({ clientToken })`), bound to the requesting site's domain.\nShop pages call this before showing the PayPal button.\n",
+        "summary": "getPayPalClientToken",
+        "tags": [
+          "Checkout"
+        ],
+        "operationId": "getPayPalClientToken",
+        "deprecated": false,
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "A token for this site's domain.",
+            "schema": {
+              "$ref": "#/definitions/ApiPaypalClientTokenResponse"
+            },
+            "headers": {}
+          },
+          "502": {
+            "description": "Gemini, PayPal or Channel3 failed or isn't configured.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            },
+            "headers": {}
+          },
+          "503": {
+            "description": "Gemini, PayPal or Channel3 failed or isn't configured.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            },
+            "headers": {}
+          }
+        }
+      }
+    },
+    "/api/orders": {
+      "post": {
+        "description": "Creates the PayPal order for one unit of a live shop's product. The amount always comes\nfrom the shop, never from the caller. Pass the returned `id` to the PayPal JS SDK.\n",
+        "summary": "createCheckoutOrder",
+        "tags": [
+          "Checkout"
+        ],
+        "operationId": "createCheckoutOrder",
+        "deprecated": false,
+        "produces": [
+          "application/json"
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "Content-Type",
+            "in": "header",
+            "required": false,
+            "enum": [
+              "application/json"
+            ],
+            "type": "string",
+            "description": ""
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/ApiOrdersRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "PayPal order created.",
+            "schema": {
+              "$ref": "#/definitions/ApiOrdersResponse"
+            },
+            "headers": {}
+          },
+          "400": {
+            "description": "Something in the request needs fixing; `error` says what.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            },
+            "headers": {}
+          },
+          "404": {
+            "description": "No such shop, or the admin token doesn't match it.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            },
+            "headers": {}
+          },
+          "409": {
+            "description": "Taken or unavailable (a link name, or a sold-out product).",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            },
+            "headers": {}
+          },
+          "502": {
+            "description": "Gemini, PayPal or Channel3 failed or isn't configured.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            },
+            "headers": {}
+          },
+          "503": {
+            "description": "Gemini, PayPal or Channel3 failed or isn't configured.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            },
+            "headers": {}
+          }
+        }
+      }
+    },
+    "/api/orders/{paypalOrderId}/capture": {
+      "post": {
+        "description": "Call after the buyer approves. Records the sale; digital orders get a download link or access code.\nSafe to call repeatedly: before approval it answers 409, so a page can poll it while the PayPal window is open.\n",
+        "summary": "captureCheckoutOrder",
+        "tags": [
+          "Checkout"
+        ],
+        "operationId": "captureCheckoutOrder",
+        "deprecated": false,
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "paypalOrderId",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The PayPal order id that `createCheckoutOrder` returned."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Paid.",
+            "schema": {
+              "$ref": "#/definitions/ApiOrdersCaptureResponse"
+            },
+            "headers": {}
+          },
+          "402": {
+            "description": "Something in the request needs fixing; `error` says what.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            },
+            "headers": {}
+          },
+          "404": {
+            "description": "No such shop, or the admin token doesn't match it.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            },
+            "headers": {}
+          },
+          "409": {
+            "description": "The buyer hasn't approved the order yet.",
+            "schema": {
+              "$ref": "#/definitions/ApiOrdersCapture409Error1"
+            },
+            "headers": {}
+          },
+          "422": {
+            "description": "The buyer's funding source was declined (`INSTRUMENT_DECLINED`); they can try another.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            },
+            "headers": {}
+          },
+          "502": {
+            "description": "Gemini, PayPal or Channel3 failed or isn't configured.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            },
+            "headers": {}
+          }
+        }
+      }
+    },
+    "/api/access/verify": {
+      "post": {
+        "description": "For apps and games sold with access codes. Callable from any origin (CORS `*`): it only\nanswers valid or not for one shop, and counts uses. Accepts the shop's current or former\nlink names, and codes typed loosely (lower case, spaces, no dashes).\n",
+        "summary": "verifyAccessCode",
+        "tags": [
+          "Access codes"
+        ],
+        "operationId": "verifyAccessCode",
+        "deprecated": false,
+        "produces": [
+          "application/json"
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "Content-Type",
+            "in": "header",
+            "required": false,
+            "enum": [
+              "application/json"
+            ],
+            "type": "string",
+            "description": ""
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/ApiAccessVerifyRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The answer. Invalid codes are also a 200.",
+            "schema": {
+              "$ref": "#/definitions/ApiAccessVerifyResponse"
+            },
+            "headers": {}
+          }
+        }
+      }
+    },
+    "/api/shops/{slug}/orders": {
+      "get": {
+        "description": "Newest first. Checkouts that were never approved are left out.",
+        "summary": "listOrders",
+        "tags": [
+          "Orders"
+        ],
+        "operationId": "listOrders",
+        "deprecated": false,
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The shop's link name (current or former)."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Orders.",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Order"
+              }
+            },
+            "headers": {}
+          },
+          "404": {
+            "description": "No such shop, or the admin token doesn't match it.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            },
+            "headers": {}
+          }
+        },
+        "security": [
+          {
+            "AdminToken": []
+          }
+        ]
+      }
+    },
+    "/api/shops/{slug}/orders/{orderId}/ship": {
+      "post": {
+        "description": "Saves the tracking number and pushes it to PayPal, so the buyer sees it in PayPal.",
+        "summary": "markOrderShipped",
+        "tags": [
+          "Orders"
+        ],
+        "operationId": "markOrderShipped",
+        "deprecated": false,
+        "produces": [
+          "application/json"
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The shop's link name (current or former)."
+          },
+          {
+            "name": "orderId",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "OneThing's order id (`Order.id`)."
+          },
+          {
+            "name": "Content-Type",
+            "in": "header",
+            "required": false,
+            "enum": [
+              "application/json"
+            ],
+            "type": "string",
+            "description": ""
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/ApiShopsOrdersShipRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Shipped.",
+            "schema": {
+              "$ref": "#/definitions/ApiShopsOrdersShipResponse"
+            },
+            "headers": {}
+          },
+          "400": {
+            "description": "Something in the request needs fixing; `error` says what.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            },
+            "headers": {}
+          },
+          "404": {
+            "description": "No such shop, or the admin token doesn't match it.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            },
+            "headers": {}
+          }
+        },
+        "security": [
+          {
+            "AdminToken": []
+          }
+        ]
+      }
+    },
+    "/api/shops/{slug}/webhooks": {
+      "get": {
+        "description": "The last 50 PayPal webhook deliveries about this shop's orders, with signature results.",
+        "summary": "listWebhookEvents",
+        "tags": [
+          "Orders"
+        ],
+        "operationId": "listWebhookEvents",
+        "deprecated": false,
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The shop's link name (current or former)."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Events, newest first.",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/WebhookEvent"
+              }
+            },
+            "headers": {}
+          },
+          "404": {
+            "description": "No such shop, or the admin token doesn't match it.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            },
+            "headers": {}
+          }
+        },
+        "security": [
+          {
+            "AdminToken": []
+          }
+        ]
+      }
+    },
+    "/api/download/{token}": {
+      "get": {
+        "description": "A paid digital order's private link. Works 5 times within 14 days.",
+        "summary": "downloadFile",
+        "tags": [
+          "Files"
+        ],
+        "operationId": "downloadFile",
+        "deprecated": false,
+        "produces": [
+          "application/octet-stream",
+          "text/plain"
+        ],
+        "parameters": [
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The download token from a paid order's thank-you page."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The file.",
+            "schema": {
+              "type": "string",
+              "format": "binary"
+            },
+            "headers": {}
+          },
+          "410": {
+            "description": "Expired or used up.",
+            "schema": {
+              "type": "string"
+            },
+            "headers": {}
+          }
+        }
+      }
+    },
+    "/api/blobs/{id}": {
+      "get": {
+        "description": "Public images only. Purchased files are never served here.",
+        "summary": "getImage",
+        "tags": [
+          "Files"
+        ],
+        "operationId": "getImage",
+        "deprecated": false,
+        "produces": [
+          "text/plain"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "A shop's `photo_blob` or `hero_blob`."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The image.",
+            "schema": {},
+            "headers": {}
+          },
+          "404": {
+            "description": "Not a public shop image.",
+            "headers": {}
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Error": {
+      "title": "Error",
+      "type": "object",
+      "properties": {
+        "error": {
+          "description": "A sentence you can show to a person.",
+          "type": "string"
+        },
+        "field": {
+          "description": "The form field at fault, when there is one.",
+          "type": "string"
+        },
+        "detail": {
+          "description": "The upstream service's own message, for debugging.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "error"
+      ]
+    },
+    "CreateShopForm": {
+      "title": "CreateShopForm",
+      "type": "object",
+      "properties": {
+        "source": {
+          "$ref": "#/definitions/Source"
+        },
+        "photo": {
+          "description": "`source=photo`: the product photo, up to 8 MB.",
+          "type": "string",
+          "format": "binary"
+        },
+        "description": {
+          "description": "`source=photo`: a sentence or two about the product. Required if there is no photo.",
+          "type": "string"
+        },
+        "url": {
+          "description": "`source=link`: a product page, or your own app or game page.",
+          "type": "string",
+          "format": "uri"
+        },
+        "productId": {
+          "description": "`source=channel3`: a product id from `searchProducts`.",
+          "type": "string"
+        },
+        "slug": {
+          "description": "The link name you want. If omitted, the AI suggests one.",
+          "type": "string"
+        },
+        "type": {
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Type"
+            },
+            {
+              "default": "auto"
+            }
+          ]
+        },
+        "delivery": {
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Delivery"
+            },
+            {
+              "description": "For digital products. If omitted, the AI guesses."
+            }
+          ]
+        },
+        "access_url": {
+          "description": "Where buyers use an access code.",
+          "type": "string",
+          "format": "uri"
+        },
+        "price": {
+          "description": "USD. If omitted, the AI suggests a price.",
+          "type": "number",
+          "format": "double"
+        },
+        "shipping": {
+          "type": "number",
+          "format": "double"
+        },
+        "stock": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "ship_countries": {
+          "example": "US",
+          "type": "string"
+        },
+        "paypal_email": {
+          "type": "string",
+          "format": "email"
+        },
+        "seller_email": {
+          "type": "string",
+          "format": "email"
+        },
+        "digital_file": {
+          "type": "string",
+          "format": "binary"
+        }
+      },
+      "required": [
+        "source"
+      ]
+    },
+    "CreatedShop": {
+      "title": "CreatedShop",
+      "type": "object",
+      "properties": {
+        "slug": {
+          "example": "dragonflight",
+          "type": "string"
+        },
+        "token": {
+          "description": "The admin token. Shown once; store it.",
+          "type": "string"
+        },
+        "manageUrl": {
+          "description": "The seller's private manage page (contains the token).",
+          "type": "string"
+        }
+      },
+      "required": [
+        "slug",
+        "token",
+        "manageUrl"
+      ]
+    },
+    "ShopUpdate": {
+      "title": "ShopUpdate",
+      "type": "object",
+      "properties": {
+        "slug": {
+          "type": "string"
+        },
+        "status": {
+          "$ref": "#/definitions/Status"
+        },
+        "product_type": {
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/definitions/ProductType"
+            },
+            {
+              "description": "`referral` only for shops created from Channel3."
+            }
+          ]
+        },
+        "price": {
+          "type": "number",
+          "minimum": 0.5,
+          "maximum": 10000.0,
+          "format": "double"
+        },
+        "shipping": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 500.0,
+          "format": "double"
+        },
+        "stock": {
+          "type": "integer",
+          "minimum": 0.0,
+          "format": "int32"
+        },
+        "ship_countries": {
+          "type": "string"
+        },
+        "delivery": {
+          "$ref": "#/definitions/Delivery1"
+        },
+        "access_url": {
+          "type": "string",
+          "format": "uri"
+        },
+        "paypal_email": {
+          "type": "string",
+          "format": "email"
+        },
+        "seller_email": {
+          "type": "string",
+          "format": "email"
+        },
+        "zapier_hook_url": {
+          "type": "string",
+          "format": "uri"
+        },
+        "in_gallery": {
+          "description": "Feature the shop at `/gallery` while it's live. Off by default.",
+          "type": "boolean"
+        }
+      }
+    },
+    "Shop": {
+      "title": "Shop",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "slug": {
+          "type": "string"
+        },
+        "status": {
+          "$ref": "#/definitions/Status"
+        },
+        "product_type": {
+          "$ref": "#/definitions/ProductType1"
+        },
+        "price_cents": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "currency": {
+          "example": "USD",
+          "type": "string"
+        },
+        "shipping_cents": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "ship_countries": {
+          "type": "string"
+        },
+        "stock": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "delivery": {
+          "$ref": "#/definitions/Delivery1"
+        },
+        "access_url": {
+          "type": "string"
+        },
+        "paypal_email": {
+          "type": "string"
+        },
+        "seller_email": {
+          "type": "string"
+        },
+        "zapier_hook_url": {
+          "type": "string"
+        },
+        "in_gallery": {
+          "type": "boolean"
+        },
+        "photo_blob": {
+          "description": "Image id for `getImage`.",
+          "type": "string"
+        },
+        "hero_blob": {
+          "type": "string"
+        },
+        "hero_status": {
+          "$ref": "#/definitions/HeroStatus"
+        },
+        "hero_error": {
+          "type": "string"
+        },
+        "ai_source": {
+          "$ref": "#/definitions/AiSource"
+        },
+        "source_url": {
+          "type": "string"
+        },
+        "referral": {
+          "$ref": "#/definitions/Referral"
+        },
+        "spec": {
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/definitions/DesignSpec"
+            },
+            {
+              "description": "What Gemini designed. OneThing's templates render it; Gemini never writes HTML."
+            }
+          ]
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "slug",
+        "status",
+        "product_type",
+        "price_cents",
+        "currency",
+        "spec"
+      ]
+    },
+    "DesignSpec": {
+      "title": "DesignSpec",
+      "description": "What Gemini designed. OneThing's templates render it; Gemini never writes HTML.",
+      "type": "object",
+      "properties": {
+        "productType": {
+          "$ref": "#/definitions/ProductType2"
+        },
+        "productName": {
+          "type": "string"
+        },
+        "layout": {
+          "$ref": "#/definitions/Layout"
+        },
+        "palette": {
+          "$ref": "#/definitions/Palette"
+        },
+        "fonts": {
+          "$ref": "#/definitions/Fonts"
+        },
+        "eyebrow": {
+          "type": "string"
+        },
+        "headline": {
+          "type": "string"
+        },
+        "subheadline": {
+          "type": "string"
+        },
+        "story": {
+          "type": "string"
+        },
+        "bullets": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Detail"
+          }
+        },
+        "faq": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Faq"
+          }
+        },
+        "ctaLabel": {
+          "type": "string"
+        },
+        "suggestedPriceUsd": {
+          "type": "number",
+          "format": "double"
+        },
+        "suggestedShippingUsd": {
+          "type": "number",
+          "format": "double"
+        },
+        "imageAlt": {
+          "type": "string"
+        },
+        "heroPrompt": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "productType",
+        "productName",
+        "layout",
+        "palette",
+        "fonts",
+        "headline",
+        "bullets",
+        "faq",
+        "ctaLabel"
+      ]
+    },
+    "Referral": {
+      "title": "Referral",
+      "description": "A recommended Channel3 product. Buy links are Channel3-tracked, credited to this shop.",
+      "type": "object",
+      "properties": {
+        "productId": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "brand": {
+          "type": "string"
+        },
+        "image": {
+          "type": "string"
+        },
+        "offers": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Offer"
+          }
+        }
+      },
+      "required": [
+        "productId",
+        "title",
+        "offers"
+      ]
+    },
+    "ProductCard": {
+      "title": "ProductCard",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "brand": {
+          "type": "string"
+        },
+        "image": {
+          "type": "string"
+        },
+        "price": {
+          "type": "number",
+          "format": "double"
+        },
+        "currency": {
+          "type": "string"
+        },
+        "retailer": {
+          "description": "The store with the best offer.",
+          "type": "string"
+        },
+        "retailers": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "commission": {
+          "description": "Best commission rate across offers, 0–1.",
+          "type": "number",
+          "format": "double"
+        }
+      },
+      "required": [
+        "id",
+        "title",
+        "image",
+        "price",
+        "currency",
+        "retailer",
+        "retailers",
+        "commission"
+      ]
+    },
+    "Order": {
+      "title": "Order",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "paypal_order_id": {
+          "type": "string"
+        },
+        "status": {
+          "$ref": "#/definitions/Status2"
+        },
+        "amount_cents": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "shipping_cents": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "currency": {
+          "type": "string"
+        },
+        "buyer_email": {
+          "type": "string"
+        },
+        "buyer_name": {
+          "type": "string"
+        },
+        "shipping_address": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "capture_id": {
+          "type": "string"
+        },
+        "fulfillment_status": {
+          "$ref": "#/definitions/FulfillmentStatus"
+        },
+        "carrier": {
+          "type": "string"
+        },
+        "tracking_number": {
+          "type": "string"
+        },
+        "tracking_synced": {
+          "type": "boolean"
+        },
+        "downloads": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "access_code": {
+          "type": "string"
+        },
+        "code_uses": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "paid_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "status",
+        "amount_cents",
+        "currency",
+        "fulfillment_status"
+      ]
+    },
+    "WebhookEvent": {
+      "title": "WebhookEvent",
+      "type": "object",
+      "properties": {
+        "id": {
+          "description": "PayPal's event id.",
+          "type": "string"
+        },
+        "event_type": {
+          "example": "PAYMENT.CAPTURE.COMPLETED",
+          "type": "string"
+        },
+        "paypal_order_id": {
+          "type": "string"
+        },
+        "summary": {
+          "example": "2.99 USD",
+          "type": "string"
+        },
+        "verified": {
+          "description": "Whether PayPal confirmed the delivery's signature.",
+          "type": "boolean"
+        },
+        "outcome": {
+          "example": "Confirmed: order already paid",
+          "type": "string"
+        },
+        "received_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "event_type",
+        "verified",
+        "outcome",
+        "received_at"
+      ]
+    },
+    "OrderEvent": {
+      "title": "OrderEvent",
+      "type": "object",
+      "properties": {
+        "event": {
+          "$ref": "#/definitions/Event"
+        },
+        "shop": {
+          "$ref": "#/definitions/Shop1"
+        },
+        "order": {
+          "$ref": "#/definitions/Order1"
+        }
+      },
+      "required": [
+        "event",
+        "shop",
+        "order"
+      ]
+    },
+    "AiSource": {
+      "title": "AiSource",
+      "type": "string",
+      "enum": [
+        "gemini",
+        "fallback"
+      ]
+    },
+    "ApiAccessVerifyRequest": {
+      "title": "ApiAccessVerifyRequest",
+      "type": "object",
+      "properties": {
+        "shop": {
+          "description": "The shop's link name.",
+          "example": "raptorrush",
+          "type": "string"
+        },
+        "code": {
+          "example": "K7QF-M2XP-9HTD",
+          "type": "string"
+        }
+      },
+      "required": [
+        "shop",
+        "code"
+      ]
+    },
+    "ApiAccessVerifyResponse": {
+      "title": "ApiAccessVerifyResponse",
+      "type": "object",
+      "properties": {
+        "valid": {
+          "type": "boolean"
+        },
+        "product": {
+          "description": "The product name, when valid.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "valid"
+      ]
+    },
+    "ApiAccountSigninRequest": {
+      "title": "ApiAccountSigninRequest",
+      "type": "object",
+      "properties": {
+        "identifier": {
+          "description": "An email address, or a phone number (spaces, dashes and brackets are ignored; keep a leading +).",
+          "example": "maker@example.com",
+          "type": "string"
+        }
+      },
+      "required": [
+        "identifier"
+      ]
+    },
+    "ApiAccountSigninResponse": {
+      "title": "ApiAccountSigninResponse",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "email": {
+          "description": "Lower-cased.",
+          "type": "string"
+        },
+        "phone": {
+          "description": "Digits, with a leading + if one was given.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "email",
+        "phone"
+      ]
+    },
+    "ApiChannel3SearchResponse": {
+      "title": "ApiChannel3SearchResponse",
+      "type": "object",
+      "properties": {
+        "products": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ProductCard"
+          }
+        }
+      },
+      "required": [
+        "products"
+      ]
+    },
+    "ApiOrdersCapture409Error1": {
+      "title": "ApiOrdersCapture409Error1",
+      "type": "object",
+      "properties": {
+        "status": {
+          "$ref": "#/definitions/Status3"
+        }
+      }
+    },
+    "ApiOrdersCaptureResponse": {
+      "title": "ApiOrdersCaptureResponse",
+      "type": "object",
+      "properties": {
+        "orderId": {
+          "description": "OneThing's order id; the thank-you page is `/<slug>/thanks?order=<orderId>`.",
+          "type": "string"
+        },
+        "status": {
+          "type": "string",
+          "default": "paid"
+        }
+      },
+      "required": [
+        "orderId",
+        "status"
+      ]
+    },
+    "ApiOrdersRequest": {
+      "title": "ApiOrdersRequest",
+      "type": "object",
+      "properties": {
+        "slug": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "slug"
+      ]
+    },
+    "ApiOrdersResponse": {
+      "title": "ApiOrdersResponse",
+      "type": "object",
+      "properties": {
+        "id": {
+          "description": "PayPal order id.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id"
+      ]
+    },
+    "ApiPaypalClientTokenResponse": {
+      "title": "ApiPaypalClientTokenResponse",
+      "type": "object",
+      "properties": {
+        "clientToken": {
+          "description": "Pass to `createInstance` in the PayPal JavaScript SDK v6.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "clientToken"
+      ]
+    },
+    "ApiShopsFileResponse": {
+      "title": "ApiShopsFileResponse",
+      "type": "object",
+      "properties": {
+        "ok": {
+          "type": "boolean"
+        },
+        "filename": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "ok",
+        "filename"
+      ]
+    },
+    "ApiShopsOrdersShipRequest": {
+      "title": "ApiShopsOrdersShipRequest",
+      "type": "object",
+      "properties": {
+        "carrier": {
+          "$ref": "#/definitions/Carrier"
+        },
+        "carrierName": {
+          "description": "Required when `carrier` is `OTHER`.",
+          "type": "string",
+          "maxLength": 60
+        },
+        "trackingNumber": {
+          "type": "string",
+          "minLength": 4,
+          "maxLength": 64
+        }
+      },
+      "required": [
+        "carrier",
+        "trackingNumber"
+      ]
+    },
+    "ApiShopsOrdersShipResponse": {
+      "title": "ApiShopsOrdersShipResponse",
+      "type": "object",
+      "properties": {
+        "ok": {
+          "type": "boolean"
+        },
+        "synced": {
+          "description": "Whether PayPal accepted the tracking number.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "ok",
+        "synced"
+      ]
+    },
+    "ApiShopsPhotosRequest": {
+      "title": "ApiShopsPhotosRequest",
+      "type": "object",
+      "properties": {
+        "photos": {
+          "description": "Photo ids, in order.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 8
+        }
+      },
+      "required": [
+        "photos"
+      ]
+    },
+    "ApiShopsRefineRequest": {
+      "title": "ApiShopsRefineRequest",
+      "type": "object",
+      "properties": {
+        "instruction": {
+          "example": "Make it feel more premium",
+          "type": "string",
+          "maxLength": 500
+        }
+      },
+      "required": [
+        "instruction"
+      ]
+    },
+    "ApiShopsRefineResponse": {
+      "title": "ApiShopsRefineResponse",
+      "type": "object",
+      "properties": {
+        "spec": {
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/definitions/DesignSpec"
+            },
+            {
+              "description": "What Gemini designed. OneThing's templates render it; Gemini never writes HTML."
+            }
+          ]
+        }
+      },
+      "required": [
+        "spec"
+      ]
+    },
+    "ApiShopsResponse": {
+      "title": "ApiShopsResponse",
+      "type": "object",
+      "properties": {
+        "ok": {
+          "type": "boolean"
+        },
+        "slug": {
+          "description": "The shop's link name after this change.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "ok",
+        "slug"
+      ]
+    },
+    "ApiSlugsCheckResponse": {
+      "title": "ApiSlugsCheckResponse",
+      "type": "object",
+      "properties": {
+        "slug": {
+          "type": "string"
+        },
+        "available": {
+          "type": "boolean"
+        },
+        "problem": {
+          "description": "Why not, when unavailable.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "slug",
+        "available"
+      ]
+    },
+    "Carrier": {
+      "title": "Carrier",
+      "type": "string",
+      "enum": [
+        "USPS",
+        "UPS",
+        "FEDEX",
+        "DHL",
+        "OTHER"
+      ]
+    },
+    "Delivery": {
+      "title": "Delivery",
+      "description": "For digital products. If omitted, the AI guesses.",
+      "type": "string",
+      "enum": [
+        "file",
+        "access_code"
+      ]
+    },
+    "Delivery1": {
+      "title": "Delivery1",
+      "type": "string",
+      "enum": [
+        "file",
+        "access_code"
+      ]
+    },
+    "Detail": {
+      "title": "Detail",
+      "type": "object",
+      "properties": {
+        "label": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "label",
+        "value"
+      ]
+    },
+    "Event": {
+      "title": "Event",
+      "type": "string",
+      "enum": [
+        "order.paid",
+        "order.shipped"
+      ]
+    },
+    "Faq": {
+      "title": "Faq",
+      "type": "object",
+      "properties": {
+        "q": {
+          "type": "string"
+        },
+        "a": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "q",
+        "a"
+      ]
+    },
+    "Fonts": {
+      "title": "Fonts",
+      "type": "object",
+      "properties": {
+        "heading": {
+          "type": "string"
+        },
+        "body": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "heading",
+        "body"
+      ]
+    },
+    "FulfillmentStatus": {
+      "title": "FulfillmentStatus",
+      "type": "string",
+      "enum": [
+        "none",
+        "to_ship",
+        "shipped",
+        "digital_sent"
+      ]
+    },
+    "HeroStatus": {
+      "title": "HeroStatus",
+      "type": "string",
+      "enum": [
+        "none",
+        "pending",
+        "ready",
+        "failed"
+      ]
+    },
+    "Layout": {
+      "title": "Layout",
+      "type": "string",
+      "enum": [
+        "bold-hero",
+        "editorial",
+        "minimal",
+        "playful"
+      ]
+    },
+    "Offer": {
+      "title": "Offer",
+      "type": "object",
+      "properties": {
+        "domain": {
+          "type": "string"
+        },
+        "url": {
+          "type": "string"
+        },
+        "price": {
+          "type": "number",
+          "format": "double"
+        },
+        "currency": {
+          "type": "string"
+        },
+        "inStock": {
+          "type": "boolean"
+        },
+        "commission": {
+          "description": "Maximum commission rate, 0–1 (0.08 = 8%).",
+          "type": "number",
+          "format": "double"
+        }
+      },
+      "required": [
+        "domain",
+        "url",
+        "price",
+        "currency",
+        "inStock",
+        "commission"
+      ]
+    },
+    "Ok": {
+      "title": "Ok",
+      "type": "object",
+      "properties": {
+        "ok": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "ok"
+      ]
+    },
+    "Order1": {
+      "title": "Order1",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "paypal_order_id": {
+          "type": "string"
+        },
+        "amount": {
+          "example": "2.99",
+          "type": "string"
+        },
+        "currency": {
+          "type": "string"
+        },
+        "buyer_name": {
+          "type": "string"
+        },
+        "buyer_email": {
+          "type": "string"
+        },
+        "shipping_address": {
+          "type": "object"
+        },
+        "fulfillment_status": {
+          "type": "string"
+        },
+        "tracking_number": {
+          "type": "string"
+        },
+        "carrier": {
+          "type": "string"
+        }
+      }
+    },
+    "Palette": {
+      "title": "Palette",
+      "type": "object",
+      "properties": {
+        "background": {
+          "example": "#14171a",
+          "type": "string",
+          "pattern": "^#[0-9a-fA-F]{6}$"
+        },
+        "surface": {
+          "example": "#14171a",
+          "type": "string",
+          "pattern": "^#[0-9a-fA-F]{6}$"
+        },
+        "text": {
+          "example": "#14171a",
+          "type": "string",
+          "pattern": "^#[0-9a-fA-F]{6}$"
+        },
+        "muted": {
+          "example": "#14171a",
+          "type": "string",
+          "pattern": "^#[0-9a-fA-F]{6}$"
+        },
+        "accent": {
+          "example": "#14171a",
+          "type": "string",
+          "pattern": "^#[0-9a-fA-F]{6}$"
+        },
+        "accentText": {
+          "example": "#14171a",
+          "type": "string",
+          "pattern": "^#[0-9a-fA-F]{6}$"
+        }
+      },
+      "required": [
+        "background",
+        "surface",
+        "text",
+        "muted",
+        "accent",
+        "accentText"
+      ]
+    },
+    "Photo": {
+      "title": "Photo",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "url": {
+          "description": "Public image URL on this site.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "url"
+      ]
+    },
+    "ProductType": {
+      "title": "ProductType",
+      "description": "`referral` only for shops created from Channel3.",
+      "type": "string",
+      "enum": [
+        "physical",
+        "digital",
+        "referral"
+      ]
+    },
+    "ProductType1": {
+      "title": "ProductType1",
+      "type": "string",
+      "enum": [
+        "physical",
+        "digital",
+        "referral"
+      ]
+    },
+    "ProductType2": {
+      "title": "ProductType2",
+      "type": "string",
+      "enum": [
+        "digital",
+        "physical"
+      ]
+    },
+    "Shop1": {
+      "title": "Shop1",
+      "type": "object",
+      "properties": {
+        "slug": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "url": {
+          "type": "string"
+        }
+      }
+    },
+    "ShopPhotos": {
+      "title": "ShopPhotos",
+      "type": "object",
+      "properties": {
+        "photos": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Photo"
+          }
+        }
+      },
+      "required": [
+        "photos"
+      ]
+    },
+    "Source": {
+      "title": "Source",
+      "type": "string",
+      "enum": [
+        "photo",
+        "link",
+        "channel3"
+      ]
+    },
+    "Status": {
+      "title": "Status",
+      "type": "string",
+      "enum": [
+        "draft",
+        "live"
+      ]
+    },
+    "Status2": {
+      "title": "Status2",
+      "type": "string",
+      "enum": [
+        "created",
+        "paid",
+        "failed"
+      ]
+    },
+    "Status3": {
+      "title": "Status3",
+      "type": "string",
+      "enum": [
+        "pending"
+      ]
+    },
+    "Type": {
+      "title": "Type",
+      "type": "string",
+      "enum": [
+        "auto",
+        "physical",
+        "digital"
+      ]
+    }
+  },
+  "security": [],
+  "tags": [
+    {
+      "name": "Accounts",
+      "description": "Sign in as a seller with an email or a phone number. Shops made while signed in belong to the account."
+    },
+    {
+      "name": "Shops",
+      "description": "Create a shop and manage it as its seller."
+    },
+    {
+      "name": "Links",
+      "description": "Short shop links (`/<slug>`)."
+    },
+    {
+      "name": "Products",
+      "description": "Find products to recommend (Channel3 catalog)."
+    },
+    {
+      "name": "Checkout",
+      "description": "Buyer-side PayPal checkout."
+    },
+    {
+      "name": "Access codes",
+      "description": "Unlock a paid app or game with a buyer's code."
+    },
+    {
+      "name": "Orders",
+      "description": "The seller's orders, fulfilment and PayPal webhook log."
+    },
+    {
+      "name": "Files",
+      "description": "Digital downloads and shop images."
+    }
+  ]
+}

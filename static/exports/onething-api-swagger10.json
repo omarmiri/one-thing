@@ -1,0 +1,2580 @@
+{
+  "swaggerVersion": "1.2",
+  "basePath": "https://one-thing-ash0.onrender.com",
+  "resourcePath": "/",
+  "apis": [
+    {
+      "path": "/api/account/signin",
+      "operations": [
+        {
+          "method": "POST",
+          "summary": "Signs in with an email address or a phone number, creating the account the first time. There's no password and no verification (sandbox). The response sets the `ot_session` cookie; shops created with it belong to the account and are listed on `/account`. Signing in with an email also claims older shops whose seller email matches. In a browser, sellers can instead use Log in with PayPal (`/api/account/paypal`), which also records the PayPal account their sales are paid into.",
+          "nickname": "signIn",
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "description": "",
+              "paramType": "header",
+              "required": true,
+              "allowMultiple": false,
+              "defaultValue": "application/json",
+              "uniqueItems": false,
+              "type": "string"
+            },
+            {
+              "name": "body",
+              "description": "",
+              "paramType": "body",
+              "required": true,
+              "allowMultiple": false,
+              "uniqueItems": false,
+              "type": "ApiAccountSigninRequest"
+            }
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "consumes": [
+            "application/json"
+          ],
+          "responseMessages": [
+            {
+              "code": 400,
+              "responseModel": "Error",
+              "message": "Something in the request needs fixing; `error` says what."
+            }
+          ],
+          "uniqueItems": false,
+          "$ref": "ApiAccountSigninResponse"
+        }
+      ]
+    },
+    {
+      "path": "/api/account/signout",
+      "operations": [
+        {
+          "method": "POST",
+          "summary": "Ends this browser's session and clears the `ot_session` cookie.",
+          "nickname": "signOut",
+          "parameters": [],
+          "produces": [
+            "application/json"
+          ],
+          "responseMessages": [],
+          "uniqueItems": false,
+          "$ref": "Ok"
+        }
+      ]
+    },
+    {
+      "path": "/api/shops",
+      "operations": [
+        {
+          "method": "POST",
+          "summary": "Starts a draft shop from one of three sources. Gemini designs the page and guesses the\nsetup; check it with `getShop`, adjust with `updateShop`, then go live.\n\nSent with a session cookie from `signIn`, the shop belongs to that account, which also\nbecomes its seller email (and PayPal email, after Log in with PayPal) unless you give one.\n\n- `source=photo`: a `photo` and/or a `description` of your own product.\n- `source=link`: a `url`. If Channel3 recognises it as a store's product page, the shop\n  becomes a recommendation (`product_type: referral`); otherwise the page is read and you\n  sell the product yourself with PayPal.\n- `source=channel3`: a `productId` from `searchProducts` (a recommendation).\n\nTakes 15–40 seconds. Hero art, if available, is generated afterwards (`hero_status`).\n",
+          "nickname": "createShop",
+          "parameters": [
+            {
+              "name": "source",
+              "description": "",
+              "paramType": "form",
+              "required": true,
+              "allowMultiple": false,
+              "enum": [
+                "photo",
+                "link",
+                "channel3"
+              ],
+              "uniqueItems": false,
+              "type": "string"
+            },
+            {
+              "name": "photo",
+              "description": "`source=photo`: the product photo, up to 8 MB.",
+              "paramType": "form",
+              "required": false,
+              "allowMultiple": false,
+              "uniqueItems": false,
+              "type": "object"
+            },
+            {
+              "name": "description",
+              "description": "`source=photo`: a sentence or two about the product. Required if there is no photo.",
+              "paramType": "form",
+              "required": false,
+              "allowMultiple": false,
+              "uniqueItems": false,
+              "type": "string"
+            },
+            {
+              "name": "url",
+              "description": "`source=link`: a product page, or your own app or game page.",
+              "paramType": "form",
+              "required": false,
+              "allowMultiple": false,
+              "uniqueItems": false,
+              "type": "string"
+            },
+            {
+              "name": "productId",
+              "description": "`source=channel3`: a product id from `searchProducts`.",
+              "paramType": "form",
+              "required": false,
+              "allowMultiple": false,
+              "uniqueItems": false,
+              "type": "string"
+            },
+            {
+              "name": "slug",
+              "description": "The link name you want. If omitted, the AI suggests one.",
+              "paramType": "form",
+              "required": false,
+              "allowMultiple": false,
+              "uniqueItems": false,
+              "type": "string"
+            },
+            {
+              "name": "type",
+              "description": "",
+              "paramType": "form",
+              "required": false,
+              "allowMultiple": false,
+              "defaultValue": "auto",
+              "enum": [
+                "auto",
+                "physical",
+                "digital"
+              ],
+              "uniqueItems": false,
+              "type": "string"
+            },
+            {
+              "name": "delivery",
+              "description": "For digital products. If omitted, the AI guesses.",
+              "paramType": "form",
+              "required": false,
+              "allowMultiple": false,
+              "enum": [
+                "file",
+                "access_code"
+              ],
+              "uniqueItems": false,
+              "type": "string"
+            },
+            {
+              "name": "access_url",
+              "description": "Where buyers use an access code.",
+              "paramType": "form",
+              "required": false,
+              "allowMultiple": false,
+              "uniqueItems": false,
+              "type": "string"
+            },
+            {
+              "name": "price",
+              "description": "USD. If omitted, the AI suggests a price.",
+              "paramType": "form",
+              "required": false,
+              "allowMultiple": false,
+              "minimum": "",
+              "maximum": "",
+              "uniqueItems": false,
+              "type": "number",
+              "format": "double"
+            },
+            {
+              "name": "shipping",
+              "description": "",
+              "paramType": "form",
+              "required": false,
+              "allowMultiple": false,
+              "minimum": "",
+              "maximum": "",
+              "uniqueItems": false,
+              "type": "number",
+              "format": "double"
+            },
+            {
+              "name": "stock",
+              "description": "",
+              "paramType": "form",
+              "required": false,
+              "allowMultiple": false,
+              "minimum": "",
+              "maximum": "",
+              "uniqueItems": false,
+              "type": "integer",
+              "format": "int32"
+            },
+            {
+              "name": "ship_countries",
+              "description": "",
+              "paramType": "form",
+              "required": false,
+              "allowMultiple": false,
+              "uniqueItems": false,
+              "type": "string"
+            },
+            {
+              "name": "paypal_email",
+              "description": "",
+              "paramType": "form",
+              "required": false,
+              "allowMultiple": false,
+              "uniqueItems": false,
+              "type": "string"
+            },
+            {
+              "name": "seller_email",
+              "description": "",
+              "paramType": "form",
+              "required": false,
+              "allowMultiple": false,
+              "uniqueItems": false,
+              "type": "string"
+            },
+            {
+              "name": "digital_file",
+              "description": "",
+              "paramType": "form",
+              "required": false,
+              "allowMultiple": false,
+              "uniqueItems": false,
+              "type": "object"
+            }
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "consumes": [
+            "multipart/form-data"
+          ],
+          "responseMessages": [
+            {
+              "code": 400,
+              "responseModel": "Error",
+              "message": "Something in the request needs fixing; `error` says what."
+            },
+            {
+              "code": 409,
+              "responseModel": "Error",
+              "message": "Taken or unavailable (a link name, or a sold-out product)."
+            },
+            {
+              "code": 502,
+              "responseModel": "Error",
+              "message": "Gemini, PayPal or Channel3 failed or isn't configured."
+            }
+          ],
+          "uniqueItems": false,
+          "$ref": "CreatedShop"
+        }
+      ]
+    },
+    {
+      "path": "/api/shops/{slug}",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "Everything about the shop, including the AI's design spec and guesses.",
+          "nickname": "getShop",
+          "parameters": [
+            {
+              "name": "slug",
+              "description": "The shop's link name (current or former).",
+              "paramType": "path",
+              "required": true,
+              "allowMultiple": false,
+              "uniqueItems": false,
+              "type": "string"
+            }
+          ],
+          "authorizations": {
+            "AdminToken": []
+          },
+          "produces": [
+            "application/json"
+          ],
+          "responseMessages": [
+            {
+              "code": 404,
+              "responseModel": "Error",
+              "message": "No such shop, or the admin token doesn't match it."
+            }
+          ],
+          "uniqueItems": false,
+          "$ref": "Shop"
+        },
+        {
+          "method": "PATCH",
+          "summary": "Changes only the fields you send. Renaming `slug` keeps the old link working (it\nredirects). Set `status: live` to publish; a digital product needs its file (or, for\naccess codes, `access_url`) first.\n",
+          "nickname": "updateShop",
+          "parameters": [
+            {
+              "name": "slug",
+              "description": "The shop's link name (current or former).",
+              "paramType": "path",
+              "required": true,
+              "allowMultiple": false,
+              "uniqueItems": false,
+              "type": "string"
+            },
+            {
+              "name": "Content-Type",
+              "description": "",
+              "paramType": "header",
+              "required": true,
+              "allowMultiple": false,
+              "defaultValue": "application/json",
+              "uniqueItems": false,
+              "type": "string"
+            },
+            {
+              "name": "body",
+              "description": "",
+              "paramType": "body",
+              "required": true,
+              "allowMultiple": false,
+              "uniqueItems": false,
+              "type": "ShopUpdate"
+            }
+          ],
+          "authorizations": {
+            "AdminToken": []
+          },
+          "produces": [
+            "application/json"
+          ],
+          "consumes": [
+            "application/json"
+          ],
+          "responseMessages": [
+            {
+              "code": 400,
+              "responseModel": "Error",
+              "message": "Something in the request needs fixing; `error` says what."
+            },
+            {
+              "code": 404,
+              "responseModel": "Error",
+              "message": "No such shop, or the admin token doesn't match it."
+            }
+          ],
+          "uniqueItems": false,
+          "$ref": "ApiShopsResponse"
+        }
+      ]
+    },
+    {
+      "path": "/api/shops/{slug}/refine",
+      "operations": [
+        {
+          "method": "POST",
+          "summary": "\"Make it warmer\", \"shorter copy\", \"more premium\". Gemini edits the design spec.",
+          "nickname": "refineShopDesign",
+          "parameters": [
+            {
+              "name": "slug",
+              "description": "The shop's link name (current or former).",
+              "paramType": "path",
+              "required": true,
+              "allowMultiple": false,
+              "uniqueItems": false,
+              "type": "string"
+            },
+            {
+              "name": "Content-Type",
+              "description": "",
+              "paramType": "header",
+              "required": true,
+              "allowMultiple": false,
+              "defaultValue": "application/json",
+              "uniqueItems": false,
+              "type": "string"
+            },
+            {
+              "name": "body",
+              "description": "",
+              "paramType": "body",
+              "required": true,
+              "allowMultiple": false,
+              "uniqueItems": false,
+              "type": "ApiShopsRefineRequest"
+            }
+          ],
+          "authorizations": {
+            "AdminToken": []
+          },
+          "produces": [
+            "application/json"
+          ],
+          "consumes": [
+            "application/json"
+          ],
+          "responseMessages": [
+            {
+              "code": 400,
+              "responseModel": "Error",
+              "message": "Something in the request needs fixing; `error` says what."
+            },
+            {
+              "code": 404,
+              "responseModel": "Error",
+              "message": "No such shop, or the admin token doesn't match it."
+            },
+            {
+              "code": 502,
+              "responseModel": "Error",
+              "message": "Gemini, PayPal or Channel3 failed or isn't configured."
+            }
+          ],
+          "uniqueItems": false,
+          "$ref": "ApiShopsRefineResponse"
+        }
+      ]
+    },
+    {
+      "path": "/api/shops/{slug}/hero",
+      "operations": [
+        {
+          "method": "POST",
+          "summary": "Starts generation in the background. Poll `getShop` for `hero_status`.",
+          "nickname": "regenerateHeroArt",
+          "parameters": [
+            {
+              "name": "slug",
+              "description": "The shop's link name (current or former).",
+              "paramType": "path",
+              "required": true,
+              "allowMultiple": false,
+              "uniqueItems": false,
+              "type": "string"
+            }
+          ],
+          "authorizations": {
+            "AdminToken": []
+          },
+          "produces": [
+            "application/json"
+          ],
+          "responseMessages": [
+            {
+              "code": 400,
+              "responseModel": "Error",
+              "message": "Something in the request needs fixing; `error` says what."
+            },
+            {
+              "code": 404,
+              "responseModel": "Error",
+              "message": "No such shop, or the admin token doesn't match it."
+            }
+          ],
+          "uniqueItems": false,
+          "$ref": "Ok"
+        }
+      ]
+    },
+    {
+      "path": "/api/shops/{slug}/file",
+      "operations": [
+        {
+          "method": "POST",
+          "summary": "Uploads or replaces a digital product's file, up to 25 MB. Each paid order gets a download link for it.",
+          "nickname": "uploadDigitalFile",
+          "parameters": [
+            {
+              "name": "slug",
+              "description": "The shop's link name (current or former).",
+              "paramType": "path",
+              "required": true,
+              "allowMultiple": false,
+              "uniqueItems": false,
+              "type": "string"
+            },
+            {
+              "name": "file",
+              "description": "Up to 25 MB.",
+              "paramType": "form",
+              "required": true,
+              "allowMultiple": false,
+              "uniqueItems": false,
+              "type": "object"
+            }
+          ],
+          "authorizations": {
+            "AdminToken": []
+          },
+          "produces": [
+            "application/json"
+          ],
+          "consumes": [
+            "multipart/form-data"
+          ],
+          "responseMessages": [
+            {
+              "code": 400,
+              "responseModel": "Error",
+              "message": "Something in the request needs fixing; `error` says what."
+            },
+            {
+              "code": 404,
+              "responseModel": "Error",
+              "message": "No such shop, or the admin token doesn't match it."
+            }
+          ],
+          "uniqueItems": false,
+          "$ref": "ApiShopsFileResponse"
+        }
+      ]
+    },
+    {
+      "path": "/api/shops/{slug}/photos",
+      "operations": [
+        {
+          "method": "POST",
+          "summary": "Adds one or more photos after the cover. Each is turned upright, resized to at most 2000 px and stored as WebP. A shop holds up to 8 photos; buyers swipe through them on the shop page. Not for recommendations, which show the retailer's photos.",
+          "nickname": "addPhotos",
+          "parameters": [
+            {
+              "name": "slug",
+              "description": "The shop's link name (current or former).",
+              "paramType": "path",
+              "required": true,
+              "allowMultiple": false,
+              "uniqueItems": false,
+              "type": "string"
+            },
+            {
+              "name": "photo",
+              "description": "An image, up to 15 MB. The endpoint also accepts the field repeated, to add several in one request.",
+              "paramType": "form",
+              "required": true,
+              "allowMultiple": false,
+              "uniqueItems": false,
+              "type": "object"
+            }
+          ],
+          "authorizations": {
+            "AdminToken": []
+          },
+          "produces": [
+            "application/json"
+          ],
+          "consumes": [
+            "multipart/form-data"
+          ],
+          "responseMessages": [
+            {
+              "code": 400,
+              "responseModel": "Error",
+              "message": "Something in the request needs fixing; `error` says what."
+            },
+            {
+              "code": 404,
+              "responseModel": "Error",
+              "message": "No such shop, or the admin token doesn't match it."
+            }
+          ],
+          "uniqueItems": false,
+          "$ref": "ShopPhotos"
+        },
+        {
+          "method": "PUT",
+          "summary": "Sets the photo order; the first becomes the cover. Leaving a photo out removes it.",
+          "nickname": "setPhotoOrder",
+          "parameters": [
+            {
+              "name": "slug",
+              "description": "The shop's link name (current or former).",
+              "paramType": "path",
+              "required": true,
+              "allowMultiple": false,
+              "uniqueItems": false,
+              "type": "string"
+            },
+            {
+              "name": "Content-Type",
+              "description": "",
+              "paramType": "header",
+              "required": true,
+              "allowMultiple": false,
+              "defaultValue": "application/json",
+              "uniqueItems": false,
+              "type": "string"
+            },
+            {
+              "name": "body",
+              "description": "",
+              "paramType": "body",
+              "required": true,
+              "allowMultiple": false,
+              "uniqueItems": false,
+              "type": "ApiShopsPhotosRequest"
+            }
+          ],
+          "authorizations": {
+            "AdminToken": []
+          },
+          "produces": [
+            "application/json"
+          ],
+          "consumes": [
+            "application/json"
+          ],
+          "responseMessages": [
+            {
+              "code": 400,
+              "responseModel": "Error",
+              "message": "Something in the request needs fixing; `error` says what."
+            },
+            {
+              "code": 404,
+              "responseModel": "Error",
+              "message": "No such shop, or the admin token doesn't match it."
+            }
+          ],
+          "uniqueItems": false,
+          "$ref": "ShopPhotos"
+        }
+      ]
+    },
+    {
+      "path": "/api/slugs/check",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "Normalises a proposed link name and says whether a new shop can use it.",
+          "nickname": "checkLinkName",
+          "parameters": [
+            {
+              "name": "name",
+              "description": "Anything; it is normalised (`Raptor Rush` becomes `raptor-rush`).",
+              "paramType": "query",
+              "required": true,
+              "allowMultiple": false,
+              "uniqueItems": false,
+              "type": "string"
+            }
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "responseMessages": [],
+          "uniqueItems": false,
+          "$ref": "ApiSlugsCheckResponse"
+        }
+      ]
+    },
+    {
+      "path": "/api/channel3/search",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "Searches 100M+ products from 25k+ stores through Channel3. Pass a result's `id` to `createShop` with `source=channel3`.",
+          "nickname": "searchProducts",
+          "parameters": [
+            {
+              "name": "q",
+              "description": "What to look for, in plain words.",
+              "paramType": "query",
+              "required": true,
+              "allowMultiple": false,
+              "uniqueItems": false,
+              "type": "string"
+            }
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "responseMessages": [
+            {
+              "code": 502,
+              "responseModel": "Error",
+              "message": "Gemini, PayPal or Channel3 failed or isn't configured."
+            },
+            {
+              "code": 503,
+              "responseModel": "Error",
+              "message": "Gemini, PayPal or Channel3 failed or isn't configured."
+            }
+          ],
+          "uniqueItems": false,
+          "$ref": "ApiChannel3SearchResponse"
+        }
+      ]
+    },
+    {
+      "path": "/api/paypal/client-token",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "A browser-safe client token for the PayPal JavaScript SDK v6\n(`paypal.createInstance({ clientToken })`), bound to the requesting site's domain.\nShop pages call this before showing the PayPal button.\n",
+          "nickname": "getPayPalClientToken",
+          "parameters": [],
+          "produces": [
+            "application/json"
+          ],
+          "responseMessages": [
+            {
+              "code": 502,
+              "responseModel": "Error",
+              "message": "Gemini, PayPal or Channel3 failed or isn't configured."
+            },
+            {
+              "code": 503,
+              "responseModel": "Error",
+              "message": "Gemini, PayPal or Channel3 failed or isn't configured."
+            }
+          ],
+          "uniqueItems": false,
+          "$ref": "ApiPaypalClientTokenResponse"
+        }
+      ]
+    },
+    {
+      "path": "/api/orders",
+      "operations": [
+        {
+          "method": "POST",
+          "summary": "Creates the PayPal order for one unit of a live shop's product. The amount always comes\nfrom the shop, never from the caller. Pass the returned `id` to the PayPal JS SDK.\n",
+          "nickname": "createCheckoutOrder",
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "description": "",
+              "paramType": "header",
+              "required": true,
+              "allowMultiple": false,
+              "defaultValue": "application/json",
+              "uniqueItems": false,
+              "type": "string"
+            },
+            {
+              "name": "body",
+              "description": "",
+              "paramType": "body",
+              "required": true,
+              "allowMultiple": false,
+              "uniqueItems": false,
+              "type": "ApiOrdersRequest"
+            }
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "consumes": [
+            "application/json"
+          ],
+          "responseMessages": [
+            {
+              "code": 400,
+              "responseModel": "Error",
+              "message": "Something in the request needs fixing; `error` says what."
+            },
+            {
+              "code": 404,
+              "responseModel": "Error",
+              "message": "No such shop, or the admin token doesn't match it."
+            },
+            {
+              "code": 409,
+              "responseModel": "Error",
+              "message": "Taken or unavailable (a link name, or a sold-out product)."
+            },
+            {
+              "code": 502,
+              "responseModel": "Error",
+              "message": "Gemini, PayPal or Channel3 failed or isn't configured."
+            },
+            {
+              "code": 503,
+              "responseModel": "Error",
+              "message": "Gemini, PayPal or Channel3 failed or isn't configured."
+            }
+          ],
+          "uniqueItems": false,
+          "$ref": "ApiOrdersResponse"
+        }
+      ]
+    },
+    {
+      "path": "/api/orders/{paypalOrderId}/capture",
+      "operations": [
+        {
+          "method": "POST",
+          "summary": "Call after the buyer approves. Records the sale; digital orders get a download link or access code.\nSafe to call repeatedly: before approval it answers 409, so a page can poll it while the PayPal window is open.\n",
+          "nickname": "captureCheckoutOrder",
+          "parameters": [
+            {
+              "name": "paypalOrderId",
+              "description": "The PayPal order id that `createCheckoutOrder` returned.",
+              "paramType": "path",
+              "required": true,
+              "allowMultiple": false,
+              "uniqueItems": false,
+              "type": "string"
+            }
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "responseMessages": [
+            {
+              "code": 402,
+              "responseModel": "Error",
+              "message": "Something in the request needs fixing; `error` says what."
+            },
+            {
+              "code": 404,
+              "responseModel": "Error",
+              "message": "No such shop, or the admin token doesn't match it."
+            },
+            {
+              "code": 409,
+              "responseModel": "ApiOrdersCapture409Error1",
+              "message": "The buyer hasn't approved the order yet."
+            },
+            {
+              "code": 422,
+              "responseModel": "Error",
+              "message": "The buyer's funding source was declined (`INSTRUMENT_DECLINED`); they can try another."
+            },
+            {
+              "code": 502,
+              "responseModel": "Error",
+              "message": "Gemini, PayPal or Channel3 failed or isn't configured."
+            }
+          ],
+          "uniqueItems": false,
+          "$ref": "ApiOrdersCaptureResponse"
+        }
+      ]
+    },
+    {
+      "path": "/api/access/verify",
+      "operations": [
+        {
+          "method": "POST",
+          "summary": "For apps and games sold with access codes. Callable from any origin (CORS `*`): it only\nanswers valid or not for one shop, and counts uses. Accepts the shop's current or former\nlink names, and codes typed loosely (lower case, spaces, no dashes).\n",
+          "nickname": "verifyAccessCode",
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "description": "",
+              "paramType": "header",
+              "required": true,
+              "allowMultiple": false,
+              "defaultValue": "application/json",
+              "uniqueItems": false,
+              "type": "string"
+            },
+            {
+              "name": "body",
+              "description": "",
+              "paramType": "body",
+              "required": true,
+              "allowMultiple": false,
+              "uniqueItems": false,
+              "type": "ApiAccessVerifyRequest"
+            }
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "consumes": [
+            "application/json"
+          ],
+          "responseMessages": [],
+          "uniqueItems": false,
+          "$ref": "ApiAccessVerifyResponse"
+        }
+      ]
+    },
+    {
+      "path": "/api/shops/{slug}/orders",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "Newest first. Checkouts that were never approved are left out.",
+          "nickname": "listOrders",
+          "parameters": [
+            {
+              "name": "slug",
+              "description": "The shop's link name (current or former).",
+              "paramType": "path",
+              "required": true,
+              "allowMultiple": false,
+              "uniqueItems": false,
+              "type": "string"
+            }
+          ],
+          "authorizations": {
+            "AdminToken": []
+          },
+          "produces": [
+            "application/json"
+          ],
+          "responseMessages": [
+            {
+              "code": 404,
+              "responseModel": "Error",
+              "message": "No such shop, or the admin token doesn't match it."
+            }
+          ],
+          "items": {
+            "$ref": "Order"
+          },
+          "uniqueItems": false,
+          "type": "array"
+        }
+      ]
+    },
+    {
+      "path": "/api/shops/{slug}/orders/{orderId}/ship",
+      "operations": [
+        {
+          "method": "POST",
+          "summary": "Saves the tracking number and pushes it to PayPal, so the buyer sees it in PayPal.",
+          "nickname": "markOrderShipped",
+          "parameters": [
+            {
+              "name": "slug",
+              "description": "The shop's link name (current or former).",
+              "paramType": "path",
+              "required": true,
+              "allowMultiple": false,
+              "uniqueItems": false,
+              "type": "string"
+            },
+            {
+              "name": "orderId",
+              "description": "OneThing's order id (`Order.id`).",
+              "paramType": "path",
+              "required": true,
+              "allowMultiple": false,
+              "uniqueItems": false,
+              "type": "string"
+            },
+            {
+              "name": "Content-Type",
+              "description": "",
+              "paramType": "header",
+              "required": true,
+              "allowMultiple": false,
+              "defaultValue": "application/json",
+              "uniqueItems": false,
+              "type": "string"
+            },
+            {
+              "name": "body",
+              "description": "",
+              "paramType": "body",
+              "required": true,
+              "allowMultiple": false,
+              "uniqueItems": false,
+              "type": "ApiShopsOrdersShipRequest"
+            }
+          ],
+          "authorizations": {
+            "AdminToken": []
+          },
+          "produces": [
+            "application/json"
+          ],
+          "consumes": [
+            "application/json"
+          ],
+          "responseMessages": [
+            {
+              "code": 400,
+              "responseModel": "Error",
+              "message": "Something in the request needs fixing; `error` says what."
+            },
+            {
+              "code": 404,
+              "responseModel": "Error",
+              "message": "No such shop, or the admin token doesn't match it."
+            }
+          ],
+          "uniqueItems": false,
+          "$ref": "ApiShopsOrdersShipResponse"
+        }
+      ]
+    },
+    {
+      "path": "/api/shops/{slug}/webhooks",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "The last 50 PayPal webhook deliveries about this shop's orders, with signature results.",
+          "nickname": "listWebhookEvents",
+          "parameters": [
+            {
+              "name": "slug",
+              "description": "The shop's link name (current or former).",
+              "paramType": "path",
+              "required": true,
+              "allowMultiple": false,
+              "uniqueItems": false,
+              "type": "string"
+            }
+          ],
+          "authorizations": {
+            "AdminToken": []
+          },
+          "produces": [
+            "application/json"
+          ],
+          "responseMessages": [
+            {
+              "code": 404,
+              "responseModel": "Error",
+              "message": "No such shop, or the admin token doesn't match it."
+            }
+          ],
+          "items": {
+            "$ref": "WebhookEvent"
+          },
+          "uniqueItems": false,
+          "type": "array"
+        }
+      ]
+    },
+    {
+      "path": "/api/download/{token}",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "A paid digital order's private link. Works 5 times within 14 days.",
+          "nickname": "downloadFile",
+          "parameters": [
+            {
+              "name": "token",
+              "description": "The download token from a paid order's thank-you page.",
+              "paramType": "path",
+              "required": true,
+              "allowMultiple": false,
+              "uniqueItems": false,
+              "type": "string"
+            }
+          ],
+          "produces": [
+            "application/octet-stream",
+            "text/plain"
+          ],
+          "responseMessages": [
+            {
+              "code": 410,
+              "message": "Expired or used up."
+            }
+          ],
+          "uniqueItems": false,
+          "type": "object"
+        }
+      ]
+    },
+    {
+      "path": "/api/blobs/{id}",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "Public images only. Purchased files are never served here.",
+          "nickname": "getImage",
+          "parameters": [
+            {
+              "name": "id",
+              "description": "A shop's `photo_blob` or `hero_blob`.",
+              "paramType": "path",
+              "required": true,
+              "allowMultiple": false,
+              "uniqueItems": false,
+              "type": "string"
+            }
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "responseMessages": [
+            {
+              "code": 404,
+              "message": "Not a public shop image."
+            }
+          ],
+          "uniqueItems": false,
+          "type": "object"
+        }
+      ]
+    }
+  ],
+  "models": {
+    "Error": {
+      "id": "Error",
+      "required": [
+        "error"
+      ],
+      "properties": {
+        "error": {
+          "description": "A sentence you can show to a person.",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "field": {
+          "description": "The form field at fault, when there is one.",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "detail": {
+          "description": "The upstream service's own message, for debugging.",
+          "uniqueItems": false,
+          "type": "string"
+        }
+      }
+    },
+    "CreateShopForm": {
+      "id": "CreateShopForm",
+      "required": [
+        "source"
+      ],
+      "properties": {
+        "source": {
+          "description": "",
+          "enum": [
+            "photo",
+            "link",
+            "channel3"
+          ],
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "photo": {
+          "description": "`source=photo`: the product photo, up to 8 MB.",
+          "uniqueItems": false,
+          "type": "object"
+        },
+        "description": {
+          "description": "`source=photo`: a sentence or two about the product. Required if there is no photo.",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "url": {
+          "description": "`source=link`: a product page, or your own app or game page.",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "productId": {
+          "description": "`source=channel3`: a product id from `searchProducts`.",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "slug": {
+          "description": "The link name you want. If omitted, the AI suggests one.",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "type": {
+          "description": "",
+          "defaultValue": "auto",
+          "enum": [
+            "auto",
+            "physical",
+            "digital"
+          ],
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "delivery": {
+          "description": "For digital products. If omitted, the AI guesses.",
+          "enum": [
+            "file",
+            "access_code"
+          ],
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "access_url": {
+          "description": "Where buyers use an access code.",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "price": {
+          "description": "USD. If omitted, the AI suggests a price.",
+          "minimum": "",
+          "maximum": "",
+          "uniqueItems": false,
+          "type": "number",
+          "format": "double"
+        },
+        "shipping": {
+          "description": "",
+          "minimum": "",
+          "maximum": "",
+          "uniqueItems": false,
+          "type": "number",
+          "format": "double"
+        },
+        "stock": {
+          "description": "",
+          "minimum": "",
+          "maximum": "",
+          "uniqueItems": false,
+          "type": "integer",
+          "format": "int32"
+        },
+        "ship_countries": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "paypal_email": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "seller_email": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "digital_file": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "object"
+        }
+      }
+    },
+    "CreatedShop": {
+      "id": "CreatedShop",
+      "required": [
+        "slug",
+        "token",
+        "manageUrl"
+      ],
+      "properties": {
+        "slug": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "token": {
+          "description": "The admin token. Shown once; store it.",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "manageUrl": {
+          "description": "The seller's private manage page (contains the token).",
+          "uniqueItems": false,
+          "type": "string"
+        }
+      }
+    },
+    "ShopUpdate": {
+      "id": "ShopUpdate",
+      "required": [],
+      "properties": {
+        "slug": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "status": {
+          "description": "",
+          "enum": [
+            "draft",
+            "live"
+          ],
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "product_type": {
+          "description": "`referral` only for shops created from Channel3.",
+          "enum": [
+            "physical",
+            "digital",
+            "referral"
+          ],
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "price": {
+          "description": "",
+          "minimum": "0.5",
+          "maximum": "10000",
+          "uniqueItems": false,
+          "type": "number",
+          "format": "double"
+        },
+        "shipping": {
+          "description": "",
+          "minimum": "0",
+          "maximum": "500",
+          "uniqueItems": false,
+          "type": "number",
+          "format": "double"
+        },
+        "stock": {
+          "description": "",
+          "minimum": "0",
+          "maximum": "",
+          "uniqueItems": false,
+          "type": "integer",
+          "format": "int32"
+        },
+        "ship_countries": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "delivery": {
+          "description": "",
+          "enum": [
+            "file",
+            "access_code"
+          ],
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "access_url": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "paypal_email": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "seller_email": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "zapier_hook_url": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "in_gallery": {
+          "description": "Feature the shop at `/gallery` while it's live. Off by default.",
+          "uniqueItems": false,
+          "type": "boolean"
+        }
+      }
+    },
+    "Shop": {
+      "id": "Shop",
+      "required": [
+        "id",
+        "slug",
+        "status",
+        "product_type",
+        "price_cents",
+        "currency",
+        "spec"
+      ],
+      "properties": {
+        "id": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "slug": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "status": {
+          "description": "",
+          "enum": [
+            "draft",
+            "live"
+          ],
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "product_type": {
+          "description": "",
+          "enum": [
+            "physical",
+            "digital",
+            "referral"
+          ],
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "price_cents": {
+          "description": "",
+          "minimum": "",
+          "maximum": "",
+          "uniqueItems": false,
+          "type": "integer",
+          "format": "int32"
+        },
+        "currency": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "shipping_cents": {
+          "description": "",
+          "minimum": "",
+          "maximum": "",
+          "uniqueItems": false,
+          "type": "integer",
+          "format": "int32"
+        },
+        "ship_countries": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "stock": {
+          "description": "",
+          "minimum": "",
+          "maximum": "",
+          "uniqueItems": false,
+          "type": "integer",
+          "format": "int32"
+        },
+        "delivery": {
+          "description": "",
+          "enum": [
+            "file",
+            "access_code"
+          ],
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "access_url": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "paypal_email": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "seller_email": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "zapier_hook_url": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "in_gallery": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "boolean"
+        },
+        "photo_blob": {
+          "description": "Image id for `getImage`.",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "hero_blob": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "hero_status": {
+          "description": "",
+          "enum": [
+            "none",
+            "pending",
+            "ready",
+            "failed"
+          ],
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "hero_error": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "ai_source": {
+          "description": "",
+          "enum": [
+            "gemini",
+            "fallback"
+          ],
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "source_url": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "referral": {
+          "description": "",
+          "uniqueItems": false,
+          "$ref": "Referral"
+        },
+        "spec": {
+          "description": "What Gemini designed. OneThing's templates render it; Gemini never writes HTML.",
+          "uniqueItems": false,
+          "$ref": "DesignSpec"
+        },
+        "created_at": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "DesignSpec": {
+      "id": "DesignSpec",
+      "description": "What Gemini designed. OneThing's templates render it; Gemini never writes HTML.",
+      "required": [
+        "productType",
+        "productName",
+        "layout",
+        "palette",
+        "fonts",
+        "headline",
+        "bullets",
+        "faq",
+        "ctaLabel"
+      ],
+      "properties": {
+        "productType": {
+          "description": "",
+          "enum": [
+            "digital",
+            "physical"
+          ],
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "productName": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "layout": {
+          "description": "",
+          "enum": [
+            "bold-hero",
+            "editorial",
+            "minimal",
+            "playful"
+          ],
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "palette": {
+          "description": "",
+          "uniqueItems": false,
+          "$ref": "Palette"
+        },
+        "fonts": {
+          "description": "",
+          "uniqueItems": false,
+          "$ref": "Fonts"
+        },
+        "eyebrow": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "headline": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "subheadline": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "story": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "bullets": {
+          "description": "",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": false,
+          "type": "array"
+        },
+        "details": {
+          "description": "",
+          "items": {
+            "$ref": "Detail"
+          },
+          "uniqueItems": false,
+          "type": "array"
+        },
+        "faq": {
+          "description": "",
+          "items": {
+            "$ref": "Faq"
+          },
+          "uniqueItems": false,
+          "type": "array"
+        },
+        "ctaLabel": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "suggestedPriceUsd": {
+          "description": "",
+          "minimum": "",
+          "maximum": "",
+          "uniqueItems": false,
+          "type": "number",
+          "format": "double"
+        },
+        "suggestedShippingUsd": {
+          "description": "",
+          "minimum": "",
+          "maximum": "",
+          "uniqueItems": false,
+          "type": "number",
+          "format": "double"
+        },
+        "imageAlt": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "heroPrompt": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        }
+      }
+    },
+    "Referral": {
+      "id": "Referral",
+      "description": "A recommended Channel3 product. Buy links are Channel3-tracked, credited to this shop.",
+      "required": [
+        "productId",
+        "title",
+        "offers"
+      ],
+      "properties": {
+        "productId": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "title": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "brand": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "image": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "offers": {
+          "description": "",
+          "items": {
+            "$ref": "Offer"
+          },
+          "uniqueItems": false,
+          "type": "array"
+        }
+      }
+    },
+    "ProductCard": {
+      "id": "ProductCard",
+      "required": [
+        "id",
+        "title",
+        "image",
+        "price",
+        "currency",
+        "retailer",
+        "retailers",
+        "commission"
+      ],
+      "properties": {
+        "id": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "title": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "brand": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "image": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "price": {
+          "description": "",
+          "minimum": "",
+          "maximum": "",
+          "uniqueItems": false,
+          "type": "number",
+          "format": "double"
+        },
+        "currency": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "retailer": {
+          "description": "The store with the best offer.",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "retailers": {
+          "description": "",
+          "minimum": "",
+          "maximum": "",
+          "uniqueItems": false,
+          "type": "integer",
+          "format": "int32"
+        },
+        "commission": {
+          "description": "Best commission rate across offers, 0–1.",
+          "minimum": "",
+          "maximum": "",
+          "uniqueItems": false,
+          "type": "number",
+          "format": "double"
+        }
+      }
+    },
+    "Order": {
+      "id": "Order",
+      "required": [
+        "id",
+        "status",
+        "amount_cents",
+        "currency",
+        "fulfillment_status"
+      ],
+      "properties": {
+        "id": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "paypal_order_id": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "status": {
+          "description": "",
+          "enum": [
+            "created",
+            "paid",
+            "failed"
+          ],
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "amount_cents": {
+          "description": "",
+          "minimum": "",
+          "maximum": "",
+          "uniqueItems": false,
+          "type": "integer",
+          "format": "int32"
+        },
+        "shipping_cents": {
+          "description": "",
+          "minimum": "",
+          "maximum": "",
+          "uniqueItems": false,
+          "type": "integer",
+          "format": "int32"
+        },
+        "currency": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "buyer_email": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "buyer_name": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "shipping_address": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "capture_id": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "fulfillment_status": {
+          "description": "",
+          "enum": [
+            "none",
+            "to_ship",
+            "shipped",
+            "digital_sent"
+          ],
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "carrier": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "tracking_number": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "tracking_synced": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "boolean"
+        },
+        "downloads": {
+          "description": "",
+          "minimum": "",
+          "maximum": "",
+          "uniqueItems": false,
+          "type": "integer",
+          "format": "int32"
+        },
+        "access_code": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "code_uses": {
+          "description": "",
+          "minimum": "",
+          "maximum": "",
+          "uniqueItems": false,
+          "type": "integer",
+          "format": "int32"
+        },
+        "paid_at": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string",
+          "format": "date-time"
+        },
+        "created_at": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "WebhookEvent": {
+      "id": "WebhookEvent",
+      "required": [
+        "id",
+        "event_type",
+        "verified",
+        "outcome",
+        "received_at"
+      ],
+      "properties": {
+        "id": {
+          "description": "PayPal's event id.",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "event_type": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "paypal_order_id": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "summary": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "verified": {
+          "description": "Whether PayPal confirmed the delivery's signature.",
+          "uniqueItems": false,
+          "type": "boolean"
+        },
+        "outcome": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "received_at": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "OrderEvent": {
+      "id": "OrderEvent",
+      "required": [
+        "event",
+        "shop",
+        "order"
+      ],
+      "properties": {
+        "event": {
+          "description": "",
+          "enum": [
+            "order.paid",
+            "order.shipped"
+          ],
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "shop": {
+          "description": "",
+          "uniqueItems": false,
+          "$ref": "Shop1"
+        },
+        "order": {
+          "description": "",
+          "uniqueItems": false,
+          "$ref": "Order1"
+        }
+      }
+    },
+    "ApiAccessVerifyRequest": {
+      "id": "ApiAccessVerifyRequest",
+      "required": [
+        "shop",
+        "code"
+      ],
+      "properties": {
+        "shop": {
+          "description": "The shop's link name.",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "code": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        }
+      }
+    },
+    "ApiAccessVerifyResponse": {
+      "id": "ApiAccessVerifyResponse",
+      "required": [
+        "valid"
+      ],
+      "properties": {
+        "valid": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "boolean"
+        },
+        "product": {
+          "description": "The product name, when valid.",
+          "uniqueItems": false,
+          "type": "string"
+        }
+      }
+    },
+    "ApiAccountSigninRequest": {
+      "id": "ApiAccountSigninRequest",
+      "required": [
+        "identifier"
+      ],
+      "properties": {
+        "identifier": {
+          "description": "An email address, or a phone number (spaces, dashes and brackets are ignored; keep a leading +).",
+          "uniqueItems": false,
+          "type": "string"
+        }
+      }
+    },
+    "ApiAccountSigninResponse": {
+      "id": "ApiAccountSigninResponse",
+      "required": [
+        "id",
+        "email",
+        "phone"
+      ],
+      "properties": {
+        "id": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "email": {
+          "description": "Lower-cased.",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "phone": {
+          "description": "Digits, with a leading + if one was given.",
+          "uniqueItems": false,
+          "type": "string"
+        }
+      }
+    },
+    "ApiChannel3SearchResponse": {
+      "id": "ApiChannel3SearchResponse",
+      "required": [
+        "products"
+      ],
+      "properties": {
+        "products": {
+          "description": "",
+          "items": {
+            "$ref": "ProductCard"
+          },
+          "uniqueItems": false,
+          "type": "array"
+        }
+      }
+    },
+    "ApiOrdersCapture409Error1": {
+      "id": "ApiOrdersCapture409Error1",
+      "required": [],
+      "properties": {
+        "status": {
+          "description": "",
+          "enum": [
+            "pending"
+          ],
+          "uniqueItems": false,
+          "type": "string"
+        }
+      }
+    },
+    "ApiOrdersCaptureResponse": {
+      "id": "ApiOrdersCaptureResponse",
+      "required": [
+        "orderId",
+        "status"
+      ],
+      "properties": {
+        "orderId": {
+          "description": "OneThing's order id; the thank-you page is `/<slug>/thanks?order=<orderId>`.",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "status": {
+          "description": "",
+          "defaultValue": "paid",
+          "uniqueItems": false,
+          "type": "string"
+        }
+      }
+    },
+    "ApiOrdersRequest": {
+      "id": "ApiOrdersRequest",
+      "required": [
+        "slug"
+      ],
+      "properties": {
+        "slug": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        }
+      }
+    },
+    "ApiOrdersResponse": {
+      "id": "ApiOrdersResponse",
+      "required": [
+        "id"
+      ],
+      "properties": {
+        "id": {
+          "description": "PayPal order id.",
+          "uniqueItems": false,
+          "type": "string"
+        }
+      }
+    },
+    "ApiPaypalClientTokenResponse": {
+      "id": "ApiPaypalClientTokenResponse",
+      "required": [
+        "clientToken"
+      ],
+      "properties": {
+        "clientToken": {
+          "description": "Pass to `createInstance` in the PayPal JavaScript SDK v6.",
+          "uniqueItems": false,
+          "type": "string"
+        }
+      }
+    },
+    "ApiShopsFileResponse": {
+      "id": "ApiShopsFileResponse",
+      "required": [
+        "ok",
+        "filename"
+      ],
+      "properties": {
+        "ok": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "boolean"
+        },
+        "filename": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        }
+      }
+    },
+    "ApiShopsOrdersShipRequest": {
+      "id": "ApiShopsOrdersShipRequest",
+      "required": [
+        "carrier",
+        "trackingNumber"
+      ],
+      "properties": {
+        "carrier": {
+          "description": "",
+          "enum": [
+            "USPS",
+            "UPS",
+            "FEDEX",
+            "DHL",
+            "OTHER"
+          ],
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "carrierName": {
+          "description": "Required when `carrier` is `OTHER`.",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "trackingNumber": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        }
+      }
+    },
+    "ApiShopsOrdersShipResponse": {
+      "id": "ApiShopsOrdersShipResponse",
+      "required": [
+        "ok",
+        "synced"
+      ],
+      "properties": {
+        "ok": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "boolean"
+        },
+        "synced": {
+          "description": "Whether PayPal accepted the tracking number.",
+          "uniqueItems": false,
+          "type": "boolean"
+        }
+      }
+    },
+    "ApiShopsPhotosRequest": {
+      "id": "ApiShopsPhotosRequest",
+      "required": [
+        "photos"
+      ],
+      "properties": {
+        "photos": {
+          "description": "Photo ids, in order.",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": false,
+          "type": "array"
+        }
+      }
+    },
+    "ApiShopsRefineRequest": {
+      "id": "ApiShopsRefineRequest",
+      "required": [
+        "instruction"
+      ],
+      "properties": {
+        "instruction": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        }
+      }
+    },
+    "ApiShopsRefineResponse": {
+      "id": "ApiShopsRefineResponse",
+      "required": [
+        "spec"
+      ],
+      "properties": {
+        "spec": {
+          "description": "What Gemini designed. OneThing's templates render it; Gemini never writes HTML.",
+          "uniqueItems": false,
+          "$ref": "DesignSpec"
+        }
+      }
+    },
+    "ApiShopsResponse": {
+      "id": "ApiShopsResponse",
+      "required": [
+        "ok",
+        "slug"
+      ],
+      "properties": {
+        "ok": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "boolean"
+        },
+        "slug": {
+          "description": "The shop's link name after this change.",
+          "uniqueItems": false,
+          "type": "string"
+        }
+      }
+    },
+    "ApiSlugsCheckResponse": {
+      "id": "ApiSlugsCheckResponse",
+      "required": [
+        "slug",
+        "available"
+      ],
+      "properties": {
+        "slug": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "available": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "boolean"
+        },
+        "problem": {
+          "description": "Why not, when unavailable.",
+          "uniqueItems": false,
+          "type": "string"
+        }
+      }
+    },
+    "Detail": {
+      "id": "Detail",
+      "required": [
+        "label",
+        "value"
+      ],
+      "properties": {
+        "label": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "value": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        }
+      }
+    },
+    "Faq": {
+      "id": "Faq",
+      "required": [
+        "q",
+        "a"
+      ],
+      "properties": {
+        "q": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "a": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        }
+      }
+    },
+    "Fonts": {
+      "id": "Fonts",
+      "required": [
+        "heading",
+        "body"
+      ],
+      "properties": {
+        "heading": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "body": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        }
+      }
+    },
+    "Offer": {
+      "id": "Offer",
+      "required": [
+        "domain",
+        "url",
+        "price",
+        "currency",
+        "inStock",
+        "commission"
+      ],
+      "properties": {
+        "domain": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "url": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "price": {
+          "description": "",
+          "minimum": "",
+          "maximum": "",
+          "uniqueItems": false,
+          "type": "number",
+          "format": "double"
+        },
+        "currency": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "inStock": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "boolean"
+        },
+        "commission": {
+          "description": "Maximum commission rate, 0–1 (0.08 = 8%).",
+          "minimum": "",
+          "maximum": "",
+          "uniqueItems": false,
+          "type": "number",
+          "format": "double"
+        }
+      }
+    },
+    "Ok": {
+      "id": "Ok",
+      "required": [
+        "ok"
+      ],
+      "properties": {
+        "ok": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "boolean"
+        }
+      }
+    },
+    "Order1": {
+      "id": "Order1",
+      "required": [],
+      "properties": {
+        "id": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "paypal_order_id": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "amount": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "currency": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "buyer_name": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "buyer_email": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "shipping_address": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "object"
+        },
+        "fulfillment_status": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "tracking_number": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "carrier": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        }
+      }
+    },
+    "Palette": {
+      "id": "Palette",
+      "required": [
+        "background",
+        "surface",
+        "text",
+        "muted",
+        "accent",
+        "accentText"
+      ],
+      "properties": {
+        "background": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "surface": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "text": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "muted": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "accent": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "accentText": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        }
+      }
+    },
+    "Photo": {
+      "id": "Photo",
+      "required": [
+        "id",
+        "url"
+      ],
+      "properties": {
+        "id": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "url": {
+          "description": "Public image URL on this site.",
+          "uniqueItems": false,
+          "type": "string"
+        }
+      }
+    },
+    "Shop1": {
+      "id": "Shop1",
+      "required": [],
+      "properties": {
+        "slug": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "name": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "url": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        }
+      }
+    },
+    "ShopPhotos": {
+      "id": "ShopPhotos",
+      "required": [
+        "photos"
+      ],
+      "properties": {
+        "photos": {
+          "description": "",
+          "items": {
+            "$ref": "Photo"
+          },
+          "uniqueItems": false,
+          "type": "array"
+        }
+      }
+    }
+  },
+  "authorizations": {
+    "AdminToken": {
+      "passAs": "header",
+      "keyname": "x-admin-token",
+      "type": "apiKey"
+    }
+  },
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ]
+}

@@ -1,0 +1,49 @@
+# Regenerate Hero Art
+
+Source: /#/http/x-redirect/JTI0ZSUyRlNob3BzJTJGcmVnZW5lcmF0ZUhlcm9BcnQ
+
+Starts generation in the background. Poll `getShop` for `hero_status`.
+
+```http
+POST /api/shops/{slug}/hero
+```
+
+
+# Authentication
+
+This endpoint requires [AdminToken](/llms-pages/http/getting-started/sdk-quickstart/authorization.md)
+
+
+# Parameters
+
+| Parameter | Type | Tags | Description |
+|  --- | --- | --- | --- |
+| `slug` | `String` | Template, Required | The shop's link name (current or former). |
+
+
+# Response Type
+
+**200**: Done.
+
+[`Ok`](/llms-pages/http/models/structures/ok.md)
+
+
+# Example Usage
+
+```bash
+curl -X POST \
+  --url 'https://one-thing-ash0.onrender.com/api/shops/raptorrush/hero'  \
+  -H 'Accept: application/json' \
+  -H 'x-admin-token: x-admin-token'
+```
+
+
+# Errors
+
+| HTTP Status Code | Error Description | Exception Class |
+|  --- | --- | --- |
+| 400 | Something in the request needs fixing; `error` says what. | [`Error_ErrorException`](/llms-pages/http/models/exceptions/error-error.md) |
+| 404 | No such shop, or the admin token doesn't match it. | [`Error_ErrorException`](/llms-pages/http/models/exceptions/error-error.md) |
+
+
+

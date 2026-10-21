@@ -1,0 +1,1847 @@
+{
+  "info": {
+    "name": "OneThing API",
+    "_postman_id": "e19fad83-afbc-4cfb-959d-3d39161dcf05",
+    "description": "OneThing turns a photo, a link or a picked product into a live one-product shop that takes\nPayPal payments, or a recommendation page that earns referral commissions through Channel3.\n\n**How a shop is made**\n1. `createShop`: start from a photo, a link, or a Channel3 product. Gemini guesses what it\n   is, how it's delivered, the price, a short link and the page design. You get back the\n   shop's link name and an **admin token**.\n2. `updateShop`: correct anything the AI guessed, then set `status: live`.\n3. Buyers pay on `https://<host>/<slug>` with PayPal. Sellers read orders and ship them.\n\n**Auth.** Seller endpoints take the shop's admin token in the `x-admin-token` header. Buyer\nendpoints (checkout, access-code verification, downloads) are public.\n\n**Access codes.** A digital product can unlock an app or game instead of shipping a file.\nEach paid order gets a code such as `K7QF-M2XP-9HTD`; your app calls `verifyAccessCode`\nbefore unlocking. Raptor Rush on miriogames.com is a live example.\n\nAll money moves through PayPal (sandbox in this deployment). OneThing never holds card data.\n",
+    "schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Accounts",
+      "description": "Sign in as a seller with an email or a phone number. Shops made while signed in belong to the account.",
+      "item": [
+        {
+          "id": "597990b3-479a-43b9-8492-8889d3ac20a1",
+          "name": "signIn",
+          "request": {
+            "url": {
+              "host": "{{default}}",
+              "path": [
+                "api/account/signin"
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "description": "",
+                "disabled": false
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "disabled": false
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"identifier\": \"maker@example.com\"\n}",
+              "disabled": false
+            },
+            "description": "Signs in with an email address or a phone number, creating the account the first time. There's no password and no verification (sandbox). The response sets the `ot_session` cookie; shops created with it belong to the account and are listed on `/account`. Signing in with an email also claims older shops whose seller email matches. In a browser, sellers can instead use Log in with PayPal (`/api/account/paypal`), which also records the PayPal account their sales are paid into."
+          },
+          "response": [
+            {
+              "header": [
+                {
+                  "key": "Set-Cookie",
+                  "value": "",
+                  "disabled": false
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "disabled": false
+                }
+              ],
+              "body": "{\n  \"id\": \"id0\",\n  \"email\": \"email41\",\n  \"phone\": \"phone3\"\n}",
+              "status": "Signed in. The `ot_session` cookie is set.",
+              "code": 200,
+              "name": "Response_200",
+              "id": "5f775bbc-1083-4c7c-bd8f-d625bf60f0be"
+            },
+            {
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "disabled": false
+                }
+              ],
+              "body": "{\n  \"error\": \"error1\",\n  \"field\": \"field72\",\n  \"detail\": \"detail17\"\n}",
+              "status": "Something in the request needs fixing; `error` says what.",
+              "code": 400,
+              "name": "Response_400",
+              "id": "30aa4d36-4b84-483c-bd6e-b721ab482ef3"
+            }
+          ]
+        },
+        {
+          "id": "05fd294d-dc6a-4f31-a11f-012d173493f6",
+          "name": "signOut",
+          "request": {
+            "url": {
+              "host": "{{default}}",
+              "path": [
+                "api/account/signout"
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "disabled": false
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "disabled": false
+            },
+            "description": "Ends this browser's session and clears the `ot_session` cookie."
+          },
+          "response": [
+            {
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "disabled": false
+                }
+              ],
+              "body": "{\n  \"ok\": false\n}",
+              "status": "Done.",
+              "code": 200,
+              "name": "Response_200",
+              "id": "a7077cac-0d5a-4cca-b8bb-ba3ccbe3f2a2"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Shops",
+      "description": "Create a shop and manage it as its seller.",
+      "item": [
+        {
+          "id": "d521e8c0-7a61-4de4-95ec-a32604d66cd3",
+          "name": "createShop",
+          "request": {
+            "url": {
+              "host": "{{default}}",
+              "path": [
+                "api/shops"
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "disabled": false
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "source",
+                  "value": "photo",
+                  "disabled": false,
+                  "type": "text"
+                },
+                {
+                  "key": "photo",
+                  "disabled": false,
+                  "type": "file",
+                  "description": "`source=photo`: the product photo, up to 8 MB."
+                },
+                {
+                  "key": "description",
+                  "value": "description60",
+                  "disabled": false,
+                  "type": "text",
+                  "description": "`source=photo`: a sentence or two about the product. Required if there is no photo."
+                },
+                {
+                  "key": "url",
+                  "value": "url0",
+                  "disabled": false,
+                  "type": "text",
+                  "description": "`source=link`: a product page, or your own app or game page."
+                },
+                {
+                  "key": "productId",
+                  "value": "productId60",
+                  "disabled": false,
+                  "type": "text",
+                  "description": "`source=channel3`: a product id from `searchProducts`."
+                },
+                {
+                  "key": "slug",
+                  "value": "slug67",
+                  "disabled": false,
+                  "type": "text",
+                  "description": "The link name you want. If omitted, the AI suggests one."
+                },
+                {
+                  "key": "type",
+                  "value": "auto",
+                  "disabled": false,
+                  "type": "text"
+                },
+                {
+                  "key": "delivery",
+                  "value": "file",
+                  "disabled": false,
+                  "type": "text"
+                },
+                {
+                  "key": "access_url",
+                  "value": "access_url86",
+                  "disabled": false,
+                  "type": "text",
+                  "description": "Where buyers use an access code."
+                },
+                {
+                  "key": "price",
+                  "value": "3.693415655196117",
+                  "disabled": false,
+                  "type": "text",
+                  "description": "USD. If omitted, the AI suggests a price."
+                },
+                {
+                  "key": "shipping",
+                  "value": "39.854244203929156",
+                  "disabled": false,
+                  "type": "text",
+                  "description": ""
+                },
+                {
+                  "key": "stock",
+                  "value": "189",
+                  "disabled": false,
+                  "type": "text",
+                  "description": ""
+                },
+                {
+                  "key": "ship_countries",
+                  "value": "ship_countries54",
+                  "disabled": false,
+                  "type": "text",
+                  "description": ""
+                },
+                {
+                  "key": "paypal_email",
+                  "value": "paypal_email46",
+                  "disabled": false,
+                  "type": "text",
+                  "description": ""
+                },
+                {
+                  "key": "seller_email",
+                  "value": "seller_email47",
+                  "disabled": false,
+                  "type": "text",
+                  "description": ""
+                },
+                {
+                  "key": "digital_file",
+                  "disabled": false,
+                  "type": "file",
+                  "description": ""
+                }
+              ],
+              "disabled": false
+            },
+            "description": "Starts a draft shop from one of three sources. Gemini designs the page and guesses the\nsetup; check it with `getShop`, adjust with `updateShop`, then go live.\n\nSent with a session cookie from `signIn`, the shop belongs to that account, which also\nbecomes its seller email (and PayPal email, after Log in with PayPal) unless you give one.\n\n- `source=photo`: a `photo` and/or a `description` of your own product.\n- `source=link`: a `url`. If Channel3 recognises it as a store's product page, the shop\n  becomes a recommendation (`product_type: referral`); otherwise the page is read and you\n  sell the product yourself with PayPal.\n- `source=channel3`: a `productId` from `searchProducts` (a recommendation).\n\nTakes 15–40 seconds. Hero art, if available, is generated afterwards (`hero_status`).\n"
+          },
+          "response": [
+            {
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "disabled": false
+                }
+              ],
+              "body": "{\n  \"slug\": \"dragonflight\",\n  \"token\": \"token25\",\n  \"manageUrl\": \"manageUrl89\"\n}",
+              "status": "Draft created.",
+              "code": 200,
+              "name": "Response_200",
+              "id": "c4277958-b9d0-49d7-b86f-caa777feb0f1"
+            },
+            {
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "disabled": false
+                }
+              ],
+              "body": "{\n  \"error\": \"error1\",\n  \"field\": \"field72\",\n  \"detail\": \"detail17\"\n}",
+              "status": "Something in the request needs fixing; `error` says what.",
+              "code": 400,
+              "name": "Response_400",
+              "id": "5522e65c-5635-42c4-b22c-640ca20dcbe9"
+            },
+            {
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "disabled": false
+                }
+              ],
+              "body": "{\n  \"error\": \"error1\",\n  \"field\": \"field72\",\n  \"detail\": \"detail17\"\n}",
+              "status": "Taken or unavailable (a link name, or a sold-out product).",
+              "code": 409,
+              "name": "Response_409",
+              "id": "33acfaac-5eb0-42ed-996b-7d1b647c60e4"
+            },
+            {
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "disabled": false
+                }
+              ],
+              "body": "{\n  \"error\": \"error1\",\n  \"field\": \"field72\",\n  \"detail\": \"detail17\"\n}",
+              "status": "Gemini, PayPal or Channel3 failed or isn't configured.",
+              "code": 502,
+              "name": "Response_502",
+              "id": "13ba6dca-ea3c-45a8-8626-9882d2aef5b2"
+            }
+          ]
+        },
+        {
+          "id": "f7e30236-0508-4025-9b72-fd3223d90150",
+          "name": "getShop",
+          "request": {
+            "url": {
+              "host": "{{default}}",
+              "path": [
+                "api/shops/:slug"
+              ],
+              "variable": [
+                {
+                  "id": "slug",
+                  "key": "slug",
+                  "value": "raptorrush",
+                  "type": "string",
+                  "description": "The shop's link name (current or former)."
+                }
+              ]
+            },
+            "auth": {
+              "type": "apikey",
+              "apikey": {
+                "key": "x-admin-token",
+                "value": "x-admin-token76",
+                "in": "header"
+              }
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "disabled": false
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "disabled": false
+            },
+            "description": "Everything about the shop, including the AI's design spec and guesses."
+          },
+          "response": [
+            {
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "disabled": false
+                }
+              ],
+              "body": "{\n  \"id\": \"id23\",\n  \"slug\": \"slug87\",\n  \"status\": \"draft\",\n  \"product_type\": \"digital\",\n  \"price_cents\": 52,\n  \"currency\": \"USD\",\n  \"spec\": {\n    \"productType\": \"digital\",\n    \"productName\": \"productName20\",\n    \"layout\": \"editorial\",\n    \"palette\": {\n      \"background\": \"#14171a\",\n      \"surface\": \"#14171a\",\n      \"text\": \"#14171a\",\n      \"muted\": \"#14171a\",\n      \"accent\": \"#14171a\",\n      \"accentText\": \"#14171a\"\n    },\n    \"fonts\": {\n      \"heading\": \"heading16\",\n      \"body\": \"body5\"\n    },\n    \"headline\": \"headline93\",\n    \"bullets\": [\n      \"bullets31\"\n    ],\n    \"faq\": [\n      {\n        \"q\": \"q33\",\n        \"a\": \"a61\"\n      }\n    ],\n    \"ctaLabel\": \"ctaLabel38\",\n    \"eyebrow\": \"eyebrow85\",\n    \"subheadline\": \"subheadline94\",\n    \"story\": \"story29\",\n    \"details\": [\n      {\n        \"label\": \"label22\",\n        \"value\": \"value37\"\n      }\n    ],\n    \"suggestedPriceUsd\": 15.971518874047467,\n    \"suggestedShippingUsd\": 34.83519873241938,\n    \"imageAlt\": \"imageAlt21\",\n    \"heroPrompt\": \"heroPrompt2\"\n  },\n  \"shipping_cents\": 90,\n  \"ship_countries\": \"ship_countries84\",\n  \"stock\": 171,\n  \"delivery\": \"file\",\n  \"access_url\": \"access_url83\",\n  \"paypal_email\": \"paypal_email74\",\n  \"seller_email\": \"seller_email54\",\n  \"zapier_hook_url\": \"zapier_hook_url48\",\n  \"in_gallery\": true,\n  \"photo_blob\": \"photo_blob8\",\n  \"hero_blob\": \"hero_blob49\",\n  \"hero_status\": \"pending\",\n  \"hero_error\": \"hero_error26\",\n  \"ai_source\": \"gemini\",\n  \"source_url\": \"source_url9\",\n  \"referral\": {\n    \"productId\": \"productId21\",\n    \"title\": \"title79\",\n    \"offers\": [\n      {\n        \"domain\": \"domain61\",\n        \"url\": \"url87\",\n        \"price\": 201.89858595469434,\n        \"currency\": \"currency60\",\n        \"inStock\": true,\n        \"commission\": 3.3629768301742695\n      }\n    ],\n    \"brand\": \"brand3\",\n    \"image\": \"image28\"\n  },\n  \"created_at\": \"2026-10-31T05:34:16.5473011Z\"\n}",
+              "status": "The shop.",
+              "code": 200,
+              "name": "Response_200",
+              "id": "92954d80-6813-47c1-b49a-697ffe76f93d"
+            },
+            {
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "disabled": false
+                }
+              ],
+              "body": "{\n  \"error\": \"error1\",\n  \"field\": \"field72\",\n  \"detail\": \"detail17\"\n}",
+              "status": "No such shop, or the admin token doesn't match it.",
+              "code": 404,
+              "name": "Response_404",
+              "id": "9fa5a7d9-a0f2-47b7-8443-40bb078743f4"
+            }
+          ]
+        },
+        {
+          "id": "38b1393e-c654-49af-92d1-ecd8f818df2a",
+          "name": "updateShop",
+          "request": {
+            "url": {
+              "host": "{{default}}",
+              "path": [
+                "api/shops/:slug"
+              ],
+              "variable": [
+                {
+                  "id": "slug",
+                  "key": "slug",
+                  "value": "raptorrush",
+                  "type": "string",
+                  "description": "The shop's link name (current or former)."
+                }
+              ]
+            },
+            "auth": {
+              "type": "apikey",
+              "apikey": {
+                "key": "x-admin-token",
+                "value": "x-admin-token29",
+                "in": "header"
+              }
+            },
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "description": "",
+                "disabled": false
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "disabled": false
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"slug\": \"slug64\",\n  \"status\": \"draft\",\n  \"product_type\": \"physical\",\n  \"price\": 2388.5987283513145,\n  \"shipping\": 423.01530204964126,\n  \"stock\": 109,\n  \"ship_countries\": \"ship_countries51\",\n  \"delivery\": \"file\",\n  \"access_url\": \"access_url13\",\n  \"paypal_email\": \"paypal_email29\",\n  \"seller_email\": \"seller_email42\",\n  \"zapier_hook_url\": \"zapier_hook_url89\",\n  \"in_gallery\": false\n}",
+              "disabled": false
+            },
+            "description": "Changes only the fields you send. Renaming `slug` keeps the old link working (it\nredirects). Set `status: live` to publish; a digital product needs its file (or, for\naccess codes, `access_url`) first.\n"
+          },
+          "response": [
+            {
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "disabled": false
+                }
+              ],
+              "body": "{\n  \"ok\": true,\n  \"slug\": \"slug91\"\n}",
+              "status": "Saved.",
+              "code": 200,
+              "name": "Response_200",
+              "id": "d6d57ed1-f452-4eb0-a79c-d9a38ba46ab4"
+            },
+            {
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "disabled": false
+                }
+              ],
+              "body": "{\n  \"error\": \"error1\",\n  \"field\": \"field72\",\n  \"detail\": \"detail17\"\n}",
+              "status": "Something in the request needs fixing; `error` says what.",
+              "code": 400,
+              "name": "Response_400",
+              "id": "8f2c71e6-929b-4a73-bf41-2ae04a3fc9f0"
+            },
+            {
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "disabled": false
+                }
+              ],
+              "body": "{\n  \"error\": \"error1\",\n  \"field\": \"field72\",\n  \"detail\": \"detail17\"\n}",
+              "status": "No such shop, or the admin token doesn't match it.",
+              "code": 404,
+              "name": "Response_404",
+              "id": "56e6fd48-e549-4d1b-99fe-26efee0f9002"
+            }
+          ]
+        },
+        {
+          "id": "3c63934c-6fe7-4a91-84eb-20a9957cd157",
+          "name": "refineShopDesign",
+          "request": {
+            "url": {
+              "host": "{{default}}",
+              "path": [
+                "api/shops/:slug/refine"
+              ],
+              "variable": [
+                {
+                  "id": "slug",
+                  "key": "slug",
+                  "value": "raptorrush",
+                  "type": "string",
+                  "description": "The shop's link name (current or former)."
+                }
+              ]
+            },
+            "auth": {
+              "type": "apikey",
+              "apikey": {
+                "key": "x-admin-token",
+                "value": "x-admin-token75",
+                "in": "header"
+              }
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "description": "",
+                "disabled": false
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "disabled": false
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"instruction\": \"Make it feel more premium\"\n}",
+              "disabled": false
+            },
+            "description": "\"Make it warmer\", \"shorter copy\", \"more premium\". Gemini edits the design spec."
+          },
+          "response": [
+            {
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "disabled": false
+                }
+              ],
+              "body": "{\n  \"spec\": {\n    \"productType\": \"digital\",\n    \"productName\": \"productName20\",\n    \"layout\": \"editorial\",\n    \"palette\": {\n      \"background\": \"#14171a\",\n      \"surface\": \"#14171a\",\n      \"text\": \"#14171a\",\n      \"muted\": \"#14171a\",\n      \"accent\": \"#14171a\",\n      \"accentText\": \"#14171a\"\n    },\n    \"fonts\": {\n      \"heading\": \"heading16\",\n      \"body\": \"body5\"\n    },\n    \"headline\": \"headline93\",\n    \"bullets\": [\n      \"bullets31\"\n    ],\n    \"faq\": [\n      {\n        \"q\": \"q33\",\n        \"a\": \"a61\"\n      }\n    ],\n    \"ctaLabel\": \"ctaLabel38\",\n    \"eyebrow\": \"eyebrow85\",\n    \"subheadline\": \"subheadline94\",\n    \"story\": \"story29\",\n    \"details\": [\n      {\n        \"label\": \"label22\",\n        \"value\": \"value37\"\n      }\n    ],\n    \"suggestedPriceUsd\": 15.971518874047467,\n    \"suggestedShippingUsd\": 34.83519873241938,\n    \"imageAlt\": \"imageAlt21\",\n    \"heroPrompt\": \"heroPrompt2\"\n  }\n}",
+              "status": "The new design.",
+              "code": 200,
+              "name": "Response_200",
+              "id": "04b72658-8644-4858-a5bf-e82967e8d390"
+            },
+            {
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "disabled": false
+                }
+              ],
+              "body": "{\n  \"error\": \"error1\",\n  \"field\": \"field72\",\n  \"detail\": \"detail17\"\n}",
+              "status": "Something in the request needs fixing; `error` says what.",
+              "code": 400,
+              "name": "Response_400",
+              "id": "a7909085-a2f2-480d-b135-95f9c2df9fef"
+            },
+            {
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "disabled": false
+                }
+              ],
+              "body": "{\n  \"error\": \"error1\",\n  \"field\": \"field72\",\n  \"detail\": \"detail17\"\n}",
+              "status": "No such shop, or the admin token doesn't match it.",
+              "code": 404,
+              "name": "Response_404",
+              "id": "a28b443a-b77b-4012-ad93-d8018c4b5c3d"
+            },
+            {
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "disabled": false
+                }
+              ],
+              "body": "{\n  \"error\": \"error1\",\n  \"field\": \"field72\",\n  \"detail\": \"detail17\"\n}",
+              "status": "Gemini, PayPal or Channel3 failed or isn't configured.",
+              "code": 502,
+              "name": "Response_502",
+              "id": "fe097d43-7ab8-4368-a570-0b1cdb516d6e"
+            }
+          ]
+        },
+        {
+          "id": "c725fe64-69e0-4b27-9998-c2936b9e7504",
+          "name": "regenerateHeroArt",
+          "request": {
+            "url": {
+              "host": "{{default}}",
+              "path": [
+                "api/shops/:slug/hero"
+              ],
+              "variable": [
+                {
+                  "id": "slug",
+                  "key": "slug",
+                  "value": "raptorrush",
+                  "type": "string",
+                  "description": "The shop's link name (current or former)."
+                }
+              ]
+            },
+            "auth": {
+              "type": "apikey",
+              "apikey": {
+                "key": "x-admin-token",
+                "value": "x-admin-token63",
+                "in": "header"
+              }
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "disabled": false
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "disabled": false
+            },
+            "description": "Starts generation in the background. Poll `getShop` for `hero_status`."
+          },
+          "response": [
+            {
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "disabled": false
+                }
+              ],
+              "body": "{\n  \"ok\": false\n}",
+              "status": "Done.",
+              "code": 200,
+              "name": "Response_200",
+              "id": "601d9980-e4d4-43c7-98d6-3d5fb1b15edb"
+            },
+            {
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "disabled": false
+                }
+              ],
+              "body": "{\n  \"error\": \"error1\",\n  \"field\": \"field72\",\n  \"detail\": \"detail17\"\n}",
+              "status": "Something in the request needs fixing; `error` says what.",
+              "code": 400,
+              "name": "Response_400",
+              "id": "98cfd4ce-5b75-42cf-9abf-d26f514a8cb8"
+            },
+            {
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "disabled": false
+                }
+              ],
+              "body": "{\n  \"error\": \"error1\",\n  \"field\": \"field72\",\n  \"detail\": \"detail17\"\n}",
+              "status": "No such shop, or the admin token doesn't match it.",
+              "code": 404,
+              "name": "Response_404",
+              "id": "d471e8c0-39b0-49c2-81c9-bbb686800ee1"
+            }
+          ]
+        },
+        {
+          "id": "7a1393a0-5ae8-4df3-a1c1-696b1b48894f",
+          "name": "uploadDigitalFile",
+          "request": {
+            "url": {
+              "host": "{{default}}",
+              "path": [
+                "api/shops/:slug/file"
+              ],
+              "variable": [
+                {
+                  "id": "slug",
+                  "key": "slug",
+                  "value": "raptorrush",
+                  "type": "string",
+                  "description": "The shop's link name (current or former)."
+                }
+              ]
+            },
+            "auth": {
+              "type": "apikey",
+              "apikey": {
+                "key": "x-admin-token",
+                "value": "x-admin-token95",
+                "in": "header"
+              }
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "disabled": false
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "disabled": false,
+                  "type": "file",
+                  "description": "Up to 25 MB."
+                }
+              ],
+              "disabled": false
+            },
+            "description": "Uploads or replaces a digital product's file, up to 25 MB. Each paid order gets a download link for it."
+          },
+          "response": [
+            {
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "disabled": false
+                }
+              ],
+              "body": "{\n  \"ok\": true,\n  \"filename\": \"filename20\"\n}",
+              "status": "Uploaded.",
+              "code": 200,
+              "name": "Response_200",
+              "id": "9db51153-45fc-4abb-8f96-8610e7c343e6"
+            },
+            {
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "disabled": false
+                }
+              ],
+              "body": "{\n  \"error\": \"error1\",\n  \"field\": \"field72\",\n  \"detail\": \"detail17\"\n}",
+              "status": "Something in the request needs fixing; `error` says what.",
+              "code": 400,
+              "name": "Response_400",
+              "id": "2b330f2f-8c44-4d5a-9e23-b01629c0b2f6"
+            },
+            {
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "disabled": false
+                }
+              ],
+              "body": "{\n  \"error\": \"error1\",\n  \"field\": \"field72\",\n  \"detail\": \"detail17\"\n}",
+              "status": "No such shop, or the admin token doesn't match it.",
+              "code": 404,
+              "name": "Response_404",
+              "id": "93d5e2f9-449c-4b68-9c31-2d1ad0619357"
+            }
+          ]
+        },
+        {
+          "id": "72cbcd78-ae49-40b0-b5b0-8006dd47ac25",
+          "name": "addPhotos",
+          "request": {
+            "url": {
+              "host": "{{default}}",
+              "path": [
+                "api/shops/:slug/photos"
+              ],
+              "variable": [
+                {
+                  "id": "slug",
+                  "key": "slug",
+                  "value": "raptorrush",
+                  "type": "string",
+                  "description": "The shop's link name (current or former)."
+                }
+              ]
+            },
+            "auth": {
+              "type": "apikey",
+              "apikey": {
+                "key": "x-admin-token",
+                "value": "x-admin-token17",
+                "in": "header"
+              }
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "disabled": false
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "photo",
+                  "disabled": false,
+                  "type": "file",
+                  "description": "An image, up to 15 MB. The endpoint also accepts the field repeated, to add several in one request."
+                }
+              ],
+              "disabled": false
+            },
+            "description": "Adds one or more photos after the cover. Each is turned upright, resized to at most 2000 px and stored as WebP. A shop holds up to 8 photos; buyers swipe through them on the shop page. Not for recommendations, which show the retailer's photos."
+          },
+          "response": [
+            {
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "disabled": false
+                }
+              ],
+              "body": "{\n  \"photos\": [\n    {\n      \"id\": \"id91\",\n      \"url\": \"url61\"\n    }\n  ]\n}",
+              "status": "The shop's photos, cover first.",
+              "code": 200,
+              "name": "Response_200",
+              "id": "21660ac1-5791-4050-a209-e2d5fff817a1"
+            },
+            {
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "disabled": false
+                }
+              ],
+              "body": "{\n  \"error\": \"error1\",\n  \"field\": \"field72\",\n  \"detail\": \"detail17\"\n}",
+              "status": "Something in the request needs fixing; `error` says what.",
+              "code": 400,
+              "name": "Response_400",
+              "id": "173b10fd-da18-4385-adad-57e93807f2d9"
+            },
+            {
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "disabled": false
+                }
+              ],
+              "body": "{\n  \"error\": \"error1\",\n  \"field\": \"field72\",\n  \"detail\": \"detail17\"\n}",
+              "status": "No such shop, or the admin token doesn't match it.",
+              "code": 404,
+              "name": "Response_404",
+              "id": "5cc1e247-1940-46f4-8f18-58a6e5688446"
+            }
+          ]
+        },
+        {
+          "id": "b39e442b-b1b4-43bc-a283-b944eb9a9f36",
+          "name": "setPhotoOrder",
+          "request": {
+            "url": {
+              "host": "{{default}}",
+              "path": [
+                "api/shops/:slug/photos"
+              ],
+              "variable": [
+                {
+                  "id": "slug",
+                  "key": "slug",
+                  "value": "raptorrush",
+                  "type": "string",
+                  "description": "The shop's link name (current or former)."
+                }
+              ]
+            },
+            "auth": {
+              "type": "apikey",
+              "apikey": {
+                "key": "x-admin-token",
+                "value": "x-admin-token9",
+                "in": "header"
+              }
+            },
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "description": "",
+                "disabled": false
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "disabled": false
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"photos\": [\n    \"photos60\"\n  ]\n}",
+              "disabled": false
+            },
+            "description": "Sets the photo order; the first becomes the cover. Leaving a photo out removes it."
+          },
+          "response": [
+            {
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "disabled": false
+                }
+              ],
+              "body": "{\n  \"photos\": [\n    {\n      \"id\": \"id91\",\n      \"url\": \"url61\"\n    }\n  ]\n}",
+              "status": "The shop's photos, cover first.",
+              "code": 200,
+              "name": "Response_200",
+              "id": "5f843f0d-7946-40be-8462-a4f090642849"
+            },
+            {
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "disabled": false
+                }
+              ],
+              "body": "{\n  \"error\": \"error1\",\n  \"field\": \"field72\",\n  \"detail\": \"detail17\"\n}",
+              "status": "Something in the request needs fixing; `error` says what.",
+              "code": 400,
+              "name": "Response_400",
+              "id": "bb84d498-0f0a-4be2-acbe-51b0c8c0fa45"
+            },
+            {
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "disabled": false
+                }
+              ],
+              "body": "{\n  \"error\": \"error1\",\n  \"field\": \"field72\",\n  \"detail\": \"detail17\"\n}",
+              "status": "No such shop, or the admin token doesn't match it.",
+              "code": 404,
+              "name": "Response_404",
+              "id": "7540b566-70c1-45d5-80be-d7eed718845c"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Links",
+      "description": "Short shop links (`/<slug>`).",
+      "item": [
+        {
+          "id": "6d620334-4504-4885-ad9c-a15a16a3dc11",
+          "name": "checkLinkName",
+          "request": {
+            "url": {
+              "host": "{{default}}",
+              "path": [
+                "api/slugs/check"
+              ],
+              "query": [
+                {
+                  "key": "name",
+                  "value": "name13",
+                  "description": "Anything; it is normalised (`Raptor Rush` becomes `raptor-rush`).",
+                  "disabled": false
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "disabled": false
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "disabled": false
+            },
+            "description": "Normalises a proposed link name and says whether a new shop can use it."
+          },
+          "response": [
+            {
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "disabled": false
+                }
+              ],
+              "body": "{\n  \"slug\": \"slug46\",\n  \"available\": false,\n  \"problem\": \"problem1\"\n}",
+              "status": "The normalised name and whether it can be used.",
+              "code": 200,
+              "name": "Response_200",
+              "id": "f29763f6-f563-41ab-863b-079bab11b2b2"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Products",
+      "description": "Find products to recommend (Channel3 catalog).",
+      "item": [
+        {
+          "id": "4fdf81b9-e578-4dc4-a8c8-66e09d807924",
+          "name": "searchProducts",
+          "request": {
+            "url": {
+              "host": "{{default}}",
+              "path": [
+                "api/channel3/search"
+              ],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "gifts%20for%20trail%20runners%20under%20%2460",
+                  "description": "What to look for, in plain words.",
+                  "disabled": false
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "disabled": false
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "disabled": false
+            },
+            "description": "Searches 100M+ products from 25k+ stores through Channel3. Pass a result's `id` to `createShop` with `source=channel3`."
+          },
+          "response": [
+            {
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "disabled": false
+                }
+              ],
+              "body": "{\n  \"products\": [\n    {\n      \"id\": \"id24\",\n      \"title\": \"title10\",\n      \"image\": \"image76\",\n      \"price\": 204.8543445189708,\n      \"currency\": \"currency74\",\n      \"retailer\": \"retailer61\",\n      \"retailers\": 205,\n      \"commission\": 37.11595495882713,\n      \"brand\": \"brand89\"\n    }\n  ]\n}",
+              "status": "Up to 12 products.",
+              "code": 200,
+              "name": "Response_200",
+              "id": "30b80438-bdf7-4f80-bae2-dc52670c108d"
+            },
+            {
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "disabled": false
+                }
+              ],
+              "body": "{\n  \"error\": \"error1\",\n  \"field\": \"field72\",\n  \"detail\": \"detail17\"\n}",
+              "status": "Gemini, PayPal or Channel3 failed or isn't configured.",
+              "code": 502,
+              "name": "Response_502",
+              "id": "be65dcb3-5511-447e-ad15-282dc1facb2a"
+            },
+            {
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "disabled": false
+                }
+              ],
+              "body": "{\n  \"error\": \"error1\",\n  \"field\": \"field72\",\n  \"detail\": \"detail17\"\n}",
+              "status": "Gemini, PayPal or Channel3 failed or isn't configured.",
+              "code": 503,
+              "name": "Response_503",
+              "id": "d340a43e-fb5b-4653-8d57-de35a76cd3f4"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Checkout",
+      "description": "Buyer-side PayPal checkout.",
+      "item": [
+        {
+          "id": "13e4e7b0-229b-4d45-af9a-7b6ee86d7403",
+          "name": "getPayPalClientToken",
+          "request": {
+            "url": {
+              "host": "{{default}}",
+              "path": [
+                "api/paypal/client-token"
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "disabled": false
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "disabled": false
+            },
+            "description": "A browser-safe client token for the PayPal JavaScript SDK v6\n(`paypal.createInstance({ clientToken })`), bound to the requesting site's domain.\nShop pages call this before showing the PayPal button.\n"
+          },
+          "response": [
+            {
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "disabled": false
+                }
+              ],
+              "body": "{\n  \"clientToken\": \"clientToken92\"\n}",
+              "status": "A token for this site's domain.",
+              "code": 200,
+              "name": "Response_200",
+              "id": "3cdfa0bd-92bc-4b0a-93f5-cc7dfa94a04b"
+            },
+            {
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "disabled": false
+                }
+              ],
+              "body": "{\n  \"error\": \"error1\",\n  \"field\": \"field72\",\n  \"detail\": \"detail17\"\n}",
+              "status": "Gemini, PayPal or Channel3 failed or isn't configured.",
+              "code": 502,
+              "name": "Response_502",
+              "id": "f23ec223-c221-4d3a-9199-f7a27b24e32c"
+            },
+            {
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "disabled": false
+                }
+              ],
+              "body": "{\n  \"error\": \"error1\",\n  \"field\": \"field72\",\n  \"detail\": \"detail17\"\n}",
+              "status": "Gemini, PayPal or Channel3 failed or isn't configured.",
+              "code": 503,
+              "name": "Response_503",
+              "id": "26f34089-23c1-4378-a4a5-e8f644ef6b19"
+            }
+          ]
+        },
+        {
+          "id": "73419ce6-a30a-4d37-8fa6-c307fd3ee81c",
+          "name": "createCheckoutOrder",
+          "request": {
+            "url": {
+              "host": "{{default}}",
+              "path": [
+                "api/orders"
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "description": "",
+                "disabled": false
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "disabled": false
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"slug\": \"slug59\"\n}",
+              "disabled": false
+            },
+            "description": "Creates the PayPal order for one unit of a live shop's product. The amount always comes\nfrom the shop, never from the caller. Pass the returned `id` to the PayPal JS SDK.\n"
+          },
+          "response": [
+            {
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "disabled": false
+                }
+              ],
+              "body": "{\n  \"id\": \"id24\"\n}",
+              "status": "PayPal order created.",
+              "code": 200,
+              "name": "Response_200",
+              "id": "da2456ef-8c57-4614-bb4b-29608aaf0893"
+            },
+            {
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "disabled": false
+                }
+              ],
+              "body": "{\n  \"error\": \"error1\",\n  \"field\": \"field72\",\n  \"detail\": \"detail17\"\n}",
+              "status": "Something in the request needs fixing; `error` says what.",
+              "code": 400,
+              "name": "Response_400",
+              "id": "6dee2805-c4ef-471a-8bcb-e9d8d408aa4e"
+            },
+            {
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "disabled": false
+                }
+              ],
+              "body": "{\n  \"error\": \"error1\",\n  \"field\": \"field72\",\n  \"detail\": \"detail17\"\n}",
+              "status": "No such shop, or the admin token doesn't match it.",
+              "code": 404,
+              "name": "Response_404",
+              "id": "f797124b-cd1c-43e3-bad6-61a681c07bd8"
+            },
+            {
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "disabled": false
+                }
+              ],
+              "body": "{\n  \"error\": \"error1\",\n  \"field\": \"field72\",\n  \"detail\": \"detail17\"\n}",
+              "status": "Taken or unavailable (a link name, or a sold-out product).",
+              "code": 409,
+              "name": "Response_409",
+              "id": "6fe268a9-b018-4922-b33f-de415333e6d0"
+            },
+            {
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "disabled": false
+                }
+              ],
+              "body": "{\n  \"error\": \"error1\",\n  \"field\": \"field72\",\n  \"detail\": \"detail17\"\n}",
+              "status": "Gemini, PayPal or Channel3 failed or isn't configured.",
+              "code": 502,
+              "name": "Response_502",
+              "id": "2cb58717-4686-4f9c-a6c3-d9fb9d979c99"
+            },
+            {
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "disabled": false
+                }
+              ],
+              "body": "{\n  \"error\": \"error1\",\n  \"field\": \"field72\",\n  \"detail\": \"detail17\"\n}",
+              "status": "Gemini, PayPal or Channel3 failed or isn't configured.",
+              "code": 503,
+              "name": "Response_503",
+              "id": "85883cb1-567f-430b-bd3a-5b5efc6a76ef"
+            }
+          ]
+        },
+        {
+          "id": "36611e60-7958-4e60-972d-a18b29e8dfa0",
+          "name": "captureCheckoutOrder",
+          "request": {
+            "url": {
+              "host": "{{default}}",
+              "path": [
+                "api/orders/:paypalOrderId/capture"
+              ],
+              "variable": [
+                {
+                  "id": "paypalOrderId",
+                  "key": "paypalOrderId",
+                  "value": "paypalOrderId88",
+                  "type": "string",
+                  "description": "The PayPal order id that `createCheckoutOrder` returned."
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "disabled": false
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "disabled": false
+            },
+            "description": "Call after the buyer approves. Records the sale; digital orders get a download link or access code.\nSafe to call repeatedly: before approval it answers 409, so a page can poll it while the PayPal window is open.\n"
+          },
+          "response": [
+            {
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "disabled": false
+                }
+              ],
+              "body": "{\n  \"orderId\": \"orderId54\",\n  \"status\": \"paid\"\n}",
+              "status": "Paid.",
+              "code": 200,
+              "name": "Response_200",
+              "id": "b1649855-1198-41e2-b65d-bbd148024dfd"
+            },
+            {
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "disabled": false
+                }
+              ],
+              "body": "{\n  \"error\": \"error1\",\n  \"field\": \"field72\",\n  \"detail\": \"detail17\"\n}",
+              "status": "Something in the request needs fixing; `error` says what.",
+              "code": 402,
+              "name": "Response_402",
+              "id": "01c2ffdd-c2c4-4b88-96de-2cae8590232b"
+            },
+            {
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "disabled": false
+                }
+              ],
+              "body": "{\n  \"error\": \"error1\",\n  \"field\": \"field72\",\n  \"detail\": \"detail17\"\n}",
+              "status": "No such shop, or the admin token doesn't match it.",
+              "code": 404,
+              "name": "Response_404",
+              "id": "76fef043-e186-45b6-8e69-2d736def0d7a"
+            },
+            {
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "disabled": false
+                }
+              ],
+              "body": "{\n  \"status\": \"pending\"\n}",
+              "status": "The buyer hasn't approved the order yet.",
+              "code": 409,
+              "name": "Response_409",
+              "id": "3d3f2ed0-ef75-4e64-afff-ae6f9877d80b"
+            },
+            {
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "disabled": false
+                }
+              ],
+              "body": "{\n  \"error\": \"error1\",\n  \"field\": \"field72\",\n  \"detail\": \"detail17\"\n}",
+              "status": "The buyer's funding source was declined (`INSTRUMENT_DECLINED`); they can try another.",
+              "code": 422,
+              "name": "Response_422",
+              "id": "9c634746-d66f-41ae-ac9f-10844fa06194"
+            },
+            {
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "disabled": false
+                }
+              ],
+              "body": "{\n  \"error\": \"error1\",\n  \"field\": \"field72\",\n  \"detail\": \"detail17\"\n}",
+              "status": "Gemini, PayPal or Channel3 failed or isn't configured.",
+              "code": 502,
+              "name": "Response_502",
+              "id": "267fa123-3f0f-443d-9cad-bc783da3bbb0"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Access codes",
+      "description": "Unlock a paid app or game with a buyer's code.",
+      "item": [
+        {
+          "id": "8420adcf-6ffc-40a4-ad04-318fe3a16d00",
+          "name": "verifyAccessCode",
+          "request": {
+            "url": {
+              "host": "{{default}}",
+              "path": [
+                "api/access/verify"
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "description": "",
+                "disabled": false
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "disabled": false
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"shop\": \"raptorrush\",\n  \"code\": \"K7QF-M2XP-9HTD\"\n}",
+              "disabled": false
+            },
+            "description": "For apps and games sold with access codes. Callable from any origin (CORS `*`): it only\nanswers valid or not for one shop, and counts uses. Accepts the shop's current or former\nlink names, and codes typed loosely (lower case, spaces, no dashes).\n"
+          },
+          "response": [
+            {
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "disabled": false
+                }
+              ],
+              "body": "{\n  \"valid\": true,\n  \"product\": \"product14\"\n}",
+              "status": "The answer. Invalid codes are also a 200.",
+              "code": 200,
+              "name": "Response_200",
+              "id": "9ab54323-6f45-43f1-8a00-8de2fe855ac1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Orders",
+      "description": "The seller's orders, fulfilment and PayPal webhook log.",
+      "item": [
+        {
+          "id": "69f76b3e-653f-41f4-86e3-135ba2a7c853",
+          "name": "listOrders",
+          "request": {
+            "url": {
+              "host": "{{default}}",
+              "path": [
+                "api/shops/:slug/orders"
+              ],
+              "variable": [
+                {
+                  "id": "slug",
+                  "key": "slug",
+                  "value": "raptorrush",
+                  "type": "string",
+                  "description": "The shop's link name (current or former)."
+                }
+              ]
+            },
+            "auth": {
+              "type": "apikey",
+              "apikey": {
+                "key": "x-admin-token",
+                "value": "x-admin-token42",
+                "in": "header"
+              }
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "disabled": false
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "disabled": false
+            },
+            "description": "Newest first. Checkouts that were never approved are left out."
+          },
+          "response": [
+            {
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "disabled": false
+                }
+              ],
+              "body": "[\n  {\n    \"id\": \"id66\",\n    \"status\": \"paid\",\n    \"amount_cents\": 163,\n    \"currency\": \"currency60\",\n    \"fulfillment_status\": \"none\",\n    \"paypal_order_id\": \"paypal_order_id32\",\n    \"shipping_cents\": 205,\n    \"buyer_email\": \"buyer_email71\",\n    \"buyer_name\": \"buyer_name4\",\n    \"shipping_address\": {\n      \"key1\": \"shipping_address85\"\n    },\n    \"capture_id\": \"capture_id6\",\n    \"carrier\": \"carrier60\",\n    \"tracking_number\": \"tracking_number9\",\n    \"tracking_synced\": false,\n    \"downloads\": 119,\n    \"access_code\": \"access_code5\",\n    \"code_uses\": 158,\n    \"paid_at\": \"2027-01-12T05:34:16.5593462Z\",\n    \"created_at\": \"2026-12-06T05:34:16.5593599Z\"\n  }\n]",
+              "status": "Orders.",
+              "code": 200,
+              "name": "Response_200",
+              "id": "90eb939b-873d-4799-aa2c-57d4a857847d"
+            },
+            {
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "disabled": false
+                }
+              ],
+              "body": "{\n  \"error\": \"error1\",\n  \"field\": \"field72\",\n  \"detail\": \"detail17\"\n}",
+              "status": "No such shop, or the admin token doesn't match it.",
+              "code": 404,
+              "name": "Response_404",
+              "id": "fe190529-e5dc-433a-ba07-a0fb2e883b71"
+            }
+          ]
+        },
+        {
+          "id": "ca13ae0f-f718-4923-b98c-5bd4d5568b70",
+          "name": "markOrderShipped",
+          "request": {
+            "url": {
+              "host": "{{default}}",
+              "path": [
+                "api/shops/:slug/orders/:orderId/ship"
+              ],
+              "variable": [
+                {
+                  "id": "slug",
+                  "key": "slug",
+                  "value": "raptorrush",
+                  "type": "string",
+                  "description": "The shop's link name (current or former)."
+                },
+                {
+                  "id": "orderId",
+                  "key": "orderId",
+                  "value": "orderId2",
+                  "type": "string",
+                  "description": "OneThing's order id (`Order.id`)."
+                }
+              ]
+            },
+            "auth": {
+              "type": "apikey",
+              "apikey": {
+                "key": "x-admin-token",
+                "value": "x-admin-token48",
+                "in": "header"
+              }
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "description": "",
+                "disabled": false
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "disabled": false
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"carrier\": \"UPS\",\n  \"trackingNumber\": \"trackingNumber18\",\n  \"carrierName\": \"carrierName74\"\n}",
+              "disabled": false
+            },
+            "description": "Saves the tracking number and pushes it to PayPal, so the buyer sees it in PayPal."
+          },
+          "response": [
+            {
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "disabled": false
+                }
+              ],
+              "body": "{\n  \"ok\": false,\n  \"synced\": false\n}",
+              "status": "Shipped.",
+              "code": 200,
+              "name": "Response_200",
+              "id": "336d7e2b-45a4-4d7f-a173-c316d3be5d37"
+            },
+            {
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "disabled": false
+                }
+              ],
+              "body": "{\n  \"error\": \"error1\",\n  \"field\": \"field72\",\n  \"detail\": \"detail17\"\n}",
+              "status": "Something in the request needs fixing; `error` says what.",
+              "code": 400,
+              "name": "Response_400",
+              "id": "61f71ba7-f2ea-47ad-83af-dc74607352ad"
+            },
+            {
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "disabled": false
+                }
+              ],
+              "body": "{\n  \"error\": \"error1\",\n  \"field\": \"field72\",\n  \"detail\": \"detail17\"\n}",
+              "status": "No such shop, or the admin token doesn't match it.",
+              "code": 404,
+              "name": "Response_404",
+              "id": "fd5c961f-5bcd-4e8e-a38a-e6e6b8718ffa"
+            }
+          ]
+        },
+        {
+          "id": "482d3f1d-c7a6-4b24-8844-fbced94d21da",
+          "name": "listWebhookEvents",
+          "request": {
+            "url": {
+              "host": "{{default}}",
+              "path": [
+                "api/shops/:slug/webhooks"
+              ],
+              "variable": [
+                {
+                  "id": "slug",
+                  "key": "slug",
+                  "value": "raptorrush",
+                  "type": "string",
+                  "description": "The shop's link name (current or former)."
+                }
+              ]
+            },
+            "auth": {
+              "type": "apikey",
+              "apikey": {
+                "key": "x-admin-token",
+                "value": "x-admin-token36",
+                "in": "header"
+              }
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "disabled": false
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "disabled": false
+            },
+            "description": "The last 50 PayPal webhook deliveries about this shop's orders, with signature results."
+          },
+          "response": [
+            {
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "disabled": false
+                }
+              ],
+              "body": "[\n  {\n    \"id\": \"id91\",\n    \"event_type\": \"PAYMENT.CAPTURE.COMPLETED\",\n    \"verified\": true,\n    \"outcome\": \"Confirmed: order already paid\",\n    \"received_at\": \"2026-10-29T05:34:16.5599413Z\",\n    \"paypal_order_id\": \"paypal_order_id61\",\n    \"summary\": \"2.99 USD\"\n  }\n]",
+              "status": "Events, newest first.",
+              "code": 200,
+              "name": "Response_200",
+              "id": "b0be1d2d-aaa8-48c5-98f3-6495a2ee056f"
+            },
+            {
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "disabled": false
+                }
+              ],
+              "body": "{\n  \"error\": \"error1\",\n  \"field\": \"field72\",\n  \"detail\": \"detail17\"\n}",
+              "status": "No such shop, or the admin token doesn't match it.",
+              "code": 404,
+              "name": "Response_404",
+              "id": "b3e4f37b-e28d-4b8c-a4e7-30abd8241890"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Files",
+      "description": "Digital downloads and shop images.",
+      "item": [
+        {
+          "id": "3e043979-e49a-4b12-8bfd-b892eaac5fdc",
+          "name": "downloadFile",
+          "request": {
+            "url": {
+              "host": "{{default}}",
+              "path": [
+                "api/download/:token"
+              ],
+              "variable": [
+                {
+                  "id": "token",
+                  "key": "token",
+                  "value": "token2",
+                  "type": "string",
+                  "description": "The download token from a paid order's thank-you page."
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/octet-stream,text/plain",
+                "disabled": false
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "disabled": false
+            },
+            "description": "A paid digital order's private link. Works 5 times within 14 days."
+          },
+          "response": [
+            {
+              "header": [],
+              "body": "",
+              "status": "The file.",
+              "code": 200,
+              "name": "Response_200",
+              "id": "879a6922-5eed-4e99-826b-34871acf127f"
+            },
+            {
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain",
+                  "disabled": false
+                }
+              ],
+              "body": "response 41019",
+              "status": "Expired or used up.",
+              "code": 410,
+              "name": "Response_410",
+              "id": "c84a0d15-636f-4267-8954-2cea50ea2bab"
+            }
+          ]
+        },
+        {
+          "id": "f5ddc5a2-b08c-49ef-8546-f7cd470bc43e",
+          "name": "getImage",
+          "request": {
+            "url": {
+              "host": "{{default}}",
+              "path": [
+                "api/blobs/:id"
+              ],
+              "variable": [
+                {
+                  "id": "id",
+                  "key": "id",
+                  "value": "id67",
+                  "type": "string",
+                  "description": "A shop's `photo_blob` or `hero_blob`."
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "image/*",
+                "disabled": false
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "disabled": false
+            },
+            "description": "Public images only. Purchased files are never served here."
+          },
+          "response": [
+            {
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain",
+                  "disabled": false
+                }
+              ],
+              "body": "any",
+              "status": "The image.",
+              "code": 200,
+              "name": "Response_200",
+              "id": "1b991278-9e54-4ce2-8937-d0010dc14b2e"
+            },
+            {
+              "header": [],
+              "status": "Not a public shop image.",
+              "code": 404,
+              "name": "Response_404",
+              "id": "8f7a0839-421c-47f2-94ee-a7766a3e904a"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "default",
+      "value": "https://one-thing-ash0.onrender.com"
+    },
+    {
+      "key": "default1",
+      "value": "http://localhost:3000"
+    }
+  ]
+}
