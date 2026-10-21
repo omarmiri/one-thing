@@ -48,3 +48,6 @@ next-env.d.ts
 /apimatic/portal/
 /apimatic/sdk/
 /apimatic/plugin/
+
+# private submission notes
+SUBMISSION.md
