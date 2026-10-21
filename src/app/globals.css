@@ -68,3 +68,9 @@ body {
 
 /* PayPal v6 web component */
 paypal-button { display: block; width: 100%; }
+
+/* Motion layer: surfaces wait, unseen, until the engine takes over (no flash of the end state).
+   With reduced motion the engine never hides anything. */
+@media (prefers-reduced-motion: no-preference) {
+  [data-motion="pending"] [data-surface] { opacity: 0; }
+}

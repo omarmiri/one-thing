@@ -35,7 +35,7 @@ export function Arcade({ showcase }: { showcase: ShowcaseView }) {
   };
 
   return (
-    <section className="py-10" aria-label={showcase.title}>
+    <section data-surface="panel" className="py-10" aria-label={showcase.title}>
       <div className="shop-card relative overflow-hidden p-0" style={{ padding: 0 }}>
         <canvas
           ref={canvas}

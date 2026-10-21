@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import { notFound, permanentRedirect } from "next/navigation";
-import { BuyButton } from "@/components/shop/BuyButton";
+import { MotionRoot } from "@/components/motion/MotionRoot";
+import { ShopBuy } from "@/components/shop/ShopBuy";
 import { ShopPage } from "@/components/shop/ShopPage";
 import { appUrl, tokensMatch } from "@/lib/ids";
-import { paypalEnabled, sdkUrl } from "@/lib/paypal";
 import { getShopBySlug, shopView } from "@/lib/shops";
 
 export const dynamic = "force-dynamic";
@@ -27,6 +27,8 @@ export default async function Shop(props: PageProps<"/[slug]">) {
   // Drafts are visible only to their seller (manage page preview link carries the token).
   const isOwner = shop && typeof token === "string" && tokensMatch(token, shop.admin_token);
   if (!shop || (shop.status !== "live" && !isOwner)) notFound();
+  // Motion is on unless the link asks for the plain page (?motion=0).
+  const motion = (await props.searchParams).motion !== "0" ? { feel: "calm" as const } : undefined;
 
   return (
     <>
@@ -35,16 +37,9 @@ export default async function Shop(props: PageProps<"/[slug]">) {
           Draft preview: only you can see this. Go live from your manage page.
         </div>
       )}
-      <ShopPage
-        view={{ ...shopView(shop), shareUrl: `${appUrl()}/${shop.slug}` }}
-        buy={
-          shop.status === "live" ? (
-            <BuyButton slug={shop.slug} enabled={paypalEnabled()} sdkUrl={sdkUrl()} label={shop.spec.ctaLabel} />
-          ) : (
-            <button className="shop-buy" disabled>{shop.spec.ctaLabel}</button>
-          )
-        }
-      />
+      <MotionRoot feel="calm" enabled={Boolean(motion)}>
+        <ShopPage view={{ ...shopView(shop), shareUrl: `${appUrl()}/${shop.slug}` }} buy={<ShopBuy shop={shop} />} motion={motion} />
+      </MotionRoot>
     </>
   );
 }

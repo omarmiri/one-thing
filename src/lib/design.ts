@@ -82,6 +82,9 @@ function luminance(h: string): number {
   return 0.2126 * r + 0.7152 * g + 0.0722 * b;
 }
 
+/** Light enough that a product photo's white backdrop can melt into it (multiply blending). */
+export const isLight = (hex: string) => luminance(hex) > 0.6;
+
 export function contrast(a: string, b: string): number {
   const [x, y] = [luminance(a), luminance(b)].sort((p, q) => q - p);
   return (x + 0.05) / (y + 0.05);

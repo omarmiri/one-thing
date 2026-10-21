@@ -1,12 +1,16 @@
 import type { CSSProperties, ReactNode } from "react";
-import { fontsHref, type DesignSpec } from "@/lib/design";
+import { fontsHref, isLight, type DesignSpec } from "@/lib/design";
 import type { Referral } from "@/lib/channel3";
 import type { ShowcaseView } from "@/lib/showcase";
+import { FeatureStory } from "@/components/motion/FeatureStory";
+import { StickyBuy } from "@/components/motion/StickyBuy";
+import type { Feel } from "@/components/motion/springs";
 import { Arcade } from "./Arcade";
 import { PayOnPhone } from "./PayOnPhone";
 
-// Renders a design spec. Server component; the only client JS is the buy button passed in and,
-// when the shop has one, the showcase.
+// Renders a design spec. Server component; the only client JS is the buy button passed in,
+// the showcase when the shop has one, and the motion pieces when `motion` is set.
+// Elements marked data-surface are what the motion layer (components/motion/engine.ts) moves.
 
 export type ShopView = {
   spec: DesignSpec;
@@ -22,8 +26,9 @@ export type ShopView = {
   showcase?: ShowcaseView | null; // a playable teaser built from the seller's game art
 };
 
-export function ShopPage({ view, buy }: { view: ShopView; buy: ReactNode }) {
+export function ShopPage({ view, buy, motion }: { view: ShopView; buy: ReactNode; motion?: { feel: Feel } }) {
   const { spec } = view;
+  const product = view.photoUrl ?? view.heroUrl;
   const p = spec.palette;
   const vars = {
     "--bg": p.background,
@@ -44,28 +49,39 @@ export function ShopPage({ view, buy }: { view: ShopView; buy: ReactNode }) {
       <main className="mx-auto max-w-5xl px-4 sm:px-6 pb-24">
         {view.showcase && <Arcade showcase={view.showcase} />}
 
+        {motion ? (
+          <FeatureStory
+            story={spec.story}
+            bullets={spec.bullets}
+            image={product}
+            imageAlt={spec.imageAlt}
+            feel={motion.feel}
+            melt={Boolean(view.photoUrl) && isLight(spec.palette.surface)}
+          />
+        ) : (
         <section className="grid gap-10 md:grid-cols-[1.4fr_1fr] py-14">
           <div className="space-y-5 text-lg leading-relaxed">
             {spec.story.split(/\n\s*\n/).map((para, i) => (
-              <p key={i}>{para}</p>
+              <p key={i} data-surface="text">{para}</p>
             ))}
           </div>
           <ul className="space-y-3 self-start">
             {spec.bullets.map((b, i) => (
-              <li key={i} className="shop-card flex gap-3 p-4">
+              <li key={i} data-surface="card" data-group="bullets" className="shop-card flex gap-3 p-4">
                 <span aria-hidden className="mt-2 size-2 shrink-0 rounded-full" style={{ background: "var(--accent)" }} />
                 <span>{b}</span>
               </li>
             ))}
           </ul>
         </section>
+        )}
 
         {spec.details.length > 0 && (
           <section className="py-6">
-            <h2 className="shop-h2">{spec.productType === "digital" ? "What's inside" : "The details"}</h2>
+            <h2 data-surface="text" className="shop-h2">{spec.productType === "digital" ? "What's inside" : "The details"}</h2>
             <dl className="grid gap-x-8 gap-y-4 sm:grid-cols-2">
               {spec.details.map((d, i) => (
-                <div key={i} className="border-b pb-3" style={{ borderColor: "color-mix(in srgb, var(--text) 15%, transparent)" }}>
+                <div key={i} data-surface="card" data-group="details" className="border-b pb-3" style={{ borderColor: "color-mix(in srgb, var(--text) 15%, transparent)" }}>
                   <dt className="text-sm uppercase tracking-wider" style={{ color: "var(--muted)" }}>{d.label}</dt>
                   <dd className="mt-1">{d.value}</dd>
                 </div>
@@ -75,10 +91,10 @@ export function ShopPage({ view, buy }: { view: ShopView; buy: ReactNode }) {
         )}
 
         <section className="py-10">
-          <h2 className="shop-h2">Questions</h2>
+          <h2 data-surface="text" className="shop-h2">Questions</h2>
           <div className="space-y-3">
             {spec.faq.map((f, i) => (
-              <details key={i} className="shop-card p-5 group">
+              <details key={i} data-surface="card" data-group="faq" className="shop-card p-5 group">
                 <summary className="cursor-pointer font-semibold list-none flex justify-between gap-4">
                   {f.q}
                   <span aria-hidden className="transition-transform group-open:rotate-45 text-xl leading-none">+</span>
@@ -89,11 +105,14 @@ export function ShopPage({ view, buy }: { view: ShopView; buy: ReactNode }) {
           </div>
         </section>
 
-        <section id="buy" className="shop-card mt-6 p-6 sm:p-10 text-center space-y-4 scroll-mt-6">
+        <section id="buy" data-surface="panel" className="shop-card mt-6 p-6 sm:p-10 text-center space-y-4 scroll-mt-6">
           <h2 className="shop-heading text-3xl">{spec.headline}</h2>
           <BuyBox view={view} buy={buy} centered />
         </section>
       </main>
+      {motion && !view.referral && (
+        <StickyBuy name={spec.productName} price={view.priceLabel} image={product} cta={spec.ctaLabel} buy={buy} feel={motion.feel} />
+      )}
       <footer className="pb-10 text-center text-sm" style={{ color: "var(--muted)" }}>
         Made with OneThing · Payments by PayPal
       </footer>
@@ -107,10 +126,12 @@ function Hero({ view, buy }: { view: ShopView; buy: ReactNode }) {
   const product = view.photoUrl ?? view.heroUrl;
   const copy = (
     <div className="space-y-5">
-      <p className="text-sm font-semibold uppercase tracking-[0.2em]" style={{ color: "var(--accent)" }}>{spec.eyebrow}</p>
-      <h1 className="shop-heading shop-h1">{spec.headline}</h1>
-      <p className="text-xl" style={{ color: "var(--muted)" }}>{spec.subheadline}</p>
-      <BuyBox view={view} buy={buy} />
+      <p data-surface="text" className="text-sm font-semibold uppercase tracking-[0.2em]" style={{ color: "var(--accent)" }}>{spec.eyebrow}</p>
+      <h1 data-surface="text" className="shop-heading shop-h1">{spec.headline}</h1>
+      <p data-surface="text" className="text-xl" style={{ color: "var(--muted)" }}>{spec.subheadline}</p>
+      <div data-surface="panel" data-buy="hero">
+        <BuyBox view={view} buy={buy} />
+      </div>
     </div>
   );
 
@@ -120,7 +141,7 @@ function Hero({ view, buy }: { view: ShopView; buy: ReactNode }) {
         <header className="relative">
           {art && (
             // eslint-disable-next-line @next/next/no-img-element -- user uploads, served from our DB
-            <img src={art} alt={spec.imageAlt} className="h-[46vh] min-h-72 w-full object-cover" />
+            <img data-surface="image" data-inspect src={art} alt={spec.imageAlt} className="h-[46vh] min-h-72 w-full object-cover" />
           )}
           <div className="mx-auto max-w-5xl px-4 sm:px-6">
             <div className={`shop-card relative p-6 sm:p-10 ${art ? "-mt-28" : "mt-10"}`}>{copy}</div>
@@ -132,7 +153,7 @@ function Hero({ view, buy }: { view: ShopView; buy: ReactNode }) {
         <header className="mx-auto grid max-w-6xl items-center gap-10 px-4 sm:px-6 py-10 md:grid-cols-2 md:py-16">
           {product && (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={product} alt={spec.imageAlt} className="aspect-[4/5] w-full object-cover" />
+            <img data-surface="image" data-inspect src={product} alt={spec.imageAlt} className="aspect-[4/5] w-full object-cover" />
           )}
           {copy}
         </header>
@@ -142,7 +163,7 @@ function Hero({ view, buy }: { view: ShopView; buy: ReactNode }) {
         <header className="mx-auto max-w-3xl px-4 sm:px-6 pt-16 pb-6 text-center">
           {product && (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={product} alt={spec.imageAlt} className="mx-auto mb-12 max-h-[52vh] w-auto object-contain" />
+            <img data-surface="image" data-inspect src={product} alt={spec.imageAlt} className="mx-auto mb-12 max-h-[52vh] w-auto object-contain" />
           )}
           <div className="[&_.buybox]:items-center">{copy}</div>
         </header>
@@ -152,10 +173,10 @@ function Hero({ view, buy }: { view: ShopView; buy: ReactNode }) {
         <header className="mx-auto grid max-w-6xl items-center gap-10 px-4 sm:px-6 py-10 md:grid-cols-[1fr_1.1fr] md:py-16">
           {copy}
           {product && (
-            <div className="relative">
+            <div data-surface="image" className="relative">
               <div aria-hidden className="absolute -inset-4 rotate-3 rounded-[2.5rem]" style={{ background: "var(--accent)" }} />
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={product} alt={spec.imageAlt} className="relative -rotate-2 aspect-square w-full rounded-[2rem] object-cover shadow-xl" />
+              <img data-inspect src={product} alt={spec.imageAlt} className="relative -rotate-2 aspect-square w-full rounded-[2rem] object-cover shadow-xl" />
             </div>
           )}
         </header>
