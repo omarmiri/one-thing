@@ -31,6 +31,8 @@ export type SetupInitial = {
   referral: { offers: { domain: string; price: number; currency: string; commission: number }[] } | null;
 };
 
+export type ToastAction = { label: string; run(): void };
+
 type Api = (path: string, init?: RequestInit) => Promise<{ slug?: string; filename?: string; url?: string; merchantId?: string | null; status?: PayPalStatus | null } & Partial<Suggestions>>;
 
 const input = "w-full rounded-lg border border-line bg-white px-3 py-2 text-sm outline-none focus:border-accent";
@@ -195,7 +197,7 @@ export function SetupPanel(props: {
   paypalReady: boolean;
   photos: { id: string; url: string }[];
   onSaved(result: { slug: string; live: boolean }): void;
-  onToast(t: string): void;
+  onToast(t: string, action?: ToastAction): void;
 }) {
   const s = props.initial;
   const [slug, setSlug] = useState(s.slug);
@@ -222,14 +224,40 @@ export function SetupPanel(props: {
         body: JSON.stringify({ colors: colour.values.map(({ label, hex }) => ({ label, hex })) }),
       })) as unknown as { matches: Record<string, string> };
       const n = Object.keys(r.matches).length;
-      setOpts((cur) =>
-        cur.map((o) => (o === colour ? { ...o, values: o.values.map((v) => (r.matches[v.label] ? { ...v, photo: r.matches[v.label] } : v)) } : o)),
-      );
-      props.onToast(n ? `Matched ${n} photo${n === 1 ? "" : "s"} to colours. Save to keep.` : "No photo clearly shows one colour.");
+      if (!n) return props.onToast("No photo clearly shows one colour.");
+      const before = Object.fromEntries(colour.values.filter((v) => v.label in r.matches).map((v) => [v.label, v.photo ?? null]));
+      await setColourPhotos(r.matches, `Matched ${n} photo${n === 1 ? "" : "s"} to colours`, before);
     } catch (err) {
       if (!quiet) props.onToast((err as Error).message);
     }
   }
+  // Colour photos save on their own, straight away: the rest of the panel still waits for Save.
+  // before: what to put back on Undo.
+  async function setColourPhotos(photos: Record<string, string | null>, done: string, before?: Record<string, string | null>) {
+    setOpts((cur) =>
+      cur.map((o) =>
+        o.kind !== "color"
+          ? o
+          : {
+              ...o,
+              values: o.values.map((v) => {
+                if (!(v.label in photos)) return v;
+                const { photo: _old, ...rest } = v;
+                return photos[v.label] ? { ...rest, photo: photos[v.label]! } : rest;
+              }),
+            },
+      ),
+    );
+    try {
+      const r = (await props.api("/color-photos", { method: "PUT", body: JSON.stringify({ photos }) })) as unknown as { saved: string[] };
+      if (!r.saved.length) return props.onToast(`${done}. Save to keep.`); // the colours themselves aren't saved yet
+      // Undo itself has nothing to undo, and says so plainly.
+      props.onToast(before ? `${done} and saved` : done, before && { label: "Undo", run: () => void setColourPhotos(before, "Photos put back") });
+    } catch (err) {
+      props.onToast((err as Error).message);
+    }
+  }
+
   // New photos arrived (Photos panel): match them to colours without being asked.
   const photoCount = useRef(props.photos.length);
   useEffect(() => {
@@ -416,7 +444,15 @@ export function SetupPanel(props: {
 
       {kind === "physical" && (
         <Row label="Buyer options" group hint={opts.length ? undefined : "Sizes, colours or other choices buyers pick. Add one if your product comes in variants."}>
-          <OptionsEditor options={opts} onOptions={setOpts} stock={optStock} onStock={setOptStock} photos={props.photos} onMatch={() => matchPhotos()} />
+          <OptionsEditor
+            options={opts}
+            onOptions={setOpts}
+            stock={optStock}
+            onStock={setOptStock}
+            photos={props.photos}
+            onMatch={() => matchPhotos()}
+            onPhotoPicked={(label, photo, before) => void setColourPhotos({ [label]: photo }, photo ? `Photo set for ${label}` : `Photo removed from ${label}`, { [label]: before })}
+          />
         </Row>
       )}
 

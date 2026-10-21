@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { OrdersGrid, type SellerOrder } from "./OrdersGrid";
 import { PhotosPanel, type Photo } from "./PhotosPanel";
-import { SetupPanel, type SetupInitial } from "./SetupPanel";
+import { SetupPanel, type SetupInitial, type ToastAction } from "./SetupPanel";
 import type { WebhookEvent } from "@/lib/shops";
 
 type Initial = {
@@ -38,14 +38,16 @@ export function ManageApp(props: {
   const [frameKey, setFrameKey] = useState(0);
   // Shared with the setup panel, where each colour can point at one of these photos.
   const [photos, setPhotos] = useState(initial.photos ?? []);
-  const [toast, setToast] = useState<string | null>(null);
+  const [toast, setToastState] = useState<{ text: string; action?: ToastAction } | null>(null);
+  const setToast = useCallback((text: string | null, action?: ToastAction) => setToastState(text ? { text, action } : null), []);
   const shopPath = `/${slug}`;
 
   useEffect(() => {
     if (!toast) return;
-    const t = setTimeout(() => setToast(null), 3500);
+    // Longer when there's something to click, like Undo.
+    const t = setTimeout(() => setToast(null), toast.action ? 7000 : 3500);
     return () => clearTimeout(t);
-  }, [toast]);
+  }, [toast, setToast]);
 
   const api = useCallback(
     async (path: string, init: RequestInit = {}): Promise<any> => { // eslint-disable-line @typescript-eslint/no-explicit-any -- each caller knows its shape
@@ -213,8 +215,19 @@ export function ManageApp(props: {
       </section>
 
       {toast && (
-        <div role="status" className="fixed bottom-6 left-1/2 z-30 -translate-x-1/2 rounded-full bg-foreground px-5 py-3 text-sm text-background shadow-lg">
-          {toast}
+        <div role="status" className="fixed bottom-6 left-1/2 z-30 flex -translate-x-1/2 items-center gap-4 rounded-full bg-foreground px-5 py-3 text-sm text-background shadow-lg">
+          {toast.text}
+          {toast.action && (
+            <button
+              className="font-semibold underline"
+              onClick={() => {
+                toast.action!.run();
+                setToast(null);
+              }}
+            >
+              {toast.action.label}
+            </button>
+          )}
         </div>
       )}
     </div>

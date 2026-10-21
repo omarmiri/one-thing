@@ -86,7 +86,8 @@ the AI's guesses and clicks **Go live**. The choices behind it:
 - **A photo for each colour.** Add a photo of each variant and Gemini matches photos to colours,
   including when only a print or detail changes colour (a red, gold, green or blue dragon on the same
   white shirt). It runs when photos are added or from **Match photos to colours**, and the seller can
-  change any match from the swatch's thumbnail.
+  change any match from the swatch's thumbnail. Photo matches save at once (with **Undo**), unlike the
+  rest of the panel, which waits for **Save**.
 - **"Buyers will ask."** Gemini also lists up to three facts buyers, or shopping agents, need that
   the listing doesn't state (the size of this pair, a print's dimensions, a game's platform). The
   seller's answers become product details. **Check for missing details** runs it again on any shop.

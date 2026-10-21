@@ -33,6 +33,8 @@ export function OptionsEditor(props: {
   onStock(s: OptionStock): void;
   photos: { id: string; url: string }[];
   onMatch(): Promise<void>;
+  /** A colour's photo picked by hand: saved at once, like matching. */
+  onPhotoPicked(label: string, photo: string | null, before: string | null): void;
 }) {
   const { options } = props;
   const [picking, setPicking] = useState<string | null>(null); // "option:value" whose photo is being chosen
@@ -111,8 +113,8 @@ export function OptionsEditor(props: {
                     key={p.id}
                     type="button"
                     onClick={() => {
-                      const k = Number(picking.split(":")[1]);
-                      set(i, { values: o.values.map((x, m) => (m === k ? { ...x, photo: p.id } : x)) });
+                      const v = o.values[Number(picking.split(":")[1])];
+                      props.onPhotoPicked(v.label, p.id, v.photo ?? null);
                       setPicking(null);
                     }}
                     className="size-10 overflow-hidden rounded-md ring-accent hover:ring-2"
@@ -124,8 +126,8 @@ export function OptionsEditor(props: {
                 <button
                   type="button"
                   onClick={() => {
-                    const k = Number(picking.split(":")[1]);
-                    set(i, { values: o.values.map((x, m) => (m === k ? { label: x.label, hex: x.hex } : x)) });
+                    const v = o.values[Number(picking.split(":")[1])];
+                    props.onPhotoPicked(v.label, null, v.photo ?? null);
                     setPicking(null);
                   }}
                   className="text-xs text-muted underline"
