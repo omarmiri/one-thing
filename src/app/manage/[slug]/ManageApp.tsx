@@ -96,7 +96,7 @@ export function ManageApp(props: {
     <div className="min-h-screen">
       <header className="sticky top-0 z-20 border-b border-line bg-background/90 backdrop-blur">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-3 px-4 py-3">
-          <Link href="/" className="font-semibold tracking-tight">OneThing</Link>
+          <Link href="/account" className="font-semibold tracking-tight">Your shops</Link>
           <span className="text-muted">/</span>
           <span className="truncate font-medium">{initial.name}</span>
           <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${status === "live" ? "bg-green-100 text-green-800" : "bg-amber-100 text-amber-900"}`}>

@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
-import { blobUrl, getOwnedShop, listOrders, listWebhookEvents, shopPhotos } from "@/lib/shops";
+import { currentAccount } from "@/lib/accounts";
+import { blobUrl, getOwnedShop, getShopBySlug, listOrders, listWebhookEvents, shopPhotos, updateShop } from "@/lib/shops";
 import { geminiEnabled } from "@/lib/gemini";
 import { paypalEnabled } from "@/lib/paypal";
 import { appUrl } from "@/lib/ids";
@@ -11,8 +12,19 @@ export const metadata = { title: "Manage your shop · OneThing", robots: { index
 export default async function Manage(props: PageProps<"/manage/[slug]">) {
   const { slug } = await props.params;
   const { token } = await props.searchParams;
-  const shop = typeof token === "string" ? await getOwnedShop(slug, token) : null;
+  const account = await currentAccount();
+  // The private link (?token=) always works. Signed in, your own shops open without it.
+  let shop = typeof token === "string" ? await getOwnedShop(slug, token) : null;
+  if (!shop && account) {
+    const mine = await getShopBySlug(slug);
+    if (mine?.account_id === account.id) shop = mine;
+  }
   if (!shop) notFound();
+  // Opening a shop's private link while signed in adds a shop made before accounts to yours.
+  if (account && !shop.account_id) {
+    await updateShop(shop.id, { account_id: account.id });
+    shop.account_id = account.id;
+  }
   const orders = (await listOrders(shop.id)).filter((o) => o.status !== "created");
   const webhooks = await listWebhookEvents(shop.id);
 

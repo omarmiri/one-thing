@@ -21,6 +21,9 @@ export default async function Home() {
         <Link href="/gallery" className="ml-auto mr-5 text-sm font-medium text-muted hover:text-foreground">
           Gallery
         </Link>
+        <Link href="/account" className="mr-5 text-sm font-medium text-muted hover:text-foreground">
+          Your shops
+        </Link>
         <Link href="/new" className=" rounded-full bg-foreground px-4 py-2 text-sm font-semibold text-background">
           Create a shop
         </Link>

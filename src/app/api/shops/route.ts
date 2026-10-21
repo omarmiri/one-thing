@@ -1,4 +1,5 @@
 import { after, NextResponse } from "next/server";
+import { currentAccount } from "@/lib/accounts";
 import { buildShowcase } from "@/lib/assets";
 import { channel3Enabled, describeProduct, getProduct, lookupUrl, mainImage, toReferral, type C3Product } from "@/lib/channel3";
 import { query } from "@/lib/db";
@@ -146,14 +147,16 @@ export async function POST(req: Request) {
   const heroPending = geminiEnabled() && Boolean(spec.heroPrompt) && !isReferral;
   const stock = str(form, "stock");
   const built = await showcaseJob;
+  // Signed in: the shop belongs to the account, and its email is where seller mail goes.
+  const account = await currentAccount();
 
   await query(
     `INSERT INTO shops (id, slug, admin_token, seller_email, paypal_email, description, product_type, price_cents,
        shipping_cents, ship_countries, stock, photo_blob, digital_blob, hero_status, spec, ai_source, delivery,
-       access_url, referral, source_url, showcase, showcase_blobs)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22)`,
+       access_url, referral, source_url, showcase, showcase_blobs, account_id)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23)`,
     [
-      id, slug, adminToken, str(form, "seller_email"), str(form, "paypal_email"), description, productType, price,
+      id, slug, adminToken, str(form, "seller_email") ?? account?.email ?? null, str(form, "paypal_email"), description, productType, price,
       productType === "physical" ? (cents(str(form, "shipping")) ?? Math.round(spec.suggestedShippingUsd * 100)) : 0,
       productType === "physical" ? (str(form, "ship_countries")?.toUpperCase() ?? "US") : null,
       productType === "physical" && stock && Number.isInteger(Number(stock)) ? Number(stock) : null,
@@ -164,6 +167,7 @@ export async function POST(req: Request) {
       sourceUrl,
       built ? JSON.stringify(built.showcase) : null,
       built?.blobs ?? [],
+      account?.id ?? null,
     ],
   );
   await claimSlug(slug, id);

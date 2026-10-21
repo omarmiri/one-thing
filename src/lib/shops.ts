@@ -31,6 +31,7 @@ export type Shop = {
   referral: Referral | null;
   source_url: string | null;
   in_gallery: boolean;
+  account_id: string | null;
   showcase: Showcase | null;
   showcase_blobs: string[];
   gallery_blobs: string[];
@@ -171,3 +172,7 @@ export function shopView(shop: Shop) {
 
 export const money =(cents: number, currency = "USD") =>
   new Intl.NumberFormat("en-US", { style: "currency", currency }).format(cents / 100);
+
+/** An account's shops, newest first. */
+export const listAccountShops = async (accountId: string) =>
+  (await query<Shop>("SELECT * FROM shops WHERE account_id = $1 ORDER BY created_at DESC", [accountId])).map((row) => hydrate(row)!);

@@ -20,7 +20,10 @@ export default async function Gallery() {
         <Link href="/" className="font-semibold tracking-tight">
           OneThing
         </Link>
-        <Link href="/new" className="ml-auto rounded-full bg-foreground px-4 py-2 text-sm font-semibold text-background">
+        <Link href="/account" className="ml-auto mr-5 text-sm font-medium text-muted hover:text-foreground">
+          Your shops
+        </Link>
+        <Link href="/new" className="rounded-full bg-foreground px-4 py-2 text-sm font-semibold text-background">
           Create a shop
         </Link>
       </header>

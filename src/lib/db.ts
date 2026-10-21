@@ -90,6 +90,24 @@ ALTER TABLE shops ADD COLUMN IF NOT EXISTS showcase_blobs text[] NOT NULL DEFAUL
 -- More photos the seller adds while refining; photo_blob stays the cover, these follow it.
 ALTER TABLE shops ADD COLUMN IF NOT EXISTS gallery_blobs text[] NOT NULL DEFAULT '{}';
 
+-- Accounts: a seller signs in with an email or a phone number; no password, no verification yet
+-- (see src/lib/accounts.ts). Each identifier is unique; an account has one or the other.
+CREATE TABLE IF NOT EXISTS accounts (
+  id          text PRIMARY KEY,
+  email       text UNIQUE,
+  phone       text UNIQUE,
+  created_at  timestamptz NOT NULL DEFAULT now()
+);
+-- A signed-in browser: the cookie holds the token.
+CREATE TABLE IF NOT EXISTS sessions (
+  token       text PRIMARY KEY,
+  account_id  text NOT NULL REFERENCES accounts(id),
+  created_at  timestamptz NOT NULL DEFAULT now()
+);
+-- The account a shop belongs to; null for shops made before accounts, until someone claims them.
+ALTER TABLE shops ADD COLUMN IF NOT EXISTS account_id text REFERENCES accounts(id);
+CREATE INDEX IF NOT EXISTS shops_account ON shops (account_id);
+
 -- Every link name a shop has had (the current one is shops.slug). Old names redirect.
 CREATE TABLE IF NOT EXISTS shop_slugs (
   slug     text PRIMARY KEY,
