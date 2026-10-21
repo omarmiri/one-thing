@@ -84,6 +84,9 @@ ALTER TABLE shops ADD COLUMN IF NOT EXISTS source_url text;         -- the link 
 ALTER TABLE shops ADD COLUMN IF NOT EXISTS hero_error text;         -- why hero art failed, for the seller/debugging
 -- Public /gallery is opt-in: a live shop appears only once its seller switches this on.
 ALTER TABLE shops ADD COLUMN IF NOT EXISTS in_gallery boolean NOT NULL DEFAULT false;
+-- A playable showcase built from a game page's art (src/lib/showcase.ts), and the images it uses.
+ALTER TABLE shops ADD COLUMN IF NOT EXISTS showcase jsonb;
+ALTER TABLE shops ADD COLUMN IF NOT EXISTS showcase_blobs text[] NOT NULL DEFAULT '{}';
 
 -- Every link name a shop has had (the current one is shops.slug). Old names redirect.
 CREATE TABLE IF NOT EXISTS shop_slugs (

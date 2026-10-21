@@ -1,9 +1,12 @@
 import type { CSSProperties, ReactNode } from "react";
 import { fontsHref, type DesignSpec } from "@/lib/design";
 import type { Referral } from "@/lib/channel3";
+import type { ShowcaseView } from "@/lib/showcase";
+import { Arcade } from "./Arcade";
 import { PayOnPhone } from "./PayOnPhone";
 
-// Renders a design spec. Server component, no client JS except the buy button passed in.
+// Renders a design spec. Server component; the only client JS is the buy button passed in and,
+// when the shop has one, the showcase.
 
 export type ShopView = {
   spec: DesignSpec;
@@ -16,6 +19,7 @@ export type ShopView = {
   heroUrl: string | null;
   referral: Referral | null; // a recommendation: buyers purchase at the retailer
   shareUrl?: string | null; // absolute link, for the pay-on-your-phone QR code
+  showcase?: ShowcaseView | null; // a playable teaser built from the seller's game art
 };
 
 export function ShopPage({ view, buy }: { view: ShopView; buy: ReactNode }) {
@@ -38,6 +42,8 @@ export function ShopPage({ view, buy }: { view: ShopView; buy: ReactNode }) {
       <link rel="stylesheet" href={fontsHref(spec)} />
       <Hero view={view} buy={buy} />
       <main className="mx-auto max-w-5xl px-4 sm:px-6 pb-24">
+        {view.showcase && <Arcade showcase={view.showcase} />}
+
         <section className="grid gap-10 md:grid-cols-[1.4fr_1fr] py-14">
           <div className="space-y-5 text-lg leading-relaxed">
             {spec.story.split(/\n\s*\n/).map((para, i) => (
@@ -83,7 +89,7 @@ export function ShopPage({ view, buy }: { view: ShopView; buy: ReactNode }) {
           </div>
         </section>
 
-        <section className="shop-card mt-6 p-6 sm:p-10 text-center space-y-4">
+        <section id="buy" className="shop-card mt-6 p-6 sm:p-10 text-center space-y-4 scroll-mt-6">
           <h2 className="shop-heading text-3xl">{spec.headline}</h2>
           <BuyBox view={view} buy={buy} centered />
         </section>

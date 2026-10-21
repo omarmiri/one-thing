@@ -1,7 +1,8 @@
 import { after, NextResponse } from "next/server";
+import { buildShowcase } from "@/lib/assets";
 import { channel3Enabled, describeProduct, getProduct, lookupUrl, mainImage, toReferral, type C3Product } from "@/lib/channel3";
 import { query } from "@/lib/db";
-import { fetchImage, fetchPage } from "@/lib/fetchPage";
+import { fetchImage, fetchPage, type SpriteHint } from "@/lib/fetchPage";
 import { designShop, geminiEnabled, type Photo } from "@/lib/gemini";
 import { generateHero } from "@/lib/hero";
 import { newId } from "@/lib/ids";
@@ -49,6 +50,8 @@ export async function POST(req: Request) {
   let context: string | null = null;
   let product: C3Product | null = null;
   let sourceUrl: string | null = null;
+  let pageImages: string[] = [];
+  let spriteHints: Record<string, SpriteHint> = {};
 
   if (source === "photo") {
     const f = file(form, "photo");
@@ -68,6 +71,8 @@ export async function POST(req: Request) {
           .filter(Boolean)
           .join("\n");
         if (page.image) photo = page.image;
+        pageImages = page.images;
+        spriteHints = page.sprites;
       } catch (err) {
         return fail(`We couldn't read that page: ${(err as Error).message}`, 400, "url");
       }
@@ -92,6 +97,9 @@ export async function POST(req: Request) {
   }
 
   const typeIn = str(form, "type");
+  // A game page's own art can become a playable teaser. Built alongside the design, never blocking it.
+  const showcaseJob =
+    !isReferral && pageImages.length && context && geminiEnabled() ? buildShowcase(context, pageImages, spriteHints) : Promise.resolve(null);
   let design;
   try {
     design = await designShop({
@@ -137,12 +145,13 @@ export async function POST(req: Request) {
     : null;
   const heroPending = geminiEnabled() && Boolean(spec.heroPrompt) && !isReferral;
   const stock = str(form, "stock");
+  const built = await showcaseJob;
 
   await query(
     `INSERT INTO shops (id, slug, admin_token, seller_email, paypal_email, description, product_type, price_cents,
        shipping_cents, ship_countries, stock, photo_blob, digital_blob, hero_status, spec, ai_source, delivery,
-       access_url, referral, source_url)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20)`,
+       access_url, referral, source_url, showcase, showcase_blobs)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22)`,
     [
       id, slug, adminToken, str(form, "seller_email"), str(form, "paypal_email"), description, productType, price,
       productType === "physical" ? (cents(str(form, "shipping")) ?? Math.round(spec.suggestedShippingUsd * 100)) : 0,
@@ -153,6 +162,8 @@ export async function POST(req: Request) {
       delivery === "access_code" ? (accessUrl ?? sourceUrl) : null,
       referral ? JSON.stringify(referral) : null,
       sourceUrl,
+      built ? JSON.stringify(built.showcase) : null,
+      built?.blobs ?? [],
     ],
   );
   await claimSlug(slug, id);

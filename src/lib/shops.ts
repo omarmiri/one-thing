@@ -3,6 +3,7 @@ import { one, query } from "./db";
 import { newId, tokensMatch } from "./ids";
 import { DesignSpec } from "./design";
 import type { Referral } from "./channel3";
+import { Showcase, showcaseView } from "./showcase";
 
 export type Shop = {
   id: string;
@@ -30,6 +31,8 @@ export type Shop = {
   referral: Referral | null;
   source_url: string | null;
   in_gallery: boolean;
+  showcase: Showcase | null;
+  showcase_blobs: string[];
   spec: DesignSpec;
   ai_source: "gemini" | "fallback";
   created_at: string;
@@ -65,7 +68,8 @@ export type Order = {
 function hydrate(row: Shop | null): Shop | null {
   if (!row) return null;
   const parsed = DesignSpec.safeParse(row.spec);
-  return parsed.success ? { ...row, spec: parsed.data } : row;
+  const showcase = row.showcase ? Showcase.safeParse(row.showcase) : null;
+  return { ...(parsed.success ? { ...row, spec: parsed.data } : row), showcase: showcase?.success ? showcase.data : null };
 }
 
 /** By current or former link name. Compare shop.slug to what was asked for to redirect old links. */
@@ -154,6 +158,7 @@ export function shopView(shop: Shop) {
     stock: shop.product_type === "physical" ? shop.stock : null,
     photoUrl: blobUrl(shop.photo_blob),
     heroUrl: blobUrl(shop.hero_blob),
+    showcase: shop.product_type !== "referral" && shop.showcase ? showcaseView(shop.showcase, (b) => blobUrl(b)!) : null,
   };
 }
 

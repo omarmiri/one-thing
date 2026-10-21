@@ -70,7 +70,13 @@ export type PageInfo = {
   description: string | null;
   text: string;
   image: { data: Uint8Array; mime: string } | null;
+  /** Every image the page uses, including CSS backgrounds such as sprite sheets: candidates for a showcase. */
+  images: string[];
+  /** Sprite grids the page declares itself (data-sprite-cols and the like), by image URL. */
+  sprites: Record<string, SpriteHint>;
 };
+
+export type SpriteHint = { cols: number; rows: number; frames: number; ms: number | null };
 
 const meta = (html: string, key: string) => {
   const re = new RegExp(`<meta[^>]+(?:property|name)=["']${key}["'][^>]*>`, "i");
@@ -95,9 +101,87 @@ export async function fetchPage(rawUrl: string): Promise<PageInfo> {
       .replace(/\s+/g, " "),
   ).slice(0, 6000);
 
+  const base = res.url || rawUrl;
   const imgUrl = meta(html, "og:image") ?? meta(html, "twitter:image");
-  const image = imgUrl ? await fetchImage(new URL(imgUrl, res.url || rawUrl).toString()) : null;
-  return { url: rawUrl, title, description, text, image };
+  const sprites = spriteHints(html, base);
+  const [image, found] = await Promise.all([
+    imgUrl ? fetchImage(new URL(imgUrl, base).toString()) : null,
+    pageImages(html, base),
+  ]);
+  // Declared sprite sheets are the surest showcase art, so they go first.
+  const images = [...new Set([...Object.keys(sprites), ...found])].slice(0, 60);
+  return { url: rawUrl, title, description, text, image, images, sprites };
+}
+
+const IMAGE_EXT = /\.(png|webp|jpe?g|gif)(\?|#|$)/i;
+const MAX_CSS = 512 * 1024;
+
+/**
+ * Pages that animate sprites in script often say how: <div data-sprite-src="dragon.png"
+ * data-sprite-cols="4" data-sprite-rows="2" data-sprite-frames="8" data-sprite-ms="180">.
+ * When they do, that beats measuring the sheet.
+ */
+function spriteHints(html: string, base: string): Record<string, SpriteHint> {
+  const out: Record<string, SpriteHint> = {};
+  for (const [tag] of html.matchAll(/<[a-z][^>]*\sdata-(?:sprite-)?src=["'][^>]*>/gi)) {
+    const attr = (name: string) => tag.match(new RegExp(`\\sdata-(?:sprite-)?${name}=["']?([^"'\\s>]+)`, "i"))?.[1];
+    const num = (name: string) => {
+      const n = Number(attr(name));
+      return Number.isInteger(n) && n > 0 ? n : null;
+    };
+    const src = attr("src");
+    const cols = num("cols") ?? num("columns");
+    const rows = num("rows") ?? 1;
+    if (!src || !cols || cols > 32 || rows > 32) continue;
+    try {
+      const u = new URL(decode(src), base);
+      if (!/^https?:$/.test(u.protocol) || !IMAGE_EXT.test(u.pathname)) continue;
+      const frames = Math.min(num("frames") ?? cols * rows, cols * rows);
+      const ms = num("ms");
+      out[u.toString()] = { cols, rows, frames, ms: ms && ms >= 40 && ms <= 2000 ? ms : null };
+    } catch {}
+  }
+  return out;
+}
+
+/** Image URLs from <img>, srcset, meta tags, inline styles and the page's own stylesheets. */
+async function pageImages(html: string, base: string): Promise<string[]> {
+  const found = new Set<string>();
+  const add = (raw: string | undefined, from: string) => {
+    if (!raw || raw.startsWith("data:")) return;
+    try {
+      const u = new URL(decode(raw.trim()), from);
+      if (/^https?:$/.test(u.protocol) && IMAGE_EXT.test(u.pathname)) found.add(u.toString());
+    } catch {}
+  };
+  const cssUrls = (css: string, from: string) => {
+    for (const m of css.matchAll(/url\(\s*["']?([^"')]+)["']?\s*\)/gi)) add(m[1], from);
+  };
+  for (const m of html.matchAll(/<img[^>]*>/gi)) {
+    add(m[0].match(/\ssrc=["']([^"']+)["']/i)?.[1], base);
+    add(m[0].match(/\sdata-src=["']([^"']+)["']/i)?.[1], base);
+    const srcset = m[0].match(/\ssrcset=["']([^"']+)["']/i)?.[1];
+    srcset?.split(",").forEach((c) => add(c.trim().split(/\s+/)[0], base));
+  }
+  for (const key of ["og:image", "twitter:image"]) add(meta(html, key) ?? undefined, base);
+  cssUrls(html, base); // inline style attributes and <style> blocks
+
+  // Sprite sheets usually live in the site's stylesheets. Same-site only, a few, size-capped.
+  const sheets = [...html.matchAll(/<link[^>]*rel=["']?stylesheet["']?[^>]*>/gi)]
+    .map((m) => m[0].match(/href=["']([^"']+)["']/i)?.[1])
+    .filter((h): h is string => Boolean(h))
+    .map((h) => new URL(decode(h), base))
+    .filter((u) => u.host === new URL(base).host)
+    .slice(0, 4);
+  await Promise.all(
+    sheets.map(async (u) => {
+      try {
+        const res = await safeFetch(u.toString(), "text/css");
+        if (res.ok) cssUrls(new TextDecoder().decode((await readCapped(res, MAX_CSS, true)) ?? new Uint8Array()), res.url || u.toString());
+      } catch {}
+    }),
+  );
+  return [...found].slice(0, 60);
 }
 
 /** A public image (product photo, og:image), or null if it can't be had. */

@@ -1,6 +1,7 @@
 import "server-only";
 import { GoogleGenAI, ThinkingLevel } from "@google/genai";
 import { DesignSpec, designJsonSchema, ensureReadable, fallbackSpec, Generated, LAYOUTS } from "./design";
+import { Direction } from "./showcase";
 
 // Model ids differ by key and change over time — `npm run gemini:models` lists yours.
 const TEXT_MODEL = process.env.GEMINI_MODEL ?? "gemini-flash-latest";
@@ -70,6 +71,8 @@ const THINKING = [
 let thinkingIndex = 0;
 
 async function generate(parts: object[], extra: object) {
+  // "High demand" 503s come and go within seconds; two short retries ride most of them out.
+  let retries = 0;
   for (;;) {
     try {
       return await client().models.generateContent({
@@ -81,6 +84,11 @@ async function generate(parts: object[], extra: object) {
       const msg = String((err as Error).message ?? err);
       if (thinkingIndex < THINKING.length - 1 && /thinking/i.test(msg)) {
         thinkingIndex++;
+        continue;
+      }
+      const status = (err as { status?: number }).status;
+      if ((status === 503 || status === 500) && retries < 2) {
+        await new Promise((r) => setTimeout(r, ++retries * 2000));
         continue;
       }
       throw err;
@@ -160,6 +168,53 @@ export async function refineShop(spec: DesignSpec, instruction: string): Promise
   ]);
   const { suggestedLink: _l, digitalDelivery: _d, ...rest } = refined;
   return { ...rest, productType: spec.productType };
+}
+
+// ---- Showcase ---------------------------------------------------------------------------------
+
+const DIRECTOR_BRIEF = `You are the game director for a shop page that sells a video game.
+Below the page text are numbered assets from the game's own website, each shown as its first
+animation frame, with what we measured about it. Design a 30-second playable teaser: the buyer
+controls the game's hero with the mouse (or a finger), clicks to attack, and hits the game's
+enemies as they drift across the game's own backdrop.
+
+Decide:
+- isGame: true only if this page sells or shows a playable game with character art. If not,
+  set false and fill the rest with any valid values.
+- player: the hero the buyer plays as. faces: the way the character in the frame looks.
+- targets: 2 to 5 enemies that read well small: flying or floating ones suit best. Prefer
+  variety. Use each asset once.
+- backdrop: a wide scenic background from the game, or -1 if none suits.
+- Only pick a sprite whose frame shows exactly one whole character. Skip frames that are cut
+  off, show several characters, or are logos, badges, icons, UI or screenshots.
+- effect: what the hero's attack looks like (a fire dragon breathes fire, an ice mage casts ice).
+- verb: the attack, one word, as a button would say it ("Flame", "Zap", "Freeze").
+  pastVerb: as in "8 flamed" ("flamed", "zapped", "frozen").
+- goal: hits to win, 8 to 15.
+- title: at most 6 words, an invitation to play. instructions: one short sentence on the
+  controls ("Move to fly, click to breathe fire.").
+- winTitle and winText: a short reward line, then one sentence pointing to the full game.
+Plain text, sentence case, no emoji, no exclamation marks, nothing the page doesn't support.`;
+
+export type ShowcaseAsset = { label: string; thumb: Uint8Array };
+
+/** Gemini picks the hero, enemies and backdrop from a game page's measured art and writes the copy. */
+export async function directShowcase(context: string, assets: ShowcaseAsset[]): Promise<Direction | null> {
+  if (!geminiEnabled() || assets.length < 2) return null;
+  const parts: object[] = [{ text: DIRECTOR_BRIEF }, { text: `The page:\n"""${context.slice(0, 3000)}"""` }];
+  assets.forEach((a, i) => {
+    parts.push({ text: `Asset ${i}: ${a.label}` });
+    parts.push(inline({ data: a.thumb, mime: "image/png" }));
+  });
+  const t0 = Date.now();
+  const res = await generate(parts, {
+    responseMimeType: "application/json",
+    responseJsonSchema: designJsonSchema(Direction),
+    temperature: 0.6,
+  });
+  const out = Direction.parse(JSON.parse(res.text ?? ""));
+  console.info(`gemini showcase: ${TEXT_MODEL} in ${((Date.now() - t0) / 1000).toFixed(1)}s, game=${out.isGame}`);
+  return out;
 }
 
 // ---- Hero art ---------------------------------------------------------------------------------
