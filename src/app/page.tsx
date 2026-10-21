@@ -2,6 +2,9 @@ import Link from "next/link";
 import { GalleryCard } from "@/components/GalleryCard";
 import { listLiveShops } from "@/lib/shops";
 
+// Reads live shops: render per request, not once at build time.
+export const dynamic = "force-dynamic";
+
 const STEPS = [
   { n: "1", title: "Snap a photo", body: "Add one picture and a few sentences about what you're selling — a mug, a print, an ebook, a preset pack." },
   { n: "2", title: "Gemini designs it", body: "Colours from your photo, fonts that fit, a headline, story, FAQ and a suggested price. Change anything by asking." },

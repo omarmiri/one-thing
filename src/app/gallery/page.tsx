@@ -3,6 +3,9 @@ import Link from "next/link";
 import { GalleryCard } from "@/components/GalleryCard";
 import { listLiveShops } from "@/lib/shops";
 
+// Reads live shops: render per request, not once at build time.
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "Gallery · OneThing",
   description: "One-product shops people made with OneThing: a photo in, a designed page out, paid with PayPal.",
