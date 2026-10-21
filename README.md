@@ -83,6 +83,10 @@ the AI's guesses and clicks **Go live**. The choices behind it:
   the photo. Options the seller named start ticked; the AI's own guesses start unticked. One-of-a-kind
   items (vintage, handmade one-offs) get no options. The seller edits values and swatch colours, and
   sets **stock per combination** (blank means unlimited).
+- **A photo for each colour.** Add a photo of each variant and Gemini matches photos to colours,
+  including when only a print or detail changes colour (a red, gold, green or blue dragon on the same
+  white shirt). It runs when photos are added or from **Match photos to colours**, and the seller can
+  change any match from the swatch's thumbnail.
 - **"Buyers will ask."** Gemini also lists up to three facts buyers, or shopping agents, need that
   the listing doesn't state (the size of this pair, a print's dimensions, a game's platform). The
   seller's answers become product details. **Check for missing details** runs it again on any shop.
@@ -127,7 +131,8 @@ the AI's guesses and clicks **Go live**. The choices behind it:
   one photo on, and it resists past the ends.
 - **Inspect:** tap a photo and it grows from its place to fill the screen. Swipe through the
   photos, double-tap to zoom, and swipe down or press Esc to put it back where it was.
-- **Size and colour pickers** in the shop's own palette when the product has options. Sold-out
+- **Size and colour pickers** in the shop's own palette when the product has options. Picking a
+  colour slides the photo gallery to that colour's photo. Sold-out
   combinations stay visible but can't be picked, low stock shows ("Only 1 left in Black / M"), and
   the choice appears in PayPal's review page, the receipt and the seller's grid.
 - **A sticky buy bar** with the PayPal button, once the top one has scrolled away.

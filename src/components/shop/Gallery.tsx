@@ -3,19 +3,43 @@
 import { useEffect, useRef, useState } from "react";
 import { capture, openInspect } from "@/components/motion/inspect";
 import { clamp, prefersReducedMotion, Spring, SPRING } from "@/components/motion/springs";
+import { useChoice } from "./choice";
 
 // The product photos as one strip on a spring. Drag or swipe and it follows the finger exactly,
 // a flick carries it on, and it settles on the nearest photo; past the ends it resists. Tap a
 // photo and it opens in Inspect, which pages through the same photos and hands back whichever
 // one the buyer ended on. Arrows (on hover), dots and the keyboard do the same without a swipe.
 
-export function Gallery({ photos, alt, frameClass = "", imgClass = "" }: { photos: string[]; alt: string; frameClass?: string; imgClass?: string }) {
+/** Which photo shows each colour, as positions in photos: { option: "Color", index: { Red: 0 } }. */
+export type ColorPhotos = { option: string; index: Record<string, number> };
+
+export function Gallery({
+  photos,
+  alt,
+  frameClass = "",
+  imgClass = "",
+  slug,
+  colorPhotos,
+}: {
+  photos: string[];
+  alt: string;
+  frameClass?: string;
+  imgClass?: string;
+  slug?: string;
+  colorPhotos?: ColorPhotos | null;
+}) {
   const frame = useRef<HTMLDivElement>(null);
   const track = useRef<HTMLDivElement>(null);
   const imgs = useRef<(HTMLImageElement | null)[]>([]);
   const ctl = useRef<{ goTo(i: number, instant?: boolean): void } | null>(null);
   const [index, setIndex] = useState(0);
   const n = photos.length;
+  // The buyer picked a colour (OptionPicker): show that colour's photo.
+  const picked = useChoice(slug ?? "")[colorPhotos?.option ?? ""];
+  const target = picked !== undefined ? colorPhotos?.index[picked] : undefined;
+  useEffect(() => {
+    if (target !== undefined) ctl.current?.goTo(target);
+  }, [target]);
 
   useEffect(() => {
     const el = frame.current!;

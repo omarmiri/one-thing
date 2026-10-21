@@ -172,6 +172,17 @@ export const blobUrl = (id: string | null) => (id ? `/api/blobs/${id}` : null);
 export const shopPhotos = (shop: Pick<Shop, "photo_blob" | "gallery_blobs">) =>
   [shop.photo_blob, ...(shop.gallery_blobs ?? [])].filter((b): b is string => Boolean(b));
 
+/** The colour option's photos as gallery positions: { option: "Color", index: { Red: 0, Blue: 2 } }. */
+function colorPhotos(shop: Shop) {
+  const colour = shop.product_type === "physical" ? (shop.options ?? []).find((o) => o.kind === "color") : undefined;
+  if (!colour) return null;
+  const photos = shopPhotos(shop);
+  const index = Object.fromEntries(
+    colour.values.flatMap((v) => (v.photo && photos.includes(v.photo) ? [[v.label, photos.indexOf(v.photo)]] : [])),
+  );
+  return Object.keys(index).length ? { option: colour.name, index } : null;
+}
+
 /** What the shop templates need, computed from the row. */
 export function shopView(shop: Shop) {
   return {
@@ -188,6 +199,8 @@ export function shopView(shop: Shop) {
     slug: shop.slug,
     options: shop.product_type === "physical" ? (shop.options ?? []) : [],
     optionStock: shop.option_stock ?? {},
+    // Picking a colour slides the gallery to that colour's photo.
+    colorPhotos: colorPhotos(shop),
     photoUrl: blobUrl(shop.photo_blob),
     // Every product photo, cover first: what the gallery and Inspect page through.
     photos: shopPhotos(shop).map((b) => blobUrl(b)!),

@@ -10,7 +10,7 @@ type Api = (path: string, init?: RequestInit) => Promise<{ photos: Photo[] }>;
 
 const MAX = 8;
 
-export function PhotosPanel(props: { api: Api; initial: Photo[]; onChanged(): void; onToast(t: string): void }) {
+export function PhotosPanel(props: { api: Api; initial: Photo[]; onChanged(photos: Photo[]): void; onToast(t: string): void }) {
   const [photos, setPhotos] = useState(props.initial);
   const [busy, setBusy] = useState(false);
   const picker = useRef<HTMLInputElement>(null);
@@ -18,8 +18,9 @@ export function PhotosPanel(props: { api: Api; initial: Photo[]; onChanged(): vo
   async function run(call: () => Promise<{ photos: Photo[] }>, done?: string) {
     setBusy(true);
     try {
-      setPhotos((await call()).photos);
-      props.onChanged();
+      const next = (await call()).photos;
+      setPhotos(next);
+      props.onChanged(next);
       if (done) props.onToast(done);
     } catch (e) {
       props.onToast((e as Error).message);

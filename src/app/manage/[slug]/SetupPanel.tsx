@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { PayPalStatus } from "@/lib/paypal";
 import type { OptionStock, ShopOption, Suggestions } from "@/lib/options";
 import { activeOptions, BuyerQuestions, initialOptions, OptionsEditor } from "./OptionsPanel";
@@ -193,6 +193,7 @@ export function SetupPanel(props: {
   initial: SetupInitial;
   draft: boolean;
   paypalReady: boolean;
+  photos: { id: string; url: string }[];
   onSaved(result: { slug: string; live: boolean }): void;
   onToast(t: string): void;
 }) {
@@ -210,6 +211,33 @@ export function SetupPanel(props: {
   const [optStock, setOptStock] = useState<OptionStock>(s.optionStock);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const hasOptions = kind === "physical" && activeOptions(opts).length > 0;
+
+  // Which photo shows each colour: Gemini proposes, the seller can change it, Save keeps it.
+  async function matchPhotos(quiet = false) {
+    const colour = opts.find((o) => o.enabled && o.kind === "color" && o.values.length);
+    if (!colour) return;
+    try {
+      const r = (await props.api("/match-photos", {
+        method: "POST",
+        body: JSON.stringify({ colors: colour.values.map(({ label, hex }) => ({ label, hex })) }),
+      })) as unknown as { matches: Record<string, string> };
+      const n = Object.keys(r.matches).length;
+      setOpts((cur) =>
+        cur.map((o) => (o === colour ? { ...o, values: o.values.map((v) => (r.matches[v.label] ? { ...v, photo: r.matches[v.label] } : v)) } : o)),
+      );
+      props.onToast(n ? `Matched ${n} photo${n === 1 ? "" : "s"} to colours. Save to keep.` : "No photo clearly shows one colour.");
+    } catch (err) {
+      if (!quiet) props.onToast((err as Error).message);
+    }
+  }
+  // New photos arrived (Photos panel): match them to colours without being asked.
+  const photoCount = useRef(props.photos.length);
+  useEffect(() => {
+    const grew = props.photos.length > photoCount.current;
+    photoCount.current = props.photos.length;
+    if (grew && props.photos.length >= 2 && opts.some((o) => o.enabled && o.kind === "color")) void matchPhotos(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- only when the photos change
+  }, [props.photos.length]);
 
   async function checkDetails() {
     try {
@@ -388,7 +416,7 @@ export function SetupPanel(props: {
 
       {kind === "physical" && (
         <Row label="Buyer options" group hint={opts.length ? undefined : "Sizes, colours or other choices buyers pick. Add one if your product comes in variants."}>
-          <OptionsEditor options={opts} onOptions={setOpts} stock={optStock} onStock={setOptStock} />
+          <OptionsEditor options={opts} onOptions={setOpts} stock={optStock} onStock={setOptStock} photos={props.photos} onMatch={() => matchPhotos()} />
         </Row>
       )}
 

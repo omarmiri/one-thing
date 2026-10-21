@@ -31,8 +31,13 @@ export function OptionsEditor(props: {
   onOptions(o: EditOption[]): void;
   stock: OptionStock;
   onStock(s: OptionStock): void;
+  photos: { id: string; url: string }[];
+  onMatch(): Promise<void>;
 }) {
   const { options } = props;
+  const [picking, setPicking] = useState<string | null>(null); // "option:value" whose photo is being chosen
+  const [matching, setMatching] = useState(false);
+  const photoUrl = (id?: string) => props.photos.find((p) => p.id === id)?.url;
   const set = (i: number, patch: Partial<EditOption>) => props.onOptions(options.map((o, j) => (j === i ? { ...o, ...patch } : o)));
   const active = activeOptions(options);
   const all = combos(active);
@@ -45,7 +50,26 @@ export function OptionsEditor(props: {
             <input type="checkbox" checked={o.enabled} onChange={(e) => set(i, { enabled: e.target.checked })} aria-label={`Offer ${o.name}`} className="size-4" />
             <input value={o.name} onChange={(e) => set(i, { name: e.target.value })} aria-label="Option name" className="w-28 rounded-md border border-transparent px-1.5 py-0.5 text-sm font-semibold hover:border-line focus:border-accent focus:outline-none" />
             {o.fromSeller === false && <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[11px] text-amber-900">AI guess: confirm</span>}
-            <button type="button" onClick={() => props.onOptions(options.filter((_, j) => j !== i))} className="ml-auto text-xs text-muted hover:text-foreground" aria-label={`Remove ${o.name}`}>
+            {o.kind === "color" && o.enabled && props.photos.length > 1 && (
+              <button
+                type="button"
+                disabled={matching}
+                onClick={async () => {
+                  setMatching(true);
+                  await props.onMatch();
+                  setMatching(false);
+                }}
+                className="ml-auto rounded-full border border-line px-2 py-0.5 text-[11px] font-semibold disabled:opacity-50"
+              >
+                {matching ? "Matching…" : "Match photos to colours"}
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={() => props.onOptions(options.filter((_, j) => j !== i))}
+              className={`${o.kind === "color" && o.enabled && props.photos.length > 1 ? "" : "ml-auto "}text-xs text-muted hover:text-foreground`}
+              aria-label={`Remove ${o.name}`}
+            >
               Remove
             </button>
           </div>
@@ -62,11 +86,54 @@ export function OptionsEditor(props: {
                   />
                 )}
                 <span className={o.kind === "color" ? "" : "pl-1"}>{v.label}</span>
+                {o.kind === "color" && props.photos.length > 1 && (
+                  <button
+                    type="button"
+                    onClick={() => setPicking(picking === `${i}:${k}` ? null : `${i}:${k}`)}
+                    aria-label={`Photo for ${v.label}`}
+                    title="The photo buyers see when they pick this colour"
+                    className={`size-5 overflow-hidden rounded ${photoUrl(v.photo) ? "" : "border border-dashed border-line text-[10px] leading-4 text-muted"}`}
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element -- the seller's own photo */}
+                    {photoUrl(v.photo) ? <img src={photoUrl(v.photo)} alt="" className="size-full object-cover" /> : "+"}
+                  </button>
+                )}
                 <button type="button" onClick={() => set(i, { values: o.values.filter((_, m) => m !== k) })} aria-label={`Remove ${v.label}`} className="px-1 text-muted hover:text-foreground">
                   ×
                 </button>
               </span>
             ))}
+            {picking?.startsWith(`${i}:`) && (
+              <div className="flex w-full flex-wrap items-center gap-1.5 rounded-lg bg-background p-1.5">
+                <span className="text-xs text-muted">Photo for {o.values[Number(picking.split(":")[1])]?.label}:</span>
+                {props.photos.map((p) => (
+                  <button
+                    key={p.id}
+                    type="button"
+                    onClick={() => {
+                      const k = Number(picking.split(":")[1]);
+                      set(i, { values: o.values.map((x, m) => (m === k ? { ...x, photo: p.id } : x)) });
+                      setPicking(null);
+                    }}
+                    className="size-10 overflow-hidden rounded-md ring-accent hover:ring-2"
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element -- the seller's own photo */}
+                    <img src={p.url} alt="" className="size-full object-cover" />
+                  </button>
+                ))}
+                <button
+                  type="button"
+                  onClick={() => {
+                    const k = Number(picking.split(":")[1]);
+                    set(i, { values: o.values.map((x, m) => (m === k ? { label: x.label, hex: x.hex } : x)) });
+                    setPicking(null);
+                  }}
+                  className="text-xs text-muted underline"
+                >
+                  None
+                </button>
+              </div>
+            )}
             <AddValue onAdd={(label) => !o.values.some((v) => v.label.toLowerCase() === label.toLowerCase()) && set(i, { values: [...o.values, { label, ...(o.kind === "color" && { hex: "#cccccc" }) }] })} />
           </div>
         </div>

@@ -6,7 +6,7 @@ import { FeatureStory } from "@/components/motion/FeatureStory";
 import { StickyBuy } from "@/components/motion/StickyBuy";
 import type { Feel } from "@/components/motion/springs";
 import { Arcade } from "./Arcade";
-import { Gallery } from "./Gallery";
+import { Gallery, type ColorPhotos } from "./Gallery";
 import { OptionPicker } from "./OptionPicker";
 import { PayOnPhone } from "./PayOnPhone";
 import { allSoldOut, type OptionStock, type ShopOption } from "@/lib/options";
@@ -25,6 +25,7 @@ export type ShopView = {
   slug?: string;
   options?: ShopOption[]; // sizes, colours…: the buyer picks before paying
   optionStock?: OptionStock;
+  colorPhotos?: ColorPhotos | null;
   photoUrl: string | null;
   photos?: string[]; // all product photos, cover first; more than one makes a gallery
   heroUrl: string | null;
@@ -137,7 +138,7 @@ function Hero({ view, buy }: { view: ShopView; buy: ReactNode }) {
   const gallery = (frameClass: string, imgClass: string) =>
     photos.length > 1 ? (
       <div data-surface="image">
-        <Gallery photos={photos} alt={spec.imageAlt} frameClass={frameClass} imgClass={imgClass} />
+        <Gallery photos={photos} slug={view.slug} colorPhotos={view.colorPhotos} alt={spec.imageAlt} frameClass={frameClass} imgClass={imgClass} />
       </div>
     ) : null;
   const copy = (
@@ -196,7 +197,7 @@ function Hero({ view, buy }: { view: ShopView; buy: ReactNode }) {
             <div data-surface="image" className="relative">
               <div aria-hidden className="absolute -inset-4 rotate-3 rounded-[2.5rem]" style={{ background: "var(--accent)" }} />
               {photos.length > 1 ? (
-                <Gallery photos={photos} alt={spec.imageAlt} frameClass="relative -rotate-2 aspect-square w-full rounded-[2rem] shadow-xl" imgClass="object-cover" />
+                <Gallery photos={photos} slug={view.slug} colorPhotos={view.colorPhotos} alt={spec.imageAlt} frameClass="relative -rotate-2 aspect-square w-full rounded-[2rem] shadow-xl" imgClass="object-cover" />
               ) : (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img data-inspect src={product} alt={spec.imageAlt} className="relative -rotate-2 aspect-square w-full rounded-[2rem] object-cover shadow-xl" />

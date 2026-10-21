@@ -6,6 +6,7 @@ import { z } from "zod";
 export const OptionValue = z.object({
   label: z.string().trim().min(1).max(30),
   hex: z.string().regex(/^#[0-9a-fA-F]{6}$/).optional(), // colors: the swatch
+  photo: z.string().max(40).optional(), // colors: the shop photo (blob id) showing this one
 });
 export const ShopOption = z.object({
   name: z.string().trim().min(1).max(20),

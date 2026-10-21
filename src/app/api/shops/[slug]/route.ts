@@ -3,7 +3,7 @@ import { z } from "zod";
 import { requireShop } from "@/lib/auth";
 import { paypalConnectEnabled, paypalReadyToPay } from "@/lib/paypal";
 import { allSoldOut, combos, comboKey, MAX_COMBOS, ShopOption } from "@/lib/options";
-import { updateShop, type Shop } from "@/lib/shops";
+import { shopPhotos, updateShop, type Shop } from "@/lib/shops";
 import { claimSlug, slugProblem, slugTaken, toSlug } from "@/lib/slugs";
 
 /** Polled by the manage page while hero art is generating. */
@@ -72,7 +72,12 @@ export async function PATCH(req: Request, ctx: RouteContext<"/api/shops/[slug]">
   }
   let optionFields: Partial<Shop> = {};
   if (s.options !== undefined) {
-    const options = kind === "physical" ? s.options : [];
+    // A colour's photo must be one of this shop's photos.
+    const mine = new Set(shopPhotos(shop));
+    const options = (kind === "physical" ? s.options : []).map((o) => ({
+      ...o,
+      values: o.values.map(({ photo, ...v }) => (photo && mine.has(photo) ? { ...v, photo } : v)),
+    }));
     if (new Set(options.map((o) => o.name.toLowerCase())).size !== options.length) {
       return NextResponse.json({ error: "Each option needs its own name." }, { status: 400 });
     }

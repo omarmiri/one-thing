@@ -36,6 +36,8 @@ export function ManageApp(props: {
   const [orders, setOrders] = useState(props.orders);
   const [webhooks, setWebhooks] = useState(props.webhooks);
   const [frameKey, setFrameKey] = useState(0);
+  // Shared with the setup panel, where each colour can point at one of these photos.
+  const [photos, setPhotos] = useState(initial.photos ?? []);
   const [toast, setToast] = useState<string | null>(null);
   const shopPath = `/${slug}`;
 
@@ -145,6 +147,7 @@ export function ManageApp(props: {
           <SetupPanel
             api={api}
             initial={initial.setup}
+            photos={photos}
             draft={status === "draft"}
             paypalReady={props.paypalReady}
             linkPrefix={props.linkPrefix}
@@ -161,7 +164,15 @@ export function ManageApp(props: {
             }}
           />
           {initial.photos && (
-            <PhotosPanel api={api} initial={initial.photos} onChanged={() => setFrameKey((k) => k + 1)} onToast={setToast} />
+            <PhotosPanel
+              api={api}
+              initial={initial.photos}
+              onChanged={(next) => {
+                setPhotos(next);
+                setFrameKey((k) => k + 1);
+              }}
+              onToast={setToast}
+            />
           )}
           <DesignPanel
             api={api}

@@ -283,6 +283,54 @@ export async function suggestOptions(listing: string, photo?: Photo): Promise<Su
   }
 }
 
+/**
+ * Which product photo shows each colour, for switching the gallery when a buyer picks one.
+ * Returns colour label → photo index; colours no photo clearly shows are left out.
+ */
+export async function matchColorPhotos(colors: { label: string; hex?: string }[], photos: Photo[]): Promise<Record<string, number>> {
+  if (!geminiEnabled() || !colors.length || !photos.length) return {};
+  const parts: object[] = [
+    {
+      text:
+        "These are photos of one product sold in several colour variants. The colour that varies may be the " +
+        "product itself or its most distinctive part (a print, a design, a strap, a glaze). For each colour below, " +
+        "give the number of the photo of that variant: the closest match, since names can be loose (\"Shadow Black\" " +
+        "may be a very dark green). Use each photo for at most one colour. Answer -1 only when no photo is close, " +
+        "and for photos that show several variants side by side." + "\n" +
+        `There are ${photos.length} photos and ${colors.length} colours; usually each colour has its own photo, so match ` +
+        `every colour you reasonably can. Colours: ${colors.map((c, i) => `${i}. ${c.label}${c.hex ? ` (${c.hex})` : ""}`).join("; ")}. ` +
+        "Answer by colour number.",
+    },
+  ];
+  photos.forEach((p, i) => parts.push({ text: `Photo ${i}:` }, inline(p)));
+  const res = await generate(parts, {
+    responseMimeType: "application/json",
+    responseJsonSchema: {
+      type: "object",
+      properties: {
+        matches: {
+          type: "array",
+          items: { type: "object", properties: { color: { type: "integer" }, photo: { type: "integer" } }, required: ["color", "photo"] },
+        },
+      },
+      required: ["matches"],
+    },
+    temperature: 0.2,
+  });
+  const out: Record<string, number> = {};
+  // By number, not label: models like to echo "Red (#b22222)" back instead of "Red".
+  for (const m of (JSON.parse(res.text ?? "{}") as { matches?: { color: number; photo: number }[] }).matches ?? []) {
+    const c = colors[m.color];
+    if (c && Number.isInteger(m.photo) && m.photo >= 0 && m.photo < photos.length) out[c.label] = m.photo;
+  }
+  // One colour and one photo left over: they belong together (the model sometimes balks at a
+  // loose name like "Shadow Black" for a very dark green).
+  const leftColours = colors.filter((c) => !(c.label in out));
+  const leftPhotos = photos.map((_, i) => i).filter((i) => !Object.values(out).includes(i));
+  if (leftColours.length === 1 && leftPhotos.length === 1 && Object.keys(out).length > 0) out[leftColours[0].label] = leftPhotos[0];
+  return out;
+}
+
 /** A finished spec as plain listing text, for suggestOptions on an existing shop. */
 export const listingText = (spec: DesignSpec, extra: string[] = []) =>
   [
