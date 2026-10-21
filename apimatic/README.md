@@ -24,5 +24,10 @@ apimatic portal generate --zip                       # static portal to host any
 
 Output (`portal/`, `sdk/`, `plugin/`) is git-ignored; regenerate it from `src/`.
 
+The portal is published at https://omarmiri.github.io/one-thing/ from the `gh-pages` branch,
+which holds only the contents of `portal/` (without `apimatic-debug/`) plus an empty `.nojekyll`.
+To republish after a spec change, run `apimatic portal generate --force` and push a fresh commit
+of that folder to `gh-pages`. Its "Try it" calls need the API to allow CORS from that origin.
+
 When you change an API route in `src/app/api/`, update `src/spec/openapi.yaml` in the same
 commit, then run `npx @redocly/cli@1 lint apimatic/src/spec/openapi.yaml`.
