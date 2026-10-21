@@ -200,6 +200,7 @@ full experience:
 | `GEMINI_API_KEY` | [Google AI Studio](https://aistudio.google.com/apikey) | AI guesses, design, copy, hero art, chat edits. `npm run gemini:models` lists the models your key can use |
 | `PAYPAL_CLIENT_ID`, `PAYPAL_CLIENT_SECRET` | [PayPal developer dashboard](https://developer.paypal.com/dashboard/applications/sandbox) → Sandbox app | Checkout |
 | `PAYPAL_LOGIN=on` | Same app → **Log In with PayPal**: Return URL `<APP_URL>/api/account/paypal/callback`, request email, verification status and payer ID | **Log in with PayPal** (off until set, so the button never leads to a misconfigured app) |
+| `PAYPAL_PARTNER_CLIENT_ID`, `PAYPAL_PARTNER_CLIENT_SECRET`, `PAYPAL_PARTNER_MERCHANT_ID` | A second sandbox app of type **Platform** (Partner Referrals needs one), and the merchant ID of its sandbox business account | **Connect PayPal**: sellers onboard their own PayPal account; the manage page shows PayPal's checklist and Go live waits for it (a typed PayPal email still works as a fallback) |
 | `PAYPAL_WEBHOOK_ID` | Same app → Webhooks → `<APP_URL>/api/paypal/webhook`, event `PAYMENT.CAPTURE.COMPLETED` | Confirms payments if the buyer closes the tab mid-checkout (needs a public URL) |
 | `CHANNEL3_API_KEY` | [Channel3 developers](https://trychannel3.com/developers) | "Find a product", store-link lookup and recommendation shops |
 

@@ -89,6 +89,8 @@ ALTER TABLE shops ADD COLUMN IF NOT EXISTS showcase jsonb;
 ALTER TABLE shops ADD COLUMN IF NOT EXISTS showcase_blobs text[] NOT NULL DEFAULT '{}';
 -- More photos the seller adds while refining; photo_blob stays the cover, these follow it.
 ALTER TABLE shops ADD COLUMN IF NOT EXISTS gallery_blobs text[] NOT NULL DEFAULT '{}';
+-- Connect PayPal: what PayPal last said about the connected account (paypal_merchant_id).
+ALTER TABLE shops ADD COLUMN IF NOT EXISTS paypal_status jsonb;     -- src/lib/paypal.ts PayPalStatus
 
 -- Accounts: a seller signs in with an email or a phone number; no password, no verification yet
 -- (see src/lib/accounts.ts). Each identifier is unique; an account has one or the other.

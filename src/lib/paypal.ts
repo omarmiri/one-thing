@@ -12,8 +12,12 @@ type Token = { token: string; expires: number };
 let cached: Token | null = null;
 const clientTokens = new Map<string, Token>();
 
-async function oauthToken(op: string, params: Record<string, string>): Promise<Token> {
-  const basic = Buffer.from(`${process.env.PAYPAL_CLIENT_ID}:${process.env.PAYPAL_CLIENT_SECRET}`).toString("base64");
+async function oauthToken(
+  op: string,
+  params: Record<string, string>,
+  creds = `${process.env.PAYPAL_CLIENT_ID}:${process.env.PAYPAL_CLIENT_SECRET}`,
+): Promise<Token> {
+  const basic = Buffer.from(creds).toString("base64");
   const res = await fetch(`${API}/v1/oauth2/token`, {
     method: "POST",
     headers: { authorization: `Basic ${basic}`, "content-type": "application/x-www-form-urlencoded" },
@@ -49,11 +53,16 @@ export class PayPalError extends Error {
   }
 }
 
-async function call<T>(op: string, path: string, init: { method: string; body?: unknown; requestId?: string }) {
+async function call<T>(
+  op: string,
+  path: string,
+  init: { method: string; body?: unknown; requestId?: string },
+  token: () => Promise<string> = accessToken,
+) {
   const res = await fetch(`${API}${path}`, {
     method: init.method,
     headers: {
-      authorization: `Bearer ${await accessToken()}`,
+      authorization: `Bearer ${await token()}`,
       "content-type": "application/json",
       ...(init.requestId && { "PayPal-Request-Id": init.requestId }),
     },
@@ -68,17 +77,19 @@ const value = (cents: number) => (cents / 100).toFixed(2);
 
 /**
  * Creates the PayPal order. The amount always comes from the database, never the browser.
- * The money goes straight to the seller: payee is their onboarded merchant id, else their
- * PayPal email, else (unset) the platform's own sandbox account.
+ * The money goes straight to the seller: payee is their connected PayPal account once PayPal
+ * says it can be paid, else the PayPal email they typed, else a connected account that isn't
+ * ready yet, else (unset) the platform's own sandbox account.
  */
 export function createOrder(shop: Shop, localOrderId: string) {
   const physical = shop.product_type === "physical";
   const shipping = physical ? shop.shipping_cents : 0;
-  const payee = shop.paypal_merchant_id
-    ? { merchant_id: shop.paypal_merchant_id }
-    : shop.paypal_email
-      ? { email_address: shop.paypal_email }
-      : undefined;
+  const payee =
+    shop.paypal_merchant_id && (paypalReadyToPay(shop) || !shop.paypal_email)
+      ? { merchant_id: shop.paypal_merchant_id }
+      : shop.paypal_email
+        ? { email_address: shop.paypal_email }
+        : undefined;
   return call<{ id: string; status: string }>("create order", "/v2/checkout/orders", {
     method: "POST",
     requestId: `create-${localOrderId}`,
@@ -182,6 +193,92 @@ export async function verifyWebhook(headers: Headers, event: unknown): Promise<b
     },
   );
   return res.verification_status === "SUCCESS";
+}
+
+// ---- Connect PayPal (Partner Referrals) ----------------------------------------------------
+// Sellers connect their PayPal account through PayPal's own onboarding: they sign in (or sign
+// up, or upgrade to business) at PayPal and grant OneThing permission. Partner Referrals needs a
+// Platform app, so these calls use their own keys: PAYPAL_PARTNER_CLIENT_ID / _SECRET, plus
+// PAYPAL_PARTNER_MERCHANT_ID (the Platform app's own account). Checkout keeps the main keys.
+
+export const paypalConnectEnabled = () =>
+  Boolean(process.env.PAYPAL_PARTNER_CLIENT_ID && process.env.PAYPAL_PARTNER_CLIENT_SECRET && process.env.PAYPAL_PARTNER_MERCHANT_ID);
+
+let partnerCached: Token | null = null;
+async function partnerToken(): Promise<string> {
+  if (!partnerCached || partnerCached.expires < Date.now() + 60_000) {
+    partnerCached = await oauthToken("partner auth", {}, `${process.env.PAYPAL_PARTNER_CLIENT_ID}:${process.env.PAYPAL_PARTNER_CLIENT_SECRET}`);
+  }
+  return partnerCached.token;
+}
+
+/** What PayPal says about a connected seller, as of checkedAt. */
+export type PayPalStatus = { receivable: boolean; emailConfirmed: boolean; checkedAt: string };
+
+export const paypalReadyToPay = (shop: Pick<Shop, "paypal_merchant_id" | "paypal_status">) =>
+  Boolean(shop.paypal_merchant_id && shop.paypal_status?.receivable && shop.paypal_status.emailConfirmed);
+
+/** The PayPal page where a seller connects their account. trackingId is how we find them after. */
+export async function connectUrl(trackingId: string, returnUrl: string, email?: string | null): Promise<string> {
+  const res = await call<{ links: { rel: string; href: string }[] }>(
+    "partner referral",
+    "/v2/customer/partner-referrals",
+    {
+      method: "POST",
+      body: {
+        tracking_id: trackingId,
+        ...(email && { email }),
+        operations: [
+          {
+            operation: "API_INTEGRATION",
+            api_integration_preference: {
+              rest_api_integration: {
+                integration_method: "PAYPAL",
+                integration_type: "THIRD_PARTY",
+                // PARTNER_FEE now, so a platform fee can be added later without asking again.
+                third_party_details: { features: ["PAYMENT", "REFUND", "PARTNER_FEE"] },
+              },
+            },
+          },
+        ],
+        products: ["EXPRESS_CHECKOUT"],
+        legal_consents: [{ type: "SHARE_DATA_CONSENT", granted: true }],
+        partner_config_override: { return_url: returnUrl, return_url_description: "Back to your OneThing shop" },
+      },
+    },
+    partnerToken,
+  );
+  const url = res.links.find((l) => l.rel === "action_url")?.href;
+  if (!url) throw new PayPalError("partner referral", 502, "no action_url in PayPal's reply");
+  return url;
+}
+
+/**
+ * The seller who finished onboarding with this trackingId, and whether they can be paid, or null
+ * if nobody has. Asked of PayPal, never taken from the return URL, which anyone could forge.
+ */
+export async function connectedMerchant(trackingId: string): Promise<{ merchantId: string; status: PayPalStatus } | null> {
+  const partner = encodeURIComponent(process.env.PAYPAL_PARTNER_MERCHANT_ID!);
+  let found: { merchant_id?: string };
+  try {
+    found = await call("find merchant", `/v1/customer/partners/${partner}/merchant-integrations?tracking_id=${encodeURIComponent(trackingId)}`, { method: "GET" }, partnerToken);
+  } catch (err) {
+    if (err instanceof PayPalError && err.status === 404) return null;
+    throw err;
+  }
+  if (!found.merchant_id) return null;
+  return { merchantId: found.merchant_id, status: await merchantStatus(found.merchant_id) };
+}
+
+export async function merchantStatus(merchantId: string): Promise<PayPalStatus> {
+  const partner = encodeURIComponent(process.env.PAYPAL_PARTNER_MERCHANT_ID!);
+  const s = await call<{ payments_receivable?: boolean; primary_email_confirmed?: boolean }>(
+    "merchant status",
+    `/v1/customer/partners/${partner}/merchant-integrations/${encodeURIComponent(merchantId)}`,
+    { method: "GET" },
+    partnerToken,
+  );
+  return { receivable: Boolean(s.payments_receivable), emailConfirmed: Boolean(s.primary_email_confirmed), checkedAt: new Date().toISOString() };
 }
 
 export const sdkUrl = () =>

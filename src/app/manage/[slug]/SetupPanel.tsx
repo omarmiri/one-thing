@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import type { PayPalStatus } from "@/lib/paypal";
 
 // Onboarding, step 2: the AI's guesses, laid out to check and change. The same panel stays as
 // the shop's settings after it goes live.
@@ -17,13 +18,15 @@ export type SetupInitial = {
   stock: number | null;
   shipCountries: string | null;
   paypalEmail: string | null;
+  // Present when Connect PayPal is set up on the server. returned: ?paypal= after PayPal's return.
+  paypal: { merchantId: string | null; status: PayPalStatus | null; returned: string | null } | null;
   sellerEmail: string | null;
   zapierHookUrl: string | null;
   inGallery: boolean;
   referral: { offers: { domain: string; price: number; currency: string; commission: number }[] } | null;
 };
 
-type Api = (path: string, init?: RequestInit) => Promise<{ slug?: string; filename?: string }>;
+type Api = (path: string, init?: RequestInit) => Promise<{ slug?: string; filename?: string; url?: string; merchantId?: string | null; status?: PayPalStatus | null }>;
 
 const input = "w-full rounded-lg border border-line bg-white px-3 py-2 text-sm outline-none focus:border-accent";
 const money = (n: number, c = "USD") => new Intl.NumberFormat("en-US", { style: "currency", currency: c }).format(n);
@@ -62,6 +65,120 @@ function Row({ label, hint, group, children }: { label: string; hint?: React.Rea
       </label>
       {hint && <p className="text-xs text-muted">{hint}</p>}
     </div>
+  );
+}
+
+const RETURNED: Record<string, string> = {
+  connected: "PayPal connected. You're ready to get paid.",
+  incomplete: "PayPal connected. One step is left at PayPal: see the checklist.",
+  cancelled: "The PayPal connection wasn't finished.",
+  failed: "We couldn't check with PayPal. Try Check again.",
+};
+
+// Where the money goes: the seller's own PayPal account, connected through PayPal's onboarding,
+// with a checklist of what PayPal says is left. A typed PayPal email stays as the fallback.
+function PayPalConnect(props: {
+  api: Api;
+  initial: NonNullable<SetupInitial["paypal"]>;
+  email: string | null;
+  onToast(t: string): void;
+}) {
+  const [merchantId, setMerchantId] = useState(props.initial.merchantId);
+  const [status, setStatus] = useState(props.initial.status);
+  const [busy, setBusy] = useState<false | "connect" | "check" | "disconnect">(false);
+  const ready = Boolean(merchantId && status?.receivable && status.emailConfirmed);
+  const { returned } = props.initial;
+  const { onToast } = props;
+
+  // Back from PayPal: say how it went once, and drop ?paypal= so a reload doesn't repeat it.
+  useEffect(() => {
+    if (!returned) return;
+    if (RETURNED[returned]) onToast(RETURNED[returned]);
+    const url = new URL(window.location.href);
+    url.searchParams.delete("paypal");
+    window.history.replaceState(null, "", url);
+  }, [returned, onToast]);
+
+  async function run(kind: "connect" | "check" | "disconnect") {
+    setBusy(kind);
+    try {
+      if (kind === "connect") {
+        const r = await props.api("/paypal", { method: "POST" });
+        if (r.url) window.location.href = r.url;
+        return; // leaving for PayPal: keep the button busy
+      }
+      if (kind === "check") {
+        const r = await props.api("/paypal");
+        setMerchantId(r.merchantId ?? null);
+        setStatus(r.status ?? null);
+        props.onToast(!r.merchantId ? "PayPal hasn't finished connecting yet." : r.status?.receivable && r.status.emailConfirmed ? "All set at PayPal." : "Checked with PayPal.");
+      } else {
+        await props.api("/paypal", { method: "DELETE" });
+        setMerchantId(null);
+        setStatus(null);
+        props.onToast("PayPal disconnected.");
+      }
+    } catch (err) {
+      props.onToast((err as Error).message);
+    }
+    setBusy(false);
+  }
+
+  const item = (ok: boolean, label: string, todo: string) => (
+    <li className="flex gap-2">
+      <span aria-hidden className={ok ? "text-green-700" : "text-amber-700"}>{ok ? "✓" : "○"}</span>
+      <span>
+        {label}
+        {!ok && <span className="block text-xs text-muted">{todo}</span>}
+      </span>
+    </li>
+  );
+
+  return (
+    <Row label="Payments go to" group>
+      {merchantId ? (
+        <div className="space-y-3 rounded-lg border border-line p-3 text-sm">
+          <ul className="space-y-1.5">
+            {item(true, `Your PayPal account is connected (…${merchantId.slice(-4)})`, "")}
+            {item(Boolean(status?.emailConfirmed), "Email confirmed", "Confirm your email in PayPal: Account Overview → Confirm email address.")}
+            {item(Boolean(status?.receivable), "Can receive payments", "PayPal still needs something from you. Sign in to PayPal and follow its prompts.")}
+          </ul>
+          <div className="flex items-center gap-3">
+            <button type="button" onClick={() => run("check")} disabled={!!busy} className="rounded-full border border-line px-3 py-1.5 text-xs font-semibold disabled:opacity-50">
+              {busy === "check" ? "Checking…" : "Check again"}
+            </button>
+            {status?.checkedAt && <span className="text-xs text-muted">Checked {new Date(status.checkedAt).toLocaleString()}</span>}
+            <button type="button" onClick={() => run("disconnect")} disabled={!!busy} className="ml-auto text-xs text-muted underline disabled:opacity-50">
+              Disconnect
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div className="space-y-2">
+          <button
+            type="button"
+            onClick={() => run("connect")}
+            disabled={!!busy}
+            className="w-full rounded-full px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-60"
+            style={{ background: "#0070ba" }}
+          >
+            {busy === "connect" ? "Opening PayPal…" : "Connect PayPal"}
+          </button>
+          <p className="text-xs text-muted">Already use PayPal? Sign in. New to it? Create a free account in the same step.</p>
+        </div>
+      )}
+      <details open={!merchantId && Boolean(props.email)} className="text-sm">
+        <summary className="cursor-pointer text-xs text-muted">
+          {merchantId ? "Backup: a PayPal email" : "Or send payments to a PayPal email"}
+        </summary>
+        <div className="mt-2 space-y-1">
+          <input name="paypal_email" type="email" aria-label="PayPal email" defaultValue={props.email ?? ""} placeholder="you@example.com" className={input} />
+          <p className="text-xs text-muted">
+            {ready ? "Only used if your connected account can't be paid." : "PayPal can't confirm this one for you, so double-check it."}
+          </p>
+        </div>
+      </details>
+    </Row>
   );
 }
 
@@ -240,7 +357,11 @@ export function SetupPanel(props: {
         </div>
       )}
 
-      {kind !== "referral" && (
+      {kind !== "referral" && s.paypal && (
+        <PayPalConnect api={props.api} initial={s.paypal} email={s.paypalEmail} onToast={props.onToast} />
+      )}
+
+      {kind !== "referral" && !s.paypal && (
         <Row
           label="Payments go to"
           hint={

@@ -3,6 +3,7 @@ import { one, query } from "./db";
 import { newId, tokensMatch } from "./ids";
 import { DesignSpec } from "./design";
 import type { Referral } from "./channel3";
+import type { PayPalStatus } from "./paypal";
 import { Showcase, showcaseView } from "./showcase";
 
 export type Shop = {
@@ -13,6 +14,7 @@ export type Shop = {
   seller_email: string | null;
   paypal_email: string | null;
   paypal_merchant_id: string | null;
+  paypal_status: PayPalStatus | null;
   zapier_hook_url: string | null;
   description: string;
   product_type: "digital" | "physical" | "referral";
@@ -97,9 +99,20 @@ export async function updateShop(id: string, fields: Partial<Omit<Shop, "id">>) 
   const sets = keys.map((k, i) => `${k} = $${i + 2}`).join(", ");
   const values = keys.map((k) => {
     const v = (fields as Record<string, unknown>)[k];
-    return k === "spec" ? JSON.stringify(v) : v;
+    return (k === "spec" || k === "paypal_status") && v !== null ? JSON.stringify(v) : v;
   });
   await query(`UPDATE shops SET ${sets}, updated_at = now() WHERE id = $1`, [id, ...values]);
+}
+
+/** A shop's connected PayPal account; the seller's other shops that have none get it too. */
+export async function saveConnection(shop: Pick<Shop, "id" | "account_id">, merchantId: string, status: PayPalStatus) {
+  await updateShop(shop.id, { paypal_merchant_id: merchantId, paypal_status: status });
+  if (shop.account_id) {
+    await query(
+      "UPDATE shops SET paypal_merchant_id = $2, paypal_status = $3, updated_at = now() WHERE account_id = $1 AND paypal_merchant_id IS NULL",
+      [shop.account_id, merchantId, JSON.stringify(status)],
+    );
+  }
 }
 
 export async function saveBlob(data: Uint8Array, mime: string, filename?: string) {

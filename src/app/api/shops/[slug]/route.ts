@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { requireShop } from "@/lib/auth";
+import { paypalConnectEnabled, paypalReadyToPay } from "@/lib/paypal";
 import { updateShop } from "@/lib/shops";
 import { claimSlug, slugProblem, slugTaken, toSlug } from "@/lib/slugs";
 
@@ -47,6 +48,20 @@ export async function PATCH(req: Request, ctx: RouteContext<"/api/shops/[slug]">
     }
     if (delivery === "access_code" && !(s.access_url ?? shop.access_url)) {
       return NextResponse.json({ error: "Add the link where buyers use their access code before publishing." }, { status: 400 });
+    }
+  }
+  // Going live with PayPal checkout needs somewhere for the money to go: a connected PayPal
+  // account PayPal says can be paid, or (the fallback) a typed PayPal email.
+  if (s.status === "live" && kind !== "referral" && paypalConnectEnabled()) {
+    const email = s.paypal_email !== undefined ? s.paypal_email : shop.paypal_email;
+    if (!paypalReadyToPay(shop) && !email) {
+      const st = shop.paypal_status;
+      const error = !shop.paypal_merchant_id
+        ? "Connect PayPal (or enter a PayPal email) so your sales have somewhere to go."
+        : !st?.emailConfirmed
+          ? "Confirm your email at PayPal first, then Check again."
+          : "PayPal says your account can't receive payments yet. Finish setting it up at PayPal, then Check again.";
+      return NextResponse.json({ error, field: "paypal" }, { status: 400 });
     }
   }
   // Renaming the link: the old name keeps redirecting (shop_slugs).
