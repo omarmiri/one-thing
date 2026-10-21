@@ -28,6 +28,21 @@ info:
   license:
     name: MIT
     identifier: MIT
+  # APIMatic: names the SDK environments (Environment.Production / Environment.Local).
+  x-server-configuration:
+    default-environment: production
+    default-server: default
+    environments:
+      - name: production
+        description: Hackathon deployment (PayPal sandbox)
+        servers:
+          - name: default
+            url: https://one-thing-ash0.onrender.com
+      - name: local
+        description: Local development
+        servers:
+          - name: default
+            url: http://localhost:3000
 servers:
   - url: https://one-thing-ash0.onrender.com
     description: Hackathon deployment (PayPal sandbox)
