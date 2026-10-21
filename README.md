@@ -11,6 +11,7 @@ Built for the [PayPal AI Hackathon](https://paypalaihackathon.devpost.com/).
 |---|---|
 | **Live app** | [one-thing-ash0.onrender.com](https://one-thing-ash0.onrender.com) (PayPal sandbox) |
 | **Make a shop** | [one-thing-ash0.onrender.com/new](https://one-thing-ash0.onrender.com/new) |
+| **Gallery** | [one-thing-ash0.onrender.com/gallery](https://one-thing-ash0.onrender.com/gallery): every live shop, each in its own AI-chosen colours |
 | **Example shop** | [one-thing-ash0.onrender.com/raptorrush](https://one-thing-ash0.onrender.com/raptorrush): Raptor Rush, a browser game sold with access codes |
 | **API docs and SDKs** | [omarmiri.github.io/one-thing](https://omarmiri.github.io/one-thing/), generated with APIMatic, with working "Try it" calls |
 | **OpenAPI spec** | [one-thing-ash0.onrender.com/openapi.yaml](https://one-thing-ash0.onrender.com/openapi.yaml) |
@@ -73,6 +74,11 @@ the AI's guesses and clicks **Go live**. The choices behind it:
   redirect (as on mobile) are captured on the thank-you page.
 - **Thank-you page** with the download button, the access code and its **Start now** link, or the
   shipping confirmation.
+
+### Everyone
+
+- **Gallery** at `/gallery`: every live shop, newest first, each card in that shop's own palette. The
+  home page shows the three newest.
 
 ### Developers
 
