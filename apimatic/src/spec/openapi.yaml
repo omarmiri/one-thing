@@ -49,6 +49,8 @@ servers:
   - url: http://localhost:3000
     description: Local development
 tags:
+  - name: Accounts
+    description: Sign in as a seller with an email or a phone number. Shops made while signed in belong to the account.
   - name: Shops
     description: Create a shop and manage it as its seller.
   - name: Links
@@ -67,6 +69,65 @@ tags:
 security: []
 
 paths:
+  /api/account/signin:
+    post:
+      tags: [Accounts]
+      operationId: signIn
+      summary: Sign in or sign up
+      description: >-
+        Signs in with an email address or a phone number, creating the account the first time.
+        There's no password and no verification (sandbox). The response sets the `ot_session`
+        cookie; shops created with it belong to the account and are listed on `/account`.
+        Signing in with an email also claims older shops whose seller email matches. In a browser,
+        sellers can instead use Log in with PayPal (`/api/account/paypal`), which also records the
+        PayPal account their sales are paid into.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [identifier]
+              properties:
+                identifier:
+                  type: string
+                  description: An email address, or a phone number (spaces, dashes and brackets are ignored; keep a leading +).
+                  examples: ['maker@example.com', '+1 555 123 4567']
+      responses:
+        '200':
+          description: Signed in. The `ot_session` cookie is set.
+          headers:
+            Set-Cookie:
+              description: 'The session cookie: `ot_session=<token>`, HttpOnly, for a year.'
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [id, email, phone]
+                properties:
+                  id:
+                    type: string
+                  email:
+                    type: [string, 'null']
+                    description: Lower-cased.
+                  phone:
+                    type: [string, 'null']
+                    description: Digits, with a leading + if one was given.
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /api/account/signout:
+    post:
+      tags: [Accounts]
+      operationId: signOut
+      summary: Sign out
+      description: Ends this browser's session and clears the `ot_session` cookie.
+      responses:
+        '200':
+          $ref: '#/components/responses/Ok'
+
   /api/shops:
     post:
       tags: [Shops]
@@ -75,6 +136,9 @@ paths:
       description: |
         Starts a draft shop from one of three sources. Gemini designs the page and guesses the
         setup; check it with `getShop`, adjust with `updateShop`, then go live.
+
+        Sent with a session cookie from `signIn`, the shop belongs to that account, which also
+        becomes its seller email (and PayPal email, after Log in with PayPal) unless you give one.
 
         - `source=photo`: a `photo` and/or a `description` of your own product.
         - `source=link`: a `url`. If Channel3 recognises it as a store's product page, the shop
@@ -280,14 +344,12 @@ paths:
               required: [photo]
               properties:
                 photo:
-                  type: array
-                  items:
-                    type: string
-                    format: binary
-                  description: One or more images, up to 15 MB each. Repeat the field for several.
+                  type: string
+                  format: binary
+                  description: An image, up to 15 MB. The endpoint also accepts the field repeated, to add several in one request.
       responses:
         '200':
-          $ref: '#/components/responses/Photos'
+          $ref: '#/components/responses/ShopPhotos'
         '400':
           $ref: '#/components/responses/BadRequest'
         '404':
@@ -315,7 +377,7 @@ paths:
                   description: Photo ids, in order.
       responses:
         '200':
-          $ref: '#/components/responses/Photos'
+          $ref: '#/components/responses/ShopPhotos'
         '400':
           $ref: '#/components/responses/BadRequest'
         '404':
@@ -729,7 +791,7 @@ components:
         examples: [raptorrush]
 
   responses:
-    Photos:
+    ShopPhotos:
       description: The shop's photos, cover first.
       content:
         application/json:

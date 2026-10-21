@@ -71,7 +71,10 @@ export default async function Home() {
       )}
 
       <footer className="border-t border-line py-8 text-center text-sm text-muted">
-        Built for the PayPal AI Hackathon · Gemini + PayPal
+        Built for the PayPal AI Hackathon · Gemini + PayPal ·{" "}
+        <a href="https://omarmiri.github.io/one-thing/" className="underline hover:text-foreground">
+          API docs
+        </a>
       </footer>
     </main>
   );

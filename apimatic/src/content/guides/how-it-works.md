@@ -16,6 +16,20 @@ OneThing makes a one-product shop from a single input and takes payments with Pa
 Seller endpoints need the admin token in the `x-admin-token` header. Checkout, downloads and
 access-code checks are public.
 
+## Accounts
+
+`signIn` takes an email address or a phone number: the first time creates the account, after that
+it signs back in. Call `createShop` with the session cookie it sets and the shop belongs to that
+account, so sellers find all their shops at `/account` without keeping each shop's private link.
+On the website, sellers can also use **Log in with PayPal**, which records the PayPal account their
+sales are paid into and fills it in on their shops.
+
+## Photos
+
+A shop starts from one photo. `addPhotos` adds more (up to 8 in all) and `setPhotoOrder`
+reorders or removes them; the first is the cover. With several photos, the shop page shows a
+swipeable gallery, and buyers can open any photo full screen and page through the rest.
+
 ## Recommendations
 
 A shop made from a store's product page, or from `searchProducts`, is a **recommendation**:

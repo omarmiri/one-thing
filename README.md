@@ -14,6 +14,7 @@ seconds, goes live in one click, and a buyer paying by card completes checkout i
 |---|---|
 | **Live app** | [one-thing-ash0.onrender.com](https://one-thing-ash0.onrender.com) (PayPal sandbox) |
 | **Make a shop** | [one-thing-ash0.onrender.com/new](https://one-thing-ash0.onrender.com/new) |
+| **Your shops** | [one-thing-ash0.onrender.com/account](https://one-thing-ash0.onrender.com/account): sign in with an email, a phone number or PayPal |
 | **Gallery** | [one-thing-ash0.onrender.com/gallery](https://one-thing-ash0.onrender.com/gallery): every live shop, each in its own AI-chosen colours |
 | **Example shop** | [one-thing-ash0.onrender.com/raptorrush](https://one-thing-ash0.onrender.com/raptorrush): Raptor Rush, a browser game sold with access codes |
 | **API docs and SDKs** | [omarmiri.github.io/one-thing](https://omarmiri.github.io/one-thing/), generated with APIMatic, with working "Try it" calls |
@@ -50,6 +51,11 @@ the AI's guesses and clicks **Go live**. The choices behind it:
   palette readable. Re-theming only changes JSON.
 - **Money goes straight to sellers.** Each PayPal order's `payee` is the seller's account, so
   OneThing never holds funds.
+- **Motion that explains, not decorates.** In the spirit of Famo.us, every element on a shop page
+  is a body on a spring, so the page responds to the buyer like a physical thing. It's kept quiet:
+  sections settle into place once, the product stays in view while its features arrive, and photos
+  open full screen from where they sit. Nothing loops or bounces, it switches off for anyone who
+  asks for reduced motion, and the content is plain HTML underneath.
 - **No product? Recommend one.** Through Channel3, a creator can turn a product they love into a
   recommendation page and earn a referral commission, with a clear disclosure on the page.
 
@@ -57,6 +63,9 @@ the AI's guesses and clicks **Go live**. The choices behind it:
 
 ### Sellers
 
+- **An account in one field.** Sign in with an email or a phone number (no password), or with
+  **Log in with PayPal**, which also sets the PayPal account sales are paid into. **Your shops**
+  (`/account`) lists every shop with its manage page.
 - **Three ways to start** at `/new`:
   - **Upload a photo** of your own product, with a sentence or two if you like.
   - **Paste a link.** A store product found by Channel3 becomes a recommendation; any other page
@@ -65,12 +74,18 @@ the AI's guesses and clicks **Go live**. The choices behind it:
 - **AI guesses everything** in one pass: product name, physical or digital, price, a short link
   name, and the page design (one of 4 layouts, a palette taken from the photo, a curated font
   pair, headline, story, bullets, details and FAQ).
+- **More photos while refining.** A shop starts from one snapshot; the manage page's Photos panel
+  adds up to 8 (camera or library), reorders them and picks the cover. Uploads are turned upright,
+  resized and stored as WebP.
+- **A playable teaser for games.** Paste a game's page and OneThing measures its sprite sheets
+  (or reads the grid the page declares), Gemini picks the hero, enemies and backdrop and writes the
+  copy, and the shop page gets a short canvas game in the game's own art.
 - **Hero art** made in the background by a Gemini image model. If the configured model isn't on
   the key, OneThing finds one that is, and records why if none works.
 - **Chat to redesign** ("make it warmer", "shorter copy") with a live preview.
 - **Short links the seller picks**, like `/raptorrush`, with a live availability check. Renamed
   shops keep their old links working (308 redirects).
-- **A private manage page** (link with an admin token): settings, publish, and an
+- **A manage page** (open from Your shops, or by its private link): settings, publish, photos, and an
   [AG Grid](https://www.ag-grid.com/) orders table with sort, filter, search and **Mark shipped**.
 - **Physical products:** PayPal collects the shipping address, stock counts down and shows "sold
   out" at zero, and tracking numbers are pushed to PayPal so buyers see them there.
@@ -85,6 +100,15 @@ the AI's guesses and clicks **Go live**. The choices behind it:
 
 ### Buyers
 
+- **A page that moves like an object**, on springs: sections rise into place as they scroll in,
+  and the product photo has a little depth and turns toward the pointer.
+- **A feature story:** the product stays pinned while the story and each feature arrive in turn,
+  each bringing the next photo and a closer look. White studio shots melt into the card colour.
+- **A swipeable gallery** when there are several photos: it follows the finger, a flick carries it
+  one photo on, and it resists past the ends.
+- **Inspect:** tap a photo and it grows from its place to fill the screen. Swipe through the
+  photos, double-tap to zoom, and swipe down or press Esc to put it back where it was.
+- **A sticky buy bar** with the PayPal button, once the top one has scrolled away.
 - **PayPal checkout** with the JS SDK v6 buttons. The price always comes from the database, never
   the browser.
 - **Pay with a PayPal account or as a guest by card.** While PayPal's window is open, the page
@@ -116,8 +140,9 @@ the AI's guesses and clicks **Go live**. The choices behind it:
 1. In the [PayPal developer dashboard](https://developer.paypal.com/dashboard/accounts), under
    Sandbox → Accounts, note a **business** account email (the seller) and a **personal** account
    (the buyer).
-2. Create a shop at [/new](https://one-thing-ash0.onrender.com/new) and enter the business email as
-   "Your PayPal email". Go live.
+2. Create a shop at [/new](https://one-thing-ash0.onrender.com/new): sign in with an email or phone
+   number first, then enter the business email as "Your PayPal email" on the manage page. (Or
+   **Log in with PayPal** with the business account, which fills it in.) Go live.
 3. Open the shop link and pay with the personal sandbox account, or choose **Pay with Debit or
    Credit Card** and use a test card from the dashboard's **Testing tools → Credit card
    generator** (real cards are refused in sandbox). You land on the thank-you page, and the order
@@ -127,7 +152,8 @@ the AI's guesses and clicks **Go live**. The choices behind it:
 ## How it works
 
 ```
-Seller ── /new ──► POST /api/shops ──► Gemini (vision + structured output) ──► design spec (JSON)
+Seller ── /account ── email or phone, or Log in with PayPal ──► session cookie
+       ── /new ──► POST /api/shops ──► Gemini (vision + structured output) ──► design spec (JSON)
           (photo │ link │ Channel3 pick)  └► after(): Gemini image model ──► hero art
           /manage/[slug] ── chat "make it warmer" ──► POST /refine ──► Gemini edits the spec
 Buyer  ── /<slug> ── GET /api/paypal/client-token → <paypal-button> (JS SDK v6), or a QR code to pay on a phone
@@ -145,6 +171,13 @@ Seller's app ──► POST /api/access/verify          → is this buyer's code
 - **Mark-paid is idempotent** ([src/lib/orders.ts](src/lib/orders.ts)). The capture call and the
   webhook can arrive in either order, and stock, download links, access codes and Zapier still fire
   exactly once. Capture request ids are unique per attempt, so a retry after a decline isn't replayed.
+- **Motion layer** ([src/components/motion/](src/components/motion/)): CSS lays the page out and
+  springs move each `data-surface` element to and from its resting place. The feature story,
+  Inspect and the sticky bar share one spring model; `?motion=0` shows the plain page, and
+  `/lab/<shop>` compares it with the calm and crisp feels.
+- **Accounts** ([src/lib/accounts.ts](src/lib/accounts.ts)): an email or phone number, or a PayPal
+  identity, and a session cookie. Shops made while signed in belong to the account; older shops
+  join it when their seller email matches or their private link is opened while signed in.
 - **Channel3** ([src/lib/channel3.ts](src/lib/channel3.ts)): every request carries the shop's id as
   `x-user-id`, so Channel3 credits clicks and commissions on its buy links to that shop.
 
@@ -166,6 +199,7 @@ full experience:
 |---|---|---|
 | `GEMINI_API_KEY` | [Google AI Studio](https://aistudio.google.com/apikey) | AI guesses, design, copy, hero art, chat edits. `npm run gemini:models` lists the models your key can use |
 | `PAYPAL_CLIENT_ID`, `PAYPAL_CLIENT_SECRET` | [PayPal developer dashboard](https://developer.paypal.com/dashboard/applications/sandbox) → Sandbox app | Checkout |
+| `PAYPAL_LOGIN=on` | Same app → **Log In with PayPal**: Return URL `<APP_URL>/api/account/paypal/callback`, request email, verification status and payer ID | **Log in with PayPal** (off until set, so the button never leads to a misconfigured app) |
 | `PAYPAL_WEBHOOK_ID` | Same app → Webhooks → `<APP_URL>/api/paypal/webhook`, event `PAYMENT.CAPTURE.COMPLETED` | Confirms payments if the buyer closes the tab mid-checkout (needs a public URL) |
 | `CHANNEL3_API_KEY` | [Channel3 developers](https://trychannel3.com/developers) | "Find a product", store-link lookup and recommendation shops |
 
@@ -179,7 +213,7 @@ service URL.
 
 | Tool | How it's used |
 |---|---|
-| **PayPal** JS SDK v6, Orders v2 (create/capture, payee routing, shipping preference), order tracking API, webhooks | All checkout and payment handling |
+| **PayPal** JS SDK v6, Orders v2 (create/capture, payee routing, shipping preference), order tracking API, webhooks, Log in with PayPal (OpenID Connect) | All checkout and payment handling, and seller sign-in that sets where sales are paid |
 | **Google Gemini** (`@google/genai`) | Reads the photo or page; guesses the product, delivery, price and link; generates the structured design spec and copy; edits it from chat; an image model makes the hero art |
 | **Channel3** | Product search, store-link lookup, and recommendation shops that earn through Channel3's tracked buy links |
 | **Render** | Hosting and Postgres via `render.yaml` |
@@ -198,7 +232,9 @@ Planned, not built yet (details in [PLAN.md](PLAN.md)):
 - **Earnings and PayPal Payouts**, so recommendation sellers get their share of Channel3 commissions.
 - **Subscriptions**, such as a monthly pass that keeps an access code valid.
 - **An agent endpoint per shop**, so AI shopping agents can find a product and pay through PayPal.
-- **Connect PayPal** onboarding (Partner Referrals) instead of typing a PayPal email.
+- **Connect PayPal** onboarding (Partner Referrals), so orders go to an onboarded merchant id and
+  OneThing can take a platform fee. Log in with PayPal already fills in the payout email.
+- **A one-time code** (email link or SMS) for email and phone sign-in, before real money depends on it.
 
 ## License
 
