@@ -2,13 +2,22 @@ import "server-only";
 import { cookies } from "next/headers";
 import { one, query } from "./db";
 import { newId } from "./ids";
+import type { PayPalIdentity } from "./paypal";
 
 // Seller accounts, as simple as they can be: type an email or a phone number and you're in.
 // The first time creates the account; after that it signs you back in. There's no password and
 // no verification yet, so anyone who knows an identifier can use that account. Fine for the
 // sandbox; add a one-time code (email link or SMS) before real money depends on it.
 
-export type Account = { id: string; email: string | null; phone: string | null; created_at: string };
+export type Account = {
+  id: string;
+  email: string | null;
+  phone: string | null;
+  paypal_user_id: string | null;
+  paypal_email: string | null; // where sales are paid: filled in by Log in with PayPal
+  paypal_payer_id: string | null;
+  created_at: string;
+};
 
 const COOKIE = "ot_session";
 const YEAR = 60 * 60 * 24 * 365;
@@ -32,9 +41,43 @@ export async function signIn(id: { email: string } | { phone: string }): Promise
   // Insert-or-select in one statement, so two tabs signing up at once get the same account.
   await query(`INSERT INTO accounts (id, ${col}) VALUES ($1, $2) ON CONFLICT (${col}) DO NOTHING`, [newId(9), value]);
   const account = (await one<Account>(`SELECT * FROM accounts WHERE ${col} = $1`, [value]))!;
-  // Shops made before accounts, whose seller gave this email, join the account.
+  await claimShops(account);
+  return account;
+}
+
+/** Shops made before accounts, whose seller gave this email, join the account. */
+async function claimShops(account: Account) {
   if (account.email) {
     await query("UPDATE shops SET account_id = $1 WHERE account_id IS NULL AND lower(seller_email) = $2", [account.id, account.email]);
+  }
+}
+
+/**
+ * Log in with PayPal. The account is the one this PayPal account signed into before; else the
+ * signed-in one (connecting PayPal from Your shops); else the one with the same email; else new.
+ * Its PayPal email becomes where sales are paid, on every shop that doesn't have one yet.
+ */
+export async function signInWithPayPal(pp: PayPalIdentity, signedIn: Account | null): Promise<Account> {
+  let account =
+    (await one<Account>("SELECT * FROM accounts WHERE paypal_user_id = $1", [pp.userId])) ??
+    signedIn ??
+    (pp.email ? await one<Account>("SELECT * FROM accounts WHERE email = $1", [pp.email]) : null);
+  if (!account) {
+    const id = newId(9);
+    // A PayPal email someone already typed belongs to that account (the lookup above); new otherwise.
+    await query("INSERT INTO accounts (id, email) VALUES ($1, $2)", [id, pp.email]);
+    account = (await one<Account>("SELECT * FROM accounts WHERE id = $1", [id]))!;
+  }
+  await query(
+    `UPDATE accounts SET paypal_user_id = $2, paypal_email = COALESCE($3, paypal_email), paypal_payer_id = COALESCE($4, paypal_payer_id),
+       email = COALESCE(email, (SELECT $3::text WHERE NOT EXISTS (SELECT 1 FROM accounts WHERE email = $3)))
+     WHERE id = $1`,
+    [account.id, pp.userId, pp.email, pp.payerId],
+  );
+  account = (await one<Account>("SELECT * FROM accounts WHERE id = $1", [account.id]))!;
+  await claimShops(account);
+  if (account.paypal_email) {
+    await query("UPDATE shops SET paypal_email = $2 WHERE account_id = $1 AND paypal_email IS NULL", [account.id, account.paypal_email]);
   }
   return account;
 }

@@ -156,7 +156,7 @@ export async function POST(req: Request) {
        access_url, referral, source_url, showcase, showcase_blobs, account_id)
      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23)`,
     [
-      id, slug, adminToken, str(form, "seller_email") ?? account?.email ?? null, str(form, "paypal_email"), description, productType, price,
+      id, slug, adminToken, str(form, "seller_email") ?? account?.email ?? null, str(form, "paypal_email") ?? account?.paypal_email ?? null, description, productType, price,
       productType === "physical" ? (cents(str(form, "shipping")) ?? Math.round(spec.suggestedShippingUsd * 100)) : 0,
       productType === "physical" ? (str(form, "ship_countries")?.toUpperCase() ?? "US") : null,
       productType === "physical" && stock && Number.isInteger(Number(stock)) ? Number(stock) : null,

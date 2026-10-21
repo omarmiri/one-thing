@@ -1,23 +1,35 @@
 import Link from "next/link";
 import { accountLabel, currentAccount } from "@/lib/accounts";
 import { blobUrl, listAccountShops, money, shopPhotos } from "@/lib/shops";
-import { SignInForm } from "@/components/SignInForm";
+import { PayPalLoginButton, SignInForm } from "@/components/SignInForm";
+import { paypalEnabled } from "@/lib/paypal";
 import { SignOutButton } from "./SignOutButton";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Your shops · OneThing", robots: { index: false } };
 
-export default async function AccountPage() {
+const PAYPAL_PROBLEMS: Record<string, string> = {
+  cancelled: "PayPal sign-in was cancelled.",
+  expired: "That PayPal sign-in took too long or was started elsewhere. Try again.",
+  failed: "PayPal couldn't sign you in just now. Try again, or use your email.",
+};
+
+export default async function AccountPage(props: PageProps<"/account">) {
   const account = await currentAccount();
+  const problem = PAYPAL_PROBLEMS[String((await props.searchParams).paypal ?? "")];
+  const notice = problem && (
+    <p role="alert" className="mt-6 rounded-xl bg-amber-100 px-4 py-3 text-sm text-amber-950">{problem}</p>
+  );
 
   if (!account) {
     return (
       <main className="mx-auto w-full max-w-md px-4 py-10 sm:py-16">
         <Link href="/" className="text-sm font-semibold tracking-tight">OneThing</Link>
         <h1 className="mt-6 text-3xl font-bold tracking-tight">Your shops</h1>
-        <p className="mt-2 text-muted">Sign in with the email or phone number you made them with.</p>
+        <p className="mt-2 text-muted">Sign in with PayPal, or the email or phone number you made them with.</p>
+        {notice}
         <div className="mt-8">
-          <SignInForm cta="Sign in" />
+          <SignInForm cta="Sign in" paypal={paypalEnabled()} />
         </div>
       </main>
     );
@@ -31,6 +43,21 @@ export default async function AccountPage() {
         <span className="ml-auto truncate text-sm text-muted">{accountLabel(account)}</span>
         <SignOutButton />
       </header>
+      {notice}
+      {account.paypal_email ? (
+        <p className="mt-6 text-sm text-muted">
+          Sales are paid to your PayPal account <strong className="text-foreground">{account.paypal_email}</strong>.
+        </p>
+      ) : (
+        paypalEnabled() && (
+          <div className="mt-6 flex flex-wrap items-center gap-4 rounded-2xl border border-line bg-white p-4">
+            <p className="flex-1 text-sm">Connect PayPal so your shops know where to pay you.</p>
+            <div className="w-full sm:w-64">
+              <PayPalLoginButton next="/account" label="Connect PayPal" />
+            </div>
+          </div>
+        )
+      )}
       <div className="mt-8 flex items-end justify-between gap-4">
         <h1 className="text-3xl font-bold tracking-tight">Your shops</h1>
         <Link href="/new" className="rounded-full bg-foreground px-4 py-2 text-sm font-semibold text-background">

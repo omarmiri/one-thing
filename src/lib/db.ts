@@ -98,6 +98,10 @@ CREATE TABLE IF NOT EXISTS accounts (
   phone       text UNIQUE,
   created_at  timestamptz NOT NULL DEFAULT now()
 );
+-- Log in with PayPal: the PayPal account behind an account, and the email sales are paid into.
+ALTER TABLE accounts ADD COLUMN IF NOT EXISTS paypal_user_id text UNIQUE;
+ALTER TABLE accounts ADD COLUMN IF NOT EXISTS paypal_email text;
+ALTER TABLE accounts ADD COLUMN IF NOT EXISTS paypal_payer_id text;
 -- A signed-in browser: the cookie holds the token.
 CREATE TABLE IF NOT EXISTS sessions (
   token       text PRIMARY KEY,

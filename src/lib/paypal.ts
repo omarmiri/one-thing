@@ -188,3 +188,76 @@ export const sdkUrl = () =>
   process.env.PAYPAL_ENV === "live"
     ? "https://www.paypal.com/web-sdk/v6/core"
     : "https://www.sandbox.paypal.com/web-sdk/v6/core";
+
+// ---- Log in with PayPal (OpenID Connect) ---------------------------------------------------
+// Sellers can sign in with their PayPal account: PayPal vouches for the email, and it's the
+// account their sales should be paid into. Needs "Log in with PayPal" ticked on the app in the
+// developer dashboard, with <APP_URL>/api/account/paypal/callback as a Return URL.
+
+const CONNECT =
+  process.env.PAYPAL_ENV === "live" ? "https://www.paypal.com/connect" : "https://www.sandbox.paypal.com/connect";
+
+export const paypalLoginReturnUrl = () => `${appUrl()}/api/account/paypal/callback`;
+
+export function paypalLoginUrl(state: string): string {
+  const q = new URLSearchParams({
+    flowEntry: "static",
+    client_id: process.env.PAYPAL_CLIENT_ID ?? "",
+    response_type: "code",
+    // email: who they are; paypalattributes: payer id and whether the account is verified.
+    scope: "openid email https://uri.paypal.com/services/paypalattributes",
+    redirect_uri: paypalLoginReturnUrl(),
+    state,
+    fullPage: "true",
+  });
+  return `${CONNECT}?${q.toString().replace(/\+/g, "%20")}`;
+}
+
+export type PayPalIdentity = { userId: string; email: string | null; emailVerified: boolean; payerId: string | null; verifiedAccount: boolean };
+
+/** Trades the code PayPal sent back for the person's identity. */
+export async function paypalIdentity(code: string): Promise<PayPalIdentity> {
+  const basic = Buffer.from(`${process.env.PAYPAL_CLIENT_ID}:${process.env.PAYPAL_CLIENT_SECRET}`).toString("base64");
+  const res = await fetch(`${API}/v1/oauth2/token`, {
+    method: "POST",
+    headers: { authorization: `Basic ${basic}`, "content-type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({ grant_type: "authorization_code", code }),
+  });
+  if (!res.ok) throw new PayPalError("login token", res.status, await res.text());
+  const { access_token } = (await res.json()) as { access_token: string };
+
+  // PayPal documents two paths for user info; try the one their integration guide uses first.
+  type Info = {
+    user_id?: string;
+    sub?: string;
+    payer_id?: string;
+    email?: string;
+    email_verified?: boolean;
+    emails?: { value: string; primary?: boolean; confirmed?: boolean }[];
+    verified_account?: boolean | string;
+  };
+  let info: Info | null = null;
+  let last = "";
+  for (const path of ["/v1/identity/oauth2/userinfo?schema=paypalv1.1", "/v1/identity/openidconnect/userinfo?schema=openid"]) {
+    const r = await fetch(`${API}${path}`, { headers: { authorization: `Bearer ${access_token}` } });
+    if (r.ok) {
+      info = (await r.json()) as Info;
+      break;
+    }
+    last = `${r.status} ${await r.text()}`;
+  }
+  if (!info) throw new PayPalError("login userinfo", 502, last);
+
+  // The two schemas shape email differently: a flat field, or a list with a primary one.
+  const listed = info.emails?.find((e) => e.primary) ?? info.emails?.[0];
+  const email = (info.email ?? listed?.value ?? null)?.toLowerCase() ?? null;
+  const userId = info.user_id ?? info.sub;
+  if (!userId) throw new PayPalError("login userinfo", 502, "no user id in user info");
+  return {
+    userId,
+    email,
+    emailVerified: Boolean(info.email_verified ?? listed?.confirmed),
+    payerId: info.payer_id ?? null,
+    verifiedAccount: info.verified_account === true || info.verified_account === "true",
+  };
+}
