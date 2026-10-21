@@ -34,7 +34,8 @@ export default async function Thanks(props: PageProps<"/[slug]/thanks">) {
         </p>
         <h1 className="mt-3 text-3xl font-bold">{paid ? "Thank you!" : "We're confirming your payment"}</h1>
         <p className="mt-3" style={{ color: p.muted }}>
-          {shop.spec.productName} · {money(order.amount_cents, order.currency)}
+          {shop.spec.productName}
+          {order.options && ` (${Object.values(order.options).join(" / ")})`} · {money(order.amount_cents, order.currency)}
         </p>
 
         {paid && order.download_token && (

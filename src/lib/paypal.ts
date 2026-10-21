@@ -81,7 +81,7 @@ const value = (cents: number) => (cents / 100).toFixed(2);
  * says it can be paid, else the PayPal email they typed, else a connected account that isn't
  * ready yet, else (unset) the platform's own sandbox account.
  */
-export function createOrder(shop: Shop, localOrderId: string) {
+export function createOrder(shop: Shop, localOrderId: string, choiceLabel?: string) {
   const physical = shop.product_type === "physical";
   const shipping = physical ? shop.shipping_cents : 0;
   const payee =
@@ -100,7 +100,7 @@ export function createOrder(shop: Shop, localOrderId: string) {
         {
           reference_id: shop.slug,
           custom_id: localOrderId,
-          description: shop.spec.productName.slice(0, 127),
+          description: (choiceLabel ? `${shop.spec.productName} (${choiceLabel})` : shop.spec.productName).slice(0, 127),
           ...(payee && { payee }),
           amount: {
             currency_code: shop.currency,
@@ -112,7 +112,8 @@ export function createOrder(shop: Shop, localOrderId: string) {
           },
           items: [
             {
-              name: shop.spec.productName.slice(0, 127),
+              // The buyer's size/color shows in PayPal's review page and receipt.
+              name: (choiceLabel ? `${shop.spec.productName} (${choiceLabel})` : shop.spec.productName).slice(0, 127),
               quantity: "1",
               unit_amount: { currency_code: shop.currency, value: value(shop.price_cents) },
               category: physical ? "PHYSICAL_GOODS" : "DIGITAL_GOODS",
@@ -154,6 +155,10 @@ export const captureOrder = (paypalOrderId: string) =>
     // retries the same order with another card. PayPal itself refuses to capture an order twice.
     requestId: `capture-${paypalOrderId}-${Date.now().toString(36)}`,
   });
+
+/** Where an order stands at PayPal: CREATED, APPROVED, COMPLETED, VOIDED… */
+export const orderStatus = (paypalOrderId: string) =>
+  call<{ status: string }>("get order", `/v2/checkout/orders/${encodeURIComponent(paypalOrderId)}`, { method: "GET" }).then((o) => o.status);
 
 export const CARRIERS = ["USPS", "UPS", "FEDEX", "DHL", "OTHER"] as const;
 

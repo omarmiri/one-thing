@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import type { PayPalStatus } from "@/lib/paypal";
+import type { OptionStock, ShopOption, Suggestions } from "@/lib/options";
+import { activeOptions, BuyerQuestions, initialOptions, OptionsEditor } from "./OptionsPanel";
 
 // Onboarding, step 2: the AI's guesses, laid out to check and change. The same panel stays as
 // the shop's settings after it goes live.
@@ -23,10 +25,13 @@ export type SetupInitial = {
   sellerEmail: string | null;
   zapierHookUrl: string | null;
   inGallery: boolean;
+  options: ShopOption[];
+  optionStock: OptionStock;
+  suggestions: Suggestions | null;
   referral: { offers: { domain: string; price: number; currency: string; commission: number }[] } | null;
 };
 
-type Api = (path: string, init?: RequestInit) => Promise<{ slug?: string; filename?: string; url?: string; merchantId?: string | null; status?: PayPalStatus | null }>;
+type Api = (path: string, init?: RequestInit) => Promise<{ slug?: string; filename?: string; url?: string; merchantId?: string | null; status?: PayPalStatus | null } & Partial<Suggestions>>;
 
 const input = "w-full rounded-lg border border-line bg-white px-3 py-2 text-sm outline-none focus:border-accent";
 const money = (n: number, c = "USD") => new Intl.NumberFormat("en-US", { style: "currency", currency: c }).format(n);
@@ -200,6 +205,22 @@ export function SetupPanel(props: {
   const [delivery, setDelivery] = useState(s.delivery);
   const [hasFile, setHasFile] = useState(s.hasDigitalFile);
   const [busy, setBusy] = useState<false | "save" | "live">(false);
+  const [suggestions, setSuggestions] = useState(s.suggestions);
+  const [opts, setOpts] = useState(() => initialOptions(s.options, s.suggestions));
+  const [optStock, setOptStock] = useState<OptionStock>(s.optionStock);
+  const [answers, setAnswers] = useState<Record<string, string>>({});
+  const hasOptions = kind === "physical" && activeOptions(opts).length > 0;
+
+  async function checkDetails() {
+    try {
+      const r = (await props.api("/suggest", { method: "POST" })) as Suggestions;
+      setSuggestions(r);
+      // Fresh option ideas show up unticked next to what's already set.
+      setOpts((cur) => [...cur, ...initialOptions([], r).filter((o) => !cur.some((c) => c.name.toLowerCase() === o.name.toLowerCase())).map((o) => ({ ...o, enabled: false }))]);
+    } catch (err) {
+      props.onToast((err as Error).message);
+    }
+  }
 
   // Live availability check for the link name.
   useEffect(() => {
@@ -245,7 +266,7 @@ export function SetupPanel(props: {
           ...(kind !== "referral" && { price: Number(val("price")) }),
           ...(kind === "physical" && {
             shipping: Number(val("shipping") ?? 0),
-            stock: val("stock") === null ? null : Number(val("stock")),
+            ...(!hasOptions && { stock: val("stock") === null ? null : Number(val("stock")) }),
             ship_countries: val("ship_countries"),
           }),
           ...(kind === "digital" && { delivery, ...(delivery === "access_code" && { access_url: val("access_url") }) }),
@@ -253,9 +274,17 @@ export function SetupPanel(props: {
           seller_email: val("seller_email"),
           zapier_hook_url: val("zapier_hook_url"),
           in_gallery: f.get("in_gallery") === "on",
+          options: kind === "physical" ? activeOptions(opts) : [],
+          option_stock: optStock,
+          facts: Object.entries(answers)
+            .map(([label, value]) => ({ label, value: value.trim() }))
+            .filter((a) => a.value),
           ...(goLive && { status: "live" }),
         }),
       });
+      // Answered questions are now product details.
+      if (suggestions) setSuggestions({ ...suggestions, missingFacts: suggestions.missingFacts.filter((m) => !answers[m.label]?.trim()) });
+      setAnswers({});
       props.onSaved({ slug: r.slug ?? slug, live: goLive });
     } catch (err) {
       props.onToast((err as Error).message);
@@ -344,7 +373,7 @@ export function SetupPanel(props: {
               <input name="shipping" type="number" step="0.01" min="0" defaultValue={s.shipping} className={input} />
             </Row>
           )}
-          {kind === "physical" && (
+          {kind === "physical" && !hasOptions && (
             <Row label="In stock">
               <input name="stock" type="number" min="0" step="1" defaultValue={s.stock ?? ""} placeholder="Unlimited" className={input} />
             </Row>
@@ -355,6 +384,18 @@ export function SetupPanel(props: {
             </Row>
           )}
         </div>
+      )}
+
+      {kind === "physical" && (
+        <Row label="Buyer options" group hint={opts.length ? undefined : "Sizes, colours or other choices buyers pick. Add one if your product comes in variants."}>
+          <OptionsEditor options={opts} onOptions={setOpts} stock={optStock} onStock={setOptStock} />
+        </Row>
+      )}
+
+      {kind !== "referral" && (
+        <Row label="Buyers will ask" group>
+          <BuyerQuestions suggestions={suggestions} answers={answers} onAnswer={(l, v) => setAnswers((a) => ({ ...a, [l]: v }))} onCheck={checkDetails} />
+        </Row>
       )}
 
       {kind !== "referral" && s.paypal && (

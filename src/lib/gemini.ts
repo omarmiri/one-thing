@@ -1,6 +1,7 @@
 import "server-only";
 import { GoogleGenAI, ThinkingLevel } from "@google/genai";
 import { DesignSpec, designJsonSchema, ensureReadable, fallbackSpec, Generated, LAYOUTS } from "./design";
+import { ShopOption, type Suggestions } from "./options";
 import { Direction } from "./showcase";
 
 // Model ids differ by key and change over time — `npm run gemini:models` lists yours.
@@ -202,6 +203,97 @@ export async function designShop(input: DesignInput): Promise<{ spec: Generated;
     return { spec: await generateDesign(parts.filter((p) => !("inlineData" in p))), source: "gemini" };
   }
 }
+
+// ---- Buyer options and missing facts -----------------------------------------------------------
+
+const OPTIONS_BRIEF = `You help a seller finish a one-product shop listing. Be conservative: the seller confirms everything.
+1. oneOfAKind: true when the listing is one specific physical item: vintage, antique, secondhand, handmade one-off,
+   "a pair", "this piece", or stock of 1. A one-of-a-kind item has NO buyer options: its size or color is a fixed
+   fact, so if that fact is missing, ask for it in missingFacts ("What size is this pair?").
+2. options: only for physical things genuinely made or stocked in variants. Set fromSeller true only for options
+   the seller actually named; options you propose yourself get fromSeller false (shown unticked). Never propose
+   options for digital goods or art unless the seller implies them. At most 3 options, 12 values each.
+   Every color value needs a hex: sample it from the photo where the color appears, else the usual hex for that
+   color name (e.g. oatmeal #d8cbb3).
+3. missingFacts: at most 3 things buyers or shopping agents need that the listing doesn't state. Skip anything
+   already answered anywhere in the listing (details, FAQ, delivery). Don't ask about options you listed.
+   label is the short detail name it will be shown under (e.g. "Size", "Dimensions", "Platform").`;
+
+const SUGGESTIONS_SCHEMA = {
+  type: "object",
+  properties: {
+    oneOfAKind: { type: "boolean" },
+    options: {
+      type: "array",
+      items: {
+        type: "object",
+        properties: {
+          name: { type: "string" },
+          kind: { type: "string", enum: ["size", "color", "other"] },
+          fromSeller: { type: "boolean" },
+          values: {
+            type: "array",
+            items: { type: "object", properties: { label: { type: "string" }, hex: { type: "string" } }, required: ["label"] },
+          },
+        },
+        required: ["name", "kind", "fromSeller", "values"],
+      },
+    },
+    missingFacts: {
+      type: "array",
+      items: {
+        type: "object",
+        properties: { label: { type: "string" }, question: { type: "string" }, placeholder: { type: "string" } },
+        required: ["label", "question", "placeholder"],
+      },
+    },
+  },
+  required: ["oneOfAKind", "options", "missingFacts"],
+};
+
+/**
+ * Which options a buyer should choose from (sizes, colors with swatches) and which facts buyers will
+ * ask that the listing doesn't state. listing is what we know: the seller's words, page text, or a
+ * finished spec. Returns null on any failure: suggestions never hold up a shop.
+ */
+export async function suggestOptions(listing: string, photo?: Photo): Promise<Suggestions | null> {
+  if (!geminiEnabled()) return null;
+  try {
+    const parts: object[] = [{ text: OPTIONS_BRIEF }, { text: `Listing:\n"""${listing.slice(0, 6000)}"""` }];
+    if (photo) parts.push(inline(photo));
+    const t0 = Date.now();
+    const res = await generate(parts, { responseMimeType: "application/json", responseJsonSchema: SUGGESTIONS_SCHEMA, temperature: 0.4 });
+    const raw = JSON.parse(res.text ?? "") as Suggestions;
+    console.info(`gemini options: ${res.modelVersion ?? TEXT_MODEL} in ${((Date.now() - t0) / 1000).toFixed(1)}s`);
+    // Keep only well-formed options; a bad hex just loses its swatch.
+    const options = (raw.options ?? []).slice(0, 3).flatMap((o) => {
+      const values = (o.values ?? []).slice(0, 12).map((v) => ({ label: v.label, ...(v.hex && /^#[0-9a-f]{6}$/i.test(v.hex) && { hex: v.hex }) }));
+      const ok = ShopOption.safeParse({ name: o.name, kind: o.kind, values });
+      return ok.success ? [{ ...ok.data, fromSeller: Boolean(o.fromSeller) }] : [];
+    });
+    const missingFacts = (raw.missingFacts ?? []).slice(0, 3).map((f) => ({
+      label: String(f.label).slice(0, 30),
+      question: String(f.question).slice(0, 160),
+      placeholder: String(f.placeholder ?? "").slice(0, 100),
+    }));
+    return { oneOfAKind: Boolean(raw.oneOfAKind), options: raw.oneOfAKind ? [] : options, missingFacts };
+  } catch (err) {
+    console.warn("gemini options failed:", (err as Error).message);
+    return null;
+  }
+}
+
+/** A finished spec as plain listing text, for suggestOptions on an existing shop. */
+export const listingText = (spec: DesignSpec, extra: string[] = []) =>
+  [
+    `Name: ${spec.productName}`,
+    `Kind: ${spec.productType}`,
+    `${spec.subheadline} ${spec.story}`,
+    `Highlights: ${spec.bullets.join("; ")}`,
+    `Details: ${spec.details.map((d) => `${d.label}: ${d.value}`).join("; ")}`,
+    `FAQ: ${spec.faq.map((f) => `${f.q} ${f.a}`).join(" | ")}`,
+    ...extra,
+  ].join("\n");
 
 /** "Make it warmer" → the same spec with that change applied. */
 export async function refineShop(spec: DesignSpec, instruction: string): Promise<DesignSpec> {

@@ -32,9 +32,13 @@ const TOOLS = {
   create_order: {
     description:
       "Order one unit with PayPal. Returns order_id and approve_url. The buyer approves the payment at approve_url " +
-      "(PayPal or card; PayPal asks for a shipping address for physical items). Nothing is charged until they do.",
-    input: z.object({ shop: slug }),
-    run: async (a: { shop: string }) => agentCreateOrder(a.shop),
+      "(PayPal or card; PayPal asks for a shipping address for physical items). Nothing is charged until they do. " +
+      "If get_product lists options, pass the buyer's pick for each, e.g. {\"Size\": \"M\", \"Color\": \"Black\"}.",
+    input: z.object({
+      shop: slug,
+      options: z.record(z.string().max(20), z.string().max(30)).optional().describe("One value per option from get_product, keyed by option name"),
+    }),
+    run: async (a: { shop: string; options?: Record<string, string> }) => agentCreateOrder(a.shop, a.options),
   },
   get_order: {
     description: "Status of an order from create_order: awaiting_buyer_approval or paid, with the receipt link once paid.",

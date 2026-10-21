@@ -1,7 +1,8 @@
 import "server-only";
 import { one } from "./db";
 import { appUrl } from "./ids";
-import { captureIfApproved, startCheckout } from "./orders";
+import { allSoldOut, comboKey, combos, stockOf } from "./options";
+import { captureIfApproved, CheckoutError, startCheckout } from "./orders";
 import { PayPalError, paypalEnabled } from "./paypal";
 import { blobUrl, getOrder, getShopBySlug, listLiveShops, money, shopPhotos, type Shop } from "./shops";
 
@@ -16,6 +17,7 @@ export function agentProduct(shop: Shop) {
   const s = shop.spec;
   const referral = shop.product_type === "referral" ? shop.referral : null;
   const shipping = shop.product_type === "physical" ? shop.shipping_cents : 0;
+  const options = shop.product_type === "physical" ? (shop.options ?? []) : [];
   return {
     shop: shop.slug,
     url: `${appUrl()}/${shop.slug}`,
@@ -46,8 +48,20 @@ export function agentProduct(shop: Shop) {
               : shop.delivery === "access_code"
                 ? "An access code, shown right after payment."
                 : "A download link, shown right after payment.",
-          availability: shop.stock === null ? "in_stock" : shop.stock > 0 ? `in_stock (${shop.stock} left)` : "sold_out",
-          how_to_buy: "Call create_order on the OneThing MCP server, then have the buyer approve at PayPal.",
+          ...(options.length
+            ? {
+                // The buyer must pick one value per option; pass them to create_order as { name: value }.
+                options: options.map((o) => ({ name: o.name, values: o.values.map((v) => v.label) })),
+                variants: combos(options).map((c) => {
+                  const n = stockOf(shop.option_stock ?? {}, comboKey(options, c));
+                  return { choice: c, availability: n === null ? "in_stock" : n > 0 ? `in_stock (${n} left)` : "sold_out" };
+                }),
+                availability: allSoldOut(options, shop.option_stock ?? {}) ? "sold_out" : "in_stock",
+              }
+            : { availability: shop.stock === null ? "in_stock" : shop.stock > 0 ? `in_stock (${shop.stock} left)` : "sold_out" }),
+          how_to_buy: options.length
+            ? "Call create_order on the OneThing MCP server with shop and options, then have the buyer approve at PayPal."
+            : "Call create_order on the OneThing MCP server, then have the buyer approve at PayPal.",
         }),
   };
 }
@@ -77,17 +91,17 @@ export async function liveShop(slug: string) {
 }
 
 /** One unit on order, waiting for the buyer to approve at PayPal. */
-export async function agentCreateOrder(slug: string) {
+export async function agentCreateOrder(slug: string, choice?: Record<string, string>) {
   if (!paypalEnabled()) throw new AgentError("Checkout isn't available on this server.");
   const shop = await liveShop(slug);
   if (shop.product_type === "referral") throw new AgentError("This product is sold by a retailer: use one of the offer links from get_product.");
-  if (shop.stock !== null && shop.stock <= 0) throw new AgentError("Sold out.");
   try {
-    const o = await startCheckout(shop, "agent");
+    const o = await startCheckout(shop, "agent", choice);
     if (!o.approveUrl) throw new AgentError("PayPal didn't return an approval link. Try again.");
     return {
       order_id: o.localId,
       total: money(o.amountCents, shop.currency),
+      ...(o.choice && { options: o.choice }),
       approve_url: o.approveUrl,
       next_step:
         "Give approve_url to the buyer. They pay at PayPal (and enter a shipping address for physical items). " +
@@ -95,6 +109,7 @@ export async function agentCreateOrder(slug: string) {
     };
   } catch (err) {
     if (err instanceof AgentError) throw err;
+    if (err instanceof CheckoutError) throw new AgentError(err.message);
     console.error("agent create_order:", err);
     throw new AgentError(
       err instanceof PayPalError && err.body.includes("PAYEE_ACCOUNT")
@@ -115,6 +130,7 @@ export async function agentGetOrder(orderId: string) {
     order_id: order.id,
     status: paid ? "paid" : "awaiting_buyer_approval",
     total: money(order.amount_cents, order.currency),
+    ...(order.options && { options: order.options }),
     ...(paid && {
       paid_at: order.paid_at,
       // The buyer's receipt page: download link or access code for digital items.

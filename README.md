@@ -78,6 +78,14 @@ the AI's guesses and clicks **Go live**. The choices behind it:
 - **AI guesses everything** in one pass: product name, physical or digital, price, a short link
   name, and the page design (one of 4 layouts, a palette taken from the photo, a curated font
   pair, headline, story, bullets, details and FAQ).
+- **Buyer options, suggested by the AI.** While drafting, Gemini works out whether the product
+  comes in variants and proposes them: sizes in the usual range, colours with swatches sampled from
+  the photo. Options the seller named start ticked; the AI's own guesses start unticked. One-of-a-kind
+  items (vintage, handmade one-offs) get no options. The seller edits values and swatch colours, and
+  sets **stock per combination** (blank means unlimited).
+- **"Buyers will ask."** Gemini also lists up to three facts buyers, or shopping agents, need that
+  the listing doesn't state (the size of this pair, a print's dimensions, a game's platform). The
+  seller's answers become product details. **Check for missing details** runs it again on any shop.
 - **More photos while refining.** A shop starts from one snapshot; the manage page's Photos panel
   adds up to 8 (camera or library), reorders them and picks the cover. Uploads are turned upright,
   resized and stored as WebP.
@@ -119,6 +127,9 @@ the AI's guesses and clicks **Go live**. The choices behind it:
   one photo on, and it resists past the ends.
 - **Inspect:** tap a photo and it grows from its place to fill the screen. Swipe through the
   photos, double-tap to zoom, and swipe down or press Esc to put it back where it was.
+- **Size and colour pickers** in the shop's own palette when the product has options. Sold-out
+  combinations stay visible but can't be picked, low stock shows ("Only 1 left in Black / M"), and
+  the choice appears in PayPal's review page, the receipt and the seller's grid.
 - **A sticky buy bar** with the PayPal button, once the top one has scrolled away.
 - **PayPal checkout** with the JS SDK v6 buttons. The price always comes from the database, never
   the browser.
@@ -140,7 +151,8 @@ the AI's guesses and clicks **Go live**. The choices behind it:
 Every live shop is agent-ready:
 
 - **An MCP server** at `/api/mcp` (Streamable HTTP, stateless JSON, no auth) with four tools:
-  `search_shops` (gallery shops by keyword), `get_product`, `create_order` (returns a PayPal
+  `search_shops` (gallery shops by keyword), `get_product` (with options and stock per
+  combination), `create_order` (takes the buyer's pick, e.g. `{"Size": "M"}`, and returns a PayPal
   `approve_url` for the buyer) and `get_order` (captures the payment once the buyer has approved,
   then returns the receipt link). Add it to an MCP client, e.g. Claude Code:
   `claude mcp add --transport http onething https://one-thing-ash0.onrender.com/api/mcp`.
@@ -213,6 +225,11 @@ AI agent ──► POST /api/mcp (JSON-RPC) → create_order → buyer approves 
 - **Checkout** ([src/components/shop/BuyButton.tsx](src/components/shop/BuyButton.tsx)): the SDK starts
   with a server-made client token. While PayPal's window is open the page polls the capture
   endpoint, which answers 409 until the buyer approves, so a stalled hand-back still completes.
+- **Stock is taken before the money is** (`captureWithStock` in [src/lib/orders.ts](src/lib/orders.ts)).
+  Every capture path (the popup, the page's poll, the thank-you page, the agent's `get_order`) first
+  claims a unit in one atomic `UPDATE … WHERE stock > 0`, for the shop or for the option combination.
+  When two buyers race for the last one, only the winner is captured. The other sees "just sold out"
+  and PayPal never takes their money; a declined or failed capture gives the unit back.
 - **Mark-paid is idempotent** ([src/lib/orders.ts](src/lib/orders.ts)). The capture call and the
   webhook can arrive in either order, and stock, download links, access codes and Zapier still fire
   exactly once. Capture request ids are unique per attempt, so a retry after a decline isn't replayed.

@@ -34,7 +34,7 @@ export const DesignSpec = z.object({
   story: z.string().max(480),
   bullets: z.array(z.string().max(100)).min(2).max(4),
   // Physical: materials, size, care. Digital: what's inside, format, length.
-  details: z.array(z.object({ label: z.string().max(30), value: z.string().max(100) })).max(5),
+  details: z.array(z.object({ label: z.string().max(30), value: z.string().max(100) })).max(8),
   faq: z.array(z.object({ q: z.string().max(120), a: z.string().max(300) })).min(2).max(4),
   ctaLabel: z.string().max(28),
   suggestedPriceUsd: z.number().min(0.5).max(10000),

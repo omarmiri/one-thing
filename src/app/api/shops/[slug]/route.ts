@@ -2,7 +2,8 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { requireShop } from "@/lib/auth";
 import { paypalConnectEnabled, paypalReadyToPay } from "@/lib/paypal";
-import { updateShop } from "@/lib/shops";
+import { allSoldOut, combos, comboKey, MAX_COMBOS, ShopOption } from "@/lib/options";
+import { updateShop, type Shop } from "@/lib/shops";
 import { claimSlug, slugProblem, slugTaken, toSlug } from "@/lib/slugs";
 
 /** Polled by the manage page while hero art is generating. */
@@ -27,6 +28,11 @@ const Settings = z.object({
   slug: z.string().max(60).optional(),
   product_type: z.enum(["physical", "digital", "referral"]).optional(),
   in_gallery: z.boolean().optional(),
+  // Buyer options (physical only), stock per combination (null = unlimited), and answers to the
+  // "buyers will ask" questions, which become product details.
+  options: z.array(ShopOption).max(3).optional(),
+  option_stock: z.record(z.string().max(100), z.number().int().min(0).nullable()).optional(),
+  facts: z.array(z.object({ label: z.string().trim().min(1).max(30), value: z.string().trim().min(1).max(100) })).max(5).optional(),
 });
 
 export async function PATCH(req: Request, ctx: RouteContext<"/api/shops/[slug]">) {
@@ -64,6 +70,43 @@ export async function PATCH(req: Request, ctx: RouteContext<"/api/shops/[slug]">
       return NextResponse.json({ error, field: "paypal" }, { status: 400 });
     }
   }
+  let optionFields: Partial<Shop> = {};
+  if (s.options !== undefined) {
+    const options = kind === "physical" ? s.options : [];
+    if (new Set(options.map((o) => o.name.toLowerCase())).size !== options.length) {
+      return NextResponse.json({ error: "Each option needs its own name." }, { status: 400 });
+    }
+    if (options.some((o) => new Set(o.values.map((v) => v.label.toLowerCase())).size !== o.values.length)) {
+      return NextResponse.json({ error: "An option has the same value twice." }, { status: 400 });
+    }
+    if (combos(options).length > MAX_COMBOS) {
+      return NextResponse.json({ error: `That's more than ${MAX_COMBOS} combinations. Trim some sizes or colors.` }, { status: 400 });
+    }
+    // Keep stock only for combinations that still exist.
+    const given = s.option_stock ?? shop.option_stock ?? {};
+    const option_stock = Object.fromEntries(
+      combos(options).map((c) => comboKey(options, c)).filter((k) => typeof given[k] === "number").map((k) => [k, given[k]]),
+    );
+    // With options, stock is counted per combination instead of for the whole shop.
+    optionFields = { options, option_stock, ...(options.length && { stock: null }) };
+  }
+  if (s.status === "live" && kind === "physical") {
+    const options = optionFields.options ?? shop.options ?? [];
+    if (options.length && allSoldOut(options, optionFields.option_stock ?? shop.option_stock ?? {})) {
+      return NextResponse.json({ error: "Every combination has 0 in stock. Add stock before going live." }, { status: 400 });
+    }
+  }
+  // Answered questions become product details (replacing a detail with the same label).
+  let specFields: Partial<Shop> = {};
+  if (s.facts?.length) {
+    const labels = new Set(s.facts.map((f) => f.label.toLowerCase()));
+    const details = [...shop.spec.details.filter((d) => !labels.has(d.label.toLowerCase())), ...s.facts].slice(-8);
+    const asked = shop.suggestions;
+    specFields = {
+      spec: { ...shop.spec, details },
+      ...(asked && { suggestions: { ...asked, missingFacts: asked.missingFacts.filter((m) => !labels.has(m.label.toLowerCase())) } }),
+    };
+  }
   // Renaming the link: the old name keeps redirecting (shop_slugs).
   let slug: string | undefined;
   if (s.slug !== undefined && toSlug(s.slug) !== shop.slug) {
@@ -86,6 +129,8 @@ export async function PATCH(req: Request, ctx: RouteContext<"/api/shops/[slug]">
     ...(s.delivery && kind === "digital" && { delivery: s.delivery }),
     ...(s.access_url !== undefined && { access_url: s.access_url }),
     ...(s.in_gallery !== undefined && { in_gallery: s.in_gallery }),
+    ...optionFields,
+    ...specFields,
   });
   return NextResponse.json({ ok: true, slug: slug ?? shop.slug });
 }

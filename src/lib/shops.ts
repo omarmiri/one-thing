@@ -4,6 +4,7 @@ import { newId, tokensMatch } from "./ids";
 import { DesignSpec } from "./design";
 import type { Referral } from "./channel3";
 import type { PayPalStatus } from "./paypal";
+import type { Choice, OptionStock, ShopOption, Suggestions } from "./options";
 import { Showcase, showcaseView } from "./showcase";
 
 export type Shop = {
@@ -15,6 +16,9 @@ export type Shop = {
   paypal_email: string | null;
   paypal_merchant_id: string | null;
   paypal_status: PayPalStatus | null;
+  options: ShopOption[];
+  option_stock: OptionStock;
+  suggestions: Suggestions | null;
   zapier_hook_url: string | null;
   description: string;
   product_type: "digital" | "physical" | "referral";
@@ -64,6 +68,7 @@ export type Order = {
   code_uses: number;
   code_last_used_at: string | null;
   channel: "web" | "agent";
+  options: Choice | null;
   created_at: string;
   paid_at: string | null;
 };
@@ -94,13 +99,16 @@ export async function getOwnedShop(slug: string, token: string | null | undefine
   return shop && tokensMatch(token, shop.admin_token) ? shop : null;
 }
 
+// jsonb columns: written as JSON text (node-postgres would turn a JS array into a Postgres array).
+const JSONB = new Set(["spec", "paypal_status", "options", "option_stock", "suggestions"]);
+
 export async function updateShop(id: string, fields: Partial<Omit<Shop, "id">>) {
   const keys = Object.keys(fields);
   if (!keys.length) return;
   const sets = keys.map((k, i) => `${k} = $${i + 2}`).join(", ");
   const values = keys.map((k) => {
     const v = (fields as Record<string, unknown>)[k];
-    return (k === "spec" || k === "paypal_status") && v !== null ? JSON.stringify(v) : v;
+    return JSONB.has(k) && v !== null ? JSON.stringify(v) : v;
   });
   await query(`UPDATE shops SET ${sets}, updated_at = now() WHERE id = $1`, [id, ...values]);
 }
@@ -176,6 +184,10 @@ export function shopView(shop: Shop) {
     referral: shop.product_type === "referral" ? shop.referral : null,
     shipCountries: shop.product_type === "physical" ? shop.ship_countries : null,
     stock: shop.product_type === "physical" ? shop.stock : null,
+    // Buyer options (physical products only): the picker, and stock per combination.
+    slug: shop.slug,
+    options: shop.product_type === "physical" ? (shop.options ?? []) : [],
+    optionStock: shop.option_stock ?? {},
     photoUrl: blobUrl(shop.photo_blob),
     // Every product photo, cover first: what the gallery and Inspect page through.
     photos: shopPhotos(shop).map((b) => blobUrl(b)!),

@@ -7,7 +7,9 @@ import { StickyBuy } from "@/components/motion/StickyBuy";
 import type { Feel } from "@/components/motion/springs";
 import { Arcade } from "./Arcade";
 import { Gallery } from "./Gallery";
+import { OptionPicker } from "./OptionPicker";
 import { PayOnPhone } from "./PayOnPhone";
+import { allSoldOut, type OptionStock, type ShopOption } from "@/lib/options";
 
 // Renders a design spec. Server component; the only client JS is the buy button passed in,
 // the showcase when the shop has one, and the motion pieces when `motion` is set.
@@ -20,6 +22,9 @@ export type ShopView = {
   digitalLabel: string;
   shipCountries: string | null;
   stock: number | null;
+  slug?: string;
+  options?: ShopOption[]; // sizes, colours…: the buyer picks before paying
+  optionStock?: OptionStock;
   photoUrl: string | null;
   photos?: string[]; // all product photos, cover first; more than one makes a gallery
   heroUrl: string | null;
@@ -236,7 +241,8 @@ function RetailerBox({ referral, centered }: { referral: Referral; centered?: bo
 
 function BuyBox({ view, buy, centered }: { view: ShopView; buy: ReactNode; centered?: boolean }) {
   if (view.referral?.offers.length) return <RetailerBox referral={view.referral} centered={centered} />;
-  const soldOut = view.stock !== null && view.stock <= 0;
+  const options = view.options ?? [];
+  const soldOut = options.length ? allSoldOut(options, view.optionStock ?? {}) : view.stock !== null && view.stock <= 0;
   return (
     <div className={`buybox flex flex-col gap-3 pt-2 ${centered ? "items-center" : ""}`}>
       <div className="flex items-baseline gap-3 flex-wrap">
@@ -252,7 +258,10 @@ function BuyBox({ view, buy, centered }: { view: ShopView; buy: ReactNode; cente
       {soldOut ? (
         <p className="font-semibold">Sold out</p>
       ) : (
-        <div className="w-full max-w-sm">{buy}</div>
+        <>
+          {options.length > 0 && view.slug && <OptionPicker slug={view.slug} options={options} stock={view.optionStock ?? {}} />}
+          <div className="w-full max-w-sm">{buy}</div>
+        </>
       )}
       <p className="text-sm" style={{ color: "var(--muted)" }}>
         {view.stock !== null && view.stock > 0 && view.stock <= 10 && `Only ${view.stock} left · `}

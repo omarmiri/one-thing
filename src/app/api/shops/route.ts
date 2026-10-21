@@ -4,7 +4,7 @@ import { buildShowcase } from "@/lib/assets";
 import { channel3Enabled, describeProduct, getProduct, lookupUrl, mainImage, toReferral, type C3Product } from "@/lib/channel3";
 import { one, query } from "@/lib/db";
 import { fetchImage, fetchPage, type SpriteHint } from "@/lib/fetchPage";
-import { designShop, geminiEnabled, type Photo } from "@/lib/gemini";
+import { designShop, geminiEnabled, suggestOptions, type Photo } from "@/lib/gemini";
 import { generateHero } from "@/lib/hero";
 import { newId } from "@/lib/ids";
 import { saveBlob } from "@/lib/shops";
@@ -101,6 +101,11 @@ export async function POST(req: Request) {
   // A game page's own art can become a playable teaser. Built alongside the design, never blocking it.
   const showcaseJob =
     !isReferral && pageImages.length && context && geminiEnabled() ? buildShowcase(context, pageImages, spriteHints) : Promise.resolve(null);
+  // Buyer options and missing facts, alongside the design. Never blocks or fails the shop.
+  const suggestJob =
+    !isReferral && geminiEnabled()
+      ? suggestOptions([description, context].filter(Boolean).join("\n\n") || "(no description: work from the photo)", photo ?? undefined)
+      : Promise.resolve(null);
   let design;
   try {
     design = await designShop({
@@ -147,6 +152,7 @@ export async function POST(req: Request) {
   const heroPending = geminiEnabled() && Boolean(spec.heroPrompt) && !isReferral;
   const stock = str(form, "stock");
   const built = await showcaseJob;
+  const suggestions = await suggestJob;
   // Signed in: the shop belongs to the account, and its email is where seller mail goes.
   const account = await currentAccount();
   // A PayPal account connected on another of the seller's shops pays for this one too.
@@ -160,8 +166,8 @@ export async function POST(req: Request) {
   await query(
     `INSERT INTO shops (id, slug, admin_token, seller_email, paypal_email, description, product_type, price_cents,
        shipping_cents, ship_countries, stock, photo_blob, digital_blob, hero_status, spec, ai_source, delivery,
-       access_url, referral, source_url, showcase, showcase_blobs, account_id, paypal_merchant_id, paypal_status)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25)`,
+       access_url, referral, source_url, showcase, showcase_blobs, account_id, paypal_merchant_id, paypal_status, suggestions)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26)`,
     [
       id, slug, adminToken, str(form, "seller_email") ?? account?.email ?? null, str(form, "paypal_email") ?? account?.paypal_email ?? null, description, productType, price,
       productType === "physical" ? (cents(str(form, "shipping")) ?? Math.round(spec.suggestedShippingUsd * 100)) : 0,
@@ -177,6 +183,7 @@ export async function POST(req: Request) {
       account?.id ?? null,
       connected?.paypal_merchant_id ?? null,
       connected ? JSON.stringify(connected.paypal_status) : null,
+      suggestions ? JSON.stringify(suggestions) : null,
     ],
   );
   await claimSlug(slug, id);

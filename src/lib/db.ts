@@ -93,6 +93,12 @@ ALTER TABLE shops ADD COLUMN IF NOT EXISTS gallery_blobs text[] NOT NULL DEFAULT
 ALTER TABLE shops ADD COLUMN IF NOT EXISTS paypal_status jsonb;     -- src/lib/paypal.ts PayPalStatus
 -- Who started an order: the shop page, or an AI agent through the MCP server (/api/mcp).
 ALTER TABLE orders ADD COLUMN IF NOT EXISTS channel text NOT NULL DEFAULT 'web';  -- web | agent
+-- Buyer options (src/lib/options.ts): what a buyer picks (size, color…), stock per combination
+-- (replaces shops.stock when there are options), and Gemini's suggestions for the seller to confirm.
+ALTER TABLE shops  ADD COLUMN IF NOT EXISTS options jsonb NOT NULL DEFAULT '[]';
+ALTER TABLE shops  ADD COLUMN IF NOT EXISTS option_stock jsonb NOT NULL DEFAULT '{}';
+ALTER TABLE shops  ADD COLUMN IF NOT EXISTS suggestions jsonb;
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS options jsonb;          -- the buyer's choice, e.g. {"Size":"M"}
 
 -- Accounts: a seller signs in with an email or a phone number; no password, no verification yet
 -- (see src/lib/accounts.ts). Each identifier is unique; an account has one or the other.
