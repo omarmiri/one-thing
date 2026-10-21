@@ -73,6 +73,8 @@ let thinkingIndex = 0;
 async function generate(parts: object[], extra: object) {
   // "High demand" 503s come and go within seconds; two short retries ride most of them out.
   let retries = 0;
+  // The free tier's per-minute cap (429) says how long to wait; wait once, never for a daily cap.
+  let waitedForMinute = false;
   for (;;) {
     try {
       return await client().models.generateContent({
@@ -89,6 +91,12 @@ async function generate(parts: object[], extra: object) {
       const status = (err as { status?: number }).status;
       if ((status === 503 || status === 500) && retries < 2) {
         await new Promise((r) => setTimeout(r, ++retries * 2000));
+        continue;
+      }
+      if (status === 429 && !waitedForMinute && /PerMinute/.test(msg)) {
+        const delay = Number(/"retryDelay":"(\d+(?:\.\d+)?)s"/.exec(msg)?.[1] ?? /retry in (\d+(?:\.\d+)?)s/.exec(msg)?.[1] ?? 15);
+        waitedForMinute = true;
+        await new Promise((r) => setTimeout(r, (Math.min(delay, 30) + 1) * 1000));
         continue;
       }
       throw err;
