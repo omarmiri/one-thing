@@ -90,7 +90,8 @@ export function createOrder(shop: Shop, localOrderId: string) {
       : shop.paypal_email
         ? { email_address: shop.paypal_email }
         : undefined;
-  return call<{ id: string; status: string }>("create order", "/v2/checkout/orders", {
+  // links: rel "payer-action" is the PayPal page where a buyer approves the order outside our page.
+  return call<{ id: string; status: string; links?: { rel: string; href: string }[] }>("create order", "/v2/checkout/orders", {
     method: "POST",
     requestId: `create-${localOrderId}`,
     body: {

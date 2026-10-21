@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
-import { query } from "@/lib/db";
-import { newId } from "@/lib/ids";
-import { createOrder, PayPalError, paypalEnabled } from "@/lib/paypal";
+import { startCheckout } from "@/lib/orders";
+import { PayPalError, paypalEnabled } from "@/lib/paypal";
 import { getShopBySlug } from "@/lib/shops";
 
 /** Buyer clicked the PayPal button. The price comes from the database, never from the browser. */
@@ -13,16 +12,9 @@ export async function POST(req: Request) {
   if (shop.product_type === "referral") return NextResponse.json({ error: "This product is bought at the retailer." }, { status: 400 });
   if (shop.stock !== null && shop.stock <= 0) return NextResponse.json({ error: "Sold out." }, { status: 409 });
 
-  const localId = newId();
-  const shipping = shop.product_type === "physical" ? shop.shipping_cents : 0;
   try {
-    const pp = await createOrder(shop, localId);
-    await query(
-      `INSERT INTO orders (id, shop_id, paypal_order_id, amount_cents, shipping_cents, currency)
-       VALUES ($1, $2, $3, $4, $5, $6)`,
-      [localId, shop.id, pp.id, shop.price_cents + shipping, shipping, shop.currency],
-    );
-    return NextResponse.json({ id: pp.id });
+    const { paypalOrderId } = await startCheckout(shop, "web");
+    return NextResponse.json({ id: paypalOrderId });
   } catch (err) {
     console.error(err);
     const msg =

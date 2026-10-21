@@ -35,6 +35,8 @@ export function OrdersGrid(props: {
       },
       { headerName: "Buyer", valueGetter: (p) => p.data?.buyer_name ?? p.data?.buyer_email, flex: 1, minWidth: 140 },
       { headerName: "Email", field: "buyer_email", flex: 1, minWidth: 160 },
+      // Orders started by an AI agent through the MCP server (/api/mcp), not the shop page.
+      { headerName: "Via", field: "channel", width: 100, valueFormatter: (p) => (p.value === "agent" ? "AI agent" : "Shop page") },
       {
         headerName: "Total",
         field: "amount_cents",

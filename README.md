@@ -19,6 +19,7 @@ seconds, goes live in one click, and a buyer paying by card completes checkout i
 | **Example shop** | [one-thing-ash0.onrender.com/raptorrush](https://one-thing-ash0.onrender.com/raptorrush): Raptor Rush, a browser game sold with access codes |
 | **API docs and SDKs** | [omarmiri.github.io/one-thing](https://omarmiri.github.io/one-thing/), generated with APIMatic, with working "Try it" calls |
 | **OpenAPI spec** | [one-thing-ash0.onrender.com/openapi.yaml](https://one-thing-ash0.onrender.com/openapi.yaml) |
+| **MCP server for AI agents** | `https://one-thing-ash0.onrender.com/api/mcp` (Streamable HTTP): find a shop, read the product, order it through PayPal |
 
 ## Tested end to end
 
@@ -50,7 +51,10 @@ the AI's guesses and clicks **Go live**. The choices behind it:
   page that takes payments, pages stay fast and mobile-friendly, and a contrast check keeps every
   palette readable. Re-theming only changes JSON.
 - **Money goes straight to sellers.** Each PayPal order's `payee` is the seller's account, so
-  OneThing never holds funds.
+  OneThing never holds funds. Sellers connect that account through PayPal's own onboarding, and
+  PayPal, not us, says when it's ready to be paid.
+- **Agents shop, people pay.** Every shop is agent-ready: an AI agent can find it, read it and place
+  an order, but the buyer approves every payment at PayPal, so no agent spends money on its own.
 - **Motion that explains, not decorates.** In the spirit of Famo.us, every element on a shop page
   is a body on a spring, so the page responds to the buyer like a physical thing. It's kept quiet:
   sections settle into place once, the product stays in view while its features arrive, and photos
@@ -85,8 +89,15 @@ the AI's guesses and clicks **Go live**. The choices behind it:
 - **Chat to redesign** ("make it warmer", "shorter copy") with a live preview.
 - **Short links the seller picks**, like `/raptorrush`, with a live availability check. Renamed
   shops keep their old links working (308 redirects).
+- **Connect PayPal.** On the manage page, one button takes the seller through PayPal's onboarding
+  (Partner Referrals): existing PayPal users sign in, new ones sign up, and personal accounts are
+  upgraded to business inside PayPal's flow. Back on the manage page, a checklist shows what PayPal
+  reports (connected, email confirmed, can receive payments), with **Check again** and
+  **Disconnect**. **Go live** waits until PayPal says the account can be paid, or a PayPal email is
+  entered as a fallback. A connected account carries over to the seller's other and new shops.
 - **A manage page** (open from Your shops, or by its private link): settings, publish, photos, and an
   [AG Grid](https://www.ag-grid.com/) orders table with sort, filter, search and **Mark shipped**.
+  A **Via** column shows whether each order came from the shop page or an AI agent.
 - **Physical products:** PayPal collects the shipping address, stock counts down and shows "sold
   out" at zero, and tracking numbers are pushed to PayPal so buyers see them there.
 - **Digital products**, delivered one of two ways:
@@ -124,6 +135,20 @@ the AI's guesses and clicks **Go live**. The choices behind it:
 - **Gallery** at `/gallery`: every live shop, newest first, each card in that shop's own palette. The
   home page shows the three newest.
 
+### AI agents
+
+Every live shop is agent-ready:
+
+- **An MCP server** at `/api/mcp` (Streamable HTTP, stateless JSON, no auth) with four tools:
+  `search_shops` (gallery shops by keyword), `get_product`, `create_order` (returns a PayPal
+  `approve_url` for the buyer) and `get_order` (captures the payment once the buyer has approved,
+  then returns the receipt link). Add it to an MCP client, e.g. Claude Code:
+  `claude mcp add --transport http onething https://one-thing-ash0.onrender.com/api/mcp`.
+- **Product JSON** at `/api/agent/shops/<slug>`: price, shipping, delivery, availability, images
+  and FAQ, plus where the MCP server is. Shop pages link to it (`<link rel="alternate">`).
+- **schema.org `Product` JSON-LD** on every live shop page, which shopping agents and search
+  engines already read.
+
 ### Developers
 
 - **A documented REST API** for everything the app does: [OpenAPI 3.1 spec](apimatic/src/spec/openapi.yaml),
@@ -149,6 +174,14 @@ the AI's guesses and clicks **Go live**. The choices behind it:
    appears in the seller's grid.
 4. For a physical order, click **Mark shipped** and add a tracking number.
 
+To try **Connect PayPal** instead of typing an email: on a draft shop's manage page, click
+**Connect PayPal** and sign in with a sandbox business account (not the Platform app's own
+account). You come back to a checklist; Go live once it's all ticked.
+
+To try **an agent purchase**: add the MCP server to an agent (see [AI agents](#ai-agents)), ask it
+to find and buy something, open the `approve_url` it gives you and pay with the sandbox buyer.
+The agent's `get_order` then reports it paid, and the seller's grid shows it **Via AI agent**.
+
 ## How it works
 
 ```
@@ -161,6 +194,9 @@ Buyer  ── /<slug> ── GET /api/paypal/client-token → <paypal-button> (J
           └► POST /api/orders/:id/capture        → capture → mark paid → stock / download / access code / Zapier
 PayPal ──► POST /api/paypal/webhook               → signature verified → same idempotent mark-paid → webhook log
 Seller's app ──► POST /api/access/verify          → is this buyer's code valid for my shop?
+Seller ── Connect PayPal ── POST /api/shops/:slug/paypal → Partner Referrals → PayPal onboarding
+          └► GET /api/shops/:slug/paypal/return → ask PayPal (by tracking_id) → merchant id + status
+AI agent ──► POST /api/mcp (JSON-RPC) → create_order → buyer approves at PayPal → get_order captures
 ```
 
 - **Design spec:** [src/lib/design.ts](src/lib/design.ts) defines it; [src/lib/gemini.ts](src/lib/gemini.ts)
@@ -178,6 +214,16 @@ Seller's app ──► POST /api/access/verify          → is this buyer's code
 - **Accounts** ([src/lib/accounts.ts](src/lib/accounts.ts)): an email or phone number, or a PayPal
   identity, and a session cookie. Shops made while signed in belong to the account; older shops
   join it when their seller email matches or their private link is opened while signed in.
+- **Connect PayPal** ([src/lib/paypal.ts](src/lib/paypal.ts), `connectUrl` and friends): runs on a
+  separate **Platform** app's keys, because PayPal refuses Partner Referrals to a Merchant app
+  (403 NOT_AUTHORIZED). Checkout and Log in with PayPal stay on the main app. The return URL's query
+  string is never trusted: we look the seller up at PayPal by the shop id we sent as `tracking_id`.
+  The private manage link rides back in a one-hour cookie, not through PayPal. The payee is the
+  connected account once it's ready, else the typed email.
+- **Agents** ([src/lib/agent.ts](src/lib/agent.ts), [src/app/api/mcp/route.ts](src/app/api/mcp/route.ts)):
+  the MCP server is hand-written JSON-RPC (no SDK), so it runs in a plain Next.js route. Orders it
+  starts are stored with `channel = 'agent'`. It shares `startCheckout` and `captureIfApproved`
+  ([src/lib/orders.ts](src/lib/orders.ts)) with the shop page and the thank-you page.
 - **Channel3** ([src/lib/channel3.ts](src/lib/channel3.ts)): every request carries the shop's id as
   `x-user-id`, so Channel3 credits clicks and commissions on its buy links to that shop.
 
@@ -214,7 +260,8 @@ service URL.
 
 | Tool | How it's used |
 |---|---|
-| **PayPal** JS SDK v6, Orders v2 (create/capture, payee routing, shipping preference), order tracking API, webhooks, Log in with PayPal (OpenID Connect) | All checkout and payment handling, and seller sign-in that sets where sales are paid |
+| **PayPal** JS SDK v6, Orders v2 (create/capture, payee routing, shipping preference), order tracking API, webhooks, Log in with PayPal (OpenID Connect), Partner Referrals and merchant integration status | All checkout and payment handling, seller sign-in, seller onboarding with a readiness check, and agent orders the buyer approves at PayPal |
+| **Model Context Protocol** | `/api/mcp`, so AI agents can find shops and order through PayPal |
 | **Google Gemini** (`@google/genai`) | Reads the photo or page; guesses the product, delivery, price and link; generates the structured design spec and copy; edits it from chat; an image model makes the hero art |
 | **Channel3** | Product search, store-link lookup, and recommendation shops that earn through Channel3's tracked buy links |
 | **Render** | Hosting and Postgres via `render.yaml` |
@@ -232,9 +279,8 @@ Planned, not built yet (details in [PLAN.md](PLAN.md)):
 - **Seller copilot** on the PayPal Agent Toolkit: "how did I do this week?", refunds, invoices.
 - **Earnings and PayPal Payouts**, so recommendation sellers get their share of Channel3 commissions.
 - **Subscriptions**, such as a monthly pass that keeps an access code valid.
-- **An agent endpoint per shop**, so AI shopping agents can find a product and pay through PayPal.
-- **Connect PayPal** onboarding (Partner Referrals), so orders go to an onboarded merchant id and
-  OneThing can take a platform fee. Log in with PayPal already fills in the payout email.
+- **A platform fee** on each sale. Sellers already grant it while connecting PayPal; it needs
+  checkout to move onto the Platform app.
 - **A one-time code** (email link or SMS) for email and phone sign-in, before real money depends on it.
 
 ## License

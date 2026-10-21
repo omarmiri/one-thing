@@ -1,7 +1,7 @@
 import "server-only";
 import { one, query } from "./db";
 import { accessCode, newId } from "./ids";
-import type { Capture } from "./paypal";
+import { captureOrder, createOrder, PayPalError, type Capture } from "./paypal";
 import type { Order, Shop } from "./shops";
 import { notifyZapier } from "./zapier";
 
@@ -58,4 +58,44 @@ export async function markPaid(paypalOrderId: string, capture?: Capture): Promis
   ) ?? (await one<Shop>("SELECT * FROM shops WHERE id = $1", [order.shop_id]));
   if (shop) void notifyZapier(shop, "order.paid", order);
   return order;
+}
+
+/**
+ * Starts a PayPal order for one unit. The price comes from the database, never the caller.
+ * channel says who started it: the shop page ("web") or an AI agent through the MCP server.
+ */
+export async function startCheckout(shop: Shop, channel: "web" | "agent") {
+  const localId = newId();
+  const shipping = shop.product_type === "physical" ? shop.shipping_cents : 0;
+  const pp = await createOrder(shop, localId);
+  await query(
+    `INSERT INTO orders (id, shop_id, paypal_order_id, amount_cents, shipping_cents, currency, channel)
+     VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+    [localId, shop.id, pp.id, shop.price_cents + shipping, shipping, shop.currency, channel],
+  );
+  return {
+    localId,
+    paypalOrderId: pp.id,
+    approveUrl: pp.links?.find((l) => l.rel === "payer-action" || l.rel === "approve")?.href ?? null,
+    amountCents: shop.price_cents + shipping,
+  };
+}
+
+/**
+ * Captures an order the buyer approved at PayPal but nothing has captured yet (they came back by
+ * redirect, or an agent is checking). Returns the order as it stands afterwards; a not-yet-approved
+ * order just comes back unpaid.
+ */
+export async function captureIfApproved(order: Order): Promise<Order> {
+  if (order.status === "paid" || !order.paypal_order_id) return order;
+  try {
+    const cap = await captureOrder(order.paypal_order_id);
+    const c = cap.purchase_units?.[0]?.payments?.captures?.[0];
+    if (cap.status === "COMPLETED" && c && c.status !== "DECLINED") await markPaid(order.paypal_order_id, cap);
+  } catch (err) {
+    if (!(err instanceof PayPalError && /ORDER_NOT_APPROVED|ORDER_ALREADY_CAPTURED/.test(err.body))) {
+      console.error("capture failed:", err);
+    }
+  }
+  return (await one<Order>("SELECT * FROM orders WHERE id = $1", [order.id])) ?? order;
 }

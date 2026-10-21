@@ -63,6 +63,7 @@ export type Order = {
   access_code: string | null;
   code_uses: number;
   code_last_used_at: string | null;
+  channel: "web" | "agent";
   created_at: string;
   paid_at: string | null;
 };
