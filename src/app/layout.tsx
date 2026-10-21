@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { appUrl } from "@/lib/ids";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -13,6 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  // Without this Next resolves relative og:image paths against localhost:$PORT in production.
+  metadataBase: new URL(appUrl()),
   title: "OneThing — sell your one product",
   description: "Snap a photo, and AI builds a one-product shop that takes PayPal payments.",
 };

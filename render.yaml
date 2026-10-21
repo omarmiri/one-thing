@@ -29,7 +29,7 @@ services:
       - key: CHANNEL3_API_KEY
         sync: false
       - key: APP_URL
-        sync: false # e.g. https://one-thing.onrender.com
+        sync: false # e.g. https://one-thing.onrender.com; falls back to RENDER_EXTERNAL_URL
 
 databases:
   - name: one-thing-db

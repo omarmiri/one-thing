@@ -26,4 +26,7 @@ export function tokensMatch(given: string | null | undefined, expected: string):
   return a.length === b.length && timingSafeEqual(a, b);
 }
 
-export const appUrl = () => (process.env.APP_URL ?? "http://localhost:3000").replace(/\/$/, "");
+// Public origin for absolute links (share URLs, PayPal return URLs, og:image). Render sets
+// RENDER_EXTERNAL_URL on every web service, so an unset APP_URL there still gets the real host.
+export const appUrl = () =>
+  (process.env.APP_URL || process.env.RENDER_EXTERNAL_URL || "http://localhost:3000").replace(/\/$/, "");
