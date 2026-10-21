@@ -210,6 +210,7 @@ paths:
       tags: [Shops]
       operationId: uploadDigitalFile
       summary: Upload the file buyers download
+      description: Uploads or replaces a digital product's file, up to 25 MB. Each paid order gets a download link for it.
       security:
         - AdminToken: []
       requestBody:
@@ -344,7 +345,8 @@ paths:
     get:
       tags: [Links]
       operationId: checkLinkName
-      summary: Is a link name free?
+      summary: Check a link name
+      description: Normalises a proposed link name and says whether a new shop can use it.
       parameters:
         - name: name
           in: query
@@ -379,6 +381,7 @@ paths:
         - name: q
           in: query
           required: true
+          description: What to look for, in plain words.
           schema:
             type: string
             maxLength: 200
@@ -447,6 +450,7 @@ paths:
       - name: paypalOrderId
         in: path
         required: true
+        description: The PayPal order id that `createCheckoutOrder` returned.
         schema:
           type: string
     post:
@@ -526,6 +530,7 @@ paths:
       - name: token
         in: path
         required: true
+        description: The download token from a paid order's thank-you page.
         schema:
           type: string
     get:
@@ -553,6 +558,7 @@ paths:
       - name: id
         in: path
         required: true
+        description: A shop's `photo_blob` or `hero_blob`.
         schema:
           type: string
     get:
