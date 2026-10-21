@@ -144,6 +144,8 @@ Every live shop is agent-ready:
   `approve_url` for the buyer) and `get_order` (captures the payment once the buyer has approved,
   then returns the receipt link). Add it to an MCP client, e.g. Claude Code:
   `claude mcp add --transport http onething https://one-thing-ash0.onrender.com/api/mcp`.
+  Working in this repo, you don't need to: [.mcp.json](.mcp.json) registers it, so a new Claude
+  Code session here has the tools (Claude Code asks once to approve the server).
 - **Product JSON** at `/api/agent/shops/<slug>`: price, shipping, delivery, availability, images
   and FAQ, plus where the MCP server is. Shop pages link to it (`<link rel="alternate">`).
 - **schema.org `Product` JSON-LD** on every live shop page, which shopping agents and search

@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "onething": {
+      "type": "http",
+      "url": "https://one-thing-ash0.onrender.com/api/mcp"
+    }
+  }
+}
