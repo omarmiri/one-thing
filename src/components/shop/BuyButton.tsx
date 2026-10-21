@@ -63,19 +63,49 @@ export function BuyButton(props: { slug: string; enabled: boolean; sdkUrl: strin
       const eligible = await sdk.findEligibleMethods().then((m) => m.isEligible("paypal"), () => true);
       if (!eligible || cancelled || !el) return;
 
+      // Set once a capture succeeds, so the popup callback and the poll below finish only once.
+      let settled = false;
+      let watching: string | null = null;
+      const finish = (localOrderId: string) => {
+        if (settled) return;
+        settled = true;
+        setBusy(true);
+        router.push(`/${props.slug}/thanks?order=${localOrderId}`);
+      };
+      // PayPal hands the approval back from its window. When that hand-off stalls (seen in
+      // sandbox: the window sits on "Thanks for using PayPal"), notice the approval from here.
+      const watch = async (paypalOrderId: string) => {
+        const until = Date.now() + 15 * 60_000;
+        while (watching === paypalOrderId && !settled && !cancelled && Date.now() < until) {
+          await new Promise((r) => setTimeout(r, 3000));
+          if (watching !== paypalOrderId || settled) return;
+          const res = await fetch(`/api/orders/${paypalOrderId}/capture`, { method: "POST" }).catch(() => null);
+          if (!res || res.status === 409) continue;
+          const json = await res.json();
+          if (res.ok) return finish(json.orderId);
+          // A declined card can be swapped in the PayPal window, so keep waiting on 422.
+          if (res.status !== 422) return;
+        }
+      };
+
       const session = await sdk.createPayPalOneTimePaymentSession({
         async onApprove({ orderId }) {
           setBusy(true);
           const res = await fetch(`/api/orders/${orderId}/capture`, { method: "POST" });
           const json = await res.json();
           if (res.ok) {
-            router.push(`/${props.slug}/thanks?order=${json.orderId}`);
+            finish(json.orderId);
+          } else if (settled) {
+            // The poll got there first.
           } else {
             setBusy(false);
             setMsg({ kind: "error", text: json.error === "INSTRUMENT_DECLINED" ? "That payment method was declined — please try another." : json.error });
           }
         },
-        onCancel: () => setMsg({ kind: "info", text: "Checkout cancelled." }),
+        onCancel: () => {
+          watching = null;
+          setMsg({ kind: "info", text: "Checkout cancelled." });
+        },
         onError: (e) => {
           console.error(e);
           setMsg({ kind: "error", text: "Something went wrong with PayPal. Please try again." });
@@ -96,7 +126,13 @@ export function BuyButton(props: { slug: string; enabled: boolean; sdkUrl: strin
           if (!r.ok) throw new Error(j.error);
           return { orderId: j.id as string };
         });
-        order.catch((e: Error) => setMsg({ kind: "error", text: e.message }));
+        order.then(
+          ({ orderId }) => {
+            watching = orderId;
+            void watch(orderId);
+          },
+          (e: Error) => setMsg({ kind: "error", text: e.message }),
+        );
         try {
           await session.start({ presentationMode: "auto" }, order);
         } catch (e) {
