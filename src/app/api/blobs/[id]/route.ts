@@ -4,7 +4,7 @@ import { getBlob } from "@/lib/shops";
 /** Public images only. Digital products are never served here — see /api/download/[token]. */
 export async function GET(_req: Request, ctx: RouteContext<"/api/blobs/[id]">) {
   const { id } = await ctx.params;
-  const isImage = await one("SELECT 1 FROM shops WHERE photo_blob = $1 OR hero_blob = $1 OR $1 = ANY(showcase_blobs) LIMIT 1", [id]);
+  const isImage = await one("SELECT 1 FROM shops WHERE photo_blob = $1 OR hero_blob = $1 OR $1 = ANY(showcase_blobs) OR $1 = ANY(gallery_blobs) LIMIT 1", [id]);
   const blob = isImage ? await getBlob(id) : null;
   if (!blob) return new Response("Not found", { status: 404 });
   return new Response(Buffer.from(blob.data), {

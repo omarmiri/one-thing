@@ -258,6 +258,69 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound'
 
+  /api/shops/{slug}/photos:
+    parameters:
+      - $ref: '#/components/parameters/Slug'
+    post:
+      tags: [Shops]
+      operationId: addPhotos
+      summary: Add product photos
+      description: >-
+        Adds one or more photos after the cover. Each is turned upright, resized to at most 2000 px
+        and stored as WebP. A shop holds up to 8 photos; buyers swipe through them on the shop page.
+        Not for recommendations, which show the retailer's photos.
+      security:
+        - AdminToken: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [photo]
+              properties:
+                photo:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+                  description: One or more images, up to 15 MB each. Repeat the field for several.
+      responses:
+        '200':
+          $ref: '#/components/responses/Photos'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      tags: [Shops]
+      operationId: setPhotoOrder
+      summary: Reorder or remove photos
+      description: Sets the photo order; the first becomes the cover. Leaving a photo out removes it.
+      security:
+        - AdminToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [photos]
+              properties:
+                photos:
+                  type: array
+                  maxItems: 8
+                  items:
+                    type: string
+                  description: Photo ids, in order.
+      responses:
+        '200':
+          $ref: '#/components/responses/Photos'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
   /api/shops/{slug}/orders:
     parameters:
       - $ref: '#/components/parameters/Slug'
@@ -666,6 +729,25 @@ components:
         examples: [raptorrush]
 
   responses:
+    Photos:
+      description: The shop's photos, cover first.
+      content:
+        application/json:
+          schema:
+            type: object
+            required: [photos]
+            properties:
+              photos:
+                type: array
+                items:
+                  type: object
+                  required: [id, url]
+                  properties:
+                    id:
+                      type: string
+                    url:
+                      type: string
+                      description: Public image URL on this site.
     Ok:
       description: Done.
       content:

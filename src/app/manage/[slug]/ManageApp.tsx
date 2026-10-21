@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { OrdersGrid, type SellerOrder } from "./OrdersGrid";
+import { PhotosPanel, type Photo } from "./PhotosPanel";
 import { SetupPanel, type SetupInitial } from "./SetupPanel";
 import type { WebhookEvent } from "@/lib/shops";
 
@@ -12,6 +13,7 @@ type Initial = {
   name: string;
   heroStatus: "none" | "pending" | "ready" | "failed";
   aiSource: "gemini" | "fallback";
+  photos: Photo[] | null; // null for recommendations, which use the retailer's photos
   setup: SetupInitial;
 };
 
@@ -158,6 +160,9 @@ export function ManageApp(props: {
               }
             }}
           />
+          {initial.photos && (
+            <PhotosPanel api={api} initial={initial.photos} onChanged={() => setFrameKey((k) => k + 1)} onToast={setToast} />
+          )}
           <DesignPanel
             api={api}
             geminiReady={props.geminiReady}

@@ -6,6 +6,7 @@ import { FeatureStory } from "@/components/motion/FeatureStory";
 import { StickyBuy } from "@/components/motion/StickyBuy";
 import type { Feel } from "@/components/motion/springs";
 import { Arcade } from "./Arcade";
+import { Gallery } from "./Gallery";
 import { PayOnPhone } from "./PayOnPhone";
 
 // Renders a design spec. Server component; the only client JS is the buy button passed in,
@@ -20,6 +21,7 @@ export type ShopView = {
   shipCountries: string | null;
   stock: number | null;
   photoUrl: string | null;
+  photos?: string[]; // all product photos, cover first; more than one makes a gallery
   heroUrl: string | null;
   referral: Referral | null; // a recommendation: buyers purchase at the retailer
   shareUrl?: string | null; // absolute link, for the pay-on-your-phone QR code
@@ -54,6 +56,7 @@ export function ShopPage({ view, buy, motion }: { view: ShopView; buy: ReactNode
             story={spec.story}
             bullets={spec.bullets}
             image={product}
+            photos={view.photos}
             imageAlt={spec.imageAlt}
             feel={motion.feel}
             melt={Boolean(view.photoUrl) && isLight(spec.palette.surface)}
@@ -124,6 +127,14 @@ function Hero({ view, buy }: { view: ShopView; buy: ReactNode }) {
   const { spec } = view;
   const art = view.heroUrl ?? view.photoUrl;
   const product = view.photoUrl ?? view.heroUrl;
+  // Several photos make a swipeable gallery in the product's place.
+  const photos = view.photos ?? [];
+  const gallery = (frameClass: string, imgClass: string) =>
+    photos.length > 1 ? (
+      <div data-surface="image">
+        <Gallery photos={photos} alt={spec.imageAlt} frameClass={frameClass} imgClass={imgClass} />
+      </div>
+    ) : null;
   const copy = (
     <div className="space-y-5">
       <p data-surface="text" className="text-sm font-semibold uppercase tracking-[0.2em]" style={{ color: "var(--accent)" }}>{spec.eyebrow}</p>
@@ -145,26 +156,30 @@ function Hero({ view, buy }: { view: ShopView; buy: ReactNode }) {
           )}
           <div className="mx-auto max-w-5xl px-4 sm:px-6">
             <div className={`shop-card relative p-6 sm:p-10 ${art ? "-mt-28" : "mt-10"}`}>{copy}</div>
+            {/* The banner is art; the product's own photos get a gallery under it. */}
+            {gallery("mt-10 aspect-[4/3] w-full rounded-2xl md:aspect-[16/9]", "object-cover")}
           </div>
         </header>
       );
     case "editorial":
       return (
         <header className="mx-auto grid max-w-6xl items-center gap-10 px-4 sm:px-6 py-10 md:grid-cols-2 md:py-16">
-          {product && (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img data-surface="image" data-inspect src={product} alt={spec.imageAlt} className="aspect-[4/5] w-full object-cover" />
-          )}
+          {gallery("aspect-[4/5] w-full", "object-cover") ??
+            (product && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img data-surface="image" data-inspect src={product} alt={spec.imageAlt} className="aspect-[4/5] w-full object-cover" />
+            ))}
           {copy}
         </header>
       );
     case "minimal":
       return (
         <header className="mx-auto max-w-3xl px-4 sm:px-6 pt-16 pb-6 text-center">
-          {product && (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img data-surface="image" data-inspect src={product} alt={spec.imageAlt} className="mx-auto mb-12 max-h-[52vh] w-auto object-contain" />
-          )}
+          {gallery("mx-auto mb-12 h-[52vh] w-full", "object-contain") ??
+            (product && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img data-surface="image" data-inspect src={product} alt={spec.imageAlt} className="mx-auto mb-12 max-h-[52vh] w-auto object-contain" />
+            ))}
           <div className="[&_.buybox]:items-center">{copy}</div>
         </header>
       );
@@ -175,8 +190,12 @@ function Hero({ view, buy }: { view: ShopView; buy: ReactNode }) {
           {product && (
             <div data-surface="image" className="relative">
               <div aria-hidden className="absolute -inset-4 rotate-3 rounded-[2.5rem]" style={{ background: "var(--accent)" }} />
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img data-inspect src={product} alt={spec.imageAlt} className="relative -rotate-2 aspect-square w-full rounded-[2rem] object-cover shadow-xl" />
+              {photos.length > 1 ? (
+                <Gallery photos={photos} alt={spec.imageAlt} frameClass="relative -rotate-2 aspect-square w-full rounded-[2rem] shadow-xl" imgClass="object-cover" />
+              ) : (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img data-inspect src={product} alt={spec.imageAlt} className="relative -rotate-2 aspect-square w-full rounded-[2rem] object-cover shadow-xl" />
+              )}
             </div>
           )}
         </header>

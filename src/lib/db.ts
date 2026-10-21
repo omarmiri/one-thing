@@ -87,6 +87,8 @@ ALTER TABLE shops ADD COLUMN IF NOT EXISTS in_gallery boolean NOT NULL DEFAULT f
 -- A playable showcase built from a game page's art (src/lib/showcase.ts), and the images it uses.
 ALTER TABLE shops ADD COLUMN IF NOT EXISTS showcase jsonb;
 ALTER TABLE shops ADD COLUMN IF NOT EXISTS showcase_blobs text[] NOT NULL DEFAULT '{}';
+-- More photos the seller adds while refining; photo_blob stays the cover, these follow it.
+ALTER TABLE shops ADD COLUMN IF NOT EXISTS gallery_blobs text[] NOT NULL DEFAULT '{}';
 
 -- Every link name a shop has had (the current one is shops.slug). Old names redirect.
 CREATE TABLE IF NOT EXISTS shop_slugs (

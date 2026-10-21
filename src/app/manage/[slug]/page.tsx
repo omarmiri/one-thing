@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { getOwnedShop, listOrders, listWebhookEvents } from "@/lib/shops";
+import { blobUrl, getOwnedShop, listOrders, listWebhookEvents, shopPhotos } from "@/lib/shops";
 import { geminiEnabled } from "@/lib/gemini";
 import { paypalEnabled } from "@/lib/paypal";
 import { appUrl } from "@/lib/ids";
@@ -24,6 +24,7 @@ export default async function Manage(props: PageProps<"/manage/[slug]">) {
         name: shop.spec.productName,
         heroStatus: shop.hero_status,
         aiSource: shop.ai_source,
+        photos: shop.product_type === "referral" ? null : shopPhotos(shop).map((id) => ({ id, url: blobUrl(id)! })),
         setup: {
           slug: shop.slug,
           productType: shop.product_type,

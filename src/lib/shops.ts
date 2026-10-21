@@ -33,6 +33,7 @@ export type Shop = {
   in_gallery: boolean;
   showcase: Showcase | null;
   showcase_blobs: string[];
+  gallery_blobs: string[];
   spec: DesignSpec;
   ai_source: "gemini" | "fallback";
   created_at: string;
@@ -144,6 +145,10 @@ export const listLiveShops = async (limit = 60) =>
 
 export const blobUrl = (id: string | null) => (id ? `/api/blobs/${id}` : null);
 
+/** The product photos, cover first. */
+export const shopPhotos = (shop: Pick<Shop, "photo_blob" | "gallery_blobs">) =>
+  [shop.photo_blob, ...(shop.gallery_blobs ?? [])].filter((b): b is string => Boolean(b));
+
 /** What the shop templates need, computed from the row. */
 export function shopView(shop: Shop) {
   return {
@@ -157,6 +162,8 @@ export function shopView(shop: Shop) {
     shipCountries: shop.product_type === "physical" ? shop.ship_countries : null,
     stock: shop.product_type === "physical" ? shop.stock : null,
     photoUrl: blobUrl(shop.photo_blob),
+    // Every product photo, cover first: what the gallery and Inspect page through.
+    photos: shopPhotos(shop).map((b) => blobUrl(b)!),
     heroUrl: blobUrl(shop.hero_blob),
     showcase: shop.product_type !== "referral" && shop.showcase ? showcaseView(shop.showcase, (b) => blobUrl(b)!) : null,
   };
