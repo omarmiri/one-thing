@@ -17,7 +17,7 @@ type Sdk = {
 };
 declare global {
   interface Window {
-    paypal?: { createInstance(o: { clientId: string; components: string[] }): Promise<Sdk> };
+    paypal?: { createInstance(o: { clientToken: string; components: string[] }): Promise<Sdk> };
   }
 }
 
@@ -37,19 +37,27 @@ function loadSdk(src: string) {
   return sdkLoad;
 }
 
-export function BuyButton(props: { slug: string; clientId: string | null; sdkUrl: string; label: string }) {
+export function BuyButton(props: { slug: string; enabled: boolean; sdkUrl: string; label: string }) {
   const router = useRouter();
   const box = useRef<HTMLDivElement>(null);
   const [msg, setMsg] = useState<{ kind: "error" | "info"; text: string } | null>(null);
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
-    if (!props.clientId) return;
+    if (!props.enabled) return;
     let cancelled = false;
     const el = box.current;
     (async () => {
-      await loadSdk(props.sdkUrl);
-      const sdk = await window.paypal!.createInstance({ clientId: props.clientId!, components: ["paypal-payments"] });
+      // v6 needs a server-made client token; a bare client ID can't check eligibility.
+      const [{ clientToken }] = await Promise.all([
+        fetch("/api/paypal/client-token").then(async (r) => {
+          const j = await r.json();
+          if (!r.ok) throw new Error(j.error);
+          return j as { clientToken: string };
+        }),
+        loadSdk(props.sdkUrl),
+      ]);
+      const sdk = await window.paypal!.createInstance({ clientToken, components: ["paypal-payments"] });
       if (!(await sdk.findEligibleMethods()).isEligible("paypal") || cancelled || !el) return;
 
       const session = await sdk.createPayPalOneTimePaymentSession({
@@ -100,11 +108,11 @@ export function BuyButton(props: { slug: string; clientId: string | null; sdkUrl
     return () => {
       cancelled = true;
     };
-  }, [props.clientId, props.sdkUrl, props.slug, router]);
+  }, [props.enabled, props.sdkUrl, props.slug, router]);
 
-  if (!props.clientId) {
+  if (!props.enabled) {
     return (
-      <button className="shop-buy opacity-60" disabled title="Set PAYPAL_CLIENT_ID to enable checkout">
+      <button className="shop-buy opacity-60" disabled title="Set PAYPAL_CLIENT_ID and PAYPAL_CLIENT_SECRET to enable checkout">
         {props.label} · PayPal not configured
       </button>
     );

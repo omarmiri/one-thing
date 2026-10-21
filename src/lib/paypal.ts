@@ -8,20 +8,39 @@ const API =
 
 export const paypalEnabled = () => Boolean(process.env.PAYPAL_CLIENT_ID && process.env.PAYPAL_CLIENT_SECRET);
 
-let cached: { token: string; expires: number } | null = null;
+type Token = { token: string; expires: number };
+let cached: Token | null = null;
+const clientTokens = new Map<string, Token>();
 
-async function accessToken(): Promise<string> {
-  if (cached && cached.expires > Date.now() + 60_000) return cached.token;
+async function oauthToken(op: string, params: Record<string, string>): Promise<Token> {
   const basic = Buffer.from(`${process.env.PAYPAL_CLIENT_ID}:${process.env.PAYPAL_CLIENT_SECRET}`).toString("base64");
   const res = await fetch(`${API}/v1/oauth2/token`, {
     method: "POST",
     headers: { authorization: `Basic ${basic}`, "content-type": "application/x-www-form-urlencoded" },
-    body: "grant_type=client_credentials",
+    body: new URLSearchParams({ grant_type: "client_credentials", ...params }),
   });
-  if (!res.ok) throw new PayPalError("auth", res.status, await res.text());
+  if (!res.ok) throw new PayPalError(op, res.status, await res.text());
   const json = (await res.json()) as { access_token: string; expires_in: number };
-  cached = { token: json.access_token, expires: Date.now() + json.expires_in * 1000 };
-  return json.access_token;
+  return { token: json.access_token, expires: Date.now() + json.expires_in * 1000 };
+}
+
+async function accessToken(): Promise<string> {
+  if (!cached || cached.expires < Date.now() + 60_000) cached = await oauthToken("auth", {});
+  return cached.token;
+}
+
+/**
+ * Browser-safe client token for the JS SDK v6, bound to the shop page's domain. A bare client
+ * ID isn't enough: the low-scope token PayPal derives from it is refused by the eligibility
+ * service (403 PERMISSION_DENIED), so the buttons never render.
+ */
+export async function clientToken(domain: string): Promise<string> {
+  let t = clientTokens.get(domain);
+  if (!t || t.expires < Date.now() + 5 * 60_000) {
+    t = await oauthToken("client token", { response_type: "client_token", intent: "sdk_init", "domains[]": domain });
+    clientTokens.set(domain, t);
+  }
+  return t.token;
 }
 
 export class PayPalError extends Error {

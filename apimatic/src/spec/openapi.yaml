@@ -419,6 +419,32 @@ paths:
         '503':
           $ref: '#/components/responses/UpstreamError'
 
+  /api/paypal/client-token:
+    get:
+      tags: [Checkout]
+      operationId: getPayPalClientToken
+      summary: Get a PayPal SDK client token
+      description: |
+        A browser-safe client token for the PayPal JavaScript SDK v6
+        (`paypal.createInstance({ clientToken })`), bound to the requesting site's domain.
+        Shop pages call this before showing the PayPal button.
+      responses:
+        '200':
+          description: A token for this site's domain.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [clientToken]
+                properties:
+                  clientToken:
+                    type: string
+                    description: Pass to `createInstance` in the PayPal JavaScript SDK v6.
+        '502':
+          $ref: '#/components/responses/UpstreamError'
+        '503':
+          $ref: '#/components/responses/UpstreamError'
+
   /api/orders:
     post:
       tags: [Checkout]

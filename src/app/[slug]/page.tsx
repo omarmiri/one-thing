@@ -3,7 +3,7 @@ import { notFound, permanentRedirect } from "next/navigation";
 import { BuyButton } from "@/components/shop/BuyButton";
 import { ShopPage } from "@/components/shop/ShopPage";
 import { appUrl, tokensMatch } from "@/lib/ids";
-import { sdkUrl } from "@/lib/paypal";
+import { paypalEnabled, sdkUrl } from "@/lib/paypal";
 import { getShopBySlug, shopView } from "@/lib/shops";
 
 export const dynamic = "force-dynamic";
@@ -39,7 +39,7 @@ export default async function Shop(props: PageProps<"/[slug]">) {
         view={{ ...shopView(shop), shareUrl: `${appUrl()}/${shop.slug}` }}
         buy={
           shop.status === "live" ? (
-            <BuyButton slug={shop.slug} clientId={process.env.PAYPAL_CLIENT_ID ?? null} sdkUrl={sdkUrl()} label={shop.spec.ctaLabel} />
+            <BuyButton slug={shop.slug} enabled={paypalEnabled()} sdkUrl={sdkUrl()} label={shop.spec.ctaLabel} />
           ) : (
             <button className="shop-buy" disabled>{shop.spec.ctaLabel}</button>
           )
