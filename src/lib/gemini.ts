@@ -5,8 +5,16 @@ import { Direction } from "./showcase";
 
 // Model ids differ by key and change over time — `npm run gemini:models` lists yours.
 const TEXT_MODEL = process.env.GEMINI_MODEL ?? "gemini-flash-latest";
-// Tried once when TEXT_MODEL stays overloaded (503) after its retries, or stalls.
-const FALLBACK_MODEL = process.env.GEMINI_FALLBACK_MODEL ?? "gemini-3.6-flash";
+// Each model has its own free-tier quota, so when one is out, overloaded or stalling, the next
+// one in this list takes the call.
+const MODELS = [
+  ...new Set([TEXT_MODEL, ...(process.env.GEMINI_FALLBACK_MODEL ?? "gemini-3.6-flash,gemini-3.5-flash-lite").split(",")]),
+]
+  .map((m) => m.trim())
+  .filter(Boolean);
+// model → when it's worth asking again. Lives as long as the process, like thinkingIndex.
+const benched = new Map<string, number>();
+const OVERLOAD_BENCH_MS = 2 * 60_000;
 // The SDK waits forever by default; an overloaded model can sit on a request for minutes.
 const ATTEMPT_TIMEOUT_MS = 45_000;
 const IMAGE_MODEL = process.env.GEMINI_IMAGE_MODEL ?? "gemini-2.5-flash-image";
@@ -75,12 +83,21 @@ const THINKING = [
 let thinkingIndex = 0;
 
 async function generate(parts: object[], extra: object) {
+  const now = Date.now();
+  const ready = MODELS.filter((m) => (benched.get(m) ?? 0) <= now);
+  // All benched: try them anyway, soonest back first, rather than fail without asking.
+  const queue = ready.length ? ready : [...MODELS].sort((a, b) => benched.get(a)! - benched.get(b)!);
   // "High demand" 503s come and go within seconds; two short retries ride most of them out.
   let retries = 0;
-  // The free tier's per-minute cap (429) says how long to wait; wait once, never for a daily cap.
+  // The free tier's per-minute cap (429) says how long to wait; wait once if it's short.
   let waitedForMinute = false;
-  let model = TEXT_MODEL;
-  for (;;) {
+  let last: unknown;
+  for (let i = 0; i < queue.length; ) {
+    const model = queue[i];
+    const next = () => {
+      i++;
+      if (i < queue.length) console.warn(`gemini: ${model} unavailable, trying ${queue[i]}`);
+    };
     try {
       return await client().models.generateContent({
         model,
@@ -88,6 +105,7 @@ async function generate(parts: object[], extra: object) {
         config: { ...THINKING[thinkingIndex], ...extra, httpOptions: { timeout: ATTEMPT_TIMEOUT_MS } },
       });
     } catch (err) {
+      last = err;
       const msg = String((err as Error).message ?? err);
       if (thinkingIndex < THINKING.length - 1 && /thinking/i.test(msg)) {
         thinkingIndex++;
@@ -95,30 +113,37 @@ async function generate(parts: object[], extra: object) {
       }
       // A stall means the model is swamped; another try on it would likely stall too.
       const name = (err as Error).name;
-      if ((name === "AbortError" || name === "TimeoutError") && model !== FALLBACK_MODEL) {
-        console.warn(`gemini: ${model} gave no answer in ${ATTEMPT_TIMEOUT_MS / 1000}s, trying ${FALLBACK_MODEL}`);
-        model = FALLBACK_MODEL;
+      if (name === "AbortError" || name === "TimeoutError") {
+        benched.set(model, Date.now() + OVERLOAD_BENCH_MS);
+        next();
         continue;
       }
       const status = (err as { status?: number }).status;
-      if ((status === 503 || status === 500) && retries < 2) {
-        await new Promise((r) => setTimeout(r, ++retries * 2000));
+      if (status === 503 || status === 500) {
+        if (i === 0 && retries < 2) {
+          await new Promise((r) => setTimeout(r, ++retries * 2000));
+          continue;
+        }
+        benched.set(model, Date.now() + OVERLOAD_BENCH_MS);
+        next();
         continue;
       }
-      if ((status === 503 || status === 500) && model !== FALLBACK_MODEL) {
-        console.warn(`gemini: ${model} still overloaded, trying ${FALLBACK_MODEL}`);
-        model = FALLBACK_MODEL;
-        continue;
-      }
-      if (status === 429 && !waitedForMinute && /PerMinute/.test(msg)) {
-        const delay = Number(/"retryDelay":"(\d+(?:\.\d+)?)s"/.exec(msg)?.[1] ?? /retry in (\d+(?:\.\d+)?)s/.exec(msg)?.[1] ?? 15);
-        waitedForMinute = true;
-        await new Promise((r) => setTimeout(r, (Math.min(delay, 30) + 1) * 1000));
+      if (status === 429) {
+        const delay = Number(/"retryDelay":"(\d+(?:\.\d+)?)s"/.exec(msg)?.[1] ?? /retry in (\d+(?:\.\d+)?)s/.exec(msg)?.[1] ?? 60);
+        if (!waitedForMinute && delay <= 30 && /PerMinute/.test(msg)) {
+          waitedForMinute = true;
+          await new Promise((r) => setTimeout(r, (delay + 1) * 1000));
+          continue;
+        }
+        // Out for the day (or a long while): don't ask this model again until Google says so.
+        benched.set(model, Date.now() + delay * 1000);
+        next();
         continue;
       }
       throw err;
     }
   }
+  throw last;
 }
 
 async function generateDesign(parts: object[]): Promise<Generated> {
