@@ -5,6 +5,8 @@ import { Direction } from "./showcase";
 
 // Model ids differ by key and change over time — `npm run gemini:models` lists yours.
 const TEXT_MODEL = process.env.GEMINI_MODEL ?? "gemini-flash-latest";
+// Tried once when TEXT_MODEL stays overloaded (503) after its retries.
+const FALLBACK_MODEL = process.env.GEMINI_FALLBACK_MODEL ?? "gemini-3.6-flash";
 const IMAGE_MODEL = process.env.GEMINI_IMAGE_MODEL ?? "gemini-2.5-flash-image";
 
 export const geminiEnabled = () => Boolean(process.env.GEMINI_API_KEY);
@@ -75,10 +77,11 @@ async function generate(parts: object[], extra: object) {
   let retries = 0;
   // The free tier's per-minute cap (429) says how long to wait; wait once, never for a daily cap.
   let waitedForMinute = false;
+  let model = TEXT_MODEL;
   for (;;) {
     try {
       return await client().models.generateContent({
-        model: TEXT_MODEL,
+        model,
         contents: [{ role: "user", parts }],
         config: { ...THINKING[thinkingIndex], ...extra },
       });
@@ -91,6 +94,11 @@ async function generate(parts: object[], extra: object) {
       const status = (err as { status?: number }).status;
       if ((status === 503 || status === 500) && retries < 2) {
         await new Promise((r) => setTimeout(r, ++retries * 2000));
+        continue;
+      }
+      if ((status === 503 || status === 500) && model !== FALLBACK_MODEL) {
+        console.warn(`gemini: ${model} still overloaded, trying ${FALLBACK_MODEL}`);
+        model = FALLBACK_MODEL;
         continue;
       }
       if (status === 429 && !waitedForMinute && /PerMinute/.test(msg)) {
