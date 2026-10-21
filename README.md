@@ -7,6 +7,9 @@ account.
 
 Built for the [PayPal AI Hackathon](https://paypalaihackathon.devpost.com/).
 
+**Timed on the live deployment (PayPal sandbox):** a photo becomes a designed shop in about 20
+seconds, goes live in one click, and a buyer paying by card completes checkout in about 30 seconds.
+
 | | |
 |---|---|
 | **Live app** | [one-thing-ash0.onrender.com](https://one-thing-ash0.onrender.com) (PayPal sandbox) |
@@ -15,6 +18,20 @@ Built for the [PayPal AI Hackathon](https://paypalaihackathon.devpost.com/).
 | **Example shop** | [one-thing-ash0.onrender.com/raptorrush](https://one-thing-ash0.onrender.com/raptorrush): Raptor Rush, a browser game sold with access codes |
 | **API docs and SDKs** | [omarmiri.github.io/one-thing](https://omarmiri.github.io/one-thing/), generated with APIMatic, with working "Try it" calls |
 | **OpenAPI spec** | [one-thing-ash0.onrender.com/openapi.yaml](https://one-thing-ash0.onrender.com/openapi.yaml) |
+
+## Tested end to end
+
+Timed on the hosted app, from clicking **Build my shop** to a drafted page:
+
+| Start | Input | Draft ready | What the AI got |
+|---|---|---|---|
+| Upload a photo | a lavender stoneware mug | ~20 s | "Stoneware Ombre Mug", physical, $24 + $5 shipping, US, `/purplemug`, copy, details and FAQ |
+| Paste a link | `https://miriogames.com` | ~20 s | a digital product unlocked by access code, pointing back at the games site |
+| Find a product | "gifts for trail runners" | search 5 s, build ~18 s | a Scarpa tee recommendation page at $40, earning up to 5%, with a tracked buy link |
+
+**Go live** takes a second. A sandbox buyer then paid $29.00 by guest card on `/purplemug`. The
+order was captured, PayPal's shipping address was saved, and it landed in the seller's grid as
+"to ship".
 
 ## Why
 
@@ -70,6 +87,9 @@ the AI's guesses and clicks **Go live**. The choices behind it:
 
 - **PayPal checkout** with the JS SDK v6 buttons. The price always comes from the database, never
   the browser.
+- **Pay with a PayPal account or as a guest by card.** While PayPal's window is open, the page
+  also watches for the approval itself, so checkout completes even if PayPal's window never hands
+  back.
 - **Pay on your phone:** desktop shop pages show a QR code, and payments that come back by
   redirect (as on mobile) are captured on the thank-you page.
 - **Thank-you page** with the download button, the access code and its **Start now** link, or the
@@ -98,8 +118,10 @@ the AI's guesses and clicks **Go live**. The choices behind it:
    (the buyer).
 2. Create a shop at [/new](https://one-thing-ash0.onrender.com/new) and enter the business email as
    "Your PayPal email". Go live.
-3. Open the shop link and pay with the personal sandbox account. You land on the thank-you page,
-   and the order appears in the seller's grid.
+3. Open the shop link and pay with the personal sandbox account, or choose **Pay with Debit or
+   Credit Card** and use a test card from the dashboard's **Testing tools → Credit card
+   generator** (real cards are refused in sandbox). You land on the thank-you page, and the order
+   appears in the seller's grid.
 4. For a physical order, click **Mark shipped** and add a tracking number.
 
 ## How it works
@@ -108,7 +130,7 @@ the AI's guesses and clicks **Go live**. The choices behind it:
 Seller ── /new ──► POST /api/shops ──► Gemini (vision + structured output) ──► design spec (JSON)
           (photo │ link │ Channel3 pick)  └► after(): Gemini image model ──► hero art
           /manage/[slug] ── chat "make it warmer" ──► POST /refine ──► Gemini edits the spec
-Buyer  ── /<slug> ── <paypal-button> (JS SDK v6), or a QR code to pay on a phone
+Buyer  ── /<slug> ── GET /api/paypal/client-token → <paypal-button> (JS SDK v6), or a QR code to pay on a phone
           ├► POST /api/orders                    → PayPal Orders v2 create (price from DB, payee = seller)
           └► POST /api/orders/:id/capture        → capture → mark paid → stock / download / access code / Zapier
 PayPal ──► POST /api/paypal/webhook               → signature verified → same idempotent mark-paid → webhook log
@@ -117,6 +139,9 @@ Seller's app ──► POST /api/access/verify          → is this buyer's code
 
 - **Design spec:** [src/lib/design.ts](src/lib/design.ts) defines it; [src/lib/gemini.ts](src/lib/gemini.ts)
   asks for it; [src/components/shop/ShopPage.tsx](src/components/shop/ShopPage.tsx) renders it.
+- **Checkout** ([src/components/shop/BuyButton.tsx](src/components/shop/BuyButton.tsx)): the SDK starts
+  with a server-made client token. While PayPal's window is open the page polls the capture
+  endpoint, which answers 409 until the buyer approves, so a stalled hand-back still completes.
 - **Mark-paid is idempotent** ([src/lib/orders.ts](src/lib/orders.ts)). The capture call and the
   webhook can arrive in either order, and stock, download links, access codes and Zapier still fire
   exactly once. Capture request ids are unique per attempt, so a retry after a decline isn't replayed.
