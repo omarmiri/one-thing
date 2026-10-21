@@ -5,8 +5,10 @@ import { Direction } from "./showcase";
 
 // Model ids differ by key and change over time — `npm run gemini:models` lists yours.
 const TEXT_MODEL = process.env.GEMINI_MODEL ?? "gemini-flash-latest";
-// Tried once when TEXT_MODEL stays overloaded (503) after its retries.
+// Tried once when TEXT_MODEL stays overloaded (503) after its retries, or stalls.
 const FALLBACK_MODEL = process.env.GEMINI_FALLBACK_MODEL ?? "gemini-3.6-flash";
+// The SDK waits forever by default; an overloaded model can sit on a request for minutes.
+const ATTEMPT_TIMEOUT_MS = 45_000;
 const IMAGE_MODEL = process.env.GEMINI_IMAGE_MODEL ?? "gemini-2.5-flash-image";
 
 export const geminiEnabled = () => Boolean(process.env.GEMINI_API_KEY);
@@ -83,12 +85,19 @@ async function generate(parts: object[], extra: object) {
       return await client().models.generateContent({
         model,
         contents: [{ role: "user", parts }],
-        config: { ...THINKING[thinkingIndex], ...extra },
+        config: { ...THINKING[thinkingIndex], ...extra, httpOptions: { timeout: ATTEMPT_TIMEOUT_MS } },
       });
     } catch (err) {
       const msg = String((err as Error).message ?? err);
       if (thinkingIndex < THINKING.length - 1 && /thinking/i.test(msg)) {
         thinkingIndex++;
+        continue;
+      }
+      // A stall means the model is swamped; another try on it would likely stall too.
+      const name = (err as Error).name;
+      if ((name === "AbortError" || name === "TimeoutError") && model !== FALLBACK_MODEL) {
+        console.warn(`gemini: ${model} gave no answer in ${ATTEMPT_TIMEOUT_MS / 1000}s, trying ${FALLBACK_MODEL}`);
+        model = FALLBACK_MODEL;
         continue;
       }
       const status = (err as { status?: number }).status;
@@ -120,7 +129,7 @@ async function generateDesign(parts: object[]): Promise<Generated> {
     temperature: 0.8,
   });
   const out = Generated.parse(JSON.parse(res.text ?? ""));
-  console.info(`gemini design: ${TEXT_MODEL} in ${((Date.now() - t0) / 1000).toFixed(1)}s`);
+  console.info(`gemini design: ${res.modelVersion ?? TEXT_MODEL} in ${((Date.now() - t0) / 1000).toFixed(1)}s`);
   return { ...out, ...ensureReadable(out) };
 }
 
@@ -229,7 +238,7 @@ export async function directShowcase(context: string, assets: ShowcaseAsset[]): 
     temperature: 0.6,
   });
   const out = Direction.parse(JSON.parse(res.text ?? ""));
-  console.info(`gemini showcase: ${TEXT_MODEL} in ${((Date.now() - t0) / 1000).toFixed(1)}s, game=${out.isGame}`);
+  console.info(`gemini showcase: ${res.modelVersion ?? TEXT_MODEL} in ${((Date.now() - t0) / 1000).toFixed(1)}s, game=${out.isGame}`);
   return out;
 }
 
