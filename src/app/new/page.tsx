@@ -3,7 +3,7 @@ import { currentAccount } from "@/lib/accounts";
 import { SignInForm } from "@/components/SignInForm";
 import { channel3Enabled } from "@/lib/channel3";
 import { geminiEnabled } from "@/lib/gemini";
-import { paypalEnabled } from "@/lib/paypal";
+import { paypalLoginEnabled } from "@/lib/paypal";
 import { NewShopForm } from "./NewShopForm";
 
 export const dynamic = "force-dynamic";
@@ -18,7 +18,7 @@ export default async function NewShop() {
         <h1 className="mt-6 text-3xl font-bold tracking-tight">First, where should we keep your shop?</h1>
         <p className="mt-2 text-muted">Your shops stay together under this, and you can find them again from any device.</p>
         <div className="mt-8">
-          <SignInForm paypal={paypalEnabled()} next="/new" />
+          <SignInForm paypal={paypalLoginEnabled()} next="/new" />
         </div>
       </main>
     );

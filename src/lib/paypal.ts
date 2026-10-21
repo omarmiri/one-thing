@@ -197,6 +197,9 @@ export const sdkUrl = () =>
 const CONNECT =
   process.env.PAYPAL_ENV === "live" ? "https://www.paypal.com/connect" : "https://www.sandbox.paypal.com/connect";
 
+/** Off until the PayPal app has Log in with PayPal and our Return URL set up: PAYPAL_LOGIN=on. */
+export const paypalLoginEnabled = () => paypalEnabled() && process.env.PAYPAL_LOGIN === "on";
+
 export const paypalLoginReturnUrl = () => `${appUrl()}/api/account/paypal/callback`;
 
 export function paypalLoginUrl(state: string): string {

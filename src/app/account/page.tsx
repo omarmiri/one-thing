@@ -2,7 +2,7 @@ import Link from "next/link";
 import { accountLabel, currentAccount } from "@/lib/accounts";
 import { blobUrl, listAccountShops, money, shopPhotos } from "@/lib/shops";
 import { PayPalLoginButton, SignInForm } from "@/components/SignInForm";
-import { paypalEnabled } from "@/lib/paypal";
+import { paypalLoginEnabled } from "@/lib/paypal";
 import { SignOutButton } from "./SignOutButton";
 
 export const dynamic = "force-dynamic";
@@ -29,7 +29,7 @@ export default async function AccountPage(props: PageProps<"/account">) {
         <p className="mt-2 text-muted">Sign in with PayPal, or the email or phone number you made them with.</p>
         {notice}
         <div className="mt-8">
-          <SignInForm cta="Sign in" paypal={paypalEnabled()} />
+          <SignInForm cta="Sign in" paypal={paypalLoginEnabled()} />
         </div>
       </main>
     );
@@ -49,7 +49,7 @@ export default async function AccountPage(props: PageProps<"/account">) {
           Sales are paid to your PayPal account <strong className="text-foreground">{account.paypal_email}</strong>.
         </p>
       ) : (
-        paypalEnabled() && (
+        paypalLoginEnabled() && (
           <div className="mt-6 flex flex-wrap items-center gap-4 rounded-2xl border border-line bg-white p-4">
             <p className="flex-1 text-sm">Connect PayPal so your shops know where to pay you.</p>
             <div className="w-full sm:w-64">
