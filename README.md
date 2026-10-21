@@ -151,6 +151,13 @@ Every live shop is agent-ready:
 - **schema.org `Product` JSON-LD** on every live shop page, which shopping agents and search
   engines already read.
 
+**Tested with a third-party agent.** Meta's Muse, given only the gallery URL, browsed the shops,
+ranked its picks, and bought Raptor Rush through the normal shop page and PayPal sandbox checkout
+(using a sandbox PayPal login the user saved in Muse). The access code it brought back verified as
+valid. The image below recreates that session ([source](docs/muse-checkout-demo.html)):
+
+<img src="docs/images/muse-checkout-demo.png" alt="Muse finds OneThing shops, the user picks Raptor Rush, Muse pays with PayPal sandbox and returns the access code" width="420">
+
 ### Developers
 
 - **A documented REST API** for everything the app does: [OpenAPI 3.1 spec](apimatic/src/spec/openapi.yaml),

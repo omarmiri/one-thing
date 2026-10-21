@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Muse × OneThing — Agentic Checkout Demo</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: #e9edf4; padding: 28px 20px; }
+  .demo { max-width: 560px; margin: 0 auto; background: #ffffff; border: 1px solid #dde3ec; border-radius: 18px; overflow: hidden; box-shadow: 0 12px 32px rgba(15, 30, 60, .14); color: #17202e; }
+  .hdr { display: flex; align-items: center; gap: 10px; padding: 14px 18px; border-bottom: 1px solid #e3e8f0; background: #f6f8fb; }
+  .avatar { width: 34px; height: 34px; border-radius: 50%; background: #2563eb; color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 15px; flex: none; }
+  .hdr .name { font-weight: 700; font-size: 15px; line-height: 1.2; }
+  .hdr .sub { font-size: 12px; color: #66738a; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: #22c55e; margin-left: auto; flex: none; }
+  .thread { padding: 18px 16px 8px; }
+  .thread > div { margin-bottom: 12px; }
+  .row.me { text-align: right; }
+  .bubble { display: inline-block; text-align: left; max-width: 82%; padding: 10px 14px; border-radius: 16px; font-size: 14px; line-height: 1.45; }
+  .bubble.ai { background: #f1f4f9; border: 1px solid #e0e6f0; border-bottom-left-radius: 4px; }
+  .bubble.me { background: #2563eb; color: #fff; border-bottom-right-radius: 4px; }
+  .who { font-size: 11px; color: #66738a; margin: 0 4px 4px; }
+  .row.me .who { text-align: right; }
+  .picks { margin-top: 6px; }
+  .picks div { padding: 3px 0; }
+  .price { font-weight: 700; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; padding: 2px 4px 0; }
+  .chip { font-size: 13px; padding: 7px 13px; border-radius: 999px; border: 1.5px dashed #c4cddd; color: #66738a; }
+  .chip.sel { border: 1.5px solid #2563eb; color: #2563eb; font-weight: 700; background: #fff; }
+  .vault { border: 1.5px solid #2563eb; border-radius: 14px; padding: 12px 14px; background: #fff; max-width: 82%; }
+  .vault .vt { font-size: 11px; letter-spacing: .08em; font-weight: 700; color: #2563eb; }
+  .vault .vm { font-size: 14px; font-weight: 600; margin: 4px 0 2px; }
+  .vault .vs { font-size: 12px; color: #66738a; }
+  .receipt { border: 1px solid #e0e6f0; border-radius: 12px; padding: 12px 14px; margin-top: 8px; background: #fff; font-size: 13.5px; }
+  .receipt .rrow { display: flex; justify-content: space-between; gap: 12px; padding: 3px 0; }
+  .receipt .lbl { color: #66738a; }
+  .code { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-weight: 700; font-size: 16px; letter-spacing: .04em; text-align: center; border: 1.5px dashed #2563eb; border-radius: 10px; padding: 9px; margin: 10px 0 6px; color: #2563eb; }
+  .link { color: #2563eb; font-weight: 600; word-break: break-all; }
+  .ok { font-weight: 700; }
+  .ftr { margin-top: 10px; padding: 13px 18px; border-top: 1px solid #e3e8f0; background: #f6f8fb; font-size: 12.5px; color: #66738a; text-align: center; line-height: 1.5; }
+  .ftr b { color: #17202e; }
+</style>
+</head>
+<body>
+<div class="demo">
+  <div class="hdr">
+    <div class="avatar">M</div>
+    <div>
+      <div class="name">Muse</div>
+      <div class="sub">Agentic checkout &middot; OneThing Store (hackathon demo)</div>
+    </div>
+    <div class="dot"></div>
+  </div>
+  <div class="thread">
+    <div>
+      <div class="who">Omar</div>
+      <div class="row me"><div class="bubble me">Find me something interesting to buy in the OneThing store.</div></div>
+    </div>
+    <div>
+      <div class="who">Muse</div>
+      <div class="bubble ai">Browsed all 5 shops &mdash; here are my top 3:
+        <div class="picks">
+          <div>1. <b>Raptor Rush</b> &mdash; <span class="price">$9.99</span> total &middot; digital game &middot; instant access</div>
+          <div>2. <b>Starship Triptych Art Print</b> &mdash; <span class="price">$48.50</span> shipped &middot; sci-fi wall art</div>
+          <div>3. <b>Bird Automaton</b> &mdash; <span class="price">$59</span> shipped &middot; one of a kind, only 1 left</div>
+        </div>
+        <div style="margin-top:6px">Which one do you want?</div>
+      </div>
+      <div class="chips">
+        <span class="chip sel">Raptor Rush</span>
+        <span class="chip">Starship Triptych</span>
+        <span class="chip">Bird Automaton</span>
+        <span class="chip">Dragon Flight</span>
+      </div>
+    </div>
+    <div>
+      <div class="who">Omar</div>
+      <div class="row me"><div class="bubble me">Raptor Rush</div></div>
+    </div>
+    <div>
+      <div class="who">Muse</div>
+      <div class="bubble ai">I&rsquo;ll buy it for you directly. Save your PayPal credentials in the Secure Vault and I&rsquo;ll complete the checkout and bring back your access code &mdash; I never see the password.</div>
+    </div>
+    <div class="vault">
+      <div class="vt">SECURE VAULT</div>
+      <div class="vm">PayPal (Sandbox) &mdash; login saved &#10003;</div>
+      <div class="vs">Stored encrypted &middot; entered by Omar &middot; never shown to Muse</div>
+    </div>
+    <div>
+      <div class="who">Omar</div>
+      <div class="row me"><div class="bubble me">Saved &mdash; go ahead.</div></div>
+    </div>
+    <div>
+      <div class="who">Muse</div>
+      <div class="bubble ai">
+        <span class="ok">Payment received &#10003;</span> Here&rsquo;s your game:
+        <div class="receipt">
+          <div class="rrow"><span class="lbl">Item</span><span>Raptor Rush (digital)</span></div>
+          <div class="rrow"><span class="lbl">Total charged</span><span><b>$9.99</b> via PayPal Sandbox</span></div>
+          <div class="rrow"><span class="lbl">Order</span><span>1aT6XlcpXz8ZnDGc</span></div>
+          <div class="code">4QRQ-Q9EE-ZBGJ</div>
+          <div class="rrow"><span class="lbl">Play now</span><span class="link">miriogames.com/raptor-rush/?code=4QRQ-Q9EE-ZBGJ</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="ftr">Browse &rarr; pick &rarr; secure credentials &rarr; PayPal &rarr; instant delivery.<br><b>End-to-end agentic commerce, powered by Muse.</b></div>
+</div>
+</body>
+</html>
