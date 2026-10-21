@@ -25,6 +25,7 @@ const Settings = z.object({
   access_url: z.url().startsWith("https://").nullable().optional(),
   slug: z.string().max(60).optional(),
   product_type: z.enum(["physical", "digital", "referral"]).optional(),
+  in_gallery: z.boolean().optional(),
 });
 
 export async function PATCH(req: Request, ctx: RouteContext<"/api/shops/[slug]">) {
@@ -69,6 +70,7 @@ export async function PATCH(req: Request, ctx: RouteContext<"/api/shops/[slug]">
     ...(s.status && { status: s.status }),
     ...(s.delivery && kind === "digital" && { delivery: s.delivery }),
     ...(s.access_url !== undefined && { access_url: s.access_url }),
+    ...(s.in_gallery !== undefined && { in_gallery: s.in_gallery }),
   });
   return NextResponse.json({ ok: true, slug: slug ?? shop.slug });
 }

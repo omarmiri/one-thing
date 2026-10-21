@@ -19,6 +19,7 @@ export type SetupInitial = {
   paypalEmail: string | null;
   sellerEmail: string | null;
   zapierHookUrl: string | null;
+  inGallery: boolean;
   referral: { offers: { domain: string; price: number; currency: string; commission: number }[] } | null;
 };
 
@@ -134,6 +135,7 @@ export function SetupPanel(props: {
           paypal_email: val("paypal_email"),
           seller_email: val("seller_email"),
           zapier_hook_url: val("zapier_hook_url"),
+          in_gallery: f.get("in_gallery") === "on",
           ...(goLive && { status: "live" }),
         }),
       });
@@ -250,6 +252,14 @@ export function SetupPanel(props: {
           <input name="paypal_email" type="email" defaultValue={s.paypalEmail ?? ""} placeholder="you@example.com" className={input} />
         </Row>
       )}
+
+      <label className="flex items-start gap-3 text-sm">
+        <input name="in_gallery" type="checkbox" defaultChecked={s.inGallery} className="mt-0.5 size-4 accent-current" />
+        <span>
+          <span className="font-medium">Show in the OneThing gallery</span>
+          <span className="block text-muted">Feature this page at /gallery once it&apos;s live. You can turn it off any time.</span>
+        </span>
+      </label>
 
       <details className="text-sm">
         <summary className="cursor-pointer text-muted">Notifications and automations</summary>

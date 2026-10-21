@@ -29,6 +29,7 @@ export type Shop = {
   access_url: string | null;
   referral: Referral | null;
   source_url: string | null;
+  in_gallery: boolean;
   spec: DesignSpec;
   ai_source: "gemini" | "fallback";
   created_at: string;
@@ -131,9 +132,9 @@ export const listWebhookEvents = (shopId: string) =>
 
 export const getOrder =(id: string) => one<Order>("SELECT * FROM orders WHERE id = $1", [id]);
 
-/** Live shops for the public gallery, newest first. Drafts never appear. */
+/** Live shops whose sellers opted into the public gallery, newest first. */
 export const listLiveShops = async (limit = 60) =>
-  (await query<Shop>("SELECT * FROM shops WHERE status = 'live' ORDER BY created_at DESC LIMIT $1", [limit])).map(
+  (await query<Shop>("SELECT * FROM shops WHERE status = 'live' AND in_gallery ORDER BY created_at DESC LIMIT $1", [limit])).map(
     (row) => hydrate(row)!,
   );
 

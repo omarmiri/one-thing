@@ -826,6 +826,9 @@ components:
         zapier_hook_url:
           type: [string, 'null']
           format: uri
+        in_gallery:
+          type: boolean
+          description: Feature the shop at `/gallery` while it's live. Off by default.
 
     Shop:
       type: object
@@ -863,6 +866,8 @@ components:
           type: [string, 'null']
         zapier_hook_url:
           type: [string, 'null']
+        in_gallery:
+          type: boolean
         photo_blob:
           type: [string, 'null']
           description: Image id for `getImage`.

@@ -82,6 +82,8 @@ ALTER TABLE orders ADD COLUMN IF NOT EXISTS code_last_used_at timestamptz;
 ALTER TABLE shops ADD COLUMN IF NOT EXISTS referral jsonb;          -- src/lib/channel3.ts Referral
 ALTER TABLE shops ADD COLUMN IF NOT EXISTS source_url text;         -- the link the seller pasted
 ALTER TABLE shops ADD COLUMN IF NOT EXISTS hero_error text;         -- why hero art failed, for the seller/debugging
+-- Public /gallery is opt-in: a live shop appears only once its seller switches this on.
+ALTER TABLE shops ADD COLUMN IF NOT EXISTS in_gallery boolean NOT NULL DEFAULT false;
 
 -- Every link name a shop has had (the current one is shops.slug). Old names redirect.
 CREATE TABLE IF NOT EXISTS shop_slugs (

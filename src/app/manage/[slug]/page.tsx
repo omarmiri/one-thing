@@ -37,6 +37,7 @@ export default async function Manage(props: PageProps<"/manage/[slug]">) {
           paypalEmail: shop.paypal_email,
           sellerEmail: shop.seller_email,
           zapierHookUrl: shop.zapier_hook_url,
+          inGallery: shop.in_gallery,
           referral: shop.referral && {
             offers: shop.referral.offers.map(({ domain, price, currency, commission }) => ({ domain, price, currency, commission })),
           },
