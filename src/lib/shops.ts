@@ -131,6 +131,12 @@ export const listWebhookEvents = (shopId: string) =>
 
 export const getOrder =(id: string) => one<Order>("SELECT * FROM orders WHERE id = $1", [id]);
 
+/** Live shops for the public gallery, newest first. Drafts never appear. */
+export const listLiveShops = async (limit = 60) =>
+  (await query<Shop>("SELECT * FROM shops WHERE status = 'live' ORDER BY created_at DESC LIMIT $1", [limit])).map(
+    (row) => hydrate(row)!,
+  );
+
 export const blobUrl = (id: string | null) => (id ? `/api/blobs/${id}` : null);
 
 /** What the shop templates need, computed from the row. */

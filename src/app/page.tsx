@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { GalleryCard } from "@/components/GalleryCard";
+import { listLiveShops } from "@/lib/shops";
 
 const STEPS = [
   { n: "1", title: "Snap a photo", body: "Add one picture and a few sentences about what you're selling — a mug, a print, an ebook, a preset pack." },
@@ -6,12 +8,17 @@ const STEPS = [
   { n: "3", title: "Get paid with PayPal", body: "Publish and share the link. Buyers pay with PayPal or card, and the money goes straight to your PayPal account." },
 ];
 
-export default function Home() {
+export default async function Home() {
+  const latest = await listLiveShops(3);
+
   return (
     <main className="flex-1">
       <header className="mx-auto flex max-w-6xl items-center px-4 py-5 sm:px-6">
         <span className="font-semibold tracking-tight">OneThing</span>
-        <Link href="/new" className="ml-auto rounded-full bg-foreground px-4 py-2 text-sm font-semibold text-background">
+        <Link href="/gallery" className="ml-auto mr-5 text-sm font-medium text-muted hover:text-foreground">
+          Gallery
+        </Link>
+        <Link href="/new" className=" rounded-full bg-foreground px-4 py-2 text-sm font-semibold text-background">
           Create a shop
         </Link>
       </header>
@@ -40,6 +47,22 @@ export default function Home() {
           </div>
         ))}
       </section>
+
+      {latest.length > 0 && (
+        <section className="mx-auto max-w-6xl px-4 pb-24 sm:px-6">
+          <div className="flex items-baseline">
+            <h2 className="text-2xl font-bold tracking-tight">Made with OneThing</h2>
+            <Link href="/gallery" className="ml-auto font-semibold text-accent">
+              See the gallery →
+            </Link>
+          </div>
+          <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {latest.map((s) => (
+              <GalleryCard key={s.id} shop={s} />
+            ))}
+          </div>
+        </section>
+      )}
 
       <footer className="border-t border-line py-8 text-center text-sm text-muted">
         Built for the PayPal AI Hackathon · Gemini + PayPal

@@ -10,7 +10,7 @@ const RESERVED = new Set([
   "new", "manage", "api", "s", "admin", "login", "logout", "signup", "account", "settings",
   "dashboard", "help", "about", "pricing", "terms", "privacy", "blog", "docs", "shop", "shops",
   "app", "www", "static", "assets", "public", "favicon.ico", "robots.txt", "sitemap.xml",
-  "onething", "one-thing", "paypal", "checkout", "thanks", "download", "_next",
+  "onething", "one-thing", "paypal", "checkout", "thanks", "download", "_next", "gallery",
 ]);
 
 export const SLUG_RULES = "3–30 characters: lowercase letters, numbers and dashes";
