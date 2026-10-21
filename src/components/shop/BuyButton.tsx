@@ -58,7 +58,10 @@ export function BuyButton(props: { slug: string; enabled: boolean; sdkUrl: strin
         loadSdk(props.sdkUrl),
       ]);
       const sdk = await window.paypal!.createInstance({ clientToken, components: ["paypal-payments"] });
-      if (!(await sdk.findEligibleMethods()).isEligible("paypal") || cancelled || !el) return;
+      // Eligibility is advisory. Some sandbox apps get 403 from PayPal's eligibility service
+      // while checkout itself works, so only an explicit "not eligible" hides the button.
+      const eligible = await sdk.findEligibleMethods().then((m) => m.isEligible("paypal"), () => true);
+      if (!eligible || cancelled || !el) return;
 
       const session = await sdk.createPayPalOneTimePaymentSession({
         async onApprove({ orderId }) {
