@@ -24,9 +24,11 @@ documentation:
     3. Buyers pay on `https://<host>/<slug>` with PayPal. Sellers read orders and ship them.
 
 
-    **Auth.** Seller endpoints take the shop's admin token in the `x-admin-token` header. Buyer
+    **Auth.** Seller endpoints take the shop's admin token in the `x-admin-token` header, or a
 
-    endpoints (checkout, access-code verification, downloads) are public.
+    **platform API key** (`Authorization: Bearer ot_sk_…`) for marketplaces that make shops for
+
+    their own sellers. Buyer endpoints (checkout, access-code verification, downloads) are public.
 
 
     **Access codes.** A digital product can unlock an app or game instead of shipping a file.
@@ -806,6 +808,68 @@ types:
         displayName: mcp_server
         description: The MCP server to order through (`getAgentProduct` only).
         type: string
+  PlatformShop:
+    displayName: PlatformShop
+    type: object
+    properties:
+      slug:
+        required: true
+        displayName: slug
+        type: string
+      status:
+        required: true
+        displayName: status
+        type: string
+        enum:
+        - draft
+        - live
+      name:
+        required: true
+        displayName: name
+        type: string
+      headline:
+        required: false
+        displayName: headline
+        type: string
+      product_type:
+        required: true
+        displayName: product_type
+        type: string
+        enum:
+        - physical
+        - digital
+        - referral
+      price:
+        required: true
+        displayName: price
+        type: AgentMoney
+      url:
+        required: true
+        displayName: url
+        description: The shop page buyers pay on.
+        type: string
+      cover:
+        required: false
+        displayName: cover
+        description: The cover image's URL.
+        type:
+        - string
+        - nil
+      paypal_connected:
+        required: true
+        displayName: paypal_connected
+        description: The seller connected a PayPal account that can be paid.
+        type: boolean
+      sales:
+        required: true
+        displayName: sales
+        description: Paid orders.
+        type: integer
+        format: int32
+      created_at:
+        required: true
+        displayName: created_at
+        type: datetime
   AgentMoney:
     displayName: AgentMoney
     type: object
@@ -1296,6 +1360,16 @@ types:
         displayName: clientToken
         description: Pass to `createInstance` in the PayPal JavaScript SDK v6.
         type: string
+  ApiPlatformShopsResponse:
+    displayName: ApiPlatformShopsResponse
+    type: object
+    properties:
+      shops:
+        required: true
+        displayName: shops
+        type: array
+        items:
+          type: PlatformShop
   ApiShopsColorPhotosRequest:
     displayName: ApiShopsColorPhotosRequest
     type: object
@@ -1399,6 +1473,17 @@ types:
         displayName: synced
         description: Whether PayPal accepted the tracking number.
         type: boolean
+  ApiShopsPaypalRequest:
+    displayName: ApiShopsPaypalRequest
+    type: object
+    properties:
+      returnUrl:
+        required: false
+        example:
+          value: https://www.miriogames.com/market/manage/?g=7Hq2
+        displayName: returnUrl
+        description: Platform key only. Where to send the seller after PayPal.
+        type: string
   ApiShopsPaypalResponse:
     displayName: ApiShopsPaypalResponse
     type: object
@@ -1916,6 +2001,15 @@ types:
 
 
         Takes 15–40 seconds. Hero art, if available, is generated afterwards (`hero_status`).
+
+
+        **Platforms:** sent with a platform API key, the shop belongs to the key's account, so the
+
+        key can manage it from then on (no need to keep the admin token). It's made for one of the
+
+        platform's sellers, so it inherits nothing from the account: set `paypal_email` or call
+
+        `connectPayPal` for that seller.
       body:
         multipart/form-data:
           type: object
@@ -2007,6 +2101,9 @@ types:
               required: false
               displayName: digital_file
               type: file
+      securedBy:
+      - null
+      - PlatformKey
       responses:
         '200':
           description: Draft created.
@@ -2050,6 +2147,7 @@ types:
         description: Everything about the shop, including the AI's design spec and guesses.
         securedBy:
         - AdminToken
+        - PlatformKey
         responses:
           '200':
             description: The shop.
@@ -2059,7 +2157,7 @@ types:
                 description: ''
                 type: Shop
           '404':
-            description: No such shop, or the admin token doesn't match it.
+            description: No such shop, or the admin token or API key doesn't match it.
             body:
               application/json:
                 displayName: response404
@@ -2079,6 +2177,7 @@ types:
             type: ShopUpdate
         securedBy:
         - AdminToken
+        - PlatformKey
         headers:
           Content-Type:
             required: true
@@ -2102,7 +2201,7 @@ types:
                 description: ''
                 type: Error
           '404':
-            description: No such shop, or the admin token doesn't match it.
+            description: No such shop, or the admin token or API key doesn't match it.
             body:
               application/json:
                 displayName: response404
@@ -2118,6 +2217,7 @@ types:
               type: ApiShopsRefineRequest
           securedBy:
           - AdminToken
+          - PlatformKey
           headers:
             Content-Type:
               required: true
@@ -2141,7 +2241,7 @@ types:
                   description: ''
                   type: Error
             '404':
-              description: No such shop, or the admin token doesn't match it.
+              description: No such shop, or the admin token or API key doesn't match it.
               body:
                 application/json:
                   displayName: response404
@@ -2160,6 +2260,7 @@ types:
           description: Starts generation in the background. Poll `getShop` for `hero_status`.
           securedBy:
           - AdminToken
+          - PlatformKey
           responses:
             '200':
               description: Done.
@@ -2176,7 +2277,7 @@ types:
                   description: ''
                   type: Error
             '404':
-              description: No such shop, or the admin token doesn't match it.
+              description: No such shop, or the admin token or API key doesn't match it.
               body:
                 application/json:
                   displayName: response404
@@ -2197,6 +2298,7 @@ types:
                   type: file
           securedBy:
           - AdminToken
+          - PlatformKey
           responses:
             '200':
               description: Uploaded.
@@ -2213,7 +2315,7 @@ types:
                   description: ''
                   type: Error
             '404':
-              description: No such shop, or the admin token doesn't match it.
+              description: No such shop, or the admin token or API key doesn't match it.
               body:
                 application/json:
                   displayName: response404
@@ -2234,6 +2336,7 @@ types:
                   type: file
           securedBy:
           - AdminToken
+          - PlatformKey
           responses:
             '200':
               description: The shop's photos, cover first.
@@ -2250,7 +2353,7 @@ types:
                   description: ''
                   type: Error
             '404':
-              description: No such shop, or the admin token doesn't match it.
+              description: No such shop, or the admin token or API key doesn't match it.
               body:
                 application/json:
                   displayName: response404
@@ -2265,6 +2368,7 @@ types:
               type: ApiShopsPhotosRequest
           securedBy:
           - AdminToken
+          - PlatformKey
           headers:
             Content-Type:
               required: true
@@ -2288,7 +2392,7 @@ types:
                   description: ''
                   type: Error
             '404':
-              description: No such shop, or the admin token doesn't match it.
+              description: No such shop, or the admin token or API key doesn't match it.
               body:
                 application/json:
                   displayName: response404
@@ -2310,6 +2414,7 @@ types:
             (`options`), and answer the questions with `updateShop` (`facts`). Not for recommendations.
           securedBy:
           - AdminToken
+          - PlatformKey
           responses:
             '200':
               description: The suggestions.
@@ -2326,7 +2431,7 @@ types:
                   description: ''
                   type: Error
             '404':
-              description: No such shop, or the admin token doesn't match it.
+              description: No such shop, or the admin token or API key doesn't match it.
               body:
                 application/json:
                   displayName: response404
@@ -2349,6 +2454,7 @@ types:
               type: ApiShopsMatchPhotosRequest
           securedBy:
           - AdminToken
+          - PlatformKey
           headers:
             Content-Type:
               required: true
@@ -2372,7 +2478,7 @@ types:
                   description: ''
                   type: Error
             '404':
-              description: No such shop, or the admin token doesn't match it.
+              description: No such shop, or the admin token or API key doesn't match it.
               body:
                 application/json:
                   displayName: response404
@@ -2395,6 +2501,7 @@ types:
               type: ApiShopsColorPhotosRequest
           securedBy:
           - AdminToken
+          - PlatformKey
           headers:
             Content-Type:
               required: true
@@ -2418,7 +2525,7 @@ types:
                   description: ''
                   type: Error
             '404':
-              description: No such shop, or the admin token doesn't match it.
+              description: No such shop, or the admin token or API key doesn't match it.
               body:
                 application/json:
                   displayName: response404
@@ -2438,8 +2545,27 @@ types:
 
 
             Without a connection, a shop can still go live with a typed `paypal_email`.
+
+
+            **Platforms:** call it with your API key and a `returnUrl`, and PayPal's flow ends on your own
+
+            page instead, as `returnUrl?paypal=connected|incomplete|cancelled|failed&shop=<slug>`. The
+
+            URL's origin must be one registered on the key.
+          body:
+            application/json:
+              displayName: body
+              type: ApiShopsPaypalRequest
           securedBy:
           - AdminToken
+          - PlatformKey
+          headers:
+            Content-Type:
+              required: true
+              displayName: Content-Type
+              type: string
+              enum:
+              - application/json
           responses:
             '200':
               description: Where to send the seller.
@@ -2449,7 +2575,7 @@ types:
                   description: ''
                   type: ApiShopsPaypalResponse
             '404':
-              description: No such shop, or the admin token doesn't match it.
+              description: No such shop, or the admin token or API key doesn't match it.
               body:
                 application/json:
                   displayName: response404
@@ -2474,6 +2600,7 @@ types:
           description: Asks PayPal where the seller's connection stands and saves it on the shop. Also finds a connection the seller finished at PayPal without coming back.
           securedBy:
           - AdminToken
+          - PlatformKey
           responses:
             '200':
               description: The connection, or nulls if there is none yet.
@@ -2483,7 +2610,7 @@ types:
                   description: ''
                   type: ApiShopsPaypalResponse1
             '404':
-              description: No such shop, or the admin token doesn't match it.
+              description: No such shop, or the admin token or API key doesn't match it.
               body:
                 application/json:
                   displayName: response404
@@ -2508,6 +2635,7 @@ types:
           description: Forgets the connected account. Sales go back to the shop's `paypal_email`.
           securedBy:
           - AdminToken
+          - PlatformKey
           responses:
             '200':
               description: Done.
@@ -2517,7 +2645,7 @@ types:
                   description: ''
                   type: Ok
             '404':
-              description: No such shop, or the admin token doesn't match it.
+              description: No such shop, or the admin token or API key doesn't match it.
               body:
                 application/json:
                   displayName: response404
@@ -2529,6 +2657,7 @@ types:
           description: Newest first. Checkouts that were never approved are left out.
           securedBy:
           - AdminToken
+          - PlatformKey
           responses:
             '200':
               description: Orders.
@@ -2540,7 +2669,7 @@ types:
                   items:
                     type: Order
             '404':
-              description: No such shop, or the admin token doesn't match it.
+              description: No such shop, or the admin token or API key doesn't match it.
               body:
                 application/json:
                   displayName: response404
@@ -2562,6 +2691,7 @@ types:
                 type: ApiShopsOrdersShipRequest
             securedBy:
             - AdminToken
+            - PlatformKey
             headers:
               Content-Type:
                 required: true
@@ -2585,7 +2715,7 @@ types:
                     description: ''
                     type: Error
               '404':
-                description: No such shop, or the admin token doesn't match it.
+                description: No such shop, or the admin token or API key doesn't match it.
                 body:
                   application/json:
                     displayName: response404
@@ -2597,6 +2727,7 @@ types:
           description: The last 50 PayPal webhook deliveries about this shop's orders, with signature results.
           securedBy:
           - AdminToken
+          - PlatformKey
           responses:
             '200':
               description: Events, newest first.
@@ -2608,7 +2739,7 @@ types:
                   items:
                     type: WebhookEvent
             '404':
-              description: No such shop, or the admin token doesn't match it.
+              description: No such shop, or the admin token or API key doesn't match it.
               body:
                 application/json:
                   displayName: response404
@@ -2735,7 +2866,7 @@ types:
               description: ''
               type: Error
         '404':
-          description: No such shop, or the admin token doesn't match it.
+          description: No such shop, or the admin token or API key doesn't match it.
           body:
             application/json:
               displayName: response404
@@ -2791,7 +2922,7 @@ types:
                 description: ''
                 type: Error
           '404':
-            description: No such shop, or the admin token doesn't match it.
+            description: No such shop, or the admin token or API key doesn't match it.
             body:
               application/json:
                 displayName: response404
@@ -3018,6 +3149,36 @@ types:
               displayName: response400
               description: ''
               type: JsonRpcResponse
+  /platform/shops:
+    get:
+      displayName: listMyShops
+      description: "Every shop the API key's account owns, newest first, with what a catalog page needs: name, price, cover, link, whether PayPal is connected and how many sales it has."
+      securedBy:
+      - PlatformKey
+      queryParameters:
+        status:
+          required: false
+          displayName: status
+          description: Only shops with this status, e.g. `live` for a public catalog.
+          type: string
+          enum:
+          - draft
+          - live
+      responses:
+        '200':
+          description: The shops.
+          body:
+            application/json:
+              displayName: response200
+              description: ''
+              type: ApiPlatformShopsResponse
+        '401':
+          description: No API key, or it's wrong or revoked.
+          body:
+            application/json:
+              displayName: response401
+              description: ''
+              type: Error
   /account:
     /signin:
       post:

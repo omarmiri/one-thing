@@ -16,7 +16,7 @@ POST /api/shops/{slug}/suggest
 
 # Authentication
 
-This endpoint requires [AdminToken](/llms-pages/http/getting-started/sdk-quickstart/authorization.md)
+This endpoint requires [AdminToken](/llms-pages/http/getting-started/sdk-quickstart/authorization.md) **OR** [PlatformKey](/llms-pages/http/getting-started/sdk-quickstart/authorization.md)
 
 
 # Parameters
@@ -39,7 +39,8 @@ This endpoint requires [AdminToken](/llms-pages/http/getting-started/sdk-quickst
 curl -X POST \
   --url 'https://one-thing-ash0.onrender.com/api/shops/raptorrush/suggest'  \
   -H 'Accept: application/json' \
-  -H 'x-admin-token: x-admin-token'
+  -H 'x-admin-token: x-admin-token' \
+  -H 'Authorization: Bearer AccessToken'
 ```
 
 
@@ -48,7 +49,7 @@ curl -X POST \
 | HTTP Status Code | Error Description | Exception Class |
 |  --- | --- | --- |
 | 400 | Something in the request needs fixing; `error` says what. | [`Error_ErrorException`](/llms-pages/http/models/exceptions/error-error.md) |
-| 404 | No such shop, or the admin token doesn't match it. | [`Error_ErrorException`](/llms-pages/http/models/exceptions/error-error.md) |
+| 404 | No such shop, or the admin token or API key doesn't match it. | [`Error_ErrorException`](/llms-pages/http/models/exceptions/error-error.md) |
 | 502 | Gemini, PayPal or Channel3 failed or isn't configured. | [`Error_ErrorException`](/llms-pages/http/models/exceptions/error-error.md) |
 
 

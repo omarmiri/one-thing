@@ -34,7 +34,7 @@
     ],
     "Parameters": []
   },
-  "Description": "OneThing turns a photo, a link or a picked product into a live one-product shop that takes\nPayPal payments, or a recommendation page that earns referral commissions through Channel3.\n\n**How a shop is made**\n1. `createShop`: start from a photo, a link, or a Channel3 product. Gemini guesses what it\n   is, how it's delivered, the price, a short link and the page design. You get back the\n   shop's link name and an **admin token**.\n2. `updateShop`: correct anything the AI guessed, then set `status: live`.\n3. Buyers pay on `https://<host>/<slug>` with PayPal. Sellers read orders and ship them.\n\n**Auth.** Seller endpoints take the shop's admin token in the `x-admin-token` header. Buyer\nendpoints (checkout, access-code verification, downloads) are public.\n\n**Access codes.** A digital product can unlock an app or game instead of shipping a file.\nEach paid order gets a code such as `K7QF-M2XP-9HTD`; your app calls `verifyAccessCode`\nbefore unlocking. Raptor Rush on miriogames.com is a live example.\n\n**Agent-ready.** Every live shop is also published for AI shopping agents: product JSON at\n`getAgentProduct`, and an MCP server at `/api/mcp` with `search_shops`, `get_product`,\n`create_order` and `get_order`. An agent can find and order, but the buyer still approves\nevery payment at PayPal.\n\nAll money moves through PayPal (sandbox in this deployment). OneThing never holds card data.\n",
+  "Description": "OneThing turns a photo, a link or a picked product into a live one-product shop that takes\nPayPal payments, or a recommendation page that earns referral commissions through Channel3.\n\n**How a shop is made**\n1. `createShop`: start from a photo, a link, or a Channel3 product. Gemini guesses what it\n   is, how it's delivered, the price, a short link and the page design. You get back the\n   shop's link name and an **admin token**.\n2. `updateShop`: correct anything the AI guessed, then set `status: live`.\n3. Buyers pay on `https://<host>/<slug>` with PayPal. Sellers read orders and ship them.\n\n**Auth.** Seller endpoints take the shop's admin token in the `x-admin-token` header, or a\n**platform API key** (`Authorization: Bearer ot_sk_…`) for marketplaces that make shops for\ntheir own sellers. Buyer endpoints (checkout, access-code verification, downloads) are public.\n\n**Access codes.** A digital product can unlock an app or game instead of shipping a file.\nEach paid order gets a code such as `K7QF-M2XP-9HTD`; your app calls `verifyAccessCode`\nbefore unlocking. Raptor Rush on miriogames.com is a live example.\n\n**Agent-ready.** Every live shop is also published for AI shopping agents: product JSON at\n`getAgentProduct`, and an MCP server at `/api/mcp` with `search_shops`, `get_product`,\n`create_order` and `get_order`. An agent can find and order, but the buyer still approves\nevery payment at PayPal.\n\nAll money moves through PayPal (sandbox in this deployment). OneThing never holds card data.\n",
   "Version": "1.0.0",
   "Contact": {
     "Name": "OneThing",
@@ -67,6 +67,21 @@
           "IsNullDefaultExplicit": false
         }
       ]
+    },
+    "PlatformKey": {
+      "Description": "A platform API key (`ot_sk_…`) for a marketplace that makes shops for its own sellers. Made on the website's `/account` page after Log in with PayPal, and shown once. It reaches every shop its account owns, so keep it on your server.",
+      "AuthenticationType": "OAuth_v2_BearerToken",
+      "Parameters": [],
+      "OAuthInfo": {
+        "Scopes": [],
+        "ParamFormats": {},
+        "AllowAdditionalOAuthFields": false,
+        "AdditionalOAuthFields": []
+      }
+    },
+    "noAuth": {
+      "AuthenticationType": "None",
+      "Parameters": []
     }
   },
   "Endpoints": [
@@ -588,9 +603,25 @@
       "Callbacks": []
     },
     {
-      "AuthenticateEndpointWith": [],
+      "AuthenticateEndpointWith": [
+        {
+          "AuthenticationToApply": {
+            "AuthenticationSchemeName": "noAuth"
+          },
+          "OptionType": "Single",
+          "Description": ""
+        },
+        {
+          "AuthenticationToApply": {
+            "AuthenticationSchemeName": "PlatformKey",
+            "RequiredScopes": []
+          },
+          "OptionType": "Single",
+          "Description": ""
+        }
+      ],
       "Name": "createShop",
-      "Description": "Starts a draft shop from one of three sources. Gemini designs the page and guesses the\nsetup; check it with `getShop`, adjust with `updateShop`, then go live.\n\nSent with a session cookie from `signIn`, the shop belongs to that account, which also\nbecomes its seller email (and PayPal email, after Log in with PayPal) unless you give one.\n\n- `source=photo`: a `photo` and/or a `description` of your own product.\n- `source=link`: a `url`. If Channel3 recognises it as a store's product page, the shop\n  becomes a recommendation (`product_type: referral`); otherwise the page is read and you\n  sell the product yourself with PayPal.\n- `source=channel3`: a `productId` from `searchProducts` (a recommendation).\n\nTakes 15–40 seconds. Hero art, if available, is generated afterwards (`hero_status`).\n",
+      "Description": "Starts a draft shop from one of three sources. Gemini designs the page and guesses the\nsetup; check it with `getShop`, adjust with `updateShop`, then go live.\n\nSent with a session cookie from `signIn`, the shop belongs to that account, which also\nbecomes its seller email (and PayPal email, after Log in with PayPal) unless you give one.\n\n- `source=photo`: a `photo` and/or a `description` of your own product.\n- `source=link`: a `url`. If Channel3 recognises it as a store's product page, the shop\n  becomes a recommendation (`product_type: referral`); otherwise the page is read and you\n  sell the product yourself with PayPal.\n- `source=channel3`: a `productId` from `searchProducts` (a recommendation).\n\nTakes 15–40 seconds. Hero art, if available, is generated afterwards (`hero_status`).\n\n**Platforms:** sent with a platform API key, the shop belongs to the key's account, so the\nkey can manage it from then on (no need to keep the admin token). It's made for one of the\nplatform's sellers, so it inherits nothing from the account: set `paypal_email` or call\n`connectPayPal` for that seller.\n",
       "Summary": "Create a shop (AI draft)",
       "HTTPMethod": "POST",
       "Group": "Shops",
@@ -1332,6 +1363,14 @@
           },
           "OptionType": "Single",
           "Description": ""
+        },
+        {
+          "AuthenticationToApply": {
+            "AuthenticationSchemeName": "PlatformKey",
+            "RequiredScopes": []
+          },
+          "OptionType": "Single",
+          "Description": ""
         }
       ],
       "Name": "getShop",
@@ -1371,7 +1410,7 @@
         },
         "404": {
           "Name": "response404",
-          "Description": "No such shop, or the admin token doesn't match it.",
+          "Description": "No such shop, or the admin token or API key doesn't match it.",
           "Headers": [],
           "BodyContent": {
             "application/json": {
@@ -1499,7 +1538,7 @@
       "Errors": [
         {
           "ErrorCode": 404,
-          "ErrorMessage": "No such shop, or the admin token doesn't match it.",
+          "ErrorMessage": "No such shop, or the admin token or API key doesn't match it.",
           "ErrorTypeName": "Error_Error"
         }
       ],
@@ -1520,6 +1559,14 @@
         {
           "AuthenticationToApply": {
             "AuthenticationSchemeName": "AdminToken",
+            "RequiredScopes": []
+          },
+          "OptionType": "Single",
+          "Description": ""
+        },
+        {
+          "AuthenticationToApply": {
+            "AuthenticationSchemeName": "PlatformKey",
             "RequiredScopes": []
           },
           "OptionType": "Single",
@@ -1591,7 +1638,7 @@
         },
         "404": {
           "Name": "response404",
-          "Description": "No such shop, or the admin token doesn't match it.",
+          "Description": "No such shop, or the admin token or API key doesn't match it.",
           "Headers": [],
           "BodyContent": {
             "application/json": {
@@ -1786,7 +1833,7 @@
         },
         {
           "ErrorCode": 404,
-          "ErrorMessage": "No such shop, or the admin token doesn't match it.",
+          "ErrorMessage": "No such shop, or the admin token or API key doesn't match it.",
           "ErrorTypeName": "Error_Error"
         }
       ],
@@ -1807,6 +1854,14 @@
         {
           "AuthenticationToApply": {
             "AuthenticationSchemeName": "AdminToken",
+            "RequiredScopes": []
+          },
+          "OptionType": "Single",
+          "Description": ""
+        },
+        {
+          "AuthenticationToApply": {
+            "AuthenticationSchemeName": "PlatformKey",
             "RequiredScopes": []
           },
           "OptionType": "Single",
@@ -1878,7 +1933,7 @@
         },
         "404": {
           "Name": "response404",
-          "Description": "No such shop, or the admin token doesn't match it.",
+          "Description": "No such shop, or the admin token or API key doesn't match it.",
           "Headers": [],
           "BodyContent": {
             "application/json": {
@@ -2100,7 +2155,7 @@
         },
         {
           "ErrorCode": 404,
-          "ErrorMessage": "No such shop, or the admin token doesn't match it.",
+          "ErrorMessage": "No such shop, or the admin token or API key doesn't match it.",
           "ErrorTypeName": "Error_Error"
         },
         {
@@ -2126,6 +2181,14 @@
         {
           "AuthenticationToApply": {
             "AuthenticationSchemeName": "AdminToken",
+            "RequiredScopes": []
+          },
+          "OptionType": "Single",
+          "Description": ""
+        },
+        {
+          "AuthenticationToApply": {
+            "AuthenticationSchemeName": "PlatformKey",
             "RequiredScopes": []
           },
           "OptionType": "Single",
@@ -2196,7 +2259,7 @@
         },
         "404": {
           "Name": "response404",
-          "Description": "No such shop, or the admin token doesn't match it.",
+          "Description": "No such shop, or the admin token or API key doesn't match it.",
           "Headers": [],
           "BodyContent": {
             "application/json": {
@@ -2329,7 +2392,7 @@
         },
         {
           "ErrorCode": 404,
-          "ErrorMessage": "No such shop, or the admin token doesn't match it.",
+          "ErrorMessage": "No such shop, or the admin token or API key doesn't match it.",
           "ErrorTypeName": "Error_Error"
         }
       ],
@@ -2350,6 +2413,14 @@
         {
           "AuthenticationToApply": {
             "AuthenticationSchemeName": "AdminToken",
+            "RequiredScopes": []
+          },
+          "OptionType": "Single",
+          "Description": ""
+        },
+        {
+          "AuthenticationToApply": {
+            "AuthenticationSchemeName": "PlatformKey",
             "RequiredScopes": []
           },
           "OptionType": "Single",
@@ -2421,7 +2492,7 @@
         },
         "404": {
           "Name": "response404",
-          "Description": "No such shop, or the admin token doesn't match it.",
+          "Description": "No such shop, or the admin token or API key doesn't match it.",
           "Headers": [],
           "BodyContent": {
             "application/json": {
@@ -2585,7 +2656,7 @@
         },
         {
           "ErrorCode": 404,
-          "ErrorMessage": "No such shop, or the admin token doesn't match it.",
+          "ErrorMessage": "No such shop, or the admin token or API key doesn't match it.",
           "ErrorTypeName": "Error_Error"
         }
       ],
@@ -2606,6 +2677,14 @@
         {
           "AuthenticationToApply": {
             "AuthenticationSchemeName": "AdminToken",
+            "RequiredScopes": []
+          },
+          "OptionType": "Single",
+          "Description": ""
+        },
+        {
+          "AuthenticationToApply": {
+            "AuthenticationSchemeName": "PlatformKey",
             "RequiredScopes": []
           },
           "OptionType": "Single",
@@ -2677,7 +2756,7 @@
         },
         "404": {
           "Name": "response404",
-          "Description": "No such shop, or the admin token doesn't match it.",
+          "Description": "No such shop, or the admin token or API key doesn't match it.",
           "Headers": [],
           "BodyContent": {
             "application/json": {
@@ -2841,7 +2920,7 @@
         },
         {
           "ErrorCode": 404,
-          "ErrorMessage": "No such shop, or the admin token doesn't match it.",
+          "ErrorMessage": "No such shop, or the admin token or API key doesn't match it.",
           "ErrorTypeName": "Error_Error"
         }
       ],
@@ -2862,6 +2941,14 @@
         {
           "AuthenticationToApply": {
             "AuthenticationSchemeName": "AdminToken",
+            "RequiredScopes": []
+          },
+          "OptionType": "Single",
+          "Description": ""
+        },
+        {
+          "AuthenticationToApply": {
+            "AuthenticationSchemeName": "PlatformKey",
             "RequiredScopes": []
           },
           "OptionType": "Single",
@@ -2933,7 +3020,7 @@
         },
         "404": {
           "Name": "response404",
-          "Description": "No such shop, or the admin token doesn't match it.",
+          "Description": "No such shop, or the admin token or API key doesn't match it.",
           "Headers": [],
           "BodyContent": {
             "application/json": {
@@ -3128,7 +3215,7 @@
         },
         {
           "ErrorCode": 404,
-          "ErrorMessage": "No such shop, or the admin token doesn't match it.",
+          "ErrorMessage": "No such shop, or the admin token or API key doesn't match it.",
           "ErrorTypeName": "Error_Error"
         }
       ],
@@ -3149,6 +3236,14 @@
         {
           "AuthenticationToApply": {
             "AuthenticationSchemeName": "AdminToken",
+            "RequiredScopes": []
+          },
+          "OptionType": "Single",
+          "Description": ""
+        },
+        {
+          "AuthenticationToApply": {
+            "AuthenticationSchemeName": "PlatformKey",
             "RequiredScopes": []
           },
           "OptionType": "Single",
@@ -3220,7 +3315,7 @@
         },
         "404": {
           "Name": "response404",
-          "Description": "No such shop, or the admin token doesn't match it.",
+          "Description": "No such shop, or the admin token or API key doesn't match it.",
           "Headers": [],
           "BodyContent": {
             "application/json": {
@@ -3380,7 +3475,7 @@
         },
         {
           "ErrorCode": 404,
-          "ErrorMessage": "No such shop, or the admin token doesn't match it.",
+          "ErrorMessage": "No such shop, or the admin token or API key doesn't match it.",
           "ErrorTypeName": "Error_Error"
         },
         {
@@ -3406,6 +3501,14 @@
         {
           "AuthenticationToApply": {
             "AuthenticationSchemeName": "AdminToken",
+            "RequiredScopes": []
+          },
+          "OptionType": "Single",
+          "Description": ""
+        },
+        {
+          "AuthenticationToApply": {
+            "AuthenticationSchemeName": "PlatformKey",
             "RequiredScopes": []
           },
           "OptionType": "Single",
@@ -3477,7 +3580,7 @@
         },
         "404": {
           "Name": "response404",
-          "Description": "No such shop, or the admin token doesn't match it.",
+          "Description": "No such shop, or the admin token or API key doesn't match it.",
           "Headers": [],
           "BodyContent": {
             "application/json": {
@@ -3699,7 +3802,7 @@
         },
         {
           "ErrorCode": 404,
-          "ErrorMessage": "No such shop, or the admin token doesn't match it.",
+          "ErrorMessage": "No such shop, or the admin token or API key doesn't match it.",
           "ErrorTypeName": "Error_Error"
         },
         {
@@ -3725,6 +3828,14 @@
         {
           "AuthenticationToApply": {
             "AuthenticationSchemeName": "AdminToken",
+            "RequiredScopes": []
+          },
+          "OptionType": "Single",
+          "Description": ""
+        },
+        {
+          "AuthenticationToApply": {
+            "AuthenticationSchemeName": "PlatformKey",
             "RequiredScopes": []
           },
           "OptionType": "Single",
@@ -3796,7 +3907,7 @@
         },
         "404": {
           "Name": "response404",
-          "Description": "No such shop, or the admin token doesn't match it.",
+          "Description": "No such shop, or the admin token or API key doesn't match it.",
           "Headers": [],
           "BodyContent": {
             "application/json": {
@@ -3991,7 +4102,7 @@
         },
         {
           "ErrorCode": 404,
-          "ErrorMessage": "No such shop, or the admin token doesn't match it.",
+          "ErrorMessage": "No such shop, or the admin token or API key doesn't match it.",
           "ErrorTypeName": "Error_Error"
         }
       ],
@@ -4016,13 +4127,22 @@
           },
           "OptionType": "Single",
           "Description": ""
+        },
+        {
+          "AuthenticationToApply": {
+            "AuthenticationSchemeName": "PlatformKey",
+            "RequiredScopes": []
+          },
+          "OptionType": "Single",
+          "Description": ""
         }
       ],
       "Name": "connectPayPal",
-      "Description": "Starts PayPal's seller onboarding (Partner Referrals). Send the seller's browser to the\nreturned `url`; they sign in to PayPal (or create a business account) and grant OneThing\npermission. PayPal brings them back to `/api/shops/<slug>/paypal/return`, which saves the\nconnection and opens the manage page. From then on, sales are paid to that account.\n\nWithout a connection, a shop can still go live with a typed `paypal_email`.\n",
+      "Description": "Starts PayPal's seller onboarding (Partner Referrals). Send the seller's browser to the\nreturned `url`; they sign in to PayPal (or create a business account) and grant OneThing\npermission. PayPal brings them back to `/api/shops/<slug>/paypal/return`, which saves the\nconnection and opens the manage page. From then on, sales are paid to that account.\n\nWithout a connection, a shop can still go live with a typed `paypal_email`.\n\n**Platforms:** call it with your API key and a `returnUrl`, and PayPal's flow ends on your own\npage instead, as `returnUrl?paypal=connected|incomplete|cancelled|failed&shop=<slug>`. The\nURL's origin must be one registered on the key.\n",
       "Summary": "Connect the seller's PayPal account",
       "HTTPMethod": "POST",
       "Group": "Shops",
+      "RequestContentType": "application/json",
       "RequiresAuthentication": true,
       "Route": "/api/shops/{slug}/paypal",
       "Responses": {
@@ -4055,7 +4175,7 @@
         },
         "404": {
           "Name": "response404",
-          "Description": "No such shop, or the admin token doesn't match it.",
+          "Description": "No such shop, or the admin token or API key doesn't match it.",
           "Headers": [],
           "BodyContent": {
             "application/json": {
@@ -4232,12 +4352,74 @@
           "Name": "slug",
           "Description": "The shop's link name (current or former).",
           "IsNullDefaultExplicit": false
+        },
+        {
+          "ParamFormat": "Header",
+          "AutoGeneratedOrModified": true,
+          "Optional": false,
+          "AnyOfTypes": [],
+          "AnyOfCasesMeta": [],
+          "OneOfTypes": [],
+          "OneOfCasesMeta": [],
+          "NotTypes": [],
+          "NotCasesMeta": [],
+          "Type": "String",
+          "IsSdlNativeType": true,
+          "Constant": true,
+          "IsStream": false,
+          "IsAttribute": false,
+          "IsNullExampleExplicit": false,
+          "Examples": [],
+          "Attributes": {},
+          "Nullable": false,
+          "NullableArrayItems": false,
+          "NullableMapValues": false,
+          "ReadOnly": false,
+          "WriteOnly": false,
+          "IsArray": false,
+          "IsMap": false,
+          "IsArrayOfMap": false,
+          "Deprecated": false,
+          "Name": "Content-Type",
+          "Description": "",
+          "DefaultValue": "application/json",
+          "IsNullDefaultExplicit": false
+        },
+        {
+          "ParamFormat": "Body",
+          "AutoGeneratedOrModified": true,
+          "Optional": true,
+          "AnyOfTypes": [],
+          "AnyOfCasesMeta": [],
+          "OneOfTypes": [],
+          "OneOfCasesMeta": [],
+          "NotTypes": [],
+          "NotCasesMeta": [],
+          "Type": "Api Shops Paypal Request",
+          "IsSdlNativeType": false,
+          "Constant": false,
+          "IsStream": false,
+          "IsAttribute": false,
+          "IsNullExampleExplicit": false,
+          "Examples": [],
+          "Nullable": false,
+          "NullableArrayItems": false,
+          "NullableMapValues": false,
+          "ReadOnly": false,
+          "WriteOnly": false,
+          "IsArray": false,
+          "IsMap": false,
+          "IsArrayOfMap": false,
+          "Deprecated": false,
+          "Name": "body",
+          "Description": "",
+          "IsNullDefaultExplicit": false
         }
       ],
       "Errors": [
         {
           "ErrorCode": 404,
-          "ErrorMessage": "No such shop, or the admin token doesn't match it.",
+          "ErrorMessage": "No such shop, or the admin token or API key doesn't match it.",
           "ErrorTypeName": "Error_Error"
         },
         {
@@ -4268,6 +4450,14 @@
         {
           "AuthenticationToApply": {
             "AuthenticationSchemeName": "AdminToken",
+            "RequiredScopes": []
+          },
+          "OptionType": "Single",
+          "Description": ""
+        },
+        {
+          "AuthenticationToApply": {
+            "AuthenticationSchemeName": "PlatformKey",
             "RequiredScopes": []
           },
           "OptionType": "Single",
@@ -4311,7 +4501,7 @@
         },
         "404": {
           "Name": "response404",
-          "Description": "No such shop, or the admin token doesn't match it.",
+          "Description": "No such shop, or the admin token or API key doesn't match it.",
           "Headers": [],
           "BodyContent": {
             "application/json": {
@@ -4493,7 +4683,7 @@
       "Errors": [
         {
           "ErrorCode": 404,
-          "ErrorMessage": "No such shop, or the admin token doesn't match it.",
+          "ErrorMessage": "No such shop, or the admin token or API key doesn't match it.",
           "ErrorTypeName": "Error_Error"
         },
         {
@@ -4524,6 +4714,14 @@
         {
           "AuthenticationToApply": {
             "AuthenticationSchemeName": "AdminToken",
+            "RequiredScopes": []
+          },
+          "OptionType": "Single",
+          "Description": ""
+        },
+        {
+          "AuthenticationToApply": {
+            "AuthenticationSchemeName": "PlatformKey",
             "RequiredScopes": []
           },
           "OptionType": "Single",
@@ -4567,7 +4765,7 @@
         },
         "404": {
           "Name": "response404",
-          "Description": "No such shop, or the admin token doesn't match it.",
+          "Description": "No such shop, or the admin token or API key doesn't match it.",
           "Headers": [],
           "BodyContent": {
             "application/json": {
@@ -4695,7 +4893,7 @@
       "Errors": [
         {
           "ErrorCode": 404,
-          "ErrorMessage": "No such shop, or the admin token doesn't match it.",
+          "ErrorMessage": "No such shop, or the admin token or API key doesn't match it.",
           "ErrorTypeName": "Error_Error"
         }
       ],
@@ -5322,7 +5520,7 @@
         },
         "404": {
           "Name": "response404",
-          "Description": "No such shop, or the admin token doesn't match it.",
+          "Description": "No such shop, or the admin token or API key doesn't match it.",
           "Headers": [],
           "BodyContent": {
             "application/json": {
@@ -5564,7 +5762,7 @@
         },
         {
           "ErrorCode": 404,
-          "ErrorMessage": "No such shop, or the admin token doesn't match it.",
+          "ErrorMessage": "No such shop, or the admin token or API key doesn't match it.",
           "ErrorTypeName": "Error_Error"
         },
         {
@@ -5661,7 +5859,7 @@
         },
         "404": {
           "Name": "response404",
-          "Description": "No such shop, or the admin token doesn't match it.",
+          "Description": "No such shop, or the admin token or API key doesn't match it.",
           "Headers": [],
           "BodyContent": {
             "application/json": {
@@ -5900,7 +6098,7 @@
         },
         {
           "ErrorCode": 404,
-          "ErrorMessage": "No such shop, or the admin token doesn't match it.",
+          "ErrorMessage": "No such shop, or the admin token or API key doesn't match it.",
           "ErrorTypeName": "Error_Error"
         },
         {
@@ -6125,6 +6323,14 @@
           },
           "OptionType": "Single",
           "Description": ""
+        },
+        {
+          "AuthenticationToApply": {
+            "AuthenticationSchemeName": "PlatformKey",
+            "RequiredScopes": []
+          },
+          "OptionType": "Single",
+          "Description": ""
         }
       ],
       "Name": "listOrders",
@@ -6164,7 +6370,7 @@
         },
         "404": {
           "Name": "response404",
-          "Description": "No such shop, or the admin token doesn't match it.",
+          "Description": "No such shop, or the admin token or API key doesn't match it.",
           "Headers": [],
           "BodyContent": {
             "application/json": {
@@ -6292,7 +6498,7 @@
       "Errors": [
         {
           "ErrorCode": 404,
-          "ErrorMessage": "No such shop, or the admin token doesn't match it.",
+          "ErrorMessage": "No such shop, or the admin token or API key doesn't match it.",
           "ErrorTypeName": "Error_Error"
         }
       ],
@@ -6313,6 +6519,14 @@
         {
           "AuthenticationToApply": {
             "AuthenticationSchemeName": "AdminToken",
+            "RequiredScopes": []
+          },
+          "OptionType": "Single",
+          "Description": ""
+        },
+        {
+          "AuthenticationToApply": {
+            "AuthenticationSchemeName": "PlatformKey",
             "RequiredScopes": []
           },
           "OptionType": "Single",
@@ -6384,7 +6598,7 @@
         },
         "404": {
           "Name": "response404",
-          "Description": "No such shop, or the admin token doesn't match it.",
+          "Description": "No such shop, or the admin token or API key doesn't match it.",
           "Headers": [],
           "BodyContent": {
             "application/json": {
@@ -6611,7 +6825,7 @@
         },
         {
           "ErrorCode": 404,
-          "ErrorMessage": "No such shop, or the admin token doesn't match it.",
+          "ErrorMessage": "No such shop, or the admin token or API key doesn't match it.",
           "ErrorTypeName": "Error_Error"
         }
       ],
@@ -6632,6 +6846,14 @@
         {
           "AuthenticationToApply": {
             "AuthenticationSchemeName": "AdminToken",
+            "RequiredScopes": []
+          },
+          "OptionType": "Single",
+          "Description": ""
+        },
+        {
+          "AuthenticationToApply": {
+            "AuthenticationSchemeName": "PlatformKey",
             "RequiredScopes": []
           },
           "OptionType": "Single",
@@ -6675,7 +6897,7 @@
         },
         "404": {
           "Name": "response404",
-          "Description": "No such shop, or the admin token doesn't match it.",
+          "Description": "No such shop, or the admin token or API key doesn't match it.",
           "Headers": [],
           "BodyContent": {
             "application/json": {
@@ -6803,7 +7025,7 @@
       "Errors": [
         {
           "ErrorCode": 404,
-          "ErrorMessage": "No such shop, or the admin token doesn't match it.",
+          "ErrorMessage": "No such shop, or the admin token or API key doesn't match it.",
           "ErrorTypeName": "Error_Error"
         }
       ],
@@ -7673,6 +7895,196 @@
       "ErrorTemplates": {},
       "SkipAdditionalHeaders": false,
       "Callbacks": []
+    },
+    {
+      "AuthenticateEndpointWith": [
+        {
+          "AuthenticationToApply": {
+            "AuthenticationSchemeName": "PlatformKey",
+            "RequiredScopes": []
+          },
+          "OptionType": "Single",
+          "Description": ""
+        }
+      ],
+      "Name": "listMyShops",
+      "Description": "Every shop the API key's account owns, newest first, with what a catalog page needs: name, price, cover, link, whether PayPal is connected and how many sales it has.",
+      "Summary": "List the platform's shops",
+      "HTTPMethod": "GET",
+      "Group": "Platforms",
+      "RequiresAuthentication": true,
+      "Route": "/api/platform/shops",
+      "Responses": {
+        "200": {
+          "Name": "response200",
+          "Description": "The shops.",
+          "Headers": [],
+          "BodyContent": {
+            "application/json": {
+              "AnyOfTypes": [],
+              "AnyOfCasesMeta": [],
+              "OneOfTypes": [],
+              "OneOfCasesMeta": [],
+              "NotTypes": [],
+              "NotCasesMeta": [],
+              "Type": "Api Platform Shops Response",
+              "IsSdlNativeType": false,
+              "Constant": false,
+              "IsNullDefaultExplicit": false,
+              "IsNullExampleExplicit": false,
+              "Examples": [],
+              "Nullable": false,
+              "NullableArrayItems": false,
+              "NullableMapValues": false,
+              "IsArray": false,
+              "IsMap": false,
+              "IsArrayOfMap": false
+            }
+          }
+        },
+        "401": {
+          "Name": "response401",
+          "Description": "No API key, or it's wrong or revoked.",
+          "Headers": [],
+          "BodyContent": {
+            "application/json": {
+              "AnyOfTypes": [],
+              "AnyOfCasesMeta": [],
+              "OneOfTypes": [],
+              "OneOfCasesMeta": [],
+              "NotTypes": [],
+              "NotCasesMeta": [],
+              "Type": "Error",
+              "IsSdlNativeType": false,
+              "Constant": false,
+              "IsNullDefaultExplicit": false,
+              "IsNullExampleExplicit": false,
+              "Examples": [],
+              "Nullable": false,
+              "NullableArrayItems": false,
+              "NullableMapValues": false,
+              "IsArray": false,
+              "IsMap": false,
+              "IsArrayOfMap": false
+            }
+          }
+        }
+      },
+      "Response": {
+        "Optional": false,
+        "AnyOfTypes": [],
+        "AnyOfCasesMeta": [],
+        "OneOfTypes": [],
+        "OneOfCasesMeta": [],
+        "NotTypes": [],
+        "NotCasesMeta": [],
+        "Type": "Api Platform Shops Response",
+        "IsSdlNativeType": false,
+        "Constant": false,
+        "IsStream": false,
+        "IsAttribute": false,
+        "IsNullExampleExplicit": false,
+        "Examples": [],
+        "Nullable": false,
+        "NullableArrayItems": false,
+        "NullableMapValues": false,
+        "ReadOnly": false,
+        "WriteOnly": false,
+        "IsArray": false,
+        "IsMap": false,
+        "IsArrayOfMap": false,
+        "Deprecated": false,
+        "Name": "response",
+        "Description": "The shops.",
+        "IsNullDefaultExplicit": false
+      },
+      "ResponseCode": 200,
+      "ResponseHeaders": [
+        {
+          "Optional": false,
+          "AnyOfTypes": [],
+          "AnyOfCasesMeta": [],
+          "OneOfTypes": [],
+          "OneOfCasesMeta": [],
+          "NotTypes": [],
+          "NotCasesMeta": [],
+          "Type": "String",
+          "Constant": false,
+          "IsStream": false,
+          "IsAttribute": false,
+          "IsNullExampleExplicit": false,
+          "Examples": [],
+          "Attributes": {},
+          "Nullable": false,
+          "NullableArrayItems": false,
+          "NullableMapValues": false,
+          "ReadOnly": false,
+          "WriteOnly": false,
+          "IsArray": false,
+          "IsMap": false,
+          "IsArrayOfMap": false,
+          "Deprecated": false,
+          "Name": "Content-Type",
+          "DefaultValue": "application/json",
+          "IsNullDefaultExplicit": false
+        }
+      ],
+      "ResponseContentType": "application/json",
+      "HasOptionalQueryParams": false,
+      "HasOptionalFieldParams": false,
+      "CollectParameters": false,
+      "RequiredScopes": [],
+      "Parameters": [
+        {
+          "ParamFormat": "Query",
+          "AutoGeneratedOrModified": false,
+          "Optional": true,
+          "AnyOfTypes": [],
+          "AnyOfCasesMeta": [],
+          "OneOfTypes": [],
+          "OneOfCasesMeta": [],
+          "NotTypes": [],
+          "NotCasesMeta": [],
+          "Type": "Status",
+          "IsSdlNativeType": false,
+          "Constant": false,
+          "IsStream": false,
+          "IsAttribute": false,
+          "IsNullExampleExplicit": false,
+          "Examples": [],
+          "Nullable": false,
+          "NullableArrayItems": false,
+          "NullableMapValues": false,
+          "ReadOnly": false,
+          "WriteOnly": false,
+          "IsArray": false,
+          "IsMap": false,
+          "IsArrayOfMap": false,
+          "Deprecated": false,
+          "Name": "status",
+          "Description": "Only shops with this status, e.g. `live` for a public catalog.",
+          "DefaultValue": "",
+          "IsNullDefaultExplicit": false
+        }
+      ],
+      "Errors": [
+        {
+          "ErrorCode": 401,
+          "ErrorMessage": "No API key, or it's wrong or revoked.",
+          "ErrorTypeName": "Error_Error"
+        }
+      ],
+      "TestCases": [],
+      "WrapBodyInObject": false,
+      "Deprecated": false,
+      "XmlRequest": false,
+      "XmlResponse": false,
+      "Tags": [
+        "Platforms"
+      ],
+      "ErrorTemplates": {},
+      "SkipAdditionalHeaders": false,
+      "Callbacks": []
     }
   ],
   "Webhooks": [
@@ -7838,6 +8250,10 @@
     {
       "Name": "Agents",
       "Description": "Machine-readable shops and the MCP server AI shopping agents buy through."
+    },
+    {
+      "Name": "Platforms",
+      "Description": "For marketplaces that make and run shops for their own sellers with one API key."
     }
   ],
   "CustomTypes": [
@@ -11595,6 +12011,342 @@
       "AllowAdditionalFields": true
     },
     {
+      "Name": "PlatformShop",
+      "ImplementationType": "Structure",
+      "Fields": [
+        {
+          "Optional": false,
+          "AnyOfTypes": [],
+          "AnyOfCasesMeta": [],
+          "OneOfTypes": [],
+          "OneOfCasesMeta": [],
+          "NotTypes": [],
+          "NotCasesMeta": [],
+          "Type": "String",
+          "IsSdlNativeType": true,
+          "IsTypeJsonObject": false,
+          "Constant": false,
+          "IsStream": false,
+          "IsAttribute": false,
+          "IsNullExampleExplicit": false,
+          "Examples": [],
+          "Attributes": {},
+          "Nullable": false,
+          "NullableArrayItems": false,
+          "NullableMapValues": false,
+          "ReadOnly": false,
+          "WriteOnly": false,
+          "IsArray": false,
+          "IsMap": false,
+          "IsArrayOfMap": false,
+          "Deprecated": false,
+          "Name": "slug",
+          "Description": "",
+          "IsNullDefaultExplicit": false
+        },
+        {
+          "Optional": false,
+          "AnyOfTypes": [],
+          "AnyOfCasesMeta": [],
+          "OneOfTypes": [],
+          "OneOfCasesMeta": [],
+          "NotTypes": [],
+          "NotCasesMeta": [],
+          "Type": "Status",
+          "IsSdlNativeType": false,
+          "Constant": false,
+          "IsStream": false,
+          "IsAttribute": false,
+          "IsNullExampleExplicit": false,
+          "Examples": [],
+          "Nullable": false,
+          "NullableArrayItems": false,
+          "NullableMapValues": false,
+          "ReadOnly": false,
+          "WriteOnly": false,
+          "IsArray": false,
+          "IsMap": false,
+          "IsArrayOfMap": false,
+          "Deprecated": false,
+          "Name": "status",
+          "Description": "",
+          "IsNullDefaultExplicit": false
+        },
+        {
+          "Optional": false,
+          "AnyOfTypes": [],
+          "AnyOfCasesMeta": [],
+          "OneOfTypes": [],
+          "OneOfCasesMeta": [],
+          "NotTypes": [],
+          "NotCasesMeta": [],
+          "Type": "String",
+          "IsSdlNativeType": true,
+          "IsTypeJsonObject": false,
+          "Constant": false,
+          "IsStream": false,
+          "IsAttribute": false,
+          "IsNullExampleExplicit": false,
+          "Examples": [],
+          "Attributes": {},
+          "Nullable": false,
+          "NullableArrayItems": false,
+          "NullableMapValues": false,
+          "ReadOnly": false,
+          "WriteOnly": false,
+          "IsArray": false,
+          "IsMap": false,
+          "IsArrayOfMap": false,
+          "Deprecated": false,
+          "Name": "name",
+          "Description": "",
+          "IsNullDefaultExplicit": false
+        },
+        {
+          "Optional": true,
+          "AnyOfTypes": [],
+          "AnyOfCasesMeta": [],
+          "OneOfTypes": [],
+          "OneOfCasesMeta": [],
+          "NotTypes": [],
+          "NotCasesMeta": [],
+          "Type": "String",
+          "IsSdlNativeType": true,
+          "IsTypeJsonObject": false,
+          "Constant": false,
+          "IsStream": false,
+          "IsAttribute": false,
+          "IsNullExampleExplicit": false,
+          "Examples": [],
+          "Attributes": {},
+          "Nullable": false,
+          "NullableArrayItems": false,
+          "NullableMapValues": false,
+          "ReadOnly": false,
+          "WriteOnly": false,
+          "IsArray": false,
+          "IsMap": false,
+          "IsArrayOfMap": false,
+          "Deprecated": false,
+          "Name": "headline",
+          "Description": "",
+          "IsNullDefaultExplicit": false
+        },
+        {
+          "Optional": false,
+          "AnyOfTypes": [],
+          "AnyOfCasesMeta": [],
+          "OneOfTypes": [],
+          "OneOfCasesMeta": [],
+          "NotTypes": [],
+          "NotCasesMeta": [],
+          "Type": "ProductType1",
+          "IsSdlNativeType": false,
+          "Constant": false,
+          "IsStream": false,
+          "IsAttribute": false,
+          "IsNullExampleExplicit": false,
+          "Examples": [],
+          "Nullable": false,
+          "NullableArrayItems": false,
+          "NullableMapValues": false,
+          "ReadOnly": false,
+          "WriteOnly": false,
+          "IsArray": false,
+          "IsMap": false,
+          "IsArrayOfMap": false,
+          "Deprecated": false,
+          "Name": "product_type",
+          "Description": "",
+          "IsNullDefaultExplicit": false
+        },
+        {
+          "Optional": false,
+          "AnyOfTypes": [],
+          "AnyOfCasesMeta": [],
+          "OneOfTypes": [],
+          "OneOfCasesMeta": [],
+          "NotTypes": [],
+          "NotCasesMeta": [],
+          "Type": "AgentMoney",
+          "IsSdlNativeType": false,
+          "Constant": false,
+          "IsStream": false,
+          "IsAttribute": false,
+          "IsNullExampleExplicit": false,
+          "Examples": [],
+          "Nullable": false,
+          "NullableArrayItems": false,
+          "NullableMapValues": false,
+          "ReadOnly": false,
+          "WriteOnly": false,
+          "IsArray": false,
+          "IsMap": false,
+          "IsArrayOfMap": false,
+          "Deprecated": false,
+          "Name": "price",
+          "Description": "",
+          "IsNullDefaultExplicit": false
+        },
+        {
+          "Optional": false,
+          "AnyOfTypes": [],
+          "AnyOfCasesMeta": [],
+          "OneOfTypes": [],
+          "OneOfCasesMeta": [],
+          "NotTypes": [],
+          "NotCasesMeta": [],
+          "Type": "String",
+          "IsSdlNativeType": true,
+          "IsTypeJsonObject": false,
+          "Constant": false,
+          "IsStream": false,
+          "IsAttribute": false,
+          "IsNullExampleExplicit": false,
+          "Examples": [],
+          "Attributes": {},
+          "Nullable": false,
+          "NullableArrayItems": false,
+          "NullableMapValues": false,
+          "ReadOnly": false,
+          "WriteOnly": false,
+          "IsArray": false,
+          "IsMap": false,
+          "IsArrayOfMap": false,
+          "Deprecated": false,
+          "Name": "url",
+          "Description": "The shop page buyers pay on.",
+          "IsNullDefaultExplicit": false
+        },
+        {
+          "Optional": true,
+          "AnyOfTypes": [],
+          "AnyOfCasesMeta": [],
+          "OneOfTypes": [],
+          "OneOfCasesMeta": [],
+          "NotTypes": [],
+          "NotCasesMeta": [],
+          "Type": "String",
+          "IsSdlNativeType": true,
+          "IsTypeJsonObject": false,
+          "Constant": false,
+          "IsStream": false,
+          "IsAttribute": false,
+          "IsNullExampleExplicit": false,
+          "Examples": [],
+          "Attributes": {},
+          "Nullable": true,
+          "NullableArrayItems": false,
+          "NullableMapValues": false,
+          "ReadOnly": false,
+          "WriteOnly": false,
+          "IsArray": false,
+          "IsMap": false,
+          "IsArrayOfMap": false,
+          "Deprecated": false,
+          "Name": "cover",
+          "Description": "The cover image's URL.",
+          "IsNullDefaultExplicit": false
+        },
+        {
+          "Optional": false,
+          "AnyOfTypes": [],
+          "AnyOfCasesMeta": [],
+          "OneOfTypes": [],
+          "OneOfCasesMeta": [],
+          "NotTypes": [],
+          "NotCasesMeta": [],
+          "Type": "Boolean",
+          "IsSdlNativeType": true,
+          "IsTypeJsonObject": false,
+          "Constant": false,
+          "IsStream": false,
+          "IsAttribute": false,
+          "IsNullExampleExplicit": false,
+          "Examples": [],
+          "Nullable": false,
+          "NullableArrayItems": false,
+          "NullableMapValues": false,
+          "ReadOnly": false,
+          "WriteOnly": false,
+          "IsArray": false,
+          "IsMap": false,
+          "IsArrayOfMap": false,
+          "Deprecated": false,
+          "Name": "paypal_connected",
+          "Description": "The seller connected a PayPal account that can be paid.",
+          "IsNullDefaultExplicit": false
+        },
+        {
+          "Optional": false,
+          "AnyOfTypes": [],
+          "AnyOfCasesMeta": [],
+          "OneOfTypes": [],
+          "OneOfCasesMeta": [],
+          "NotTypes": [],
+          "NotCasesMeta": [],
+          "Type": "Number",
+          "IsSdlNativeType": true,
+          "IsTypeJsonObject": false,
+          "Constant": false,
+          "IsStream": false,
+          "IsAttribute": false,
+          "IsNullExampleExplicit": false,
+          "Examples": [],
+          "Attributes": {},
+          "Nullable": false,
+          "NullableArrayItems": false,
+          "NullableMapValues": false,
+          "ReadOnly": false,
+          "WriteOnly": false,
+          "IsArray": false,
+          "IsMap": false,
+          "IsArrayOfMap": false,
+          "Deprecated": false,
+          "Name": "sales",
+          "Description": "Paid orders.",
+          "IsNullDefaultExplicit": false
+        },
+        {
+          "Optional": false,
+          "AnyOfTypes": [],
+          "AnyOfCasesMeta": [],
+          "OneOfTypes": [],
+          "OneOfCasesMeta": [],
+          "NotTypes": [],
+          "NotCasesMeta": [],
+          "Type": "DateTime",
+          "IsSdlNativeType": true,
+          "IsTypeJsonObject": false,
+          "Constant": false,
+          "IsStream": false,
+          "IsAttribute": false,
+          "IsNullExampleExplicit": false,
+          "Examples": [],
+          "Attributes": {
+            "Format": "Rfc3339"
+          },
+          "Nullable": false,
+          "NullableArrayItems": false,
+          "NullableMapValues": false,
+          "ReadOnly": false,
+          "WriteOnly": false,
+          "IsArray": false,
+          "IsMap": false,
+          "IsArrayOfMap": false,
+          "Deprecated": false,
+          "Name": "created_at",
+          "Description": "",
+          "IsNullDefaultExplicit": false
+        }
+      ],
+      "IsNullExampleExplicit": false,
+      "ExampleValues": [],
+      "Deprecated": false,
+      "IsXmlType": false,
+      "AllowAdditionalFields": true
+    },
+    {
       "Name": "AgentMoney",
       "ImplementationType": "Structure",
       "Fields": [
@@ -12559,7 +13311,7 @@
           "OneOfCasesMeta": [],
           "NotTypes": [],
           "NotCasesMeta": [],
-          "Type": "Status2",
+          "Type": "Status3",
           "IsSdlNativeType": false,
           "Constant": false,
           "IsStream": false,
@@ -13886,7 +14638,7 @@
           "OneOfCasesMeta": [],
           "NotTypes": [],
           "NotCasesMeta": [],
-          "Type": "Status3",
+          "Type": "Status5",
           "IsSdlNativeType": false,
           "Constant": false,
           "IsStream": false,
@@ -13925,7 +14677,7 @@
           "OneOfCasesMeta": [],
           "NotTypes": [],
           "NotCasesMeta": [],
-          "Type": "Status3",
+          "Type": "Status5",
           "IsSdlNativeType": false,
           "Constant": false,
           "IsStream": false,
@@ -14168,6 +14920,45 @@
           "Deprecated": false,
           "Name": "clientToken",
           "Description": "Pass to `createInstance` in the PayPal JavaScript SDK v6.",
+          "IsNullDefaultExplicit": false
+        }
+      ],
+      "IsNullExampleExplicit": false,
+      "ExampleValues": [],
+      "Deprecated": false,
+      "IsXmlType": false,
+      "AllowAdditionalFields": true
+    },
+    {
+      "Name": "Api Platform Shops Response",
+      "ImplementationType": "Structure",
+      "Fields": [
+        {
+          "Optional": false,
+          "AnyOfTypes": [],
+          "AnyOfCasesMeta": [],
+          "OneOfTypes": [],
+          "OneOfCasesMeta": [],
+          "NotTypes": [],
+          "NotCasesMeta": [],
+          "Type": "PlatformShop",
+          "IsSdlNativeType": false,
+          "Constant": false,
+          "IsStream": false,
+          "IsAttribute": false,
+          "IsNullExampleExplicit": false,
+          "Examples": [],
+          "Nullable": false,
+          "NullableArrayItems": false,
+          "NullableMapValues": false,
+          "ReadOnly": false,
+          "WriteOnly": false,
+          "IsArray": true,
+          "IsMap": false,
+          "IsArrayOfMap": false,
+          "Deprecated": false,
+          "Name": "shops",
+          "Description": "",
           "IsNullDefaultExplicit": false
         }
       ],
@@ -14579,6 +15370,50 @@
           "Deprecated": false,
           "Name": "synced",
           "Description": "Whether PayPal accepted the tracking number.",
+          "IsNullDefaultExplicit": false
+        }
+      ],
+      "IsNullExampleExplicit": false,
+      "ExampleValues": [],
+      "Deprecated": false,
+      "IsXmlType": false,
+      "AllowAdditionalFields": true
+    },
+    {
+      "Name": "Api Shops Paypal Request",
+      "ImplementationType": "Structure",
+      "Fields": [
+        {
+          "Optional": true,
+          "AnyOfTypes": [],
+          "AnyOfCasesMeta": [],
+          "OneOfTypes": [],
+          "OneOfCasesMeta": [],
+          "NotTypes": [],
+          "NotCasesMeta": [],
+          "Type": "String",
+          "IsSdlNativeType": true,
+          "IsTypeJsonObject": false,
+          "Constant": false,
+          "IsStream": false,
+          "IsAttribute": false,
+          "Example": "https://www.miriogames.com/market/manage/?g=7Hq2",
+          "IsNullExampleExplicit": false,
+          "Examples": [],
+          "Attributes": {
+            "Format": "uri"
+          },
+          "Nullable": false,
+          "NullableArrayItems": false,
+          "NullableMapValues": false,
+          "ReadOnly": false,
+          "WriteOnly": false,
+          "IsArray": false,
+          "IsMap": false,
+          "IsArrayOfMap": false,
+          "Deprecated": false,
+          "Name": "returnUrl",
+          "Description": "Platform key only. Where to send the seller after PayPal.",
           "IsNullDefaultExplicit": false
         }
       ],
@@ -18914,7 +19749,7 @@
       "AllowAdditionalFields": false
     },
     {
-      "Name": "Status2",
+      "Name": "Status3",
       "ImplementationType": "Enumeration",
       "Fields": [
         {
@@ -19015,7 +19850,7 @@
       "AllowAdditionalFields": false
     },
     {
-      "Name": "Status3",
+      "Name": "Status5",
       "ImplementationType": "Enumeration",
       "Fields": [
         {
@@ -19241,6 +20076,7 @@
     "Suggestions",
     "PayPalStatus",
     "AgentProduct",
+    "PlatformShop",
     "AgentMoney",
     "JsonRpcRequest",
     "JsonRpcResponse",

@@ -104,7 +104,7 @@
       "operations": [
         {
           "method": "POST",
-          "summary": "Starts a draft shop from one of three sources. Gemini designs the page and guesses the\nsetup; check it with `getShop`, adjust with `updateShop`, then go live.\n\nSent with a session cookie from `signIn`, the shop belongs to that account, which also\nbecomes its seller email (and PayPal email, after Log in with PayPal) unless you give one.\n\n- `source=photo`: a `photo` and/or a `description` of your own product.\n- `source=link`: a `url`. If Channel3 recognises it as a store's product page, the shop\n  becomes a recommendation (`product_type: referral`); otherwise the page is read and you\n  sell the product yourself with PayPal.\n- `source=channel3`: a `productId` from `searchProducts` (a recommendation).\n\nTakes 15–40 seconds. Hero art, if available, is generated afterwards (`hero_status`).\n",
+          "summary": "Starts a draft shop from one of three sources. Gemini designs the page and guesses the\nsetup; check it with `getShop`, adjust with `updateShop`, then go live.\n\nSent with a session cookie from `signIn`, the shop belongs to that account, which also\nbecomes its seller email (and PayPal email, after Log in with PayPal) unless you give one.\n\n- `source=photo`: a `photo` and/or a `description` of your own product.\n- `source=link`: a `url`. If Channel3 recognises it as a store's product page, the shop\n  becomes a recommendation (`product_type: referral`); otherwise the page is read and you\n  sell the product yourself with PayPal.\n- `source=channel3`: a `productId` from `searchProducts` (a recommendation).\n\nTakes 15–40 seconds. Hero art, if available, is generated afterwards (`hero_status`).\n\n**Platforms:** sent with a platform API key, the shop belongs to the key's account, so the\nkey can manage it from then on (no need to keep the admin token). It's made for one of the\nplatform's sellers, so it inherits nothing from the account: set `paypal_email` or call\n`connectPayPal` for that seller.\n",
           "nickname": "createShop",
           "parameters": [
             {
@@ -276,6 +276,7 @@
               "type": "object"
             }
           ],
+          "authorizations": {},
           "produces": [
             "application/json"
           ],
@@ -332,7 +333,7 @@
             {
               "code": 404,
               "responseModel": "Error",
-              "message": "No such shop, or the admin token doesn't match it."
+              "message": "No such shop, or the admin token or API key doesn't match it."
             }
           ],
           "uniqueItems": false,
@@ -390,7 +391,7 @@
             {
               "code": 404,
               "responseModel": "Error",
-              "message": "No such shop, or the admin token doesn't match it."
+              "message": "No such shop, or the admin token or API key doesn't match it."
             }
           ],
           "uniqueItems": false,
@@ -453,7 +454,7 @@
             {
               "code": 404,
               "responseModel": "Error",
-              "message": "No such shop, or the admin token doesn't match it."
+              "message": "No such shop, or the admin token or API key doesn't match it."
             },
             {
               "code": 502,
@@ -499,7 +500,7 @@
             {
               "code": 404,
               "responseModel": "Error",
-              "message": "No such shop, or the admin token doesn't match it."
+              "message": "No such shop, or the admin token or API key doesn't match it."
             }
           ],
           "uniqueItems": false,
@@ -552,7 +553,7 @@
             {
               "code": 404,
               "responseModel": "Error",
-              "message": "No such shop, or the admin token doesn't match it."
+              "message": "No such shop, or the admin token or API key doesn't match it."
             }
           ],
           "uniqueItems": false,
@@ -605,7 +606,7 @@
             {
               "code": 404,
               "responseModel": "Error",
-              "message": "No such shop, or the admin token doesn't match it."
+              "message": "No such shop, or the admin token or API key doesn't match it."
             }
           ],
           "uniqueItems": false,
@@ -663,7 +664,7 @@
             {
               "code": 404,
               "responseModel": "Error",
-              "message": "No such shop, or the admin token doesn't match it."
+              "message": "No such shop, or the admin token or API key doesn't match it."
             }
           ],
           "uniqueItems": false,
@@ -704,7 +705,7 @@
             {
               "code": 404,
               "responseModel": "Error",
-              "message": "No such shop, or the admin token doesn't match it."
+              "message": "No such shop, or the admin token or API key doesn't match it."
             },
             {
               "code": 502,
@@ -772,7 +773,7 @@
             {
               "code": 404,
               "responseModel": "Error",
-              "message": "No such shop, or the admin token doesn't match it."
+              "message": "No such shop, or the admin token or API key doesn't match it."
             },
             {
               "code": 502,
@@ -840,7 +841,7 @@
             {
               "code": 404,
               "responseModel": "Error",
-              "message": "No such shop, or the admin token doesn't match it."
+              "message": "No such shop, or the admin token or API key doesn't match it."
             }
           ],
           "uniqueItems": false,
@@ -853,7 +854,7 @@
       "operations": [
         {
           "method": "POST",
-          "summary": "Starts PayPal's seller onboarding (Partner Referrals). Send the seller's browser to the\nreturned `url`; they sign in to PayPal (or create a business account) and grant OneThing\npermission. PayPal brings them back to `/api/shops/<slug>/paypal/return`, which saves the\nconnection and opens the manage page. From then on, sales are paid to that account.\n\nWithout a connection, a shop can still go live with a typed `paypal_email`.\n",
+          "summary": "Starts PayPal's seller onboarding (Partner Referrals). Send the seller's browser to the\nreturned `url`; they sign in to PayPal (or create a business account) and grant OneThing\npermission. PayPal brings them back to `/api/shops/<slug>/paypal/return`, which saves the\nconnection and opens the manage page. From then on, sales are paid to that account.\n\nWithout a connection, a shop can still go live with a typed `paypal_email`.\n\n**Platforms:** call it with your API key and a `returnUrl`, and PayPal's flow ends on your own\npage instead, as `returnUrl?paypal=connected|incomplete|cancelled|failed&shop=<slug>`. The\nURL's origin must be one registered on the key.\n",
           "nickname": "connectPayPal",
           "parameters": [
             {
@@ -864,6 +865,25 @@
               "allowMultiple": false,
               "uniqueItems": false,
               "type": "string"
+            },
+            {
+              "name": "Content-Type",
+              "description": "",
+              "paramType": "header",
+              "required": true,
+              "allowMultiple": false,
+              "defaultValue": "application/json",
+              "uniqueItems": false,
+              "type": "string"
+            },
+            {
+              "name": "body",
+              "description": "",
+              "paramType": "body",
+              "required": false,
+              "allowMultiple": false,
+              "uniqueItems": false,
+              "type": "ApiShopsPaypalRequest"
             }
           ],
           "authorizations": {
@@ -872,11 +892,14 @@
           "produces": [
             "application/json"
           ],
+          "consumes": [
+            "application/json"
+          ],
           "responseMessages": [
             {
               "code": 404,
               "responseModel": "Error",
-              "message": "No such shop, or the admin token doesn't match it."
+              "message": "No such shop, or the admin token or API key doesn't match it."
             },
             {
               "code": 502,
@@ -917,7 +940,7 @@
             {
               "code": 404,
               "responseModel": "Error",
-              "message": "No such shop, or the admin token doesn't match it."
+              "message": "No such shop, or the admin token or API key doesn't match it."
             },
             {
               "code": 502,
@@ -958,7 +981,7 @@
             {
               "code": 404,
               "responseModel": "Error",
-              "message": "No such shop, or the admin token doesn't match it."
+              "message": "No such shop, or the admin token or API key doesn't match it."
             }
           ],
           "uniqueItems": false,
@@ -1102,7 +1125,7 @@
             {
               "code": 404,
               "responseModel": "Error",
-              "message": "No such shop, or the admin token doesn't match it."
+              "message": "No such shop, or the admin token or API key doesn't match it."
             },
             {
               "code": 409,
@@ -1155,7 +1178,7 @@
             {
               "code": 404,
               "responseModel": "Error",
-              "message": "No such shop, or the admin token doesn't match it."
+              "message": "No such shop, or the admin token or API key doesn't match it."
             },
             {
               "code": 409,
@@ -1251,7 +1274,7 @@
             {
               "code": 404,
               "responseModel": "Error",
-              "message": "No such shop, or the admin token doesn't match it."
+              "message": "No such shop, or the admin token or API key doesn't match it."
             }
           ],
           "items": {
@@ -1326,7 +1349,7 @@
             {
               "code": 404,
               "responseModel": "Error",
-              "message": "No such shop, or the admin token doesn't match it."
+              "message": "No such shop, or the admin token or API key doesn't match it."
             }
           ],
           "uniqueItems": false,
@@ -1362,7 +1385,7 @@
             {
               "code": 404,
               "responseModel": "Error",
-              "message": "No such shop, or the admin token doesn't match it."
+              "message": "No such shop, or the admin token or API key doesn't match it."
             }
           ],
           "items": {
@@ -1514,6 +1537,47 @@
           ],
           "uniqueItems": false,
           "type": "object"
+        }
+      ]
+    },
+    {
+      "path": "/api/platform/shops",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "Every shop the API key's account owns, newest first, with what a catalog page needs: name, price, cover, link, whether PayPal is connected and how many sales it has.",
+          "nickname": "listMyShops",
+          "parameters": [
+            {
+              "name": "status",
+              "description": "Only shops with this status, e.g. `live` for a public catalog.",
+              "paramType": "query",
+              "required": false,
+              "allowMultiple": false,
+              "defaultValue": "",
+              "enum": [
+                "draft",
+                "live"
+              ],
+              "uniqueItems": false,
+              "type": "string"
+            }
+          ],
+          "authorizations": {
+            "PlatformKey": []
+          },
+          "produces": [
+            "application/json"
+          ],
+          "responseMessages": [
+            {
+              "code": 401,
+              "responseModel": "Error",
+              "message": "No API key, or it's wrong or revoked."
+            }
+          ],
+          "uniqueItems": false,
+          "$ref": "ApiPlatformShopsResponse"
         }
       ]
     }
@@ -2395,6 +2459,90 @@
         }
       }
     },
+    "PlatformShop": {
+      "id": "PlatformShop",
+      "required": [
+        "slug",
+        "status",
+        "name",
+        "product_type",
+        "price",
+        "url",
+        "paypal_connected",
+        "sales",
+        "created_at"
+      ],
+      "properties": {
+        "slug": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "status": {
+          "description": "",
+          "enum": [
+            "draft",
+            "live"
+          ],
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "name": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "headline": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "product_type": {
+          "description": "",
+          "enum": [
+            "physical",
+            "digital",
+            "referral"
+          ],
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "price": {
+          "description": "",
+          "uniqueItems": false,
+          "$ref": "AgentMoney"
+        },
+        "url": {
+          "description": "The shop page buyers pay on.",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "cover": {
+          "description": "The cover image's URL.",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "paypal_connected": {
+          "description": "The seller connected a PayPal account that can be paid.",
+          "uniqueItems": false,
+          "type": "boolean"
+        },
+        "sales": {
+          "description": "Paid orders.",
+          "minimum": "",
+          "maximum": "",
+          "uniqueItems": false,
+          "type": "integer",
+          "format": "int32"
+        },
+        "created_at": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
     "AgentMoney": {
       "id": "AgentMoney",
       "required": [
@@ -2989,6 +3137,22 @@
         }
       }
     },
+    "ApiPlatformShopsResponse": {
+      "id": "ApiPlatformShopsResponse",
+      "required": [
+        "shops"
+      ],
+      "properties": {
+        "shops": {
+          "description": "",
+          "items": {
+            "$ref": "PlatformShop"
+          },
+          "uniqueItems": false,
+          "type": "array"
+        }
+      }
+    },
     "ApiShopsColorPhotosRequest": {
       "id": "ApiShopsColorPhotosRequest",
       "required": [
@@ -3113,6 +3277,17 @@
           "description": "Whether PayPal accepted the tracking number.",
           "uniqueItems": false,
           "type": "boolean"
+        }
+      }
+    },
+    "ApiShopsPaypalRequest": {
+      "id": "ApiShopsPaypalRequest",
+      "required": [],
+      "properties": {
+        "returnUrl": {
+          "description": "Platform key only. Where to send the seller after PayPal.",
+          "uniqueItems": false,
+          "type": "string"
         }
       }
     },

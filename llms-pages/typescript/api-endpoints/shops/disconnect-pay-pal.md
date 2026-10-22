@@ -14,7 +14,7 @@ async disconnectPayPal(
 
 # Authentication
 
-This endpoint requires [AdminToken](/llms-pages/typescript/getting-started/sdk-quickstart/authorization.md)
+This endpoint requires [AdminToken](/llms-pages/typescript/getting-started/sdk-quickstart/authorization.md) **OR** [PlatformKey](/llms-pages/typescript/getting-started/sdk-quickstart/authorization.md)
 
 
 # Parameters
@@ -69,7 +69,7 @@ try {
 
 | HTTP Status Code | Error Description | Exception Class |
 |  --- | --- | --- |
-| 404 | No such shop, or the admin token doesn't match it. | [`CustomError`](/llms-pages/typescript/models/exceptions/error.md) |
+| 404 | No such shop, or the admin token or API key doesn't match it. | [`CustomError`](/llms-pages/typescript/models/exceptions/error.md) |
 
 
 

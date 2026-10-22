@@ -11,6 +11,7 @@ Source: /#/typescript/x-redirect/JTI0aCUyRl9fbGlzdF9vZl9hcGlz
 * [Orders](/llms-pages/typescript/api-endpoints/orders/overview.md)
 * [Files](/llms-pages/typescript/api-endpoints/files/overview.md)
 * [Agents](/llms-pages/typescript/api-endpoints/agents/overview.md)
+* [Platforms](/llms-pages/typescript/api-endpoints/platforms/overview.md)
 
 
 

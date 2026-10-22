@@ -7,7 +7,9 @@ Source: /#/http/x-redirect/JTI0bSUyRlN0YXR1czM
 
 | Name |
 |  --- |
-| `pending` |
+| `created` |
+| `paid` |
+| `failed` |
 
 
 

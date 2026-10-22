@@ -11,6 +11,7 @@ Source: /#/http/x-redirect/JTI0aCUyRl9fbGlzdF9vZl9hcGlz
 * [Orders](/llms-pages/http/api-endpoints/orders/overview.md)
 * [Files](/llms-pages/http/api-endpoints/files/overview.md)
 * [Agents](/llms-pages/http/api-endpoints/agents/overview.md)
+* [Platforms](/llms-pages/http/api-endpoints/platforms/overview.md)
 
 
 

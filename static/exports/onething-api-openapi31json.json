@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "OneThing API",
-    "description": "OneThing turns a photo, a link or a picked product into a live one-product shop that takes\nPayPal payments, or a recommendation page that earns referral commissions through Channel3.\n\n**How a shop is made**\n1. `createShop`: start from a photo, a link, or a Channel3 product. Gemini guesses what it\n   is, how it's delivered, the price, a short link and the page design. You get back the\n   shop's link name and an **admin token**.\n2. `updateShop`: correct anything the AI guessed, then set `status: live`.\n3. Buyers pay on `https://<host>/<slug>` with PayPal. Sellers read orders and ship them.\n\n**Auth.** Seller endpoints take the shop's admin token in the `x-admin-token` header. Buyer\nendpoints (checkout, access-code verification, downloads) are public.\n\n**Access codes.** A digital product can unlock an app or game instead of shipping a file.\nEach paid order gets a code such as `K7QF-M2XP-9HTD`; your app calls `verifyAccessCode`\nbefore unlocking. Raptor Rush on miriogames.com is a live example.\n\n**Agent-ready.** Every live shop is also published for AI shopping agents: product JSON at\n`getAgentProduct`, and an MCP server at `/api/mcp` with `search_shops`, `get_product`,\n`create_order` and `get_order`. An agent can find and order, but the buyer still approves\nevery payment at PayPal.\n\nAll money moves through PayPal (sandbox in this deployment). OneThing never holds card data.\n",
+    "description": "OneThing turns a photo, a link or a picked product into a live one-product shop that takes\nPayPal payments, or a recommendation page that earns referral commissions through Channel3.\n\n**How a shop is made**\n1. `createShop`: start from a photo, a link, or a Channel3 product. Gemini guesses what it\n   is, how it's delivered, the price, a short link and the page design. You get back the\n   shop's link name and an **admin token**.\n2. `updateShop`: correct anything the AI guessed, then set `status: live`.\n3. Buyers pay on `https://<host>/<slug>` with PayPal. Sellers read orders and ship them.\n\n**Auth.** Seller endpoints take the shop's admin token in the `x-admin-token` header, or a\n**platform API key** (`Authorization: Bearer ot_sk_…`) for marketplaces that make shops for\ntheir own sellers. Buyer endpoints (checkout, access-code verification, downloads) are public.\n\n**Access codes.** A digital product can unlock an app or game instead of shipping a file.\nEach paid order gets a code such as `K7QF-M2XP-9HTD`; your app calls `verifyAccessCode`\nbefore unlocking. Raptor Rush on miriogames.com is a live example.\n\n**Agent-ready.** Every live shop is also published for AI shopping agents: product JSON at\n`getAgentProduct`, and an MCP server at `/api/mcp` with `search_shops`, `get_product`,\n`create_order` and `get_order`. An agent can find and order, but the buyer still approves\nevery payment at PayPal.\n\nAll money moves through PayPal (sandbox in this deployment). OneThing never holds card data.\n",
     "contact": {
       "name": "OneThing",
       "url": "https://github.com/omarmiri/one-thing"
@@ -161,7 +161,7 @@
           "Shops"
         ],
         "summary": "createShop",
-        "description": "Starts a draft shop from one of three sources. Gemini designs the page and guesses the\nsetup; check it with `getShop`, adjust with `updateShop`, then go live.\n\nSent with a session cookie from `signIn`, the shop belongs to that account, which also\nbecomes its seller email (and PayPal email, after Log in with PayPal) unless you give one.\n\n- `source=photo`: a `photo` and/or a `description` of your own product.\n- `source=link`: a `url`. If Channel3 recognises it as a store's product page, the shop\n  becomes a recommendation (`product_type: referral`); otherwise the page is read and you\n  sell the product yourself with PayPal.\n- `source=channel3`: a `productId` from `searchProducts` (a recommendation).\n\nTakes 15–40 seconds. Hero art, if available, is generated afterwards (`hero_status`).\n",
+        "description": "Starts a draft shop from one of three sources. Gemini designs the page and guesses the\nsetup; check it with `getShop`, adjust with `updateShop`, then go live.\n\nSent with a session cookie from `signIn`, the shop belongs to that account, which also\nbecomes its seller email (and PayPal email, after Log in with PayPal) unless you give one.\n\n- `source=photo`: a `photo` and/or a `description` of your own product.\n- `source=link`: a `url`. If Channel3 recognises it as a store's product page, the shop\n  becomes a recommendation (`product_type: referral`); otherwise the page is read and you\n  sell the product yourself with PayPal.\n- `source=channel3`: a `productId` from `searchProducts` (a recommendation).\n\nTakes 15–40 seconds. Hero art, if available, is generated afterwards (`hero_status`).\n\n**Platforms:** sent with a platform API key, the shop belongs to the key's account, so the\nkey can manage it from then on (no need to keep the admin token). It's made for one of the\nplatform's sellers, so it inherits nothing from the account: set `paypal_email` or call\n`connectPayPal` for that seller.\n",
         "operationId": "createShop",
         "parameters": [],
         "requestBody": {
@@ -303,7 +303,13 @@
             }
           }
         },
-        "deprecated": false
+        "deprecated": false,
+        "security": [
+          {},
+          {
+            "PlatformKey": []
+          }
+        ]
       },
       "parameters": []
     },
@@ -342,7 +348,7 @@
             }
           },
           "404": {
-            "description": "No such shop, or the admin token doesn't match it.",
+            "description": "No such shop, or the admin token or API key doesn't match it.",
             "headers": {},
             "content": {
               "application/json": {
@@ -357,6 +363,9 @@
         "security": [
           {
             "AdminToken": []
+          },
+          {
+            "PlatformKey": []
           }
         ]
       },
@@ -416,7 +425,7 @@
             }
           },
           "404": {
-            "description": "No such shop, or the admin token doesn't match it.",
+            "description": "No such shop, or the admin token or API key doesn't match it.",
             "headers": {},
             "content": {
               "application/json": {
@@ -431,6 +440,9 @@
         "security": [
           {
             "AdminToken": []
+          },
+          {
+            "PlatformKey": []
           }
         ]
       },
@@ -493,7 +505,7 @@
             }
           },
           "404": {
-            "description": "No such shop, or the admin token doesn't match it.",
+            "description": "No such shop, or the admin token or API key doesn't match it.",
             "headers": {},
             "content": {
               "application/json": {
@@ -519,6 +531,9 @@
         "security": [
           {
             "AdminToken": []
+          },
+          {
+            "PlatformKey": []
           }
         ]
       },
@@ -570,7 +585,7 @@
             }
           },
           "404": {
-            "description": "No such shop, or the admin token doesn't match it.",
+            "description": "No such shop, or the admin token or API key doesn't match it.",
             "headers": {},
             "content": {
               "application/json": {
@@ -585,6 +600,9 @@
         "security": [
           {
             "AdminToken": []
+          },
+          {
+            "PlatformKey": []
           }
         ]
       },
@@ -658,7 +676,7 @@
             }
           },
           "404": {
-            "description": "No such shop, or the admin token doesn't match it.",
+            "description": "No such shop, or the admin token or API key doesn't match it.",
             "headers": {},
             "content": {
               "application/json": {
@@ -673,6 +691,9 @@
         "security": [
           {
             "AdminToken": []
+          },
+          {
+            "PlatformKey": []
           }
         ]
       },
@@ -746,7 +767,7 @@
             }
           },
           "404": {
-            "description": "No such shop, or the admin token doesn't match it.",
+            "description": "No such shop, or the admin token or API key doesn't match it.",
             "headers": {},
             "content": {
               "application/json": {
@@ -761,6 +782,9 @@
         "security": [
           {
             "AdminToken": []
+          },
+          {
+            "PlatformKey": []
           }
         ]
       },
@@ -820,7 +844,7 @@
             }
           },
           "404": {
-            "description": "No such shop, or the admin token doesn't match it.",
+            "description": "No such shop, or the admin token or API key doesn't match it.",
             "headers": {},
             "content": {
               "application/json": {
@@ -835,6 +859,9 @@
         "security": [
           {
             "AdminToken": []
+          },
+          {
+            "PlatformKey": []
           }
         ]
       },
@@ -894,7 +921,7 @@
             }
           },
           "404": {
-            "description": "No such shop, or the admin token doesn't match it.",
+            "description": "No such shop, or the admin token or API key doesn't match it.",
             "headers": {},
             "content": {
               "application/json": {
@@ -920,6 +947,9 @@
         "security": [
           {
             "AdminToken": []
+          },
+          {
+            "PlatformKey": []
           }
         ]
       },
@@ -982,7 +1012,7 @@
             }
           },
           "404": {
-            "description": "No such shop, or the admin token doesn't match it.",
+            "description": "No such shop, or the admin token or API key doesn't match it.",
             "headers": {},
             "content": {
               "application/json": {
@@ -1008,6 +1038,9 @@
         "security": [
           {
             "AdminToken": []
+          },
+          {
+            "PlatformKey": []
           }
         ]
       },
@@ -1070,7 +1103,7 @@
             }
           },
           "404": {
-            "description": "No such shop, or the admin token doesn't match it.",
+            "description": "No such shop, or the admin token or API key doesn't match it.",
             "headers": {},
             "content": {
               "application/json": {
@@ -1085,6 +1118,9 @@
         "security": [
           {
             "AdminToken": []
+          },
+          {
+            "PlatformKey": []
           }
         ]
       },
@@ -1096,7 +1132,7 @@
           "Shops"
         ],
         "summary": "connectPayPal",
-        "description": "Starts PayPal's seller onboarding (Partner Referrals). Send the seller's browser to the\nreturned `url`; they sign in to PayPal (or create a business account) and grant OneThing\npermission. PayPal brings them back to `/api/shops/<slug>/paypal/return`, which saves the\nconnection and opens the manage page. From then on, sales are paid to that account.\n\nWithout a connection, a shop can still go live with a typed `paypal_email`.\n",
+        "description": "Starts PayPal's seller onboarding (Partner Referrals). Send the seller's browser to the\nreturned `url`; they sign in to PayPal (or create a business account) and grant OneThing\npermission. PayPal brings them back to `/api/shops/<slug>/paypal/return`, which saves the\nconnection and opens the manage page. From then on, sales are paid to that account.\n\nWithout a connection, a shop can still go live with a typed `paypal_email`.\n\n**Platforms:** call it with your API key and a `returnUrl`, and PayPal's flow ends on your own\npage instead, as `returnUrl?paypal=connected|incomplete|cancelled|failed&shop=<slug>`. The\nURL's origin must be one registered on the key.\n",
         "operationId": "connectPayPal",
         "parameters": [
           {
@@ -1112,6 +1148,17 @@
             }
           }
         ],
+        "requestBody": {
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApiShopsPaypalRequest"
+              }
+            }
+          },
+          "required": false
+        },
         "responses": {
           "200": {
             "description": "Where to send the seller.",
@@ -1125,7 +1172,7 @@
             }
           },
           "404": {
-            "description": "No such shop, or the admin token doesn't match it.",
+            "description": "No such shop, or the admin token or API key doesn't match it.",
             "headers": {},
             "content": {
               "application/json": {
@@ -1162,6 +1209,9 @@
         "security": [
           {
             "AdminToken": []
+          },
+          {
+            "PlatformKey": []
           }
         ]
       },
@@ -1199,7 +1249,7 @@
             }
           },
           "404": {
-            "description": "No such shop, or the admin token doesn't match it.",
+            "description": "No such shop, or the admin token or API key doesn't match it.",
             "headers": {},
             "content": {
               "application/json": {
@@ -1236,6 +1286,9 @@
         "security": [
           {
             "AdminToken": []
+          },
+          {
+            "PlatformKey": []
           }
         ]
       },
@@ -1273,7 +1326,7 @@
             }
           },
           "404": {
-            "description": "No such shop, or the admin token doesn't match it.",
+            "description": "No such shop, or the admin token or API key doesn't match it.",
             "headers": {},
             "content": {
               "application/json": {
@@ -1288,6 +1341,9 @@
         "security": [
           {
             "AdminToken": []
+          },
+          {
+            "PlatformKey": []
           }
         ]
       },
@@ -1487,7 +1543,7 @@
             }
           },
           "404": {
-            "description": "No such shop, or the admin token doesn't match it.",
+            "description": "No such shop, or the admin token or API key doesn't match it.",
             "headers": {},
             "content": {
               "application/json": {
@@ -1578,7 +1634,7 @@
             }
           },
           "404": {
-            "description": "No such shop, or the admin token doesn't match it.",
+            "description": "No such shop, or the admin token or API key doesn't match it.",
             "headers": {},
             "content": {
               "application/json": {
@@ -1714,7 +1770,7 @@
             }
           },
           "404": {
-            "description": "No such shop, or the admin token doesn't match it.",
+            "description": "No such shop, or the admin token or API key doesn't match it.",
             "headers": {},
             "content": {
               "application/json": {
@@ -1729,6 +1785,9 @@
         "security": [
           {
             "AdminToken": []
+          },
+          {
+            "PlatformKey": []
           }
         ]
       },
@@ -1800,7 +1859,7 @@
             }
           },
           "404": {
-            "description": "No such shop, or the admin token doesn't match it.",
+            "description": "No such shop, or the admin token or API key doesn't match it.",
             "headers": {},
             "content": {
               "application/json": {
@@ -1815,6 +1874,9 @@
         "security": [
           {
             "AdminToken": []
+          },
+          {
+            "PlatformKey": []
           }
         ]
       },
@@ -1860,7 +1922,7 @@
             }
           },
           "404": {
-            "description": "No such shop, or the admin token doesn't match it.",
+            "description": "No such shop, or the admin token or API key doesn't match it.",
             "headers": {},
             "content": {
               "application/json": {
@@ -1875,6 +1937,9 @@
         "security": [
           {
             "AdminToken": []
+          },
+          {
+            "PlatformKey": []
           }
         ]
       },
@@ -2139,6 +2204,66 @@
           }
         },
         "deprecated": false
+      },
+      "parameters": []
+    },
+    "/api/platform/shops": {
+      "get": {
+        "tags": [
+          "Platforms"
+        ],
+        "summary": "listMyShops",
+        "description": "Every shop the API key's account owns, newest first, with what a catalog page needs: name, price, cover, link, whether PayPal is connected and how many sales it has.",
+        "operationId": "listMyShops",
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "description": "Only shops with this status, e.g. `live` for a public catalog.",
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/Status"
+                },
+                {
+                  "description": "Only shops with this status, e.g. `live` for a public catalog."
+                }
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The shops.",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiPlatformShopsResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No API key, or it's wrong or revoked.",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "deprecated": false,
+        "security": [
+          {
+            "PlatformKey": []
+          }
+        ]
       },
       "parameters": []
     }
@@ -2907,6 +3032,65 @@
         },
         "description": "A live shop as an AI agent sees it. Recommendations have `offers`; everything else has `price` and is bought with `create_order`."
       },
+      "PlatformShop": {
+        "title": "PlatformShop",
+        "required": [
+          "slug",
+          "status",
+          "name",
+          "product_type",
+          "price",
+          "url",
+          "paypal_connected",
+          "sales",
+          "created_at"
+        ],
+        "type": "object",
+        "properties": {
+          "slug": {
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/Status"
+          },
+          "name": {
+            "type": "string"
+          },
+          "headline": {
+            "type": "string"
+          },
+          "product_type": {
+            "$ref": "#/components/schemas/ProductType1"
+          },
+          "price": {
+            "$ref": "#/components/schemas/AgentMoney"
+          },
+          "url": {
+            "type": "string",
+            "description": "The shop page buyers pay on."
+          },
+          "cover": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "The cover image's URL."
+          },
+          "paypal_connected": {
+            "type": "boolean",
+            "description": "The seller connected a PayPal account that can be paid."
+          },
+          "sales": {
+            "type": "integer",
+            "description": "Paid orders.",
+            "contentEncoding": "int32"
+          },
+          "created_at": {
+            "type": "string",
+            "contentEncoding": "date-time"
+          }
+        }
+      },
       "AgentMoney": {
         "title": "AgentMoney",
         "required": [
@@ -3109,7 +3293,7 @@
             ]
           },
           "status": {
-            "$ref": "#/components/schemas/Status2"
+            "$ref": "#/components/schemas/Status3"
           },
           "amount_cents": {
             "type": "integer",
@@ -3412,7 +3596,7 @@
         "type": "object",
         "properties": {
           "status": {
-            "$ref": "#/components/schemas/Status3"
+            "$ref": "#/components/schemas/Status5"
           }
         }
       },
@@ -3482,6 +3666,22 @@
           "clientToken": {
             "type": "string",
             "description": "Pass to `createInstance` in the PayPal JavaScript SDK v6."
+          }
+        }
+      },
+      "ApiPlatformShopsResponse": {
+        "title": "ApiPlatformShopsResponse",
+        "required": [
+          "shops"
+        ],
+        "type": "object",
+        "properties": {
+          "shops": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PlatformShop"
+            },
+            "description": ""
           }
         }
       },
@@ -3610,6 +3810,20 @@
           "synced": {
             "type": "boolean",
             "description": "Whether PayPal accepted the tracking number."
+          }
+        }
+      },
+      "ApiShopsPaypalRequest": {
+        "title": "ApiShopsPaypalRequest",
+        "type": "object",
+        "properties": {
+          "returnUrl": {
+            "type": "string",
+            "description": "Platform key only. Where to send the seller after PayPal.",
+            "contentEncoding": "uri",
+            "examples": [
+              "https://www.miriogames.com/market/manage/?g=7Hq2"
+            ]
           }
         }
       },
@@ -4352,8 +4566,8 @@
         ],
         "type": "string"
       },
-      "Status2": {
-        "title": "Status2",
+      "Status3": {
+        "title": "Status3",
         "enum": [
           "created",
           "paid",
@@ -4361,8 +4575,8 @@
         ],
         "type": "string"
       },
-      "Status3": {
-        "title": "Status3",
+      "Status5": {
+        "title": "Status5",
         "const": "pending",
         "type": "string"
       },
@@ -4408,6 +4622,11 @@
         "description": "The shop's admin token, returned once by `createShop`. Keep it secret.",
         "name": "x-admin-token",
         "in": "header"
+      },
+      "PlatformKey": {
+        "type": "http",
+        "description": "A platform API key (`ot_sk_…`) for a marketplace that makes shops for its own sellers. Made on the website's `/account` page after Log in with PayPal, and shown once. It reaches every shop its account owns, so keep it on your server.",
+        "scheme": "bearer"
       }
     }
   },
@@ -4448,6 +4667,10 @@
     {
       "name": "Agents",
       "description": "Machine-readable shops and the MCP server AI shopping agents buy through."
+    },
+    {
+      "name": "Platforms",
+      "description": "For marketplaces that make and run shops for their own sellers with one API key."
     }
   ]
 }

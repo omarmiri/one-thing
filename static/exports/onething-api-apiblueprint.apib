@@ -12,8 +12,9 @@ PayPal payments, or a recommendation page that earns referral commissions throug
 2. `updateShop`: correct anything the AI guessed, then set `status: live`.
 3. Buyers pay on `https://<host>/<slug>` with PayPal. Sellers read orders and ship them.
 
-**Auth.** Seller endpoints take the shop's admin token in the `x-admin-token` header. Buyer
-endpoints (checkout, access-code verification, downloads) are public.
+**Auth.** Seller endpoints take the shop's admin token in the `x-admin-token` header, or a
+**platform API key** (`Authorization: Bearer ot_sk_…`) for marketplaces that make shops for
+their own sellers. Buyer endpoints (checkout, access-code verification, downloads) are public.
 
 **Access codes.** A digital product can unlock an app or game instead of shipping a file.
 Each paid order gets a code such as `K7QF-M2XP-9HTD`; your app calls `verifyAccessCode`
@@ -127,6 +128,11 @@ becomes its seller email (and PayPal email, after Log in with PayPal) unless you
 - `source=channel3`: a `productId` from `searchProducts` (a recommendation).
 
 Takes 15–40 seconds. Hero art, if available, is generated afterwards (`hero_status`).
+
+**Platforms:** sent with a platform API key, the shop belongs to the key's account, so the
+key can manage it from then on (no need to keep the admin token). It's made for one of the
+platform's sellers, so it inherits nothing from the account: set `paypal_email` or call
+`connectPayPal` for that seller.
 + Attributes
     + source (enum[string], required)
 
@@ -252,7 +258,7 @@ Everything about the shop, including the AI's design spec and guesses.
 
 + Response 404 (application/json)
 
-        No such shop, or the admin token doesn't match it.
+        No such shop, or the admin token or API key doesn't match it.
 
     + Attributes (Error)
 
@@ -287,7 +293,7 @@ access codes, `access_url`) first.
 
 + Response 404 (application/json)
 
-        No such shop, or the admin token doesn't match it.
+        No such shop, or the admin token or API key doesn't match it.
 
     + Attributes (Error)
 
@@ -330,7 +336,7 @@ access codes, `access_url`) first.
 
 + Response 404 (application/json)
 
-        No such shop, or the admin token doesn't match it.
+        No such shop, or the admin token or API key doesn't match it.
 
     + Attributes (Error)
 
@@ -375,7 +381,7 @@ Starts generation in the background. Poll `getShop` for `hero_status`.
 
 + Response 404 (application/json)
 
-        No such shop, or the admin token doesn't match it.
+        No such shop, or the admin token or API key doesn't match it.
 
     + Attributes (Error)
 
@@ -422,7 +428,7 @@ Uploads or replaces a digital product's file, up to 25 MB. Each paid order gets 
 
 + Response 404 (application/json)
 
-        No such shop, or the admin token doesn't match it.
+        No such shop, or the admin token or API key doesn't match it.
 
     + Attributes (Error)
 
@@ -469,7 +475,7 @@ Adds one or more photos after the cover. Each is turned upright, resized to at m
 
 + Response 404 (application/json)
 
-        No such shop, or the admin token doesn't match it.
+        No such shop, or the admin token or API key doesn't match it.
 
     + Attributes (Error)
 
@@ -502,7 +508,7 @@ Sets the photo order; the first becomes the cover. Leaving a photo out removes i
 
 + Response 404 (application/json)
 
-        No such shop, or the admin token doesn't match it.
+        No such shop, or the admin token or API key doesn't match it.
 
     + Attributes (Error)
 
@@ -544,7 +550,7 @@ Nothing changes on the shop page until the seller confirms: save options with `u
 
 + Response 404 (application/json)
 
-        No such shop, or the admin token doesn't match it.
+        No such shop, or the admin token or API key doesn't match it.
 
     + Attributes (Error)
 
@@ -595,7 +601,7 @@ Gemini looks at the shop's photos and says which one shows each colour, so buyer
 
 + Response 404 (application/json)
 
-        No such shop, or the admin token doesn't match it.
+        No such shop, or the admin token or API key doesn't match it.
 
     + Attributes (Error)
 
@@ -646,7 +652,7 @@ Saves which photo shows each colour, and nothing else about the shop. Only colou
 
 + Response 404 (application/json)
 
-        No such shop, or the admin token doesn't match it.
+        No such shop, or the admin token or API key doesn't match it.
 
     + Attributes (Error)
 
@@ -670,6 +676,16 @@ connection and opens the manage page. From then on, sales are paid to that accou
 
 Without a connection, a shop can still go live with a typed `paypal_email`.
 
+**Platforms:** call it with your API key and a `returnUrl`, and PayPal's flow ends on your own
+page instead, as `returnUrl?paypal=connected|incomplete|cancelled|failed&shop=<slug>`. The
+URL's origin must be one registered on the key.
+
++ Request (<<Add Header Value>>)
+
+    + Attributes (Api Shops Paypal Request)
+
+
+
 + Response 200 (application/json)
 
         Where to send the seller.
@@ -680,7 +696,7 @@ Without a connection, a shop can still go live with a typed `paypal_email`.
 
 + Response 404 (application/json)
 
-        No such shop, or the admin token doesn't match it.
+        No such shop, or the admin token or API key doesn't match it.
 
     + Attributes (Error)
 
@@ -715,7 +731,7 @@ Asks PayPal where the seller's connection stands and saves it on the shop. Also 
 
 + Response 404 (application/json)
 
-        No such shop, or the admin token doesn't match it.
+        No such shop, or the admin token or API key doesn't match it.
 
     + Attributes (Error)
 
@@ -750,7 +766,7 @@ Forgets the connected account. Sales go back to the shop's `paypal_email`.
 
 + Response 404 (application/json)
 
-        No such shop, or the admin token doesn't match it.
+        No such shop, or the admin token or API key doesn't match it.
 
     + Attributes (Error)
 
@@ -891,7 +907,7 @@ If the shop has buyer `options`, send one value for each. A sold-out combination
 
 + Response 404 (application/json)
 
-        No such shop, or the admin token doesn't match it.
+        No such shop, or the admin token or API key doesn't match it.
 
     + Attributes (Error)
 
@@ -952,7 +968,7 @@ Safe to call repeatedly: before approval it answers 409, so a page can poll it w
 
 + Response 404 (application/json)
 
-        No such shop, or the admin token doesn't match it.
+        No such shop, or the admin token or API key doesn't match it.
 
     + Attributes (Error)
 
@@ -1045,7 +1061,7 @@ Newest first. Checkouts that were never approved are left out.
 
 + Response 404 (application/json)
 
-        No such shop, or the admin token doesn't match it.
+        No such shop, or the admin token or API key doesn't match it.
 
     + Attributes (Error)
 
@@ -1092,7 +1108,7 @@ Saves the tracking number and pushes it to PayPal, so the buyer sees it in PayPa
 
 + Response 404 (application/json)
 
-        No such shop, or the admin token doesn't match it.
+        No such shop, or the admin token or API key doesn't match it.
 
     + Attributes (Error)
 
@@ -1121,7 +1137,7 @@ The last 50 PayPal webhook deliveries about this shop's orders, with signature r
 
 + Response 404 (application/json)
 
-        No such shop, or the admin token doesn't match it.
+        No such shop, or the admin token or API key doesn't match it.
 
     + Attributes (Error)
 
@@ -1285,6 +1301,42 @@ so the model can read them and try something else.
         Not JSON (JSON-RPC parse error `-32700`).
 
     + Attributes (JsonRpcResponse)
+
+
+
+
+
+# Group Platforms
+
+For marketplaces that make and run shops for their own sellers with one API key.
+
+## Api Platform Shops [/api/platform/shops{?status}]
+
+### listMyShops [GET]
+Every shop the API key's account owns, newest first, with what a catalog page needs: name, price, cover, link, whether PayPal is connected and how many sales it has.
++ Parameters
+    + status (enum[string], optional)
+
+        Only shops with this status, e.g. `live` for a public catalog.
+
+        + Members
+            + `draft` 
+            + `live` 
+
+
++ Response 200 (application/json)
+
+        The shops.
+
+    + Attributes (Api Platform Shops Response)
+
+
+
++ Response 401 (application/json)
+
+        No API key, or it's wrong or revoked.
+
+    + Attributes (Error)
 
 
 
@@ -1516,6 +1568,28 @@ A live shop as an AI agent sees it. Recommendations have `offers`; everything el
 + `mcp_server` (string, optional) - The MCP server to order through (`getAgentProduct` only).
 
 
+## PlatformShop (object)
+
+
+### Properties
++ `slug` (string, required) 
++ `status` (enum[string], required) 
+    + `draft`
+    + `live`
++ `name` (string, required) 
++ `headline` (string, optional) 
++ `product_type` (enum[string], required) 
+    + `physical`
+    + `digital`
+    + `referral`
++ `price` (AgentMoney, required) 
++ `url` (string, required) - The shop page buyers pay on.
++ `cover` (string, optional, nullable) - The cover image's URL.
++ `paypal_connected` (boolean, required) - The seller connected a PayPal account that can be paid.
++ `sales` (number, required) - Paid orders.
++ `created_at` (string, required) 
+
+
 ## AgentMoney (object)
 
 
@@ -1713,6 +1787,13 @@ A recommended Channel3 product. Buy links are Channel3-tracked, credited to this
 + `clientToken` (string, required) - Pass to `createInstance` in the PayPal JavaScript SDK v6.
 
 
+## Api Platform Shops Response (object)
+
+
+### Properties
++ `shops` (array[PlatformShop], required) 
+
+
 ## Api Shops Color Photos Request (object)
 
 
@@ -1769,6 +1850,13 @@ A recommended Channel3 product. Buy links are Channel3-tracked, credited to this
 ### Properties
 + `ok` (boolean, required) 
 + `synced` (boolean, required) - Whether PayPal accepted the tracking number.
+
+
+## Api Shops Paypal Request (object)
+
+
+### Properties
++ `returnUrl`: `https://www.miriogames.com/market/manage/?g=7Hq2` (string, optional) - Platform key only. Where to send the seller after PayPal.
 
 
 ## Api Shops Paypal Response (object)

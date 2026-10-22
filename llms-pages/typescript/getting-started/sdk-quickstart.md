@@ -16,8 +16,9 @@ PayPal payments, or a recommendation page that earns referral commissions throug
 2. `updateShop`: correct anything the AI guessed, then set `status: live`.
 3. Buyers pay on `https://<host>/<slug>` with PayPal. Sellers read orders and ship them.
 
-**Auth.** Seller endpoints take the shop's admin token in the `x-admin-token` header. Buyer
-endpoints (checkout, access-code verification, downloads) are public.
+**Auth.** Seller endpoints take the shop's admin token in the `x-admin-token` header, or a
+**platform API key** (`Authorization: Bearer ot_sk_…`) for marketplaces that make shops for
+their own sellers. Buyer endpoints (checkout, access-code verification, downloads) are public.
 
 **Access codes.** A digital product can unlock an app or game instead of shipping a file.
 Each paid order gets a code such as `K7QF-M2XP-9HTD`; your app calls `verifyAccessCode`
@@ -64,7 +65,8 @@ The following parameters are configurable for the API Client:
 | timeout | `number` | Timeout for API calls.<br>*Default*: `60000` |
 | httpClientOptions | [`Partial<HttpClientOptions>`](/llms-pages/typescript/sdk-infrastructure/configuration/httpclientoptions.md) | Stable configurable http client options. |
 | unstableHttpClientOptions | `any` | Unstable configurable http client options. |
-| customHeaderAuthenticationCredentials | [`CustomHeaderAuthenticationCredentials`](/llms-pages/typescript/getting-started/sdk-quickstart/authorization.md) | The credential object for customHeaderAuthentication |
+| adminTokenCredentials | [`AdminTokenCredentials`](/llms-pages/typescript/getting-started/sdk-quickstart/authorization.md) | The credential object for adminToken |
+| platformKeyCredentials | [`PlatformKeyCredentials`](/llms-pages/typescript/getting-started/sdk-quickstart/authorization.md) | The credential object for platformKey |
 
 The API client can be initialized as follows:
 
@@ -74,8 +76,11 @@ The API client can be initialized as follows:
 import { Client, Environment } from 'one-thing-sdk';
 
 const client = new Client({
-  customHeaderAuthenticationCredentials: {
+  adminTokenCredentials: {
     'x-admin-token': 'x-admin-token'
+  },
+  platformKeyCredentials: {
+    accessToken: 'AccessToken'
   },
   timeout: 60000,
   environment: Environment.Production,
@@ -129,6 +134,7 @@ See the [Environment-Based Client Initialization](/llms-pages/typescript/sdk-inf
 This API uses the following authentication schemes.
 
 * [`AdminToken (Custom Header Signature)`](/llms-pages/typescript/getting-started/sdk-quickstart/authorization.md)
+* [`PlatformKey (OAuth 2 Bearer token)`](/llms-pages/typescript/getting-started/sdk-quickstart/authorization.md)
 
 ## AdminToken (Custom Header Signature)
 
@@ -144,7 +150,7 @@ Documentation for accessing and setting credentials for AdminToken.
 
 
 
-**Note:** Auth credentials can be set using `customHeaderAuthenticationCredentials` object in the client.
+**Note:** Auth credentials can be set using `adminTokenCredentials` object in the client.
 
 ### Usage Example
 
@@ -156,8 +162,40 @@ You must provide credentials in the client as shown in the following code snippe
 import { Client } from 'one-thing-sdk';
 
 const client = new Client({
-  customHeaderAuthenticationCredentials: {
+  adminTokenCredentials: {
     'x-admin-token': 'x-admin-token'
+  },
+});
+```
+
+## PlatformKey (OAuth 2 Bearer token)
+
+
+
+Documentation for accessing and setting credentials for PlatformKey.
+
+### Auth Credentials
+
+| Name | Type | Description | Setter |
+|  --- | --- | --- | --- |
+| accessToken | `string` | The OAuth 2.0 Access Token to use for API requests. | `accessToken` |
+
+
+
+**Note:** Auth credentials can be set using `platformKeyCredentials` object in the client.
+
+### Usage Example
+
+#### Client Initialization
+
+You must provide credentials in the client as shown in the following code snippet.
+
+```ts
+import { Client } from 'one-thing-sdk';
+
+const client = new Client({
+  platformKeyCredentials: {
+    accessToken: 'AccessToken'
   },
 });
 ```

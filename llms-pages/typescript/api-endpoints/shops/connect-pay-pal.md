@@ -9,9 +9,14 @@ connection and opens the manage page. From then on, sales are paid to that accou
 
 Without a connection, a shop can still go live with a typed `paypal_email`.
 
+**Platforms:** call it with your API key and a `returnUrl`, and PayPal's flow ends on your own
+page instead, as `returnUrl?paypal=connected|incomplete|cancelled|failed&shop=<slug>`. The
+URL's origin must be one registered on the key.
+
 ```ts
 async connectPayPal(
   slug: string,
+  body?: ApiShopsPaypalRequest,
   requestOptions?: RequestOptions
 ): Promise<ApiResponse<ApiShopsPaypalResponse>>
 ```
@@ -19,7 +24,7 @@ async connectPayPal(
 
 # Authentication
 
-This endpoint requires [AdminToken](/llms-pages/typescript/getting-started/sdk-quickstart/authorization.md)
+This endpoint requires [AdminToken](/llms-pages/typescript/getting-started/sdk-quickstart/authorization.md) **OR** [PlatformKey](/llms-pages/typescript/getting-started/sdk-quickstart/authorization.md)
 
 
 # Parameters
@@ -27,6 +32,7 @@ This endpoint requires [AdminToken](/llms-pages/typescript/getting-started/sdk-q
 | Parameter | Type | Tags | Description |
 |  --- | --- | --- | --- |
 | `slug` | `string` | Template, Required | The shop's link name (current or former). |
+| `body` | [`ApiShopsPaypalRequest \| undefined`](/llms-pages/typescript/models/structures/api-shops-paypal-request.md) | Body, Optional | - |
 | `requestOptions` | `RequestOptions \| undefined` | Optional | Pass additional request options. |
 
 
@@ -42,8 +48,15 @@ This method returns an [`ApiResponse`](/llms-pages/typescript/sdk-infrastructure
 ```ts
 const slug = 'raptorrush';
 
+const body: ApiShopsPaypalRequest = {
+  returnUrl: 'https://www.miriogames.com/market/manage/?g=7Hq2',
+};
+
 try {
-  const response = await shopsApi.connectPayPal(slug);
+  const response = await shopsApi.connectPayPal(
+    slug,
+    body
+  );
 
   // Extracting fully parsed response body.
   console.log(response.result);
@@ -74,7 +87,7 @@ try {
 
 | HTTP Status Code | Error Description | Exception Class |
 |  --- | --- | --- |
-| 404 | No such shop, or the admin token doesn't match it. | [`CustomError`](/llms-pages/typescript/models/exceptions/error.md) |
+| 404 | No such shop, or the admin token or API key doesn't match it. | [`CustomError`](/llms-pages/typescript/models/exceptions/error.md) |
 | 502 | Gemini, PayPal or Channel3 failed or isn't configured. | [`CustomError`](/llms-pages/typescript/models/exceptions/error.md) |
 | 503 | Gemini, PayPal or Channel3 failed or isn't configured. | [`CustomError`](/llms-pages/typescript/models/exceptions/error.md) |
 

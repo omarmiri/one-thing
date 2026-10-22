@@ -19,9 +19,11 @@ documentation:
     3. Buyers pay on `https://<host>/<slug>` with PayPal. Sellers read orders and ship them.
 
 
-    **Auth.** Seller endpoints take the shop's admin token in the `x-admin-token` header. Buyer
+    **Auth.** Seller endpoints take the shop's admin token in the `x-admin-token` header, or a
 
-    endpoints (checkout, access-code verification, downloads) are public.
+    **platform API key** (`Authorization: Bearer ot_sk_…`) for marketplaces that make shops for
+
+    their own sellers. Buyer endpoints (checkout, access-code verification, downloads) are public.
 
 
     **Access codes.** A digital product can unlock an app or game instead of shipping a file.
@@ -1741,6 +1743,101 @@ schemas:
         "how_to_buy"
       ]
     }
+- PlatformShop: |
+    {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "id": "PlatformShop",
+      "title": "PlatformShop",
+      "type": "object",
+      "properties": {
+        "slug": {
+          "type": "string"
+        },
+        "status": {
+          "title": "Status",
+          "type": "string",
+          "additionalProperties": false,
+          "enum": [
+            "draft",
+            "live"
+          ]
+        },
+        "name": {
+          "type": "string"
+        },
+        "product_type": {
+          "title": "ProductType1",
+          "type": "string",
+          "additionalProperties": false,
+          "enum": [
+            "physical",
+            "digital",
+            "referral"
+          ]
+        },
+        "price": {
+          "id": "AgentMoney",
+          "title": "AgentMoney",
+          "type": "object",
+          "properties": {
+            "amount": {
+              "example": 48.5,
+              "type": "number"
+            },
+            "currency": {
+              "example": "USD",
+              "type": "string"
+            },
+            "label": {
+              "example": "$48.50",
+              "type": "string"
+            }
+          },
+          "required": [
+            "amount",
+            "currency"
+          ]
+        },
+        "url": {
+          "description": "The shop page buyers pay on.",
+          "type": "string"
+        },
+        "paypal_connected": {
+          "description": "The seller connected a PayPal account that can be paid.",
+          "type": "boolean"
+        },
+        "sales": {
+          "description": "Paid orders.",
+          "type": "integer",
+          "format": "int32"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "headline": {
+          "type": "string"
+        },
+        "cover": {
+          "description": "The cover image's URL.",
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "slug",
+        "status",
+        "name",
+        "product_type",
+        "price",
+        "url",
+        "paypal_connected",
+        "sales",
+        "created_at"
+      ]
+    }
 - AgentMoney: |
     {
       "$schema": "http://json-schema.org/draft-04/schema#",
@@ -2006,7 +2103,7 @@ schemas:
           "type": "string"
         },
         "status": {
-          "title": "Status2",
+          "title": "Status3",
           "type": "string",
           "additionalProperties": false,
           "enum": [
@@ -2486,7 +2583,7 @@ schemas:
       "type": "object",
       "properties": {
         "status": {
-          "title": "Status3",
+          "title": "Status5",
           "type": "string",
           "additionalProperties": false,
           "enum": [
@@ -2574,6 +2671,115 @@ schemas:
       },
       "required": [
         "clientToken"
+      ]
+    }
+- ApiPlatformShopsResponse: |
+    {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "id": "ApiPlatformShopsResponse",
+      "title": "ApiPlatformShopsResponse",
+      "type": "object",
+      "properties": {
+        "shops": {
+          "description": "",
+          "type": "array",
+          "items": {
+            "id": "PlatformShop",
+            "title": "PlatformShop",
+            "type": "object",
+            "properties": {
+              "slug": {
+                "type": "string"
+              },
+              "status": {
+                "title": "Status",
+                "type": "string",
+                "additionalProperties": false,
+                "enum": [
+                  "draft",
+                  "live"
+                ]
+              },
+              "name": {
+                "type": "string"
+              },
+              "product_type": {
+                "title": "ProductType1",
+                "type": "string",
+                "additionalProperties": false,
+                "enum": [
+                  "physical",
+                  "digital",
+                  "referral"
+                ]
+              },
+              "price": {
+                "id": "AgentMoney",
+                "title": "AgentMoney",
+                "type": "object",
+                "properties": {
+                  "amount": {
+                    "example": 48.5,
+                    "type": "number"
+                  },
+                  "currency": {
+                    "example": "USD",
+                    "type": "string"
+                  },
+                  "label": {
+                    "example": "$48.50",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "amount",
+                  "currency"
+                ]
+              },
+              "url": {
+                "description": "The shop page buyers pay on.",
+                "type": "string"
+              },
+              "paypal_connected": {
+                "description": "The seller connected a PayPal account that can be paid.",
+                "type": "boolean"
+              },
+              "sales": {
+                "description": "Paid orders.",
+                "type": "integer",
+                "format": "int32"
+              },
+              "created_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "headline": {
+                "type": "string"
+              },
+              "cover": {
+                "description": "The cover image's URL.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "slug",
+              "status",
+              "name",
+              "product_type",
+              "price",
+              "url",
+              "paypal_connected",
+              "sales",
+              "created_at"
+            ]
+          }
+        }
+      },
+      "required": [
+        "shops"
       ]
     }
 - ApiShopsColorPhotosRequest: |
@@ -2750,6 +2956,21 @@ schemas:
         "ok",
         "synced"
       ]
+    }
+- ApiShopsPaypalRequest: |
+    {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "id": "ApiShopsPaypalRequest",
+      "title": "ApiShopsPaypalRequest",
+      "type": "object",
+      "properties": {
+        "returnUrl": {
+          "description": "Platform key only. Where to send the seller after PayPal.",
+          "example": "https://www.miriogames.com/market/manage/?g=7Hq2",
+          "type": "string",
+          "format": "uri"
+        }
+      }
     }
 - ApiShopsPaypalResponse: |
     {
@@ -3810,10 +4031,10 @@ schemas:
         "live"
       ]
     }
-- Status2: |
+- Status3: |
     {
       "$schema": "http://json-schema.org/draft-04/schema#",
-      "title": "Status2",
+      "title": "Status3",
       "type": "string",
       "additionalProperties": false,
       "enum": [
@@ -3822,10 +4043,10 @@ schemas:
         "failed"
       ]
     }
-- Status3: |
+- Status5: |
     {
       "$schema": "http://json-schema.org/draft-04/schema#",
-      "title": "Status3",
+      "title": "Status5",
       "type": "string",
       "additionalProperties": false,
       "enum": [
@@ -3897,6 +4118,7 @@ securitySchemes:
         post:
           securedBy:
           - AdminToken
+          - PlatformKey
           description: '"Make it warmer", "shorter copy", "more premium". Gemini edits the design spec.'
           headers:
             Content-Type:
@@ -4147,7 +4369,7 @@ securitySchemes:
                       ]
                     }
             '404':
-              description: No such shop, or the admin token doesn't match it.
+              description: No such shop, or the admin token or API key doesn't match it.
               body:
                 application/json:
                   schema: |
@@ -4205,6 +4427,7 @@ securitySchemes:
         post:
           securedBy:
           - AdminToken
+          - PlatformKey
           description: Starts generation in the background. Poll `getShop` for `hero_status`.
           responses:
             '200':
@@ -4253,7 +4476,7 @@ securitySchemes:
                       ]
                     }
             '404':
-              description: No such shop, or the admin token doesn't match it.
+              description: No such shop, or the admin token or API key doesn't match it.
               body:
                 application/json:
                   schema: |
@@ -4284,6 +4507,7 @@ securitySchemes:
         post:
           securedBy:
           - AdminToken
+          - PlatformKey
           description: Uploads or replaces a digital product's file, up to 25 MB. Each paid order gets a download link for it.
           body:
             multipart/form-data:
@@ -4344,7 +4568,7 @@ securitySchemes:
                       ]
                     }
             '404':
-              description: No such shop, or the admin token doesn't match it.
+              description: No such shop, or the admin token or API key doesn't match it.
               body:
                 application/json:
                   schema: |
@@ -4375,6 +4599,7 @@ securitySchemes:
         post:
           securedBy:
           - AdminToken
+          - PlatformKey
           description: Adds one or more photos after the cover. Each is turned upright, resized to at most 2000 px and stored as WebP. A shop holds up to 8 photos; buyers swipe through them on the shop page. Not for recommendations, which show the retailer's photos.
           body:
             multipart/form-data:
@@ -4450,7 +4675,7 @@ securitySchemes:
                       ]
                     }
             '404':
-              description: No such shop, or the admin token doesn't match it.
+              description: No such shop, or the admin token or API key doesn't match it.
               body:
                 application/json:
                   schema: |
@@ -4479,6 +4704,7 @@ securitySchemes:
         put:
           securedBy:
           - AdminToken
+          - PlatformKey
           description: Sets the photo order; the first becomes the cover. Leaving a photo out removes it.
           headers:
             Content-Type:
@@ -4574,7 +4800,7 @@ securitySchemes:
                       ]
                     }
             '404':
-              description: No such shop, or the admin token doesn't match it.
+              description: No such shop, or the admin token or API key doesn't match it.
               body:
                 application/json:
                   schema: |
@@ -4605,6 +4831,7 @@ securitySchemes:
         post:
           securedBy:
           - AdminToken
+          - PlatformKey
           description: >
             Asks Gemini what buyers will want to choose (sizes, colours) and what they'll ask that the
 
@@ -4761,7 +4988,7 @@ securitySchemes:
                       ]
                     }
             '404':
-              description: No such shop, or the admin token doesn't match it.
+              description: No such shop, or the admin token or API key doesn't match it.
               body:
                 application/json:
                   schema: |
@@ -4819,6 +5046,7 @@ securitySchemes:
         post:
           securedBy:
           - AdminToken
+          - PlatformKey
           description: Gemini looks at the shop's photos and says which one shows each colour, so buyers who pick a colour see it. Suggests only; save the matches with `setColorPhotos`. Needs at least two photos.
           headers:
             Content-Type:
@@ -4920,7 +5148,7 @@ securitySchemes:
                       ]
                     }
             '404':
-              description: No such shop, or the admin token doesn't match it.
+              description: No such shop, or the admin token or API key doesn't match it.
               body:
                 application/json:
                   schema: |
@@ -4978,6 +5206,7 @@ securitySchemes:
         put:
           securedBy:
           - AdminToken
+          - PlatformKey
           description: Saves which photo shows each colour, and nothing else about the shop. Only colours already saved in the shop's options change; `null` clears a colour's photo. A photo id that isn't one of the shop's photos is ignored.
           headers:
             Content-Type:
@@ -5060,7 +5289,7 @@ securitySchemes:
                       ]
                     }
             '404':
-              description: No such shop, or the admin token doesn't match it.
+              description: No such shop, or the admin token or API key doesn't match it.
               body:
                 application/json:
                   schema: |
@@ -5091,6 +5320,7 @@ securitySchemes:
         post:
           securedBy:
           - AdminToken
+          - PlatformKey
           description: >
             Starts PayPal's seller onboarding (Partner Referrals). Send the seller's browser to the
 
@@ -5102,6 +5332,36 @@ securitySchemes:
 
 
             Without a connection, a shop can still go live with a typed `paypal_email`.
+
+
+            **Platforms:** call it with your API key and a `returnUrl`, and PayPal's flow ends on your own
+
+            page instead, as `returnUrl?paypal=connected|incomplete|cancelled|failed&shop=<slug>`. The
+
+            URL's origin must be one registered on the key.
+          headers:
+            Content-Type:
+              required: true
+              displayName: Content-Type
+              enum:
+              - application/json
+          body:
+            application/json:
+              schema: |
+                {
+                  "id": "ApiShopsPaypalRequest",
+                  "title": "ApiShopsPaypalRequest",
+                  "type": "object",
+                  "properties": {
+                    "returnUrl": {
+                      "description": "Platform key only. Where to send the seller after PayPal.",
+                      "example": "https://www.miriogames.com/market/manage/?g=7Hq2",
+                      "type": "string",
+                      "format": "uri"
+                    }
+                  }
+                }
+              example: ''
           responses:
             '200':
               description: Where to send the seller.
@@ -5123,7 +5383,7 @@ securitySchemes:
                       ]
                     }
             '404':
-              description: No such shop, or the admin token doesn't match it.
+              description: No such shop, or the admin token or API key doesn't match it.
               body:
                 application/json:
                   schema: |
@@ -5206,6 +5466,7 @@ securitySchemes:
         get:
           securedBy:
           - AdminToken
+          - PlatformKey
           description: Asks PayPal where the seller's connection stands and saves it on the shop. Also finds a connection the seller finished at PayPal without coming back.
           responses:
             '200':
@@ -5264,7 +5525,7 @@ securitySchemes:
                       ]
                     }
             '404':
-              description: No such shop, or the admin token doesn't match it.
+              description: No such shop, or the admin token or API key doesn't match it.
               body:
                 application/json:
                   schema: |
@@ -5347,6 +5608,7 @@ securitySchemes:
         delete:
           securedBy:
           - AdminToken
+          - PlatformKey
           description: Forgets the connected account. Sales go back to the shop's `paypal_email`.
           responses:
             '200':
@@ -5368,7 +5630,7 @@ securitySchemes:
                       ]
                     }
             '404':
-              description: No such shop, or the admin token doesn't match it.
+              description: No such shop, or the admin token or API key doesn't match it.
               body:
                 application/json:
                   schema: |
@@ -5406,6 +5668,7 @@ securitySchemes:
           post:
             securedBy:
             - AdminToken
+            - PlatformKey
             description: Saves the tracking number and pushes it to PayPal, so the buyer sees it in PayPal.
             headers:
               Content-Type:
@@ -5502,7 +5765,7 @@ securitySchemes:
                         ]
                       }
               '404':
-                description: No such shop, or the admin token doesn't match it.
+                description: No such shop, or the admin token or API key doesn't match it.
                 body:
                   application/json:
                     schema: |
@@ -5531,6 +5794,7 @@ securitySchemes:
         get:
           securedBy:
           - AdminToken
+          - PlatformKey
           description: Newest first. Checkouts that were never approved are left out.
           responses:
             '200':
@@ -5550,7 +5814,7 @@ securitySchemes:
                             "type": "string"
                           },
                           "status": {
-                            "title": "Status2",
+                            "title": "Status3",
                             "type": "string",
                             "additionalProperties": false,
                             "enum": [
@@ -5698,7 +5962,7 @@ securitySchemes:
                       }
                     }
             '404':
-              description: No such shop, or the admin token doesn't match it.
+              description: No such shop, or the admin token or API key doesn't match it.
               body:
                 application/json:
                   schema: |
@@ -5729,6 +5993,7 @@ securitySchemes:
         get:
           securedBy:
           - AdminToken
+          - PlatformKey
           description: The last 50 PayPal webhook deliveries about this shop's orders, with signature results.
           responses:
             '200':
@@ -5788,7 +6053,7 @@ securitySchemes:
                       }
                     }
             '404':
-              description: No such shop, or the admin token doesn't match it.
+              description: No such shop, or the admin token or API key doesn't match it.
               body:
                 application/json:
                   schema: |
@@ -5817,6 +6082,7 @@ securitySchemes:
       get:
         securedBy:
         - AdminToken
+        - PlatformKey
         description: Everything about the shop, including the AI's design spec and guesses.
         responses:
           '200':
@@ -6453,7 +6719,7 @@ securitySchemes:
                     ]
                   }
           '404':
-            description: No such shop, or the admin token doesn't match it.
+            description: No such shop, or the admin token or API key doesn't match it.
             body:
               application/json:
                 schema: |
@@ -6482,6 +6748,7 @@ securitySchemes:
       patch:
         securedBy:
         - AdminToken
+        - PlatformKey
         description: >
           Changes only the fields you send. Renaming `slug` keeps the old link working (it
 
@@ -6751,7 +7018,7 @@ securitySchemes:
                     ]
                   }
           '404':
-            description: No such shop, or the admin token doesn't match it.
+            description: No such shop, or the admin token or API key doesn't match it.
             body:
               application/json:
                 schema: |
@@ -6778,6 +7045,9 @@ securitySchemes:
                     ]
                   }
     post:
+      securedBy:
+      - null
+      - PlatformKey
       description: >
         Starts a draft shop from one of three sources. Gemini designs the page and guesses the
 
@@ -6798,6 +7068,15 @@ securitySchemes:
 
 
         Takes 15–40 seconds. Hero art, if available, is generated afterwards (`hero_status`).
+
+
+        **Platforms:** sent with a platform API key, the shop belongs to the key's account, so the
+
+        key can manage it from then on (no need to keep the admin token). It's made for one of the
+
+        platform's sellers, so it inherits nothing from the account: set `paypal_email` or call
+
+        `connectPayPal` for that seller.
       body:
         multipart/form-data:
           formParameters:
@@ -7314,7 +7593,7 @@ securitySchemes:
                     ]
                   }
           '404':
-            description: No such shop, or the admin token doesn't match it.
+            description: No such shop, or the admin token or API key doesn't match it.
             body:
               application/json:
                 schema: |
@@ -7351,7 +7630,7 @@ securitySchemes:
                     "type": "object",
                     "properties": {
                       "status": {
-                        "title": "Status3",
+                        "title": "Status5",
                         "type": "string",
                         "additionalProperties": false,
                         "enum": [
@@ -7531,7 +7810,7 @@ securitySchemes:
                   ]
                 }
         '404':
-          description: No such shop, or the admin token doesn't match it.
+          description: No such shop, or the admin token or API key doesn't match it.
           body:
             application/json:
               schema: |
@@ -8428,6 +8707,159 @@ securitySchemes:
                   "required": [
                     "jsonrpc",
                     "id"
+                  ]
+                }
+  /platform/shops:
+    get:
+      securedBy:
+      - PlatformKey
+      description: "Every shop the API key's account owns, newest first, with what a catalog page needs: name, price, cover, link, whether PayPal is connected and how many sales it has."
+      queryParameters:
+        status:
+          description: Only shops with this status, e.g. `live` for a public catalog.
+          required: false
+          displayName: status
+          enum:
+          - draft
+          - live
+      responses:
+        '200':
+          description: The shops.
+          body:
+            application/json:
+              schema: |
+                {
+                  "id": "ApiPlatformShopsResponse",
+                  "title": "ApiPlatformShopsResponse",
+                  "type": "object",
+                  "properties": {
+                    "shops": {
+                      "description": "",
+                      "type": "array",
+                      "items": {
+                        "id": "PlatformShop",
+                        "title": "PlatformShop",
+                        "type": "object",
+                        "properties": {
+                          "slug": {
+                            "type": "string"
+                          },
+                          "status": {
+                            "title": "Status",
+                            "type": "string",
+                            "additionalProperties": false,
+                            "enum": [
+                              "draft",
+                              "live"
+                            ]
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "product_type": {
+                            "title": "ProductType1",
+                            "type": "string",
+                            "additionalProperties": false,
+                            "enum": [
+                              "physical",
+                              "digital",
+                              "referral"
+                            ]
+                          },
+                          "price": {
+                            "id": "AgentMoney",
+                            "title": "AgentMoney",
+                            "type": "object",
+                            "properties": {
+                              "amount": {
+                                "example": 48.5,
+                                "type": "number"
+                              },
+                              "currency": {
+                                "example": "USD",
+                                "type": "string"
+                              },
+                              "label": {
+                                "example": "$48.50",
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "amount",
+                              "currency"
+                            ]
+                          },
+                          "url": {
+                            "description": "The shop page buyers pay on.",
+                            "type": "string"
+                          },
+                          "paypal_connected": {
+                            "description": "The seller connected a PayPal account that can be paid.",
+                            "type": "boolean"
+                          },
+                          "sales": {
+                            "description": "Paid orders.",
+                            "type": "integer",
+                            "format": "int32"
+                          },
+                          "created_at": {
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          "headline": {
+                            "type": "string"
+                          },
+                          "cover": {
+                            "description": "The cover image's URL.",
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "slug",
+                          "status",
+                          "name",
+                          "product_type",
+                          "price",
+                          "url",
+                          "paypal_connected",
+                          "sales",
+                          "created_at"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "shops"
+                  ]
+                }
+        '401':
+          description: No API key, or it's wrong or revoked.
+          body:
+            application/json:
+              schema: |
+                {
+                  "id": "Error",
+                  "title": "Error",
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "description": "A sentence you can show to a person.",
+                      "type": "string"
+                    },
+                    "field": {
+                      "description": "The form field at fault, when there is one.",
+                      "type": "string"
+                    },
+                    "detail": {
+                      "description": "The upstream service's own message, for debugging.",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
                   ]
                 }
   /account:

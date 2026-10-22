@@ -11,7 +11,7 @@ PUT /api/shops/{slug}/photos
 
 # Authentication
 
-This endpoint requires [AdminToken](/llms-pages/http/getting-started/sdk-quickstart/authorization.md)
+This endpoint requires [AdminToken](/llms-pages/http/getting-started/sdk-quickstart/authorization.md) **OR** [PlatformKey](/llms-pages/http/getting-started/sdk-quickstart/authorization.md)
 
 
 # Parameters
@@ -37,6 +37,7 @@ curl -X PUT \
   -H 'Accept: application/json' \
   -H 'Content-Type: application/json' \
   -H 'x-admin-token: x-admin-token' \
+  -H 'Authorization: Bearer AccessToken' \
   --data-raw '{
   "photos": [
     "photos8",
@@ -51,7 +52,7 @@ curl -X PUT \
 | HTTP Status Code | Error Description | Exception Class |
 |  --- | --- | --- |
 | 400 | Something in the request needs fixing; `error` says what. | [`Error_ErrorException`](/llms-pages/http/models/exceptions/error-error.md) |
-| 404 | No such shop, or the admin token doesn't match it. | [`Error_ErrorException`](/llms-pages/http/models/exceptions/error-error.md) |
+| 404 | No such shop, or the admin token or API key doesn't match it. | [`Error_ErrorException`](/llms-pages/http/models/exceptions/error-error.md) |
 
 
 

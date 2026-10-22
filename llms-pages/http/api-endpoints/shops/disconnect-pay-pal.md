@@ -11,7 +11,7 @@ DELETE /api/shops/{slug}/paypal
 
 # Authentication
 
-This endpoint requires [AdminToken](/llms-pages/http/getting-started/sdk-quickstart/authorization.md)
+This endpoint requires [AdminToken](/llms-pages/http/getting-started/sdk-quickstart/authorization.md) **OR** [PlatformKey](/llms-pages/http/getting-started/sdk-quickstart/authorization.md)
 
 
 # Parameters
@@ -34,7 +34,8 @@ This endpoint requires [AdminToken](/llms-pages/http/getting-started/sdk-quickst
 curl -X DELETE \
   --url 'https://one-thing-ash0.onrender.com/api/shops/raptorrush/paypal'  \
   -H 'Accept: application/json' \
-  -H 'x-admin-token: x-admin-token'
+  -H 'x-admin-token: x-admin-token' \
+  -H 'Authorization: Bearer AccessToken'
 ```
 
 
@@ -42,7 +43,7 @@ curl -X DELETE \
 
 | HTTP Status Code | Error Description | Exception Class |
 |  --- | --- | --- |
-| 404 | No such shop, or the admin token doesn't match it. | [`Error_ErrorException`](/llms-pages/http/models/exceptions/error-error.md) |
+| 404 | No such shop, or the admin token or API key doesn't match it. | [`Error_ErrorException`](/llms-pages/http/models/exceptions/error-error.md) |
 
 
 

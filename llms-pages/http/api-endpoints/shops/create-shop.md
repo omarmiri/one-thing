@@ -16,11 +16,19 @@ becomes its seller email (and PayPal email, after Log in with PayPal) unless you
 
 Takes 15–40 seconds. Hero art, if available, is generated afterwards (`hero_status`).
 
-:information_source: **Note** This endpoint does not require authentication.
+**Platforms:** sent with a platform API key, the shop belongs to the key's account, so the
+key can manage it from then on (no need to keep the admin token). It's made for one of the
+platform's sellers, so it inherits nothing from the account: set `paypal_email` or call
+`connectPayPal` for that seller.
 
 ```http
 POST /api/shops
 ```
+
+
+# Authentication
+
+This endpoint requires [PlatformKey](/llms-pages/http/getting-started/sdk-quickstart/authorization.md)
 
 
 # Parameters
@@ -57,7 +65,8 @@ POST /api/shops
 ```bash
 curl -X POST \
   --url 'https://one-thing-ash0.onrender.com/api/shops'  \
-  -H 'Accept: application/json'\
+  -H 'Accept: application/json' \
+  -H 'Authorization: Bearer AccessToken'\
   -F 'source=photo' \
   -F 'type=auto'
 ```

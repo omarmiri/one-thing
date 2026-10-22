@@ -15,7 +15,7 @@ def update_shop(self,
 
 # Authentication
 
-This endpoint requires [AdminToken](/llms-pages/python/getting-started/sdk-quickstart/authorization.md)
+This endpoint requires [AdminToken](/llms-pages/python/getting-started/sdk-quickstart/authorization.md) **OR** [PlatformKey](/llms-pages/python/getting-started/sdk-quickstart/authorization.md)
 
 
 # Parameters
@@ -58,7 +58,7 @@ print(result)
 | HTTP Status Code | Error Description | Exception Class |
 |  --- | --- | --- |
 | 400 | Something in the request needs fixing; `error` says what. | [`ErrorException`](/llms-pages/python/models/exceptions/error.md) |
-| 404 | No such shop, or the admin token doesn't match it. | [`ErrorException`](/llms-pages/python/models/exceptions/error.md) |
+| 404 | No such shop, or the admin token or API key doesn't match it. | [`ErrorException`](/llms-pages/python/models/exceptions/error.md) |
 
 
 

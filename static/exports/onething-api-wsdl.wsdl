@@ -118,6 +118,9 @@
       <xs:element name="POST_callMcp_InputMessage" type="schemas:POST_callMcp_InputMessage" />
       <xs:element name="POST_callMcp_OutputMessage" type="schemas:POST_callMcp_OutputMessage" />
       <xs:element name="POST_callMcp_400" type="schemas:POST_callMcp_400" />
+      <xs:element name="GET_listMyShops_InputMessage" type="schemas:GET_listMyShops_InputMessage" />
+      <xs:element name="GET_listMyShops_OutputMessage" type="schemas:GET_listMyShops_OutputMessage" />
+      <xs:element name="GET_listMyShops_401" type="schemas:GET_listMyShops_401" />
       <xs:complexType name="Error">
         <xs:sequence>
           <xs:element minOccurs="1" name="error" type="xs:string">
@@ -509,6 +512,37 @@
           </xs:element>
         </xs:sequence>
       </xs:complexType>
+      <xs:complexType name="PlatformShop">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="slug" type="xs:string" />
+          <xs:element minOccurs="1" name="status" type="schemas:Status" />
+          <xs:element minOccurs="1" name="name" type="xs:string" />
+          <xs:element minOccurs="0" name="headline" type="xs:string" />
+          <xs:element minOccurs="1" name="product_type" type="schemas:ProductType1" />
+          <xs:element minOccurs="1" name="price" type="schemas:AgentMoney" />
+          <xs:element minOccurs="1" name="url" type="xs:string">
+            <xs:annotation>
+              <xs:documentation>The shop page buyers pay on.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element minOccurs="0" name="cover" nillable="true" type="xs:string">
+            <xs:annotation>
+              <xs:documentation>The cover image's URL.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element minOccurs="1" name="paypal_connected" type="xs:boolean">
+            <xs:annotation>
+              <xs:documentation>The seller connected a PayPal account that can be paid.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element minOccurs="1" name="sales" type="xs:integer">
+            <xs:annotation>
+              <xs:documentation>Paid orders.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element minOccurs="1" name="created_at" type="xs:dateTime" />
+        </xs:sequence>
+      </xs:complexType>
       <xs:complexType name="AgentMoney">
         <xs:sequence>
           <xs:element minOccurs="1" name="amount" type="xs:double" />
@@ -591,7 +625,7 @@
         <xs:sequence>
           <xs:element minOccurs="1" name="id" type="xs:string" />
           <xs:element minOccurs="0" name="paypal_order_id" nillable="true" type="xs:string" />
-          <xs:element minOccurs="1" name="status" type="schemas:Status2" />
+          <xs:element minOccurs="1" name="status" type="schemas:Status3" />
           <xs:element minOccurs="1" name="amount_cents" type="xs:integer" />
           <xs:element minOccurs="0" name="shipping_cents" type="xs:integer" />
           <xs:element minOccurs="1" name="currency" type="xs:string" />
@@ -699,7 +733,7 @@
       </xs:complexType>
       <xs:complexType name="ApiOrdersCapture409Error1">
         <xs:sequence>
-          <xs:element minOccurs="0" name="status" type="schemas:Status3" />
+          <xs:element minOccurs="0" name="status" type="schemas:Status5" />
         </xs:sequence>
       </xs:complexType>
       <xs:complexType name="ApiOrdersCaptureResponse">
@@ -738,6 +772,11 @@
               <xs:documentation>Pass to `createInstance` in the PayPal JavaScript SDK v6.</xs:documentation>
             </xs:annotation>
           </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="ApiPlatformShopsResponse">
+        <xs:sequence>
+          <xs:element minOccurs="1" maxOccurs="unbounded" name="shops" type="schemas:PlatformShop" />
         </xs:sequence>
       </xs:complexType>
       <xs:complexType name="ApiShopsColorPhotosRequest">
@@ -800,6 +839,18 @@
             <xs:annotation>
               <xs:documentation>Whether PayPal accepted the tracking number.</xs:documentation>
             </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="ApiShopsPaypalRequest">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="returnUrl">
+            <xs:simpleType>
+              <xs:annotation>
+                <xs:documentation>Platform key only. Where to send the seller after PayPal.</xs:documentation>
+              </xs:annotation>
+              <xs:restriction base="xs:string" />
+            </xs:simpleType>
           </xs:element>
         </xs:sequence>
       </xs:complexType>
@@ -1219,14 +1270,14 @@
           <xs:enumeration value="live" />
         </xs:restriction>
       </xs:simpleType>
-      <xs:simpleType name="Status2">
+      <xs:simpleType name="Status3">
         <xs:restriction base="xs:string">
           <xs:enumeration value="created" />
           <xs:enumeration value="paid" />
           <xs:enumeration value="failed" />
         </xs:restriction>
       </xs:simpleType>
-      <xs:simpleType name="Status3">
+      <xs:simpleType name="Status5">
         <xs:restriction base="xs:string">
           <xs:enumeration value="pending" />
         </xs:restriction>
@@ -1428,7 +1479,7 @@
         <xs:sequence>
           <xs:element minOccurs="1" name="response404" type="schemas:Error">
             <xs:annotation>
-              <xs:documentation>No such shop, or the admin token doesn't match it.</xs:documentation>
+              <xs:documentation>No such shop, or the admin token or API key doesn't match it.</xs:documentation>
             </xs:annotation>
           </xs:element>
         </xs:sequence>
@@ -1466,7 +1517,7 @@
         <xs:sequence>
           <xs:element minOccurs="1" name="response404" type="schemas:Error">
             <xs:annotation>
-              <xs:documentation>No such shop, or the admin token doesn't match it.</xs:documentation>
+              <xs:documentation>No such shop, or the admin token or API key doesn't match it.</xs:documentation>
             </xs:annotation>
           </xs:element>
         </xs:sequence>
@@ -1504,7 +1555,7 @@
         <xs:sequence>
           <xs:element minOccurs="1" name="response404" type="schemas:Error">
             <xs:annotation>
-              <xs:documentation>No such shop, or the admin token doesn't match it.</xs:documentation>
+              <xs:documentation>No such shop, or the admin token or API key doesn't match it.</xs:documentation>
             </xs:annotation>
           </xs:element>
         </xs:sequence>
@@ -1549,7 +1600,7 @@
         <xs:sequence>
           <xs:element minOccurs="1" name="response404" type="schemas:Error">
             <xs:annotation>
-              <xs:documentation>No such shop, or the admin token doesn't match it.</xs:documentation>
+              <xs:documentation>No such shop, or the admin token or API key doesn't match it.</xs:documentation>
             </xs:annotation>
           </xs:element>
         </xs:sequence>
@@ -1590,7 +1641,7 @@
         <xs:sequence>
           <xs:element minOccurs="1" name="response404" type="schemas:Error">
             <xs:annotation>
-              <xs:documentation>No such shop, or the admin token doesn't match it.</xs:documentation>
+              <xs:documentation>No such shop, or the admin token or API key doesn't match it.</xs:documentation>
             </xs:annotation>
           </xs:element>
         </xs:sequence>
@@ -1631,7 +1682,7 @@
         <xs:sequence>
           <xs:element minOccurs="1" name="response404" type="schemas:Error">
             <xs:annotation>
-              <xs:documentation>No such shop, or the admin token doesn't match it.</xs:documentation>
+              <xs:documentation>No such shop, or the admin token or API key doesn't match it.</xs:documentation>
             </xs:annotation>
           </xs:element>
         </xs:sequence>
@@ -1669,7 +1720,7 @@
         <xs:sequence>
           <xs:element minOccurs="1" name="response404" type="schemas:Error">
             <xs:annotation>
-              <xs:documentation>No such shop, or the admin token doesn't match it.</xs:documentation>
+              <xs:documentation>No such shop, or the admin token or API key doesn't match it.</xs:documentation>
             </xs:annotation>
           </xs:element>
         </xs:sequence>
@@ -1705,7 +1756,7 @@
         <xs:sequence>
           <xs:element minOccurs="1" name="response404" type="schemas:Error">
             <xs:annotation>
-              <xs:documentation>No such shop, or the admin token doesn't match it.</xs:documentation>
+              <xs:documentation>No such shop, or the admin token or API key doesn't match it.</xs:documentation>
             </xs:annotation>
           </xs:element>
         </xs:sequence>
@@ -1752,7 +1803,7 @@
         <xs:sequence>
           <xs:element minOccurs="1" name="response404" type="schemas:Error">
             <xs:annotation>
-              <xs:documentation>No such shop, or the admin token doesn't match it.</xs:documentation>
+              <xs:documentation>No such shop, or the admin token or API key doesn't match it.</xs:documentation>
             </xs:annotation>
           </xs:element>
         </xs:sequence>
@@ -1799,7 +1850,7 @@
         <xs:sequence>
           <xs:element minOccurs="1" name="response404" type="schemas:Error">
             <xs:annotation>
-              <xs:documentation>No such shop, or the admin token doesn't match it.</xs:documentation>
+              <xs:documentation>No such shop, or the admin token or API key doesn't match it.</xs:documentation>
             </xs:annotation>
           </xs:element>
         </xs:sequence>
@@ -1811,6 +1862,8 @@
               <xs:documentation>The shop's link name (current or former).</xs:documentation>
             </xs:annotation>
           </xs:element>
+          <xs:element minOccurs="1" fixed="application/json" name="Content-Type" type="xs:string" />
+          <xs:element minOccurs="0" name="body" type="schemas:ApiShopsPaypalRequest" />
         </xs:sequence>
       </xs:complexType>
       <xs:complexType name="POST_connectPayPal_OutputMessage">
@@ -1826,7 +1879,7 @@
         <xs:sequence>
           <xs:element minOccurs="1" name="response404" type="schemas:Error">
             <xs:annotation>
-              <xs:documentation>No such shop, or the admin token doesn't match it.</xs:documentation>
+              <xs:documentation>No such shop, or the admin token or API key doesn't match it.</xs:documentation>
             </xs:annotation>
           </xs:element>
         </xs:sequence>
@@ -1871,7 +1924,7 @@
         <xs:sequence>
           <xs:element minOccurs="1" name="response404" type="schemas:Error">
             <xs:annotation>
-              <xs:documentation>No such shop, or the admin token doesn't match it.</xs:documentation>
+              <xs:documentation>No such shop, or the admin token or API key doesn't match it.</xs:documentation>
             </xs:annotation>
           </xs:element>
         </xs:sequence>
@@ -1916,7 +1969,7 @@
         <xs:sequence>
           <xs:element minOccurs="1" name="response404" type="schemas:Error">
             <xs:annotation>
-              <xs:documentation>No such shop, or the admin token doesn't match it.</xs:documentation>
+              <xs:documentation>No such shop, or the admin token or API key doesn't match it.</xs:documentation>
             </xs:annotation>
           </xs:element>
         </xs:sequence>
@@ -2040,7 +2093,7 @@
         <xs:sequence>
           <xs:element minOccurs="1" name="response404" type="schemas:Error">
             <xs:annotation>
-              <xs:documentation>No such shop, or the admin token doesn't match it.</xs:documentation>
+              <xs:documentation>No such shop, or the admin token or API key doesn't match it.</xs:documentation>
             </xs:annotation>
           </xs:element>
         </xs:sequence>
@@ -2103,7 +2156,7 @@
         <xs:sequence>
           <xs:element minOccurs="1" name="response404" type="schemas:Error">
             <xs:annotation>
-              <xs:documentation>No such shop, or the admin token doesn't match it.</xs:documentation>
+              <xs:documentation>No such shop, or the admin token or API key doesn't match it.</xs:documentation>
             </xs:annotation>
           </xs:element>
         </xs:sequence>
@@ -2181,7 +2234,7 @@
         <xs:sequence>
           <xs:element minOccurs="1" name="response404" type="schemas:Error">
             <xs:annotation>
-              <xs:documentation>No such shop, or the admin token doesn't match it.</xs:documentation>
+              <xs:documentation>No such shop, or the admin token or API key doesn't match it.</xs:documentation>
             </xs:annotation>
           </xs:element>
         </xs:sequence>
@@ -2224,7 +2277,7 @@
         <xs:sequence>
           <xs:element minOccurs="1" name="response404" type="schemas:Error">
             <xs:annotation>
-              <xs:documentation>No such shop, or the admin token doesn't match it.</xs:documentation>
+              <xs:documentation>No such shop, or the admin token or API key doesn't match it.</xs:documentation>
             </xs:annotation>
           </xs:element>
         </xs:sequence>
@@ -2251,7 +2304,7 @@
         <xs:sequence>
           <xs:element minOccurs="1" name="response404" type="schemas:Error">
             <xs:annotation>
-              <xs:documentation>No such shop, or the admin token doesn't match it.</xs:documentation>
+              <xs:documentation>No such shop, or the admin token or API key doesn't match it.</xs:documentation>
             </xs:annotation>
           </xs:element>
         </xs:sequence>
@@ -2357,6 +2410,33 @@
           <xs:element minOccurs="1" name="response400" type="schemas:JsonRpcResponse">
             <xs:annotation>
               <xs:documentation>Not JSON (JSON-RPC parse error `-32700`).</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="GET_listMyShops_InputMessage">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="status" type="schemas:Status">
+            <xs:annotation>
+              <xs:documentation>Only shops with this status, e.g. `live` for a public catalog.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="GET_listMyShops_OutputMessage">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="response200" type="schemas:ApiPlatformShopsResponse">
+            <xs:annotation>
+              <xs:documentation>The shops.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="GET_listMyShops_401">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="response401" type="schemas:Error">
+            <xs:annotation>
+              <xs:documentation>No API key, or it's wrong or revoked.</xs:documentation>
             </xs:annotation>
           </xs:element>
         </xs:sequence>
@@ -2711,6 +2791,15 @@
   <message name="POST_callMcp_400">
     <part name="POST_callMcp_400" element="schemas:POST_callMcp_400" />
   </message>
+  <message name="GET_listMyShops_InputMessage">
+    <part name="GET_listMyShops_InputMessage" element="schemas:GET_listMyShops_InputMessage" />
+  </message>
+  <message name="GET_listMyShops_OutputMessage">
+    <part name="GET_listMyShops_OutputMessage" element="schemas:GET_listMyShops_OutputMessage" />
+  </message>
+  <message name="GET_listMyShops_401">
+    <part name="GET_listMyShops_401" element="schemas:GET_listMyShops_401" />
+  </message>
   <portType name="OneThing_x0020_API_PortType">
     <operation name="POST_signIn">
       <documentation>Signs in with an email address or a phone number, creating the account the first time. There's no password and no verification (sandbox). The response sets the `ot_session` cookie; shops created with it belong to the account and are listed on `/account`. Signing in with an email also claims older shops whose seller email matches. In a browser, sellers can instead use Log in with PayPal (`/api/account/paypal`), which also records the PayPal account their sales are paid into.</documentation>
@@ -2750,6 +2839,11 @@ becomes its seller email (and PayPal email, after Log in with PayPal) unless you
 - `source=channel3`: a `productId` from `searchProducts` (a recommendation).
 
 Takes 15–40 seconds. Hero art, if available, is generated afterwards (`hero_status`).
+
+**Platforms:** sent with a platform API key, the shop belongs to the key's account, so the
+key can manage it from then on (no need to keep the admin token). It's made for one of the
+platform's sellers, so it inherits nothing from the account: set `paypal_email` or call
+`connectPayPal` for that seller.
 </documentation>
       <input message="wsdl:POST_createShop_InputMessage" />
       <output message="wsdl:POST_createShop_OutputMessage">
@@ -2772,7 +2866,7 @@ Takes 15–40 seconds. Hero art, if available, is generated afterwards (`hero_st
         <documentation>The shop.</documentation>
       </output>
       <fault name="GET_getShop_404" message="wsdl:GET_getShop_404">
-        <documentation>No such shop, or the admin token doesn't match it.</documentation>
+        <documentation>No such shop, or the admin token or API key doesn't match it.</documentation>
       </fault>
     </operation>
     <operation name="PATCH_updateShop">
@@ -2788,7 +2882,7 @@ access codes, `access_url`) first.
         <documentation>Something in the request needs fixing; `error` says what.</documentation>
       </fault>
       <fault name="PATCH_updateShop_404" message="wsdl:PATCH_updateShop_404">
-        <documentation>No such shop, or the admin token doesn't match it.</documentation>
+        <documentation>No such shop, or the admin token or API key doesn't match it.</documentation>
       </fault>
     </operation>
     <operation name="POST_refineShopDesign">
@@ -2801,7 +2895,7 @@ access codes, `access_url`) first.
         <documentation>Something in the request needs fixing; `error` says what.</documentation>
       </fault>
       <fault name="POST_refineShopDesign_404" message="wsdl:POST_refineShopDesign_404">
-        <documentation>No such shop, or the admin token doesn't match it.</documentation>
+        <documentation>No such shop, or the admin token or API key doesn't match it.</documentation>
       </fault>
       <fault name="POST_refineShopDesign_502" message="wsdl:POST_refineShopDesign_502">
         <documentation>Gemini, PayPal or Channel3 failed or isn't configured.</documentation>
@@ -2817,7 +2911,7 @@ access codes, `access_url`) first.
         <documentation>Something in the request needs fixing; `error` says what.</documentation>
       </fault>
       <fault name="POST_regenerateHeroArt_404" message="wsdl:POST_regenerateHeroArt_404">
-        <documentation>No such shop, or the admin token doesn't match it.</documentation>
+        <documentation>No such shop, or the admin token or API key doesn't match it.</documentation>
       </fault>
     </operation>
     <operation name="POST_uploadDigitalFile">
@@ -2830,7 +2924,7 @@ access codes, `access_url`) first.
         <documentation>Something in the request needs fixing; `error` says what.</documentation>
       </fault>
       <fault name="POST_uploadDigitalFile_404" message="wsdl:POST_uploadDigitalFile_404">
-        <documentation>No such shop, or the admin token doesn't match it.</documentation>
+        <documentation>No such shop, or the admin token or API key doesn't match it.</documentation>
       </fault>
     </operation>
     <operation name="POST_addPhotos">
@@ -2843,7 +2937,7 @@ access codes, `access_url`) first.
         <documentation>Something in the request needs fixing; `error` says what.</documentation>
       </fault>
       <fault name="POST_addPhotos_404" message="wsdl:POST_addPhotos_404">
-        <documentation>No such shop, or the admin token doesn't match it.</documentation>
+        <documentation>No such shop, or the admin token or API key doesn't match it.</documentation>
       </fault>
     </operation>
     <operation name="PUT_setPhotoOrder">
@@ -2856,7 +2950,7 @@ access codes, `access_url`) first.
         <documentation>Something in the request needs fixing; `error` says what.</documentation>
       </fault>
       <fault name="PUT_setPhotoOrder_404" message="wsdl:PUT_setPhotoOrder_404">
-        <documentation>No such shop, or the admin token doesn't match it.</documentation>
+        <documentation>No such shop, or the admin token or API key doesn't match it.</documentation>
       </fault>
     </operation>
     <operation name="POST_checkMissingDetails">
@@ -2875,7 +2969,7 @@ Nothing changes on the shop page until the seller confirms: save options with `u
         <documentation>Something in the request needs fixing; `error` says what.</documentation>
       </fault>
       <fault name="POST_checkMissingDetails_404" message="wsdl:POST_checkMissingDetails_404">
-        <documentation>No such shop, or the admin token doesn't match it.</documentation>
+        <documentation>No such shop, or the admin token or API key doesn't match it.</documentation>
       </fault>
       <fault name="POST_checkMissingDetails_502" message="wsdl:POST_checkMissingDetails_502">
         <documentation>Gemini, PayPal or Channel3 failed or isn't configured.</documentation>
@@ -2891,7 +2985,7 @@ Nothing changes on the shop page until the seller confirms: save options with `u
         <documentation>Something in the request needs fixing; `error` says what.</documentation>
       </fault>
       <fault name="POST_matchColorPhotos_404" message="wsdl:POST_matchColorPhotos_404">
-        <documentation>No such shop, or the admin token doesn't match it.</documentation>
+        <documentation>No such shop, or the admin token or API key doesn't match it.</documentation>
       </fault>
       <fault name="POST_matchColorPhotos_502" message="wsdl:POST_matchColorPhotos_502">
         <documentation>Gemini, PayPal or Channel3 failed or isn't configured.</documentation>
@@ -2907,7 +3001,7 @@ Nothing changes on the shop page until the seller confirms: save options with `u
         <documentation>Something in the request needs fixing; `error` says what.</documentation>
       </fault>
       <fault name="PUT_setColorPhotos_404" message="wsdl:PUT_setColorPhotos_404">
-        <documentation>No such shop, or the admin token doesn't match it.</documentation>
+        <documentation>No such shop, or the admin token or API key doesn't match it.</documentation>
       </fault>
     </operation>
     <operation name="POST_connectPayPal">
@@ -2917,13 +3011,17 @@ permission. PayPal brings them back to `/api/shops/&lt;slug&gt;/paypal/return`, 
 connection and opens the manage page. From then on, sales are paid to that account.
 
 Without a connection, a shop can still go live with a typed `paypal_email`.
+
+**Platforms:** call it with your API key and a `returnUrl`, and PayPal's flow ends on your own
+page instead, as `returnUrl?paypal=connected|incomplete|cancelled|failed&amp;shop=&lt;slug&gt;`. The
+URL's origin must be one registered on the key.
 </documentation>
       <input message="wsdl:POST_connectPayPal_InputMessage" />
       <output message="wsdl:POST_connectPayPal_OutputMessage">
         <documentation>Where to send the seller.</documentation>
       </output>
       <fault name="POST_connectPayPal_404" message="wsdl:POST_connectPayPal_404">
-        <documentation>No such shop, or the admin token doesn't match it.</documentation>
+        <documentation>No such shop, or the admin token or API key doesn't match it.</documentation>
       </fault>
       <fault name="POST_connectPayPal_502" message="wsdl:POST_connectPayPal_502">
         <documentation>Gemini, PayPal or Channel3 failed or isn't configured.</documentation>
@@ -2939,7 +3037,7 @@ Without a connection, a shop can still go live with a typed `paypal_email`.
         <documentation>The connection, or nulls if there is none yet.</documentation>
       </output>
       <fault name="GET_getPayPalConnection_404" message="wsdl:GET_getPayPalConnection_404">
-        <documentation>No such shop, or the admin token doesn't match it.</documentation>
+        <documentation>No such shop, or the admin token or API key doesn't match it.</documentation>
       </fault>
       <fault name="GET_getPayPalConnection_502" message="wsdl:GET_getPayPalConnection_502">
         <documentation>Gemini, PayPal or Channel3 failed or isn't configured.</documentation>
@@ -2955,7 +3053,7 @@ Without a connection, a shop can still go live with a typed `paypal_email`.
         <documentation>Done.</documentation>
       </output>
       <fault name="DELETE_disconnectPayPal_404" message="wsdl:DELETE_disconnectPayPal_404">
-        <documentation>No such shop, or the admin token doesn't match it.</documentation>
+        <documentation>No such shop, or the admin token or API key doesn't match it.</documentation>
       </fault>
     </operation>
     <operation name="GET_checkLinkName">
@@ -3008,7 +3106,7 @@ If the shop has buyer `options`, send one value for each. A sold-out combination
         <documentation>Something in the request needs fixing; `error` says what.</documentation>
       </fault>
       <fault name="POST_createCheckoutOrder_404" message="wsdl:POST_createCheckoutOrder_404">
-        <documentation>No such shop, or the admin token doesn't match it.</documentation>
+        <documentation>No such shop, or the admin token or API key doesn't match it.</documentation>
       </fault>
       <fault name="POST_createCheckoutOrder_409" message="wsdl:POST_createCheckoutOrder_409">
         <documentation>Taken or unavailable (a link name, or a sold-out product).</documentation>
@@ -3032,7 +3130,7 @@ Safe to call repeatedly: before approval it answers 409, so a page can poll it w
         <documentation>Something in the request needs fixing; `error` says what.</documentation>
       </fault>
       <fault name="POST_captureCheckoutOrder_404" message="wsdl:POST_captureCheckoutOrder_404">
-        <documentation>No such shop, or the admin token doesn't match it.</documentation>
+        <documentation>No such shop, or the admin token or API key doesn't match it.</documentation>
       </fault>
       <fault name="POST_captureCheckoutOrder_409" message="wsdl:POST_captureCheckoutOrder_409">
         <documentation>The buyer hasn't approved the order yet.</documentation>
@@ -3064,7 +3162,7 @@ link names, and codes typed loosely (lower case, spaces, no dashes).
         <documentation>Orders.</documentation>
       </output>
       <fault name="GET_listOrders_404" message="wsdl:GET_listOrders_404">
-        <documentation>No such shop, or the admin token doesn't match it.</documentation>
+        <documentation>No such shop, or the admin token or API key doesn't match it.</documentation>
       </fault>
     </operation>
     <operation name="POST_markOrderShipped">
@@ -3077,7 +3175,7 @@ link names, and codes typed loosely (lower case, spaces, no dashes).
         <documentation>Something in the request needs fixing; `error` says what.</documentation>
       </fault>
       <fault name="POST_markOrderShipped_404" message="wsdl:POST_markOrderShipped_404">
-        <documentation>No such shop, or the admin token doesn't match it.</documentation>
+        <documentation>No such shop, or the admin token or API key doesn't match it.</documentation>
       </fault>
     </operation>
     <operation name="GET_listWebhookEvents">
@@ -3087,7 +3185,7 @@ link names, and codes typed loosely (lower case, spaces, no dashes).
         <documentation>Events, newest first.</documentation>
       </output>
       <fault name="GET_listWebhookEvents_404" message="wsdl:GET_listWebhookEvents_404">
-        <documentation>No such shop, or the admin token doesn't match it.</documentation>
+        <documentation>No such shop, or the admin token or API key doesn't match it.</documentation>
       </fault>
     </operation>
     <operation name="GET_downloadFile">
@@ -3148,6 +3246,16 @@ so the model can read them and try something else.
       </output>
       <fault name="POST_callMcp_400" message="wsdl:POST_callMcp_400">
         <documentation>Not JSON (JSON-RPC parse error `-32700`).</documentation>
+      </fault>
+    </operation>
+    <operation name="GET_listMyShops">
+      <documentation>Every shop the API key's account owns, newest first, with what a catalog page needs: name, price, cover, link, whether PayPal is connected and how many sales it has.</documentation>
+      <input message="wsdl:GET_listMyShops_InputMessage" />
+      <output message="wsdl:GET_listMyShops_OutputMessage">
+        <documentation>The shops.</documentation>
+      </output>
+      <fault name="GET_listMyShops_401" message="wsdl:GET_listMyShops_401">
+        <documentation>No API key, or it's wrong or revoked.</documentation>
       </fault>
     </operation>
   </portType>
@@ -3591,6 +3699,18 @@ so the model can read them and try something else.
         <soap:fault use="literal" name="POST_callMcp_400" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
       </fault>
     </operation>
+    <operation name="GET_listMyShops">
+      <soap:operation soapAction="GET_listMyShops" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+      <input>
+        <soap:body use="literal" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+      </input>
+      <output>
+        <soap:body use="literal" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+      </output>
+      <fault name="GET_listMyShops_401">
+        <soap:fault use="literal" name="GET_listMyShops_401" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+      </fault>
+    </operation>
   </binding>
   <service name="OneThing_x0020_API">
     <documentation>OneThing turns a photo, a link or a picked product into a live one-product shop that takes
@@ -3603,8 +3723,9 @@ PayPal payments, or a recommendation page that earns referral commissions throug
 2. `updateShop`: correct anything the AI guessed, then set `status: live`.
 3. Buyers pay on `https://&lt;host&gt;/&lt;slug&gt;` with PayPal. Sellers read orders and ship them.
 
-**Auth.** Seller endpoints take the shop's admin token in the `x-admin-token` header. Buyer
-endpoints (checkout, access-code verification, downloads) are public.
+**Auth.** Seller endpoints take the shop's admin token in the `x-admin-token` header, or a
+**platform API key** (`Authorization: Bearer ot_sk_…`) for marketplaces that make shops for
+their own sellers. Buyer endpoints (checkout, access-code verification, downloads) are public.
 
 **Access codes.** A digital product can unlock an app or game instead of shipping a file.
 Each paid order gets a code such as `K7QF-M2XP-9HTD`; your app calls `verifyAccessCode`

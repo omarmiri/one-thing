@@ -33,7 +33,8 @@ Values provided through arguments take precedence over those defined in environm
 ```python
 ENVIRONMENT=production
 
-X_ADMIN_TOKEN=ExampleXAdminToken
+ADMIN_TOKEN_X_ADMIN_TOKEN=ExampleXAdminToken
+PLATFORM_KEY_ACCESS_TOKEN=ExampleAccessToken
 
 TIMEOUT=60
 MAX_RETRIES=3

@@ -18,9 +18,11 @@ info:
     3. Buyers pay on `https://<host>/<slug>` with PayPal. Sellers read orders and ship them.
 
 
-    **Auth.** Seller endpoints take the shop's admin token in the `x-admin-token` header. Buyer
+    **Auth.** Seller endpoints take the shop's admin token in the `x-admin-token` header, or a
 
-    endpoints (checkout, access-code verification, downloads) are public.
+    **platform API key** (`Authorization: Bearer ot_sk_…`) for marketplaces that make shops for
+
+    their own sellers. Buyer endpoints (checkout, access-code verification, downloads) are public.
 
 
     **Access codes.** A digital product can unlock an app or game instead of shipping a file.
@@ -163,6 +165,15 @@ paths:
 
 
         Takes 15–40 seconds. Hero art, if available, is generated afterwards (`hero_status`).
+
+
+        **Platforms:** sent with a platform API key, the shop belongs to the key's account, so the
+
+        key can manage it from then on (no need to keep the admin token). It's made for one of the
+
+        platform's sellers, so it inherits nothing from the account: set `paypal_email` or call
+
+        `connectPayPal` for that seller.
       summary: createShop
       tags:
       - Shops
@@ -293,6 +304,9 @@ paths:
           schema:
             $ref: '#/definitions/Error'
           headers: {}
+      security:
+      - {}
+      - PlatformKey: []
   /api/shops/{slug}:
     get:
       description: Everything about the shop, including the AI's design spec and guesses.
@@ -316,12 +330,13 @@ paths:
             $ref: '#/definitions/Shop'
           headers: {}
         '404':
-          description: No such shop, or the admin token doesn't match it.
+          description: No such shop, or the admin token or API key doesn't match it.
           schema:
             $ref: '#/definitions/Error'
           headers: {}
       security:
       - AdminToken: []
+      - PlatformKey: []
     patch:
       description: >
         Changes only the fields you send. Renaming `slug` keeps the old link working (it
@@ -369,12 +384,13 @@ paths:
             $ref: '#/definitions/Error'
           headers: {}
         '404':
-          description: No such shop, or the admin token doesn't match it.
+          description: No such shop, or the admin token or API key doesn't match it.
           schema:
             $ref: '#/definitions/Error'
           headers: {}
       security:
       - AdminToken: []
+      - PlatformKey: []
   /api/shops/{slug}/refine:
     post:
       description: '"Make it warmer", "shorter copy", "more premium". Gemini edits the design spec.'
@@ -418,7 +434,7 @@ paths:
             $ref: '#/definitions/Error'
           headers: {}
         '404':
-          description: No such shop, or the admin token doesn't match it.
+          description: No such shop, or the admin token or API key doesn't match it.
           schema:
             $ref: '#/definitions/Error'
           headers: {}
@@ -429,6 +445,7 @@ paths:
           headers: {}
       security:
       - AdminToken: []
+      - PlatformKey: []
   /api/shops/{slug}/hero:
     post:
       description: Starts generation in the background. Poll `getShop` for `hero_status`.
@@ -457,12 +474,13 @@ paths:
             $ref: '#/definitions/Error'
           headers: {}
         '404':
-          description: No such shop, or the admin token doesn't match it.
+          description: No such shop, or the admin token or API key doesn't match it.
           schema:
             $ref: '#/definitions/Error'
           headers: {}
       security:
       - AdminToken: []
+      - PlatformKey: []
   /api/shops/{slug}/file:
     post:
       description: Uploads or replaces a digital product's file, up to 25 MB. Each paid order gets a download link for it.
@@ -499,12 +517,13 @@ paths:
             $ref: '#/definitions/Error'
           headers: {}
         '404':
-          description: No such shop, or the admin token doesn't match it.
+          description: No such shop, or the admin token or API key doesn't match it.
           schema:
             $ref: '#/definitions/Error'
           headers: {}
       security:
       - AdminToken: []
+      - PlatformKey: []
   /api/shops/{slug}/photos:
     post:
       description: Adds one or more photos after the cover. Each is turned upright, resized to at most 2000 px and stored as WebP. A shop holds up to 8 photos; buyers swipe through them on the shop page. Not for recommendations, which show the retailer's photos.
@@ -541,12 +560,13 @@ paths:
             $ref: '#/definitions/Error'
           headers: {}
         '404':
-          description: No such shop, or the admin token doesn't match it.
+          description: No such shop, or the admin token or API key doesn't match it.
           schema:
             $ref: '#/definitions/Error'
           headers: {}
       security:
       - AdminToken: []
+      - PlatformKey: []
     put:
       description: Sets the photo order; the first becomes the cover. Leaving a photo out removes it.
       summary: setPhotoOrder
@@ -589,12 +609,13 @@ paths:
             $ref: '#/definitions/Error'
           headers: {}
         '404':
-          description: No such shop, or the admin token doesn't match it.
+          description: No such shop, or the admin token or API key doesn't match it.
           schema:
             $ref: '#/definitions/Error'
           headers: {}
       security:
       - AdminToken: []
+      - PlatformKey: []
   /api/shops/{slug}/suggest:
     post:
       description: >
@@ -633,7 +654,7 @@ paths:
             $ref: '#/definitions/Error'
           headers: {}
         '404':
-          description: No such shop, or the admin token doesn't match it.
+          description: No such shop, or the admin token or API key doesn't match it.
           schema:
             $ref: '#/definitions/Error'
           headers: {}
@@ -644,6 +665,7 @@ paths:
           headers: {}
       security:
       - AdminToken: []
+      - PlatformKey: []
   /api/shops/{slug}/match-photos:
     post:
       description: Gemini looks at the shop's photos and says which one shows each colour, so buyers who pick a colour see it. Suggests only; save the matches with `setColorPhotos`. Needs at least two photos.
@@ -687,7 +709,7 @@ paths:
             $ref: '#/definitions/Error'
           headers: {}
         '404':
-          description: No such shop, or the admin token doesn't match it.
+          description: No such shop, or the admin token or API key doesn't match it.
           schema:
             $ref: '#/definitions/Error'
           headers: {}
@@ -698,6 +720,7 @@ paths:
           headers: {}
       security:
       - AdminToken: []
+      - PlatformKey: []
   /api/shops/{slug}/color-photos:
     put:
       description: Saves which photo shows each colour, and nothing else about the shop. Only colours already saved in the shop's options change; `null` clears a colour's photo. A photo id that isn't one of the shop's photos is ignored.
@@ -741,12 +764,13 @@ paths:
             $ref: '#/definitions/Error'
           headers: {}
         '404':
-          description: No such shop, or the admin token doesn't match it.
+          description: No such shop, or the admin token or API key doesn't match it.
           schema:
             $ref: '#/definitions/Error'
           headers: {}
       security:
       - AdminToken: []
+      - PlatformKey: []
   /api/shops/{slug}/paypal:
     post:
       description: >
@@ -760,6 +784,13 @@ paths:
 
 
         Without a connection, a shop can still go live with a typed `paypal_email`.
+
+
+        **Platforms:** call it with your API key and a `returnUrl`, and PayPal's flow ends on your own
+
+        page instead, as `returnUrl?paypal=connected|incomplete|cancelled|failed&shop=<slug>`. The
+
+        URL's origin must be one registered on the key.
       summary: connectPayPal
       tags:
       - Shops
@@ -767,12 +798,27 @@ paths:
       deprecated: false
       produces:
       - application/json
+      consumes:
+      - application/json
       parameters:
       - name: slug
         in: path
         required: true
         type: string
         description: The shop's link name (current or former).
+      - name: Content-Type
+        in: header
+        required: false
+        enum:
+        - application/json
+        type: string
+        description: ''
+      - name: body
+        in: body
+        required: false
+        description: ''
+        schema:
+          $ref: '#/definitions/ApiShopsPaypalRequest'
       responses:
         '200':
           description: Where to send the seller.
@@ -780,7 +826,7 @@ paths:
             $ref: '#/definitions/ApiShopsPaypalResponse'
           headers: {}
         '404':
-          description: No such shop, or the admin token doesn't match it.
+          description: No such shop, or the admin token or API key doesn't match it.
           schema:
             $ref: '#/definitions/Error'
           headers: {}
@@ -796,6 +842,7 @@ paths:
           headers: {}
       security:
       - AdminToken: []
+      - PlatformKey: []
     get:
       description: Asks PayPal where the seller's connection stands and saves it on the shop. Also finds a connection the seller finished at PayPal without coming back.
       summary: getPayPalConnection
@@ -818,7 +865,7 @@ paths:
             $ref: '#/definitions/ApiShopsPaypalResponse1'
           headers: {}
         '404':
-          description: No such shop, or the admin token doesn't match it.
+          description: No such shop, or the admin token or API key doesn't match it.
           schema:
             $ref: '#/definitions/Error'
           headers: {}
@@ -834,6 +881,7 @@ paths:
           headers: {}
       security:
       - AdminToken: []
+      - PlatformKey: []
     delete:
       description: Forgets the connected account. Sales go back to the shop's `paypal_email`.
       summary: disconnectPayPal
@@ -856,12 +904,13 @@ paths:
             $ref: '#/definitions/Ok'
           headers: {}
         '404':
-          description: No such shop, or the admin token doesn't match it.
+          description: No such shop, or the admin token or API key doesn't match it.
           schema:
             $ref: '#/definitions/Error'
           headers: {}
       security:
       - AdminToken: []
+      - PlatformKey: []
   /api/slugs/check:
     get:
       description: Normalises a proposed link name and says whether a new shop can use it.
@@ -993,7 +1042,7 @@ paths:
             $ref: '#/definitions/Error'
           headers: {}
         '404':
-          description: No such shop, or the admin token doesn't match it.
+          description: No such shop, or the admin token or API key doesn't match it.
           schema:
             $ref: '#/definitions/Error'
           headers: {}
@@ -1043,7 +1092,7 @@ paths:
             $ref: '#/definitions/Error'
           headers: {}
         '404':
-          description: No such shop, or the admin token doesn't match it.
+          description: No such shop, or the admin token or API key doesn't match it.
           schema:
             $ref: '#/definitions/Error'
           headers: {}
@@ -1129,12 +1178,13 @@ paths:
               $ref: '#/definitions/Order'
           headers: {}
         '404':
-          description: No such shop, or the admin token doesn't match it.
+          description: No such shop, or the admin token or API key doesn't match it.
           schema:
             $ref: '#/definitions/Error'
           headers: {}
       security:
       - AdminToken: []
+      - PlatformKey: []
   /api/shops/{slug}/orders/{orderId}/ship:
     post:
       description: Saves the tracking number and pushes it to PayPal, so the buyer sees it in PayPal.
@@ -1183,12 +1233,13 @@ paths:
             $ref: '#/definitions/Error'
           headers: {}
         '404':
-          description: No such shop, or the admin token doesn't match it.
+          description: No such shop, or the admin token or API key doesn't match it.
           schema:
             $ref: '#/definitions/Error'
           headers: {}
       security:
       - AdminToken: []
+      - PlatformKey: []
   /api/shops/{slug}/webhooks:
     get:
       description: The last 50 PayPal webhook deliveries about this shop's orders, with signature results.
@@ -1214,12 +1265,13 @@ paths:
               $ref: '#/definitions/WebhookEvent'
           headers: {}
         '404':
-          description: No such shop, or the admin token doesn't match it.
+          description: No such shop, or the admin token or API key doesn't match it.
           schema:
             $ref: '#/definitions/Error'
           headers: {}
       security:
       - AdminToken: []
+      - PlatformKey: []
   /api/download/{token}:
     get:
       description: A paid digital order's private link. Works 5 times within 14 days.
@@ -1381,6 +1433,38 @@ paths:
           schema:
             $ref: '#/definitions/JsonRpcResponse'
           headers: {}
+  /api/platform/shops:
+    get:
+      description: "Every shop the API key's account owns, newest first, with what a catalog page needs: name, price, cover, link, whether PayPal is connected and how many sales it has."
+      summary: listMyShops
+      tags:
+      - Platforms
+      operationId: listMyShops
+      deprecated: false
+      produces:
+      - application/json
+      parameters:
+      - name: status
+        in: query
+        required: false
+        enum:
+        - draft
+        - live
+        type: string
+        description: Only shops with this status, e.g. `live` for a public catalog.
+      responses:
+        '200':
+          description: The shops.
+          schema:
+            $ref: '#/definitions/ApiPlatformShopsResponse'
+          headers: {}
+        '401':
+          description: No API key, or it's wrong or revoked.
+          schema:
+            $ref: '#/definitions/Error'
+          headers: {}
+      security:
+      - PlatformKey: []
 definitions:
   Error:
     title: Error
@@ -1857,6 +1941,48 @@ definitions:
     - faq
     - images
     - how_to_buy
+  PlatformShop:
+    title: PlatformShop
+    type: object
+    properties:
+      slug:
+        type: string
+      status:
+        $ref: '#/definitions/Status'
+      name:
+        type: string
+      headline:
+        type: string
+      product_type:
+        $ref: '#/definitions/ProductType1'
+      price:
+        $ref: '#/definitions/AgentMoney'
+      url:
+        description: The shop page buyers pay on.
+        type: string
+      cover:
+        description: The cover image's URL.
+        type: string
+      paypal_connected:
+        description: The seller connected a PayPal account that can be paid.
+        type: boolean
+      sales:
+        description: Paid orders.
+        type: integer
+        format: int32
+      created_at:
+        type: string
+        format: date-time
+    required:
+    - slug
+    - status
+    - name
+    - product_type
+    - price
+    - url
+    - paypal_connected
+    - sales
+    - created_at
   AgentMoney:
     title: AgentMoney
     type: object
@@ -1973,7 +2099,7 @@ definitions:
       paypal_order_id:
         type: string
       status:
-        $ref: '#/definitions/Status2'
+        $ref: '#/definitions/Status3'
       amount_cents:
         type: integer
         format: int32
@@ -2145,7 +2271,7 @@ definitions:
     type: object
     properties:
       status:
-        $ref: '#/definitions/Status3'
+        $ref: '#/definitions/Status5'
   ApiOrdersCaptureResponse:
     title: ApiOrdersCaptureResponse
     type: object
@@ -2193,6 +2319,16 @@ definitions:
         type: string
     required:
     - clientToken
+  ApiPlatformShopsResponse:
+    title: ApiPlatformShopsResponse
+    type: object
+    properties:
+      shops:
+        type: array
+        items:
+          $ref: '#/definitions/PlatformShop'
+    required:
+    - shops
   ApiShopsColorPhotosRequest:
     title: ApiShopsColorPhotosRequest
     type: object
@@ -2279,6 +2415,15 @@ definitions:
     required:
     - ok
     - synced
+  ApiShopsPaypalRequest:
+    title: ApiShopsPaypalRequest
+    type: object
+    properties:
+      returnUrl:
+        description: Platform key only. Where to send the seller after PayPal.
+        example: https://www.miriogames.com/market/manage/?g=7Hq2
+        type: string
+        format: uri
   ApiShopsPaypalResponse:
     title: ApiShopsPaypalResponse
     type: object
@@ -2772,15 +2917,15 @@ definitions:
     enum:
     - draft
     - live
-  Status2:
-    title: Status2
+  Status3:
+    title: Status3
     type: string
     enum:
     - created
     - paid
     - failed
-  Status3:
-    title: Status3
+  Status5:
+    title: Status5
     type: string
     enum:
     - pending
@@ -2828,3 +2973,5 @@ tags:
   description: Digital downloads and shop images.
 - name: Agents
   description: Machine-readable shops and the MCP server AI shopping agents buy through.
+- name: Platforms
+  description: For marketplaces that make and run shops for their own sellers with one API key.

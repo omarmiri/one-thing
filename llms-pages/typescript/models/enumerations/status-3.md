@@ -12,7 +12,9 @@ Source: /#/typescript/x-redirect/JTI0bSUyRlN0YXR1czM
 
 | Name |
 |  --- |
-| `Pending` |
+| `Created` |
+| `Paid` |
+| `Failed` |
 
 
 # Example
@@ -20,7 +22,7 @@ Source: /#/typescript/x-redirect/JTI0bSUyRlN0YXR1czM
 ```ts
 import { Status3 } from 'one-thing-sdk';
 
-const status3 = Status3.Pending;
+const status3 = Status3.Paid;
 ```
 
 

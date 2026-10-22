@@ -17,9 +17,11 @@ info:
     3. Buyers pay on `https://<host>/<slug>` with PayPal. Sellers read orders and ship them.
 
 
-    **Auth.** Seller endpoints take the shop's admin token in the `x-admin-token` header. Buyer
+    **Auth.** Seller endpoints take the shop's admin token in the `x-admin-token` header, or a
 
-    endpoints (checkout, access-code verification, downloads) are public.
+    **platform API key** (`Authorization: Bearer ot_sk_…`) for marketplaces that make shops for
+
+    their own sellers. Buyer endpoints (checkout, access-code verification, downloads) are public.
 
 
     **Access codes.** A digital product can unlock an app or game instead of shipping a file.
@@ -160,6 +162,15 @@ paths:
 
 
         Takes 15–40 seconds. Hero art, if available, is generated afterwards (`hero_status`).
+
+
+        **Platforms:** sent with a platform API key, the shop belongs to the key's account, so the
+
+        key can manage it from then on (no need to keep the admin token). It's made for one of the
+
+        platform's sellers, so it inherits nothing from the account: set `paypal_email` or call
+
+        `connectPayPal` for that seller.
       operationId: createShop
       parameters: []
       requestBody:
@@ -255,6 +266,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
       deprecated: false
+      security:
+      - {}
+      - PlatformKey: []
   /api/shops/{slug}:
     get:
       tags:
@@ -279,7 +293,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Shop'
         '404':
-          description: No such shop, or the admin token doesn't match it.
+          description: No such shop, or the admin token or API key doesn't match it.
           headers: {}
           content:
             application/json:
@@ -288,6 +302,7 @@ paths:
       deprecated: false
       security:
       - AdminToken: []
+      - PlatformKey: []
     patch:
       tags:
       - Shops
@@ -330,7 +345,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
         '404':
-          description: No such shop, or the admin token doesn't match it.
+          description: No such shop, or the admin token or API key doesn't match it.
           headers: {}
           content:
             application/json:
@@ -339,6 +354,7 @@ paths:
       deprecated: false
       security:
       - AdminToken: []
+      - PlatformKey: []
   /api/shops/{slug}/refine:
     post:
       tags:
@@ -377,7 +393,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
         '404':
-          description: No such shop, or the admin token doesn't match it.
+          description: No such shop, or the admin token or API key doesn't match it.
           headers: {}
           content:
             application/json:
@@ -393,6 +409,7 @@ paths:
       deprecated: false
       security:
       - AdminToken: []
+      - PlatformKey: []
   /api/shops/{slug}/hero:
     post:
       tags:
@@ -424,7 +441,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
         '404':
-          description: No such shop, or the admin token doesn't match it.
+          description: No such shop, or the admin token or API key doesn't match it.
           headers: {}
           content:
             application/json:
@@ -433,6 +450,7 @@ paths:
       deprecated: false
       security:
       - AdminToken: []
+      - PlatformKey: []
   /api/shops/{slug}/file:
     post:
       tags:
@@ -478,7 +496,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
         '404':
-          description: No such shop, or the admin token doesn't match it.
+          description: No such shop, or the admin token or API key doesn't match it.
           headers: {}
           content:
             application/json:
@@ -487,6 +505,7 @@ paths:
       deprecated: false
       security:
       - AdminToken: []
+      - PlatformKey: []
   /api/shops/{slug}/photos:
     post:
       tags:
@@ -532,7 +551,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
         '404':
-          description: No such shop, or the admin token doesn't match it.
+          description: No such shop, or the admin token or API key doesn't match it.
           headers: {}
           content:
             application/json:
@@ -541,6 +560,7 @@ paths:
       deprecated: false
       security:
       - AdminToken: []
+      - PlatformKey: []
     put:
       tags:
       - Shops
@@ -578,7 +598,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
         '404':
-          description: No such shop, or the admin token doesn't match it.
+          description: No such shop, or the admin token or API key doesn't match it.
           headers: {}
           content:
             application/json:
@@ -587,6 +607,7 @@ paths:
       deprecated: false
       security:
       - AdminToken: []
+      - PlatformKey: []
   /api/shops/{slug}/suggest:
     post:
       tags:
@@ -630,7 +651,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
         '404':
-          description: No such shop, or the admin token doesn't match it.
+          description: No such shop, or the admin token or API key doesn't match it.
           headers: {}
           content:
             application/json:
@@ -646,6 +667,7 @@ paths:
       deprecated: false
       security:
       - AdminToken: []
+      - PlatformKey: []
   /api/shops/{slug}/match-photos:
     post:
       tags:
@@ -684,7 +706,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
         '404':
-          description: No such shop, or the admin token doesn't match it.
+          description: No such shop, or the admin token or API key doesn't match it.
           headers: {}
           content:
             application/json:
@@ -700,6 +722,7 @@ paths:
       deprecated: false
       security:
       - AdminToken: []
+      - PlatformKey: []
   /api/shops/{slug}/color-photos:
     put:
       tags:
@@ -738,7 +761,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
         '404':
-          description: No such shop, or the admin token doesn't match it.
+          description: No such shop, or the admin token or API key doesn't match it.
           headers: {}
           content:
             application/json:
@@ -747,6 +770,7 @@ paths:
       deprecated: false
       security:
       - AdminToken: []
+      - PlatformKey: []
   /api/shops/{slug}/paypal:
     post:
       tags:
@@ -763,6 +787,13 @@ paths:
 
 
         Without a connection, a shop can still go live with a typed `paypal_email`.
+
+
+        **Platforms:** call it with your API key and a `returnUrl`, and PayPal's flow ends on your own
+
+        page instead, as `returnUrl?paypal=connected|incomplete|cancelled|failed&shop=<slug>`. The
+
+        URL's origin must be one registered on the key.
       operationId: connectPayPal
       parameters:
       - name: slug
@@ -772,6 +803,13 @@ paths:
         schema:
           type: string
           example: raptorrush
+      requestBody:
+        description: ''
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApiShopsPaypalRequest'
+        required: false
       responses:
         '200':
           description: Where to send the seller.
@@ -781,7 +819,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ApiShopsPaypalResponse'
         '404':
-          description: No such shop, or the admin token doesn't match it.
+          description: No such shop, or the admin token or API key doesn't match it.
           headers: {}
           content:
             application/json:
@@ -804,6 +842,7 @@ paths:
       deprecated: false
       security:
       - AdminToken: []
+      - PlatformKey: []
     get:
       tags:
       - Shops
@@ -827,7 +866,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ApiShopsPaypalResponse1'
         '404':
-          description: No such shop, or the admin token doesn't match it.
+          description: No such shop, or the admin token or API key doesn't match it.
           headers: {}
           content:
             application/json:
@@ -850,6 +889,7 @@ paths:
       deprecated: false
       security:
       - AdminToken: []
+      - PlatformKey: []
     delete:
       tags:
       - Shops
@@ -873,7 +913,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Ok'
         '404':
-          description: No such shop, or the admin token doesn't match it.
+          description: No such shop, or the admin token or API key doesn't match it.
           headers: {}
           content:
             application/json:
@@ -882,6 +922,7 @@ paths:
       deprecated: false
       security:
       - AdminToken: []
+      - PlatformKey: []
   /api/slugs/check:
     get:
       tags:
@@ -1021,7 +1062,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
         '404':
-          description: No such shop, or the admin token doesn't match it.
+          description: No such shop, or the admin token or API key doesn't match it.
           headers: {}
           content:
             application/json:
@@ -1082,7 +1123,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
         '404':
-          description: No such shop, or the admin token doesn't match it.
+          description: No such shop, or the admin token or API key doesn't match it.
           headers: {}
           content:
             application/json:
@@ -1173,7 +1214,7 @@ paths:
                   $ref: '#/components/schemas/Order'
                 description: ''
         '404':
-          description: No such shop, or the admin token doesn't match it.
+          description: No such shop, or the admin token or API key doesn't match it.
           headers: {}
           content:
             application/json:
@@ -1182,6 +1223,7 @@ paths:
       deprecated: false
       security:
       - AdminToken: []
+      - PlatformKey: []
   /api/shops/{slug}/orders/{orderId}/ship:
     post:
       tags:
@@ -1226,7 +1268,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
         '404':
-          description: No such shop, or the admin token doesn't match it.
+          description: No such shop, or the admin token or API key doesn't match it.
           headers: {}
           content:
             application/json:
@@ -1235,6 +1277,7 @@ paths:
       deprecated: false
       security:
       - AdminToken: []
+      - PlatformKey: []
   /api/shops/{slug}/webhooks:
     get:
       tags:
@@ -1262,7 +1305,7 @@ paths:
                   $ref: '#/components/schemas/WebhookEvent'
                 description: ''
         '404':
-          description: No such shop, or the admin token doesn't match it.
+          description: No such shop, or the admin token or API key doesn't match it.
           headers: {}
           content:
             application/json:
@@ -1271,6 +1314,7 @@ paths:
       deprecated: false
       security:
       - AdminToken: []
+      - PlatformKey: []
   /api/download/{token}:
     get:
       tags:
@@ -1471,6 +1515,41 @@ paths:
               schema:
                 $ref: '#/components/schemas/JsonRpcResponse'
       deprecated: false
+  /api/platform/shops:
+    get:
+      tags:
+      - Platforms
+      summary: listMyShops
+      description: "Every shop the API key's account owns, newest first, with what a catalog page needs: name, price, cover, link, whether PayPal is connected and how many sales it has."
+      operationId: listMyShops
+      parameters:
+      - name: status
+        in: query
+        description: Only shops with this status, e.g. `live` for a public catalog.
+        style: form
+        explode: true
+        schema:
+          allOf:
+          - $ref: '#/components/schemas/Status'
+          - description: Only shops with this status, e.g. `live` for a public catalog.
+      responses:
+        '200':
+          description: The shops.
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiPlatformShopsResponse'
+        '401':
+          description: No API key, or it's wrong or revoked.
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      deprecated: false
+      security:
+      - PlatformKey: []
 components:
   schemas:
     Error:
@@ -1973,6 +2052,49 @@ components:
           type: string
           description: The MCP server to order through (`getAgentProduct` only).
       description: A live shop as an AI agent sees it. Recommendations have `offers`; everything else has `price` and is bought with `create_order`.
+    PlatformShop:
+      title: PlatformShop
+      required:
+      - slug
+      - status
+      - name
+      - product_type
+      - price
+      - url
+      - paypal_connected
+      - sales
+      - created_at
+      type: object
+      properties:
+        slug:
+          type: string
+        status:
+          $ref: '#/components/schemas/Status'
+        name:
+          type: string
+        headline:
+          type: string
+        product_type:
+          $ref: '#/components/schemas/ProductType1'
+        price:
+          $ref: '#/components/schemas/AgentMoney'
+        url:
+          type: string
+          description: The shop page buyers pay on.
+        cover:
+          type: string
+          description: The cover image's URL.
+          nullable: true
+        paypal_connected:
+          type: boolean
+          description: The seller connected a PayPal account that can be paid.
+        sales:
+          type: integer
+          description: Paid orders.
+          format: int32
+        created_at:
+          type: string
+          format: date-time
     AgentMoney:
       title: AgentMoney
       required:
@@ -2109,7 +2231,7 @@ components:
           type: string
           nullable: true
         status:
-          $ref: '#/components/schemas/Status2'
+          $ref: '#/components/schemas/Status3'
         amount_cents:
           type: integer
           format: int32
@@ -2295,7 +2417,7 @@ components:
       type: object
       properties:
         status:
-          $ref: '#/components/schemas/Status3'
+          $ref: '#/components/schemas/Status5'
     ApiOrdersCaptureResponse:
       title: ApiOrdersCaptureResponse
       required:
@@ -2344,6 +2466,17 @@ components:
         clientToken:
           type: string
           description: Pass to `createInstance` in the PayPal JavaScript SDK v6.
+    ApiPlatformShopsResponse:
+      title: ApiPlatformShopsResponse
+      required:
+      - shops
+      type: object
+      properties:
+        shops:
+          type: array
+          items:
+            $ref: '#/components/schemas/PlatformShop'
+          description: ''
     ApiShopsColorPhotosRequest:
       title: ApiShopsColorPhotosRequest
       required:
@@ -2433,6 +2566,15 @@ components:
         synced:
           type: boolean
           description: Whether PayPal accepted the tracking number.
+    ApiShopsPaypalRequest:
+      title: ApiShopsPaypalRequest
+      type: object
+      properties:
+        returnUrl:
+          type: string
+          description: Platform key only. Where to send the seller after PayPal.
+          format: uri
+          example: https://www.miriogames.com/market/manage/?g=7Hq2
     ApiShopsPaypalResponse:
       title: ApiShopsPaypalResponse
       required:
@@ -2932,15 +3074,15 @@ components:
       - draft
       - live
       type: string
-    Status2:
-      title: Status2
+    Status3:
+      title: Status3
       enum:
       - created
       - paid
       - failed
       type: string
-    Status3:
-      title: Status3
+    Status5:
+      title: Status5
       enum:
       - pending
       type: string
@@ -2974,6 +3116,10 @@ components:
       description: The shop's admin token, returned once by `createShop`. Keep it secret.
       name: x-admin-token
       in: header
+    PlatformKey:
+      type: http
+      description: A platform API key (`ot_sk_…`) for a marketplace that makes shops for its own sellers. Made on the website's `/account` page after Log in with PayPal, and shown once. It reaches every shop its account owns, so keep it on your server.
+      scheme: bearer
 security: []
 tags:
 - name: Accounts
@@ -2994,3 +3140,5 @@ tags:
   description: Digital downloads and shop images.
 - name: Agents
   description: Machine-readable shops and the MCP server AI shopping agents buy through.
+- name: Platforms
+  description: For marketplaces that make and run shops for their own sellers with one API key.

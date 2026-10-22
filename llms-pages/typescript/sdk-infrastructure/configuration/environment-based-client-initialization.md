@@ -49,7 +49,8 @@ TIMEOUT=30000
 ENVIRONMENT=production
 
 # Authentication Credentials
-X_ADMIN_TOKEN=x-admin-token
+ADMIN_TOKEN_X_ADMIN_TOKEN=x-admin-token
+PLATFORM_KEY_ACCESS_TOKEN=accesstoken
 
 # Retry Configuration
 MAX_NUMBER_OF_RETRIES=3

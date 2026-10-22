@@ -16,8 +16,9 @@ PayPal payments, or a recommendation page that earns referral commissions throug
 2. `updateShop`: correct anything the AI guessed, then set `status: live`.
 3. Buyers pay on `https://<host>/<slug>` with PayPal. Sellers read orders and ship them.
 
-**Auth.** Seller endpoints take the shop's admin token in the `x-admin-token` header. Buyer
-endpoints (checkout, access-code verification, downloads) are public.
+**Auth.** Seller endpoints take the shop's admin token in the `x-admin-token` header, or a
+**platform API key** (`Authorization: Bearer ot_sk_…`) for marketplaces that make shops for
+their own sellers. Buyer endpoints (checkout, access-code verification, downloads) are public.
 
 **Access codes.** A digital product can unlock an app or game instead of shipping a file.
 Each paid order gets a code such as `K7QF-M2XP-9HTD`; your app calls `verifyAccessCode`
@@ -59,6 +60,7 @@ The default environment is **production** and the default server is **default**.
 This API uses the following authentication schemes.
 
 * [`AdminToken (Custom Header Signature)`](/llms-pages/http/getting-started/sdk-quickstart/authorization.md)
+* [`PlatformKey (OAuth 2 Bearer token)`](/llms-pages/http/getting-started/sdk-quickstart/authorization.md)
 
 ## AdminToken (Custom Header Signature)
 
@@ -81,6 +83,22 @@ curl {BASEURI} \
 GET / HTTP/1.1
 Host: {HOST}
 x-admin-token: {X-ADMIN-TOKEN}
+```
+
+## PlatformKey (OAuth 2 Bearer token)
+
+
+
+The bearer token is sent in the request like this:
+
+```bash
+curl {BASEURI} -H 'Authorization: Bearer {OAUTH_TOKEN}'
+```
+
+```http
+GET / HTTP/1.1
+Host: {HOST}
+Authorization: Bearer {OAUTH_TOKEN}
 ```
 
 

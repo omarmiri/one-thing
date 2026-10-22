@@ -42,7 +42,7 @@ print(result)
 | HTTP Status Code | Error Description | Exception Class |
 |  --- | --- | --- |
 | 402 | Something in the request needs fixing; `error` says what. | [`ErrorException`](/llms-pages/python/models/exceptions/error.md) |
-| 404 | No such shop, or the admin token doesn't match it. | [`ErrorException`](/llms-pages/python/models/exceptions/error.md) |
+| 404 | No such shop, or the admin token or API key doesn't match it. | [`ErrorException`](/llms-pages/python/models/exceptions/error.md) |
 | 409 | The buyer hasn't approved the order yet. | [`ApiOrdersCapture409ErrorException`](/llms-pages/python/models/exceptions/api-orders-capture-409-error.md) |
 | 410 | The last unit (or the last of the buyer's combination) sold while they were paying. The payment isn't captured, so the buyer isn't charged. | [`ErrorException`](/llms-pages/python/models/exceptions/error.md) |
 | 422 | The buyer's funding source was declined (`INSTRUMENT_DECLINED`); they can try another. | [`ErrorException`](/llms-pages/python/models/exceptions/error.md) |

@@ -12,7 +12,7 @@ Source: /#/python/x-redirect/JTI0bSUyRkFwaSUyNTIwT3JkZXJzJTI1MjBDYXB0dXJlJTI1MjA
 
 | Name | Type | Tags | Description |
 |  --- | --- | --- | --- |
-| `status` | [`Status3`](/llms-pages/python/models/enumerations/status-3.md) | Optional | - |
+| `status` | [`Status5`](/llms-pages/python/models/enumerations/status-5.md) | Optional | - |
 
 
 # Example

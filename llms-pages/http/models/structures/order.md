@@ -9,7 +9,7 @@ Source: /#/http/x-redirect/JTI0bSUyRk9yZGVy
 |  --- | --- | --- | --- |
 | `id` | `String` | Required | - |
 | `paypal_order_id` | `String` | Optional | - |
-| `status` | [`Status 2`](/llms-pages/http/models/enumerations/status-2.md) | Required | - |
+| `status` | [`Status 3`](/llms-pages/http/models/enumerations/status-3.md) | Required | - |
 | `amount_cents` | `Number` | Required | - |
 | `shipping_cents` | `Number` | Optional | - |
 | `currency` | `String` | Required | - |

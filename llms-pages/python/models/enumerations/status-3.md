@@ -12,7 +12,9 @@ Source: /#/python/x-redirect/JTI0bSUyRlN0YXR1czM
 
 | Name |
 |  --- |
-| `PENDING` |
+| `CREATED` |
+| `PAID` |
+| `FAILED` |
 
 
 # Example
@@ -20,7 +22,7 @@ Source: /#/python/x-redirect/JTI0bSUyRlN0YXR1czM
 ```python
 from onethingapi.models.status_3 import Status3
 
-status_3 = Status3.PENDING
+status_3 = Status3.FAILED
 ```
 
 

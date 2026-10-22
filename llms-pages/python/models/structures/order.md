@@ -14,7 +14,7 @@ Source: /#/python/x-redirect/JTI0bSUyRk9yZGVy
 |  --- | --- | --- | --- |
 | `id` | `str` | Required | - |
 | `paypal_order_id` | `str` | Optional | - |
-| `status` | [`Status2`](/llms-pages/python/models/enumerations/status-2.md) | Required | - |
+| `status` | [`Status3`](/llms-pages/python/models/enumerations/status-3.md) | Required | - |
 | `amount_cents` | `int` | Required | - |
 | `shipping_cents` | `int` | Optional | - |
 | `currency` | `str` | Required | - |
@@ -40,11 +40,11 @@ Source: /#/python/x-redirect/JTI0bSUyRk9yZGVy
 ```python
 from onethingapi.models.fulfillment_status import FulfillmentStatus
 from onethingapi.models.order import Order
-from onethingapi.models.status_2 import Status2
+from onethingapi.models.status_3 import Status3
 
 order = Order(
     id='id6',
-    status=Status2.CREATED,
+    status=Status3.CREATED,
     amount_cents=96,
     currency='currency6',
     fulfillment_status=FulfillmentStatus.NONE,

@@ -14,7 +14,7 @@ Source: /#/typescript/x-redirect/JTI0bSUyRk9yZGVy
 |  --- | --- | --- | --- |
 | `id` | `string` | Required | - |
 | `paypalOrderId` | `string \| null \| undefined` | Optional | - |
-| `status` | [`Status2`](/llms-pages/typescript/models/enumerations/status-2.md) | Required | - |
+| `status` | [`Status3`](/llms-pages/typescript/models/enumerations/status-3.md) | Required | - |
 | `amountCents` | `number` | Required | - |
 | `shippingCents` | `number \| undefined` | Optional | - |
 | `currency` | `string` | Required | - |
@@ -38,11 +38,11 @@ Source: /#/typescript/x-redirect/JTI0bSUyRk9yZGVy
 # Example
 
 ```ts
-import { FulfillmentStatus, Order, Status2 } from 'one-thing-sdk';
+import { FulfillmentStatus, Order, Status3 } from 'one-thing-sdk';
 
 const order: Order = {
   id: 'id6',
-  status: Status2.Created,
+  status: Status3.Created,
   amountCents: 96,
   currency: 'currency6',
   fulfillmentStatus: FulfillmentStatus.None,

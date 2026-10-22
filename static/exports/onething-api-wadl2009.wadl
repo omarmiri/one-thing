@@ -10,8 +10,9 @@ PayPal payments, or a recommendation page that earns referral commissions throug
 2. `updateShop`: correct anything the AI guessed, then set `status: live`.
 3. Buyers pay on `https://&lt;host&gt;/&lt;slug&gt;` with PayPal. Sellers read orders and ship them.
 
-**Auth.** Seller endpoints take the shop's admin token in the `x-admin-token` header. Buyer
-endpoints (checkout, access-code verification, downloads) are public.
+**Auth.** Seller endpoints take the shop's admin token in the `x-admin-token` header, or a
+**platform API key** (`Authorization: Bearer ot_sk_…`) for marketplaces that make shops for
+their own sellers. Buyer endpoints (checkout, access-code verification, downloads) are public.
 
 **Access codes.** A digital product can unlock an app or game instead of shipping a file.
 Each paid order gets a code such as `K7QF-M2XP-9HTD`; your app calls `verifyAccessCode`
@@ -37,6 +38,7 @@ All money moves through PayPal (sandbox in this deployment). OneThing never hold
       <xs:element name="Suggestions" type="schemas:Suggestions" />
       <xs:element name="PayPalStatus" type="schemas:PayPalStatus" />
       <xs:element name="AgentProduct" type="schemas:AgentProduct" />
+      <xs:element name="PlatformShop" type="schemas:PlatformShop" />
       <xs:element name="AgentMoney" type="schemas:AgentMoney" />
       <xs:element name="JsonRpcRequest" type="schemas:JsonRpcRequest" />
       <xs:element name="JsonRpcResponse" type="schemas:JsonRpcResponse" />
@@ -56,6 +58,7 @@ All money moves through PayPal (sandbox in this deployment). OneThing never hold
       <xs:element name="ApiOrdersRequest" type="schemas:ApiOrdersRequest" />
       <xs:element name="ApiOrdersResponse" type="schemas:ApiOrdersResponse" />
       <xs:element name="ApiPaypalClientTokenResponse" type="schemas:ApiPaypalClientTokenResponse" />
+      <xs:element name="ApiPlatformShopsResponse" type="schemas:ApiPlatformShopsResponse" />
       <xs:element name="ApiShopsColorPhotosRequest" type="schemas:ApiShopsColorPhotosRequest" />
       <xs:element name="ApiShopsColorPhotosResponse" type="schemas:ApiShopsColorPhotosResponse" />
       <xs:element name="ApiShopsFileResponse" type="schemas:ApiShopsFileResponse" />
@@ -63,6 +66,7 @@ All money moves through PayPal (sandbox in this deployment). OneThing never hold
       <xs:element name="ApiShopsMatchPhotosResponse" type="schemas:ApiShopsMatchPhotosResponse" />
       <xs:element name="ApiShopsOrdersShipRequest" type="schemas:ApiShopsOrdersShipRequest" />
       <xs:element name="ApiShopsOrdersShipResponse" type="schemas:ApiShopsOrdersShipResponse" />
+      <xs:element name="ApiShopsPaypalRequest" type="schemas:ApiShopsPaypalRequest" />
       <xs:element name="ApiShopsPaypalResponse" type="schemas:ApiShopsPaypalResponse" />
       <xs:element name="ApiShopsPaypalResponse1" type="schemas:ApiShopsPaypalResponse1" />
       <xs:element name="ApiShopsPhotosRequest" type="schemas:ApiShopsPhotosRequest" />
@@ -104,8 +108,8 @@ All money moves through PayPal (sandbox in this deployment). OneThing never hold
       <xs:element name="ShopPhotos" type="schemas:ShopPhotos" />
       <xs:element name="Source" type="schemas:Source" />
       <xs:element name="Status" type="schemas:Status" />
-      <xs:element name="Status2" type="schemas:Status2" />
       <xs:element name="Status3" type="schemas:Status3" />
+      <xs:element name="Status5" type="schemas:Status5" />
       <xs:element name="Type" type="schemas:Type" />
       <xs:element name="Variant" type="schemas:Variant" />
       <xs:element name="signIn_Request" type="schemas:signIn_Request" />
@@ -154,6 +158,7 @@ All money moves through PayPal (sandbox in this deployment). OneThing never hold
       <xs:element name="setColorPhotos200_Response0" type="schemas:setColorPhotos200_Response0" />
       <xs:element name="setColorPhotos400_Response0" type="schemas:setColorPhotos400_Response0" />
       <xs:element name="setColorPhotos404_Response0" type="schemas:setColorPhotos404_Response0" />
+      <xs:element name="connectPayPal_Request" type="schemas:connectPayPal_Request" />
       <xs:element name="connectPayPal200_Response0" type="schemas:connectPayPal200_Response0" />
       <xs:element name="connectPayPal404_Response0" type="schemas:connectPayPal404_Response0" />
       <xs:element name="connectPayPal502_Response0" type="schemas:connectPayPal502_Response0" />
@@ -219,6 +224,8 @@ All money moves through PayPal (sandbox in this deployment). OneThing never hold
         </xs:annotation>
       </xs:element>
       <xs:element name="callMcp400_Response0" type="schemas:callMcp400_Response0" />
+      <xs:element name="listMyShops200_Response0" type="schemas:listMyShops200_Response0" />
+      <xs:element name="listMyShops401_Response0" type="schemas:listMyShops401_Response0" />
       <xs:complexType name="Error">
         <xs:sequence>
           <xs:element minOccurs="1" name="error" type="xs:string">
@@ -610,6 +617,37 @@ All money moves through PayPal (sandbox in this deployment). OneThing never hold
           </xs:element>
         </xs:sequence>
       </xs:complexType>
+      <xs:complexType name="PlatformShop">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="slug" type="xs:string" />
+          <xs:element minOccurs="1" name="status" type="schemas:Status" />
+          <xs:element minOccurs="1" name="name" type="xs:string" />
+          <xs:element minOccurs="0" name="headline" type="xs:string" />
+          <xs:element minOccurs="1" name="product_type" type="schemas:ProductType1" />
+          <xs:element minOccurs="1" name="price" type="schemas:AgentMoney" />
+          <xs:element minOccurs="1" name="url" type="xs:string">
+            <xs:annotation>
+              <xs:documentation>The shop page buyers pay on.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element minOccurs="0" name="cover" nillable="true" type="xs:string">
+            <xs:annotation>
+              <xs:documentation>The cover image's URL.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element minOccurs="1" name="paypal_connected" type="xs:boolean">
+            <xs:annotation>
+              <xs:documentation>The seller connected a PayPal account that can be paid.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element minOccurs="1" name="sales" type="xs:integer">
+            <xs:annotation>
+              <xs:documentation>Paid orders.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element minOccurs="1" name="created_at" type="xs:dateTime" />
+        </xs:sequence>
+      </xs:complexType>
       <xs:complexType name="AgentMoney">
         <xs:sequence>
           <xs:element minOccurs="1" name="amount" type="xs:double" />
@@ -692,7 +730,7 @@ All money moves through PayPal (sandbox in this deployment). OneThing never hold
         <xs:sequence>
           <xs:element minOccurs="1" name="id" type="xs:string" />
           <xs:element minOccurs="0" name="paypal_order_id" nillable="true" type="xs:string" />
-          <xs:element minOccurs="1" name="status" type="schemas:Status2" />
+          <xs:element minOccurs="1" name="status" type="schemas:Status3" />
           <xs:element minOccurs="1" name="amount_cents" type="xs:integer" />
           <xs:element minOccurs="0" name="shipping_cents" type="xs:integer" />
           <xs:element minOccurs="1" name="currency" type="xs:string" />
@@ -800,7 +838,7 @@ All money moves through PayPal (sandbox in this deployment). OneThing never hold
       </xs:complexType>
       <xs:complexType name="ApiOrdersCapture409Error1">
         <xs:sequence>
-          <xs:element minOccurs="0" name="status" type="schemas:Status3" />
+          <xs:element minOccurs="0" name="status" type="schemas:Status5" />
         </xs:sequence>
       </xs:complexType>
       <xs:complexType name="ApiOrdersCaptureResponse">
@@ -839,6 +877,11 @@ All money moves through PayPal (sandbox in this deployment). OneThing never hold
               <xs:documentation>Pass to `createInstance` in the PayPal JavaScript SDK v6.</xs:documentation>
             </xs:annotation>
           </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="ApiPlatformShopsResponse">
+        <xs:sequence>
+          <xs:element minOccurs="1" maxOccurs="unbounded" name="shops" type="schemas:PlatformShop" />
         </xs:sequence>
       </xs:complexType>
       <xs:complexType name="ApiShopsColorPhotosRequest">
@@ -901,6 +944,18 @@ All money moves through PayPal (sandbox in this deployment). OneThing never hold
             <xs:annotation>
               <xs:documentation>Whether PayPal accepted the tracking number.</xs:documentation>
             </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="ApiShopsPaypalRequest">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="returnUrl">
+            <xs:simpleType>
+              <xs:annotation>
+                <xs:documentation>Platform key only. Where to send the seller after PayPal.</xs:documentation>
+              </xs:annotation>
+              <xs:restriction base="xs:string" />
+            </xs:simpleType>
           </xs:element>
         </xs:sequence>
       </xs:complexType>
@@ -1320,14 +1375,14 @@ All money moves through PayPal (sandbox in this deployment). OneThing never hold
           <xs:enumeration value="live" />
         </xs:restriction>
       </xs:simpleType>
-      <xs:simpleType name="Status2">
+      <xs:simpleType name="Status3">
         <xs:restriction base="xs:string">
           <xs:enumeration value="created" />
           <xs:enumeration value="paid" />
           <xs:enumeration value="failed" />
         </xs:restriction>
       </xs:simpleType>
-      <xs:simpleType name="Status3">
+      <xs:simpleType name="Status5">
         <xs:restriction base="xs:string">
           <xs:enumeration value="pending" />
         </xs:restriction>
@@ -1439,7 +1494,7 @@ All money moves through PayPal (sandbox in this deployment). OneThing never hold
         <xs:sequence>
           <xs:element minOccurs="1" name="response404" type="schemas:Error">
             <xs:annotation>
-              <xs:documentation>No such shop, or the admin token doesn't match it.</xs:documentation>
+              <xs:documentation>No such shop, or the admin token or API key doesn't match it.</xs:documentation>
             </xs:annotation>
           </xs:element>
         </xs:sequence>
@@ -1471,7 +1526,7 @@ All money moves through PayPal (sandbox in this deployment). OneThing never hold
         <xs:sequence>
           <xs:element minOccurs="1" name="response404" type="schemas:Error">
             <xs:annotation>
-              <xs:documentation>No such shop, or the admin token doesn't match it.</xs:documentation>
+              <xs:documentation>No such shop, or the admin token or API key doesn't match it.</xs:documentation>
             </xs:annotation>
           </xs:element>
         </xs:sequence>
@@ -1503,7 +1558,7 @@ All money moves through PayPal (sandbox in this deployment). OneThing never hold
         <xs:sequence>
           <xs:element minOccurs="1" name="response404" type="schemas:Error">
             <xs:annotation>
-              <xs:documentation>No such shop, or the admin token doesn't match it.</xs:documentation>
+              <xs:documentation>No such shop, or the admin token or API key doesn't match it.</xs:documentation>
             </xs:annotation>
           </xs:element>
         </xs:sequence>
@@ -1539,7 +1594,7 @@ All money moves through PayPal (sandbox in this deployment). OneThing never hold
         <xs:sequence>
           <xs:element minOccurs="1" name="response404" type="schemas:Error">
             <xs:annotation>
-              <xs:documentation>No such shop, or the admin token doesn't match it.</xs:documentation>
+              <xs:documentation>No such shop, or the admin token or API key doesn't match it.</xs:documentation>
             </xs:annotation>
           </xs:element>
         </xs:sequence>
@@ -1566,7 +1621,7 @@ All money moves through PayPal (sandbox in this deployment). OneThing never hold
         <xs:sequence>
           <xs:element minOccurs="1" name="response404" type="schemas:Error">
             <xs:annotation>
-              <xs:documentation>No such shop, or the admin token doesn't match it.</xs:documentation>
+              <xs:documentation>No such shop, or the admin token or API key doesn't match it.</xs:documentation>
             </xs:annotation>
           </xs:element>
         </xs:sequence>
@@ -1593,7 +1648,7 @@ All money moves through PayPal (sandbox in this deployment). OneThing never hold
         <xs:sequence>
           <xs:element minOccurs="1" name="response404" type="schemas:Error">
             <xs:annotation>
-              <xs:documentation>No such shop, or the admin token doesn't match it.</xs:documentation>
+              <xs:documentation>No such shop, or the admin token or API key doesn't match it.</xs:documentation>
             </xs:annotation>
           </xs:element>
         </xs:sequence>
@@ -1625,7 +1680,7 @@ All money moves through PayPal (sandbox in this deployment). OneThing never hold
         <xs:sequence>
           <xs:element minOccurs="1" name="response404" type="schemas:Error">
             <xs:annotation>
-              <xs:documentation>No such shop, or the admin token doesn't match it.</xs:documentation>
+              <xs:documentation>No such shop, or the admin token or API key doesn't match it.</xs:documentation>
             </xs:annotation>
           </xs:element>
         </xs:sequence>
@@ -1652,7 +1707,7 @@ All money moves through PayPal (sandbox in this deployment). OneThing never hold
         <xs:sequence>
           <xs:element minOccurs="1" name="response404" type="schemas:Error">
             <xs:annotation>
-              <xs:documentation>No such shop, or the admin token doesn't match it.</xs:documentation>
+              <xs:documentation>No such shop, or the admin token or API key doesn't match it.</xs:documentation>
             </xs:annotation>
           </xs:element>
         </xs:sequence>
@@ -1693,7 +1748,7 @@ All money moves through PayPal (sandbox in this deployment). OneThing never hold
         <xs:sequence>
           <xs:element minOccurs="1" name="response404" type="schemas:Error">
             <xs:annotation>
-              <xs:documentation>No such shop, or the admin token doesn't match it.</xs:documentation>
+              <xs:documentation>No such shop, or the admin token or API key doesn't match it.</xs:documentation>
             </xs:annotation>
           </xs:element>
         </xs:sequence>
@@ -1734,9 +1789,14 @@ All money moves through PayPal (sandbox in this deployment). OneThing never hold
         <xs:sequence>
           <xs:element minOccurs="1" name="response404" type="schemas:Error">
             <xs:annotation>
-              <xs:documentation>No such shop, or the admin token doesn't match it.</xs:documentation>
+              <xs:documentation>No such shop, or the admin token or API key doesn't match it.</xs:documentation>
             </xs:annotation>
           </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="connectPayPal_Request">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="body" type="schemas:ApiShopsPaypalRequest" />
         </xs:sequence>
       </xs:complexType>
       <xs:complexType name="connectPayPal200_Response0">
@@ -1752,7 +1812,7 @@ All money moves through PayPal (sandbox in this deployment). OneThing never hold
         <xs:sequence>
           <xs:element minOccurs="1" name="response404" type="schemas:Error">
             <xs:annotation>
-              <xs:documentation>No such shop, or the admin token doesn't match it.</xs:documentation>
+              <xs:documentation>No such shop, or the admin token or API key doesn't match it.</xs:documentation>
             </xs:annotation>
           </xs:element>
         </xs:sequence>
@@ -1788,7 +1848,7 @@ All money moves through PayPal (sandbox in this deployment). OneThing never hold
         <xs:sequence>
           <xs:element minOccurs="1" name="response404" type="schemas:Error">
             <xs:annotation>
-              <xs:documentation>No such shop, or the admin token doesn't match it.</xs:documentation>
+              <xs:documentation>No such shop, or the admin token or API key doesn't match it.</xs:documentation>
             </xs:annotation>
           </xs:element>
         </xs:sequence>
@@ -1824,7 +1884,7 @@ All money moves through PayPal (sandbox in this deployment). OneThing never hold
         <xs:sequence>
           <xs:element minOccurs="1" name="response404" type="schemas:Error">
             <xs:annotation>
-              <xs:documentation>No such shop, or the admin token doesn't match it.</xs:documentation>
+              <xs:documentation>No such shop, or the admin token or API key doesn't match it.</xs:documentation>
             </xs:annotation>
           </xs:element>
         </xs:sequence>
@@ -1919,7 +1979,7 @@ All money moves through PayPal (sandbox in this deployment). OneThing never hold
         <xs:sequence>
           <xs:element minOccurs="1" name="response404" type="schemas:Error">
             <xs:annotation>
-              <xs:documentation>No such shop, or the admin token doesn't match it.</xs:documentation>
+              <xs:documentation>No such shop, or the admin token or API key doesn't match it.</xs:documentation>
             </xs:annotation>
           </xs:element>
         </xs:sequence>
@@ -1973,7 +2033,7 @@ All money moves through PayPal (sandbox in this deployment). OneThing never hold
         <xs:sequence>
           <xs:element minOccurs="1" name="response404" type="schemas:Error">
             <xs:annotation>
-              <xs:documentation>No such shop, or the admin token doesn't match it.</xs:documentation>
+              <xs:documentation>No such shop, or the admin token or API key doesn't match it.</xs:documentation>
             </xs:annotation>
           </xs:element>
         </xs:sequence>
@@ -2041,7 +2101,7 @@ All money moves through PayPal (sandbox in this deployment). OneThing never hold
         <xs:sequence>
           <xs:element minOccurs="1" name="response404" type="schemas:Error">
             <xs:annotation>
-              <xs:documentation>No such shop, or the admin token doesn't match it.</xs:documentation>
+              <xs:documentation>No such shop, or the admin token or API key doesn't match it.</xs:documentation>
             </xs:annotation>
           </xs:element>
         </xs:sequence>
@@ -2073,7 +2133,7 @@ All money moves through PayPal (sandbox in this deployment). OneThing never hold
         <xs:sequence>
           <xs:element minOccurs="1" name="response404" type="schemas:Error">
             <xs:annotation>
-              <xs:documentation>No such shop, or the admin token doesn't match it.</xs:documentation>
+              <xs:documentation>No such shop, or the admin token or API key doesn't match it.</xs:documentation>
             </xs:annotation>
           </xs:element>
         </xs:sequence>
@@ -2091,7 +2151,7 @@ All money moves through PayPal (sandbox in this deployment). OneThing never hold
         <xs:sequence>
           <xs:element minOccurs="1" name="response404" type="schemas:Error">
             <xs:annotation>
-              <xs:documentation>No such shop, or the admin token doesn't match it.</xs:documentation>
+              <xs:documentation>No such shop, or the admin token or API key doesn't match it.</xs:documentation>
             </xs:annotation>
           </xs:element>
         </xs:sequence>
@@ -2119,6 +2179,24 @@ All money moves through PayPal (sandbox in this deployment). OneThing never hold
           <xs:element minOccurs="1" name="response400" type="schemas:JsonRpcResponse">
             <xs:annotation>
               <xs:documentation>Not JSON (JSON-RPC parse error `-32700`).</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="listMyShops200_Response0">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="response200" type="schemas:ApiPlatformShopsResponse">
+            <xs:annotation>
+              <xs:documentation>The shops.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="listMyShops401_Response0">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="response401" type="schemas:Error">
+            <xs:annotation>
+              <xs:documentation>No API key, or it's wrong or revoked.</xs:documentation>
             </xs:annotation>
           </xs:element>
         </xs:sequence>
@@ -2190,6 +2268,11 @@ becomes its seller email (and PayPal email, after Log in with PayPal) unless you
 - `source=channel3`: a `productId` from `searchProducts` (a recommendation).
 
 Takes 15–40 seconds. Hero art, if available, is generated afterwards (`hero_status`).
+
+**Platforms:** sent with a platform API key, the shop belongs to the key's account, so the
+key can manage it from then on (no need to keep the admin token). It's made for one of the
+platform's sellers, so it inherits nothing from the account: set `paypal_email` or call
+`connectPayPal` for that seller.
 </doc>
         <request>
           <representation mediaType="multipart/form-data">
@@ -2300,7 +2383,7 @@ Takes 15–40 seconds. Hero art, if available, is generated afterwards (`hero_st
           <representation element="schemas:getShop200_Response0" mediaType="application/json" />
         </response>
         <response status="404">
-          <doc title="404" xml:lang="en">No such shop, or the admin token doesn't match it.</doc>
+          <doc title="404" xml:lang="en">No such shop, or the admin token or API key doesn't match it.</doc>
           <representation element="schemas:getShop404_Response0" mediaType="application/json" />
         </response>
       </method>
@@ -2324,7 +2407,7 @@ access codes, `access_url`) first.
           <representation element="schemas:updateShop400_Response0" mediaType="application/json" />
         </response>
         <response status="404">
-          <doc title="404" xml:lang="en">No such shop, or the admin token doesn't match it.</doc>
+          <doc title="404" xml:lang="en">No such shop, or the admin token or API key doesn't match it.</doc>
           <representation element="schemas:updateShop404_Response0" mediaType="application/json" />
         </response>
       </method>
@@ -2350,7 +2433,7 @@ access codes, `access_url`) first.
           <representation element="schemas:refineShopDesign400_Response0" mediaType="application/json" />
         </response>
         <response status="404">
-          <doc title="404" xml:lang="en">No such shop, or the admin token doesn't match it.</doc>
+          <doc title="404" xml:lang="en">No such shop, or the admin token or API key doesn't match it.</doc>
           <representation element="schemas:refineShopDesign404_Response0" mediaType="application/json" />
         </response>
         <response status="502">
@@ -2375,7 +2458,7 @@ access codes, `access_url`) first.
           <representation element="schemas:regenerateHeroArt400_Response0" mediaType="application/json" />
         </response>
         <response status="404">
-          <doc title="404" xml:lang="en">No such shop, or the admin token doesn't match it.</doc>
+          <doc title="404" xml:lang="en">No such shop, or the admin token or API key doesn't match it.</doc>
           <representation element="schemas:regenerateHeroArt404_Response0" mediaType="application/json" />
         </response>
       </method>
@@ -2402,7 +2485,7 @@ access codes, `access_url`) first.
           <representation element="schemas:uploadDigitalFile400_Response0" mediaType="application/json" />
         </response>
         <response status="404">
-          <doc title="404" xml:lang="en">No such shop, or the admin token doesn't match it.</doc>
+          <doc title="404" xml:lang="en">No such shop, or the admin token or API key doesn't match it.</doc>
           <representation element="schemas:uploadDigitalFile404_Response0" mediaType="application/json" />
         </response>
       </method>
@@ -2432,7 +2515,7 @@ access codes, `access_url`) first.
           <representation element="schemas:addPhotos400_Response0" mediaType="application/json" />
         </response>
         <response status="404">
-          <doc title="404" xml:lang="en">No such shop, or the admin token doesn't match it.</doc>
+          <doc title="404" xml:lang="en">No such shop, or the admin token or API key doesn't match it.</doc>
           <representation element="schemas:addPhotos404_Response0" mediaType="application/json" />
         </response>
       </method>
@@ -2453,7 +2536,7 @@ access codes, `access_url`) first.
           <representation element="schemas:setPhotoOrder400_Response0" mediaType="application/json" />
         </response>
         <response status="404">
-          <doc title="404" xml:lang="en">No such shop, or the admin token doesn't match it.</doc>
+          <doc title="404" xml:lang="en">No such shop, or the admin token or API key doesn't match it.</doc>
           <representation element="schemas:setPhotoOrder404_Response0" mediaType="application/json" />
         </response>
       </method>
@@ -2480,7 +2563,7 @@ Nothing changes on the shop page until the seller confirms: save options with `u
           <representation element="schemas:checkMissingDetails400_Response0" mediaType="application/json" />
         </response>
         <response status="404">
-          <doc title="404" xml:lang="en">No such shop, or the admin token doesn't match it.</doc>
+          <doc title="404" xml:lang="en">No such shop, or the admin token or API key doesn't match it.</doc>
           <representation element="schemas:checkMissingDetails404_Response0" mediaType="application/json" />
         </response>
         <response status="502">
@@ -2510,7 +2593,7 @@ Nothing changes on the shop page until the seller confirms: save options with `u
           <representation element="schemas:matchColorPhotos400_Response0" mediaType="application/json" />
         </response>
         <response status="404">
-          <doc title="404" xml:lang="en">No such shop, or the admin token doesn't match it.</doc>
+          <doc title="404" xml:lang="en">No such shop, or the admin token or API key doesn't match it.</doc>
           <representation element="schemas:matchColorPhotos404_Response0" mediaType="application/json" />
         </response>
         <response status="502">
@@ -2540,7 +2623,7 @@ Nothing changes on the shop page until the seller confirms: save options with `u
           <representation element="schemas:setColorPhotos400_Response0" mediaType="application/json" />
         </response>
         <response status="404">
-          <doc title="404" xml:lang="en">No such shop, or the admin token doesn't match it.</doc>
+          <doc title="404" xml:lang="en">No such shop, or the admin token or API key doesn't match it.</doc>
           <representation element="schemas:setColorPhotos404_Response0" mediaType="application/json" />
         </response>
       </method>
@@ -2562,14 +2645,23 @@ permission. PayPal brings them back to `/api/shops/&lt;slug&gt;/paypal/return`, 
 connection and opens the manage page. From then on, sales are paid to that account.
 
 Without a connection, a shop can still go live with a typed `paypal_email`.
+
+**Platforms:** call it with your API key and a `returnUrl`, and PayPal's flow ends on your own
+page instead, as `returnUrl?paypal=connected|incomplete|cancelled|failed&amp;shop=&lt;slug&gt;`. The
+URL's origin must be one registered on the key.
 </doc>
-        <request />
+        <request>
+          <param name="Content-Type" style="header" type="xsd:string" default="application/json" required="true" fixed="application/json">
+            <doc title="Content-Type" xml:lang="en" />
+          </param>
+          <representation element="schemas:connectPayPal_Request" mediaType="application/json" />
+        </request>
         <response status="200">
           <doc title="200" xml:lang="en">Where to send the seller.</doc>
           <representation element="schemas:connectPayPal200_Response0" mediaType="application/json" />
         </response>
         <response status="404">
-          <doc title="404" xml:lang="en">No such shop, or the admin token doesn't match it.</doc>
+          <doc title="404" xml:lang="en">No such shop, or the admin token or API key doesn't match it.</doc>
           <representation element="schemas:connectPayPal404_Response0" mediaType="application/json" />
         </response>
         <response status="502">
@@ -2589,7 +2681,7 @@ Without a connection, a shop can still go live with a typed `paypal_email`.
           <representation element="schemas:getPayPalConnection200_Response0" mediaType="application/json" />
         </response>
         <response status="404">
-          <doc title="404" xml:lang="en">No such shop, or the admin token doesn't match it.</doc>
+          <doc title="404" xml:lang="en">No such shop, or the admin token or API key doesn't match it.</doc>
           <representation element="schemas:getPayPalConnection404_Response0" mediaType="application/json" />
         </response>
         <response status="502">
@@ -2609,7 +2701,7 @@ Without a connection, a shop can still go live with a typed `paypal_email`.
           <representation element="schemas:disconnectPayPal200_Response0" mediaType="application/json" />
         </response>
         <response status="404">
-          <doc title="404" xml:lang="en">No such shop, or the admin token doesn't match it.</doc>
+          <doc title="404" xml:lang="en">No such shop, or the admin token or API key doesn't match it.</doc>
           <representation element="schemas:disconnectPayPal404_Response0" mediaType="application/json" />
         </response>
       </method>
@@ -2693,7 +2785,7 @@ If the shop has buyer `options`, send one value for each. A sold-out combination
           <representation element="schemas:createCheckoutOrder400_Response0" mediaType="application/json" />
         </response>
         <response status="404">
-          <doc title="404" xml:lang="en">No such shop, or the admin token doesn't match it.</doc>
+          <doc title="404" xml:lang="en">No such shop, or the admin token or API key doesn't match it.</doc>
           <representation element="schemas:createCheckoutOrder404_Response0" mediaType="application/json" />
         </response>
         <response status="409">
@@ -2728,7 +2820,7 @@ Safe to call repeatedly: before approval it answers 409, so a page can poll it w
           <representation element="schemas:captureCheckoutOrder402_Response0" mediaType="application/json" />
         </response>
         <response status="404">
-          <doc title="404" xml:lang="en">No such shop, or the admin token doesn't match it.</doc>
+          <doc title="404" xml:lang="en">No such shop, or the admin token or API key doesn't match it.</doc>
           <representation element="schemas:captureCheckoutOrder404_Response0" mediaType="application/json" />
         </response>
         <response status="409">
@@ -2779,7 +2871,7 @@ link names, and codes typed loosely (lower case, spaces, no dashes).
           <representation element="schemas:listOrders200_Response0" mediaType="application/json" />
         </response>
         <response status="404">
-          <doc title="404" xml:lang="en">No such shop, or the admin token doesn't match it.</doc>
+          <doc title="404" xml:lang="en">No such shop, or the admin token or API key doesn't match it.</doc>
           <representation element="schemas:listOrders404_Response0" mediaType="application/json" />
         </response>
       </method>
@@ -2808,7 +2900,7 @@ link names, and codes typed loosely (lower case, spaces, no dashes).
           <representation element="schemas:markOrderShipped400_Response0" mediaType="application/json" />
         </response>
         <response status="404">
-          <doc title="404" xml:lang="en">No such shop, or the admin token doesn't match it.</doc>
+          <doc title="404" xml:lang="en">No such shop, or the admin token or API key doesn't match it.</doc>
           <representation element="schemas:markOrderShipped404_Response0" mediaType="application/json" />
         </response>
       </method>
@@ -2825,7 +2917,7 @@ link names, and codes typed loosely (lower case, spaces, no dashes).
           <representation element="schemas:listWebhookEvents200_Response0" mediaType="application/json" />
         </response>
         <response status="404">
-          <doc title="404" xml:lang="en">No such shop, or the admin token doesn't match it.</doc>
+          <doc title="404" xml:lang="en">No such shop, or the admin token or API key doesn't match it.</doc>
           <representation element="schemas:listWebhookEvents404_Response0" mediaType="application/json" />
         </response>
       </method>
@@ -2919,6 +3011,30 @@ so the model can read them and try something else.
         <response status="400">
           <doc title="400" xml:lang="en">Not JSON (JSON-RPC parse error `-32700`).</doc>
           <representation element="schemas:callMcp400_Response0" mediaType="application/json" />
+        </response>
+      </method>
+    </resource>
+    <resource id="_apiplatformshops" path="/api/platform/shops">
+      <method id="listMyShops" name="GET">
+        <doc title="listMyShops" xml:lang="en">Every shop the API key's account owns, newest first, with what a catalog page needs: name, price, cover, link, whether PayPal is connected and how many sales it has.</doc>
+        <request>
+          <param name="status" style="query" default="">
+            <doc title="status" xml:lang="en">Only shops with this status, e.g. `live` for a public catalog.</doc>
+            <option value="draft">
+              <doc title="draft" xml:lang="en" />
+            </option>
+            <option value="live">
+              <doc title="live" xml:lang="en" />
+            </option>
+          </param>
+        </request>
+        <response status="200">
+          <doc title="200" xml:lang="en">The shops.</doc>
+          <representation element="schemas:listMyShops200_Response0" mediaType="application/json" />
+        </response>
+        <response status="401">
+          <doc title="401" xml:lang="en">No API key, or it's wrong or revoked.</doc>
+          <representation element="schemas:listMyShops401_Response0" mediaType="application/json" />
         </response>
       </method>
     </resource>

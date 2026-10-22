@@ -16,8 +16,9 @@ PayPal payments, or a recommendation page that earns referral commissions throug
 2. `updateShop`: correct anything the AI guessed, then set `status: live`.
 3. Buyers pay on `https://<host>/<slug>` with PayPal. Sellers read orders and ship them.
 
-**Auth.** Seller endpoints take the shop's admin token in the `x-admin-token` header. Buyer
-endpoints (checkout, access-code verification, downloads) are public.
+**Auth.** Seller endpoints take the shop's admin token in the `x-admin-token` header, or a
+**platform API key** (`Authorization: Bearer ot_sk_…`) for marketplaces that make shops for
+their own sellers. Buyer endpoints (checkout, access-code verification, downloads) are public.
 
 **Access codes.** A digital product can unlock an app or game instead of shipping a file.
 Each paid order gets a code such as `K7QF-M2XP-9HTD`; your app calls `verifyAccessCode`
@@ -72,7 +73,8 @@ The following parameters are configurable for the API Client:
 | retry_statuses | `Array of int` | The http statuses on which retry is to be done. <br> **Default: [408, 413, 429, 500, 502, 503, 504, 521, 522, 524, 408, 413, 429, 500, 502, 503, 504, 521, 522, 524]** |
 | retry_methods | `Array of string` | The http methods on which retry is to be done. <br> **Default: ["GET", "PUT", "GET", "PUT"]** |
 | proxy_settings | [`ProxySettings`](/llms-pages/python/sdk-infrastructure/configuration/proxysettings.md) | Optional proxy configuration to route HTTP requests through a proxy server. |
-| custom_header_authentication_credentials | [`CustomHeaderAuthenticationCredentials`](/llms-pages/python/getting-started/sdk-quickstart/authorization.md) | The credential object for Custom Header Signature |
+| admin_token_credentials | [`AdminTokenCredentials`](/llms-pages/python/getting-started/sdk-quickstart/authorization.md) | The credential object for Custom Header Signature |
+| platform_key_credentials | [`PlatformKeyCredentials`](/llms-pages/python/getting-started/sdk-quickstart/authorization.md) | The credential object for OAuth 2 Bearer token |
 
 The API client can be initialized as follows:
 
@@ -80,12 +82,16 @@ The API client can be initialized as follows:
 
 ```python
 from onethingapi.configuration import Environment
-from onethingapi.http.auth.custom_header_authentication import CustomHeaderAuthenticationCredentials
+from onethingapi.http.auth.admin_token import AdminTokenCredentials
+from onethingapi.http.auth.platform_key import PlatformKeyCredentials
 from onethingapi.onethingapi_client import OnethingapiClient
 
 client = OnethingapiClient(
-    custom_header_authentication_credentials=CustomHeaderAuthenticationCredentials(
+    admin_token_credentials=AdminTokenCredentials(
         x_admin_token='x-admin-token'
+    ),
+    platform_key_credentials=PlatformKeyCredentials(
+        access_token='AccessToken'
     ),
     environment=Environment.PRODUCTION
 )
@@ -108,6 +114,7 @@ See the [Environment-Based Client Initialization](/llms-pages/python/sdk-infrast
 This API uses the following authentication schemes.
 
 * [`AdminToken (Custom Header Signature)`](/llms-pages/python/getting-started/sdk-quickstart/authorization.md)
+* [`PlatformKey (OAuth 2 Bearer token)`](/llms-pages/python/getting-started/sdk-quickstart/authorization.md)
 
 ## AdminToken (Custom Header Signature)
 
@@ -123,7 +130,7 @@ Documentation for accessing and setting credentials for AdminToken.
 
 
 
-**Note:** Auth credentials can be set using `CustomHeaderAuthenticationCredentials` object, passed in as named parameter `custom_header_authentication_credentials` in the client initialization.
+**Note:** Auth credentials can be set using `AdminTokenCredentials` object, passed in as named parameter `admin_token_credentials` in the client initialization.
 
 ### Usage Example
 
@@ -132,12 +139,45 @@ Documentation for accessing and setting credentials for AdminToken.
 You must provide credentials in the client as shown in the following code snippet.
 
 ```python
-from onethingapi.http.auth.custom_header_authentication import CustomHeaderAuthenticationCredentials
+from onethingapi.http.auth.admin_token import AdminTokenCredentials
 from onethingapi.onethingapi_client import OnethingapiClient
 
 client = OnethingapiClient(
-    custom_header_authentication_credentials=CustomHeaderAuthenticationCredentials(
+    admin_token_credentials=AdminTokenCredentials(
         x_admin_token='x-admin-token'
+    )
+)
+```
+
+## PlatformKey (OAuth 2 Bearer token)
+
+
+
+Documentation for accessing and setting credentials for PlatformKey.
+
+### Auth Credentials
+
+| Name | Type | Description | Getter |
+|  --- | --- | --- | --- |
+| AccessToken | `str` | The OAuth 2.0 Access Token to use for API requests. | `access_token` |
+
+
+
+**Note:** Auth credentials can be set using `PlatformKeyCredentials` object, passed in as named parameter `platform_key_credentials` in the client initialization.
+
+### Usage Example
+
+#### Client Initialization
+
+You must provide credentials in the client as shown in the following code snippet.
+
+```python
+from onethingapi.http.auth.platform_key import PlatformKeyCredentials
+from onethingapi.onethingapi_client import OnethingapiClient
+
+client = OnethingapiClient(
+    platform_key_credentials=PlatformKeyCredentials(
+        access_token='AccessToken'
     )
 )
 ```

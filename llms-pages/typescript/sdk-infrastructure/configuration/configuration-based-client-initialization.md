@@ -43,8 +43,11 @@ const client = Client.fromJsonConfig(JSON.stringify(configModule.default));
 {
   "timeout": 30000,
   "environment": "production",
-  "customHeaderAuthenticationCredentials": {
+  "adminTokenCredentials": {
     "xAdminToken": "x-admin-token"
+  },
+  "platformKeyCredentials": {
+    "accessToken": "accesstoken"
   },
   "httpClientOptions": {
     "timeout": 30000,
