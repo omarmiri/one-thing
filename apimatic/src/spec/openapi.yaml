@@ -21,6 +21,11 @@ info:
     Each paid order gets a code such as `K7QF-M2XP-9HTD`; your app calls `verifyAccessCode`
     before unlocking. Raptor Rush on miriogames.com is a live example.
 
+    **Agent-ready.** Every live shop is also published for AI shopping agents: product JSON at
+    `getAgentProduct`, and an MCP server at `/api/mcp` with `search_shops`, `get_product`,
+    `create_order` and `get_order`. An agent can find and order, but the buyer still approves
+    every payment at PayPal.
+
     All money moves through PayPal (sandbox in this deployment). OneThing never holds card data.
   contact:
     name: OneThing
@@ -65,6 +70,8 @@ tags:
     description: The seller's orders, fulfilment and PayPal webhook log.
   - name: Files
     description: Digital downloads and shop images.
+  - name: Agents
+    description: Machine-readable shops and the MCP server AI shopping agents buy through.
 
 security: []
 
@@ -127,6 +134,33 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/Ok'
+
+  /api/account/paypal:
+    get:
+      tags: [Accounts]
+      operationId: logInWithPayPal
+      summary: Log in with PayPal (browser)
+      description: >-
+        A link for a browser, not for code: redirects to PayPal's sign-in page. PayPal sends the
+        seller back to `/api/account/paypal/callback`, which signs them in (creating the account the
+        first time), records the PayPal account their sales are paid into, and redirects to `next`.
+      parameters:
+        - name: next
+          in: query
+          required: false
+          description: A path on this site to land on afterwards. Defaults to `/account`.
+          schema:
+            type: string
+            examples: ['/new']
+      responses:
+        '302':
+          description: To PayPal's sign-in page.
+        '503':
+          description: Log in with PayPal isn't switched on for this server.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
   /api/shops:
     post:
@@ -383,6 +417,214 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound'
 
+  /api/shops/{slug}/suggest:
+    parameters:
+      - $ref: '#/components/parameters/Slug'
+    post:
+      tags: [Shops]
+      operationId: checkMissingDetails
+      summary: Check for missing details
+      description: |
+        Asks Gemini what buyers will want to choose (sizes, colours) and what they'll ask that the
+        listing doesn't say (dimensions, materials). `createShop` already does this once; call it
+        again after editing the product. The result is saved as the shop's `suggestions`.
+
+        Nothing changes on the shop page until the seller confirms: save options with `updateShop`
+        (`options`), and answer the questions with `updateShop` (`facts`). Not for recommendations.
+      security:
+        - AdminToken: []
+      responses:
+        '200':
+          description: The suggestions.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Suggestions'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '502':
+          $ref: '#/components/responses/UpstreamError'
+
+  /api/shops/{slug}/match-photos:
+    parameters:
+      - $ref: '#/components/parameters/Slug'
+    post:
+      tags: [Shops]
+      operationId: matchColorPhotos
+      summary: Match photos to colours
+      description: >-
+        Gemini looks at the shop's photos and says which one shows each colour, so buyers who pick
+        a colour see it. Suggests only; save the matches with `setColorPhotos`. Needs at least two photos.
+      security:
+        - AdminToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [colors]
+              properties:
+                colors:
+                  type: array
+                  minItems: 1
+                  maxItems: 12
+                  items:
+                    type: object
+                    required: [label]
+                    properties:
+                      label:
+                        type: string
+                        maxLength: 30
+                        examples: [Forest green]
+                      hex:
+                        $ref: '#/components/schemas/HexColor'
+      responses:
+        '200':
+          description: A photo id for each colour Gemini could match. Colours it couldn't place are left out.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [matches]
+                properties:
+                  matches:
+                    type: object
+                    additionalProperties:
+                      type: string
+                    examples:
+                      - { Black: b_8f2k1, Forest green: b_q93md }
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '502':
+          $ref: '#/components/responses/UpstreamError'
+
+  /api/shops/{slug}/color-photos:
+    parameters:
+      - $ref: '#/components/parameters/Slug'
+    put:
+      tags: [Shops]
+      operationId: setColorPhotos
+      summary: Set the photo for each colour
+      description: >-
+        Saves which photo shows each colour, and nothing else about the shop. Only colours already
+        saved in the shop's options change; `null` clears a colour's photo. A photo id that isn't
+        one of the shop's photos is ignored.
+      security:
+        - AdminToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [photos]
+              properties:
+                photos:
+                  type: object
+                  description: Colour label → photo id, or `null`.
+                  additionalProperties:
+                    type: [string, 'null']
+      responses:
+        '200':
+          description: The colours that were changed.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [saved]
+                properties:
+                  saved:
+                    type: array
+                    items:
+                      type: string
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/shops/{slug}/paypal:
+    parameters:
+      - $ref: '#/components/parameters/Slug'
+    post:
+      tags: [Shops]
+      operationId: connectPayPal
+      summary: Connect the seller's PayPal account
+      description: |
+        Starts PayPal's seller onboarding (Partner Referrals). Send the seller's browser to the
+        returned `url`; they sign in to PayPal (or create a business account) and grant OneThing
+        permission. PayPal brings them back to `/api/shops/<slug>/paypal/return`, which saves the
+        connection and opens the manage page. From then on, sales are paid to that account.
+
+        Without a connection, a shop can still go live with a typed `paypal_email`.
+      security:
+        - AdminToken: []
+      responses:
+        '200':
+          description: Where to send the seller.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [url]
+                properties:
+                  url:
+                    type: string
+                    description: PayPal's onboarding page for this shop.
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '502':
+          $ref: '#/components/responses/UpstreamError'
+        '503':
+          $ref: '#/components/responses/UpstreamError'
+    get:
+      tags: [Shops]
+      operationId: getPayPalConnection
+      summary: Check the PayPal connection
+      description: >-
+        Asks PayPal where the seller's connection stands and saves it on the shop. Also finds a
+        connection the seller finished at PayPal without coming back.
+      security:
+        - AdminToken: []
+      responses:
+        '200':
+          description: The connection, or nulls if there is none yet.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [merchantId, status]
+                properties:
+                  merchantId:
+                    type: [string, 'null']
+                    description: The seller's PayPal merchant id.
+                  status:
+                    oneOf:
+                      - $ref: '#/components/schemas/PayPalStatus'
+                      - type: 'null'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '502':
+          $ref: '#/components/responses/UpstreamError'
+        '503':
+          $ref: '#/components/responses/UpstreamError'
+    delete:
+      tags: [Shops]
+      operationId: disconnectPayPal
+      summary: Disconnect PayPal
+      description: Forgets the connected account. Sales go back to the shop's `paypal_email`.
+      security:
+        - AdminToken: []
+      responses:
+        '200':
+          $ref: '#/components/responses/Ok'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
   /api/shops/{slug}/orders:
     parameters:
       - $ref: '#/components/parameters/Slug'
@@ -578,6 +820,8 @@ paths:
       description: |
         Creates the PayPal order for one unit of a live shop's product. The amount always comes
         from the shop, never from the caller. Pass the returned `id` to the PayPal JS SDK.
+
+        If the shop has buyer `options`, send one value for each. A sold-out combination answers 409.
       requestBody:
         required: true
         content:
@@ -588,6 +832,8 @@ paths:
               properties:
                 slug:
                   type: string
+                options:
+                  $ref: '#/components/schemas/Choice'
       responses:
         '200':
           description: PayPal order created.
@@ -655,6 +901,14 @@ paths:
                   status:
                     type: string
                     enum: [pending]
+        '410':
+          description: >-
+            The last unit (or the last of the buyer's combination) sold while they were paying. The
+            payment isn't captured, so the buyer isn't charged.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         '422':
           description: The buyer's funding source was declined (`INSTRUMENT_DECLINED`); they can try another.
           content:
@@ -754,6 +1008,109 @@ paths:
                 format: binary
         '404':
           description: Not a public shop image.
+
+  /api/agent/shops/{slug}:
+    parameters:
+      - $ref: '#/components/parameters/Slug'
+    get:
+      tags: [Agents]
+      operationId: getAgentProduct
+      summary: A live shop's product, for agents
+      description: >-
+        Everything an AI shopping agent needs to describe the product and decide to buy it: price,
+        shipping, delivery, availability, options, images and FAQ. Public. Buying goes through the
+        MCP server named in `mcp_server`. Shop pages also carry the same facts as schema.org
+        `Product` JSON-LD.
+      responses:
+        '200':
+          description: The product.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentProduct'
+        '404':
+          description: No live shop with that link name.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/mcp:
+    post:
+      tags: [Agents]
+      operationId: callMcp
+      summary: MCP server for AI shopping agents
+      description: |
+        A [Model Context Protocol](https://modelcontextprotocol.io) server, so agents such as
+        Claude can shop here. Add `https://<host>/api/mcp` to an MCP client as a Streamable HTTP
+        server. It's stateless: each POST carries one JSON-RPC 2.0 message (or a batch) and gets a
+        plain JSON reply, with no session and no event stream.
+
+        Methods: `initialize`, `ping`, `tools/list`, `tools/call`. Tools:
+
+        | Tool | Arguments | What it does |
+        |---|---|---|
+        | `search_shops` | `query?`, `limit?` (1–25) | Live gallery shops whose name or headline has every word |
+        | `get_product` | `shop` | The same object as `getAgentProduct` |
+        | `create_order` | `shop`, `options?` | One unit on order; returns `order_id` and `approve_url` |
+        | `get_order` | `order_id` | `awaiting_buyer_approval` or `paid`, with the receipt link once paid |
+
+        **The buyer always approves.** `create_order` charges nothing: the agent gives the buyer
+        `approve_url`, they pay at PayPal, and the agent polls `get_order`. Orders made this way
+        show `channel: agent` in `listOrders`.
+
+        Tool errors (an unknown shop, a sold-out size) come back as results with `isError: true`,
+        so the model can read them and try something else.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: '#/components/schemas/JsonRpcRequest'
+                - type: array
+                  items:
+                    $ref: '#/components/schemas/JsonRpcRequest'
+            examples:
+              search:
+                summary: Find a shop
+                value:
+                  jsonrpc: '2.0'
+                  id: 1
+                  method: tools/call
+                  params:
+                    name: search_shops
+                    arguments: { query: game }
+              order:
+                summary: Order a size and colour
+                value:
+                  jsonrpc: '2.0'
+                  id: 2
+                  method: tools/call
+                  params:
+                    name: create_order
+                    arguments:
+                      shop: trailtee
+                      options: { Size: M, Color: Black }
+      responses:
+        '200':
+          description: The JSON-RPC reply (an array for a batch).
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/JsonRpcResponse'
+                  - type: array
+                    items:
+                      $ref: '#/components/schemas/JsonRpcResponse'
+        '202':
+          description: Only notifications were sent; there's nothing to reply.
+        '400':
+          description: Not JSON (JSON-RPC parse error `-32700`).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JsonRpcResponse'
 
 webhooks:
   orderEvent:
@@ -973,6 +1330,35 @@ components:
         in_gallery:
           type: boolean
           description: Feature the shop at `/gallery` while it's live. Off by default.
+        options:
+          type: array
+          maxItems: 3
+          description: >-
+            What the buyer picks (physical products only), replacing the current options; `[]`
+            removes them. With options, stock is counted per combination in `option_stock` and the
+            shop's own `stock` is cleared. At most 60 combinations.
+          items:
+            $ref: '#/components/schemas/ShopOption'
+        option_stock:
+          $ref: '#/components/schemas/OptionStock'
+        facts:
+          type: array
+          maxItems: 5
+          description: >-
+            Answers to the "buyers will ask" questions in `suggestions.missingFacts`. Each becomes a
+            product detail on the page (replacing one with the same label) and drops off the list.
+          items:
+            type: object
+            required: [label, value]
+            properties:
+              label:
+                type: string
+                maxLength: 30
+                examples: [Size]
+              value:
+                type: string
+                maxLength: 100
+                examples: ["US women's 8"]
 
     Shop:
       type: object
@@ -1008,13 +1394,38 @@ components:
           type: [string, 'null']
         seller_email:
           type: [string, 'null']
+        paypal_merchant_id:
+          type: [string, 'null']
+          description: The connected PayPal account (`connectPayPal`). Sales go here when it can receive payments.
+        paypal_status:
+          oneOf:
+            - $ref: '#/components/schemas/PayPalStatus'
+            - type: 'null'
         zapier_hook_url:
           type: [string, 'null']
         in_gallery:
           type: boolean
+        account_id:
+          type: [string, 'null']
+          description: The seller account that owns the shop, if it was made while signed in.
+        options:
+          type: array
+          items:
+            $ref: '#/components/schemas/ShopOption'
+        option_stock:
+          $ref: '#/components/schemas/OptionStock'
+        suggestions:
+          oneOf:
+            - $ref: '#/components/schemas/Suggestions'
+            - type: 'null'
         photo_blob:
           type: [string, 'null']
-          description: Image id for `getImage`.
+          description: Image id for `getImage`. The cover photo.
+        gallery_blobs:
+          type: array
+          items:
+            type: string
+          description: The other photos, in order.
         hero_blob:
           type: [string, 'null']
         hero_status:
@@ -1116,6 +1527,284 @@ components:
       pattern: '^#[0-9a-fA-F]{6}$'
       examples: ['#14171a']
 
+    ShopOption:
+      type: object
+      description: Something the buyer picks, such as a size or a colour. The shop still sells one product.
+      required: [name, kind, values]
+      properties:
+        name:
+          type: string
+          maxLength: 20
+          examples: [Size]
+        kind:
+          type: string
+          enum: [size, color, other]
+          description: '`color` shows swatches, and the photo of the picked colour.'
+        values:
+          type: array
+          minItems: 1
+          maxItems: 12
+          items:
+            $ref: '#/components/schemas/OptionValue'
+
+    OptionValue:
+      type: object
+      required: [label]
+      properties:
+        label:
+          type: string
+          maxLength: 30
+          examples: [M]
+        hex:
+          $ref: '#/components/schemas/HexColor'
+        photo:
+          type: string
+          description: 'Colours: the shop photo (id) that shows this colour. See `matchColorPhotos`.'
+
+    Choice:
+      type: object
+      description: The buyer's pick, one value per option, keyed by option name.
+      additionalProperties:
+        type: string
+      examples:
+        - { Size: M, Color: Black }
+
+    OptionStock:
+      type: object
+      description: >-
+        Stock per combination, keyed by its values in option order joined with ` / ` (e.g. `M / Black`).
+        A missing key or `null` means unlimited; `0` is sold out.
+      additionalProperties:
+        type: [integer, 'null']
+        minimum: 0
+      examples:
+        - { M / Black: 4, L / Black: 0 }
+
+    Suggestions:
+      type: object
+      description: What Gemini thinks buyers will want to choose or ask. The seller confirms; nothing is applied on its own.
+      required: [oneOfAKind, options, missingFacts]
+      properties:
+        oneOfAKind:
+          type: boolean
+          description: A single item (vintage, handmade), so options and stock don't apply.
+        options:
+          type: array
+          items:
+            allOf:
+              - $ref: '#/components/schemas/ShopOption'
+              - type: object
+                properties:
+                  fromSeller:
+                    type: boolean
+                    description: The seller's description or photo named these values; otherwise they're a guess.
+        missingFacts:
+          type: array
+          items:
+            type: object
+            required: [label, question, placeholder]
+            properties:
+              label:
+                type: string
+                examples: [Size]
+              question:
+                type: string
+                examples: ['What size are the skates?']
+              placeholder:
+                type: string
+                examples: ["US women's 8"]
+
+    PayPalStatus:
+      type: object
+      description: What PayPal last said about a connected seller account.
+      required: [receivable, emailConfirmed, checkedAt]
+      properties:
+        receivable:
+          type: boolean
+          description: The account can receive payments.
+        emailConfirmed:
+          type: boolean
+          description: The seller has confirmed their email with PayPal.
+        checkedAt:
+          type: string
+          format: date-time
+
+    AgentProduct:
+      type: object
+      description: A live shop as an AI agent sees it. Recommendations have `offers`; everything else has `price` and is bought with `create_order`.
+      required: [shop, url, name, kind, headline, description, highlights, details, faq, images, how_to_buy]
+      properties:
+        shop:
+          type: string
+          description: The link name, which the MCP tools take as `shop`.
+        url:
+          type: string
+        name:
+          type: string
+        kind:
+          type: string
+          enum: [physical, digital, referral]
+        headline:
+          type: string
+        description:
+          type: string
+        highlights:
+          type: array
+          items:
+            type: string
+        details:
+          type: array
+          items:
+            type: object
+            required: [label, value]
+            properties:
+              label:
+                type: string
+              value:
+                type: string
+        faq:
+          type: array
+          items:
+            type: object
+            required: [q, a]
+            properties:
+              q:
+                type: string
+              a:
+                type: string
+        images:
+          type: array
+          items:
+            type: string
+        price:
+          $ref: '#/components/schemas/AgentMoney'
+        shipping:
+          description: Physical products only.
+          oneOf:
+            - type: object
+              required: [amount, currency, ships_to]
+              properties:
+                amount:
+                  type: number
+                currency:
+                  type: string
+                ships_to:
+                  type: array
+                  items:
+                    type: string
+                  description: Country codes; empty means anywhere PayPal ships.
+            - type: 'null'
+        total:
+          $ref: '#/components/schemas/AgentMoney'
+        delivery:
+          type: string
+          examples: ['Shipped. PayPal collects the buyer''s address at checkout.']
+        availability:
+          type: string
+          examples: [in_stock, 'in_stock (3 left)', sold_out]
+        options:
+          type: array
+          description: Pass one value per option to `create_order`.
+          items:
+            type: object
+            required: [name, values]
+            properties:
+              name:
+                type: string
+              values:
+                type: array
+                items:
+                  type: string
+        variants:
+          type: array
+          items:
+            type: object
+            required: [choice, availability]
+            properties:
+              choice:
+                $ref: '#/components/schemas/Choice'
+              availability:
+                type: string
+        offers:
+          type: array
+          description: Recommendations only. Bought at the retailer.
+          items:
+            type: object
+            required: [retailer, price, currency, in_stock, url]
+            properties:
+              retailer:
+                type: string
+              price:
+                type: number
+              currency:
+                type: string
+              in_stock:
+                type: boolean
+              url:
+                type: string
+        how_to_buy:
+          type: string
+        mcp_server:
+          type: string
+          description: The MCP server to order through (`getAgentProduct` only).
+
+    AgentMoney:
+      type: object
+      required: [amount, currency]
+      properties:
+        amount:
+          type: number
+          examples: [48.5]
+        currency:
+          type: string
+          examples: [USD]
+        label:
+          type: string
+          examples: ['$48.50']
+
+    JsonRpcRequest:
+      type: object
+      required: [jsonrpc, method]
+      properties:
+        jsonrpc:
+          type: string
+          const: '2.0'
+        id:
+          description: Leave out for a notification.
+          type: [string, integer, 'null']
+        method:
+          type: string
+          enum: [initialize, ping, tools/list, tools/call, notifications/initialized]
+        params:
+          type: object
+          description: 'For `tools/call`: `{ name, arguments }`.'
+          additionalProperties: true
+
+    JsonRpcResponse:
+      type: object
+      required: [jsonrpc, id]
+      properties:
+        jsonrpc:
+          type: string
+          const: '2.0'
+        id:
+          type: [string, integer, 'null']
+        result:
+          type: object
+          description: >-
+            For `tools/call`: `content` (the answer as JSON text), `structuredContent` (the same
+            object) and `isError`.
+          additionalProperties: true
+        error:
+          type: object
+          required: [code, message]
+          properties:
+            code:
+              type: integer
+              examples: [-32601]
+            message:
+              type: string
+
     Referral:
       type: object
       description: A recommended Channel3 product. Buy links are Channel3-tracked, credited to this shop.
@@ -1216,6 +1905,14 @@ components:
           type: [string, 'null']
         code_uses:
           type: integer
+        channel:
+          type: string
+          enum: [web, agent]
+          description: '`agent` for orders an AI agent placed through the MCP server.'
+        options:
+          oneOf:
+            - $ref: '#/components/schemas/Choice'
+            - type: 'null'
         paid_at:
           type: [string, 'null']
           format: date-time

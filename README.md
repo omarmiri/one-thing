@@ -182,8 +182,10 @@ valid. The image below recreates that session ([source](docs/muse-checkout-demo.
   served live at `/openapi.yaml`.
 - **SDKs and a docs portal** generated with APIMatic (TypeScript and Python), published at
   [omarmiri.github.io/one-thing](https://omarmiri.github.io/one-thing/). See
-  [apimatic/README.md](apimatic/README.md).
-- **Postman collection:** [postman/one-thing.postman_collection.json](postman/one-thing.postman_collection.json).
+  [apimatic/README.md](apimatic/README.md). It includes the agent endpoints (product JSON and the
+  MCP server, with a "Let AI agents buy" guide), buyer options and Connect PayPal.
+- **Postman collection:** [postman/one-thing.postman_collection.json](postman/one-thing.postman_collection.json),
+  with Seller, Buyer and Agents (MCP) folders.
 - **Access-code check for your own app:** `POST /api/access/verify` with `{ shop, code }` answers
   `{ valid }`, from any origin. Raptor Rush on miriogames.com uses it to unlock the game.
 

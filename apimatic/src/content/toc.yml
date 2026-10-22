@@ -5,6 +5,8 @@ toc:
         file: guides/how-it-works.md
       - page: Sell an app or game with access codes
         file: guides/access-codes.md
+      - page: Let AI agents buy
+        file: guides/agents.md
       - generate: SDK Quickstart
         from: getting-started
   - generate: API Endpoints

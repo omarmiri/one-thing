@@ -1,14 +1,30 @@
 {
   "info": {
     "name": "OneThing API",
-    "description": "Sponsor tool: Postman. The OneThing API end to end — create a shop with Gemini, refine it, publish, check out with PayPal (sandbox), ship. Set baseUrl, then run 'Create shop' first: its test script stores slug and token for the rest.",
+    "description": "Sponsor tool: Postman. The OneThing API end to end — create a shop with Gemini, refine it, publish, check out with PayPal (sandbox), ship. Set baseUrl, then run 'Create shop' first: its test script stores slug and token for the rest. Seller covers buyer options and Connect PayPal; Agents shows what an AI shopping agent calls (product JSON and the MCP server).",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
-    { "key": "baseUrl", "value": "http://localhost:3000" },
-    { "key": "slug", "value": "" },
-    { "key": "token", "value": "" },
-    { "key": "paypalOrderId", "value": "" }
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000"
+    },
+    {
+      "key": "slug",
+      "value": ""
+    },
+    {
+      "key": "token",
+      "value": ""
+    },
+    {
+      "key": "paypalOrderId",
+      "value": ""
+    },
+    {
+      "key": "agentOrderId",
+      "value": ""
+    }
   ],
   "item": [
     {
@@ -35,42 +51,118 @@
             "body": {
               "mode": "formdata",
               "formdata": [
-                { "key": "description", "value": "Hand-thrown stoneware mug, 12 oz, glazed in ocean blue. Dishwasher safe.", "type": "text" },
-                { "key": "type", "value": "physical", "type": "text", "description": "auto | physical | digital" },
-                { "key": "price", "value": "34", "type": "text" },
-                { "key": "shipping", "value": "6", "type": "text" },
-                { "key": "stock", "value": "8", "type": "text" },
-                { "key": "ship_countries", "value": "US,CA", "type": "text" },
-                { "key": "paypal_email", "value": "", "type": "text", "description": "A sandbox business account email" },
-                { "key": "photo", "type": "file", "src": [] }
+                {
+                  "key": "description",
+                  "value": "Hand-thrown stoneware mug, 12 oz, glazed in ocean blue. Dishwasher safe.",
+                  "type": "text"
+                },
+                {
+                  "key": "type",
+                  "value": "physical",
+                  "type": "text",
+                  "description": "auto | physical | digital"
+                },
+                {
+                  "key": "price",
+                  "value": "34",
+                  "type": "text"
+                },
+                {
+                  "key": "shipping",
+                  "value": "6",
+                  "type": "text"
+                },
+                {
+                  "key": "stock",
+                  "value": "8",
+                  "type": "text"
+                },
+                {
+                  "key": "ship_countries",
+                  "value": "US,CA",
+                  "type": "text"
+                },
+                {
+                  "key": "paypal_email",
+                  "value": "",
+                  "type": "text",
+                  "description": "A sandbox business account email"
+                },
+                {
+                  "key": "photo",
+                  "type": "file",
+                  "src": []
+                }
               ]
             }
           }
         },
         {
           "name": "Get shop",
-          "request": { "method": "GET", "url": "{{baseUrl}}/api/shops/{{slug}}", "header": [{ "key": "x-admin-token", "value": "{{token}}" }] }
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/shops/{{slug}}",
+            "header": [
+              {
+                "key": "x-admin-token",
+                "value": "{{token}}"
+              }
+            ]
+          }
         },
         {
           "name": "Refine design with Gemini",
           "request": {
             "method": "POST",
             "url": "{{baseUrl}}/api/shops/{{slug}}/refine",
-            "header": [{ "key": "x-admin-token", "value": "{{token}}" }, { "key": "content-type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{ \"instruction\": \"Make it feel more premium\" }" }
+            "header": [
+              {
+                "key": "x-admin-token",
+                "value": "{{token}}"
+              },
+              {
+                "key": "content-type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"instruction\": \"Make it feel more premium\" }"
+            }
           }
         },
         {
           "name": "Regenerate hero art",
-          "request": { "method": "POST", "url": "{{baseUrl}}/api/shops/{{slug}}/hero", "header": [{ "key": "x-admin-token", "value": "{{token}}" }] }
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/shops/{{slug}}/hero",
+            "header": [
+              {
+                "key": "x-admin-token",
+                "value": "{{token}}"
+              }
+            ]
+          }
         },
         {
           "name": "Update settings / publish",
           "request": {
             "method": "PATCH",
             "url": "{{baseUrl}}/api/shops/{{slug}}",
-            "header": [{ "key": "x-admin-token", "value": "{{token}}" }, { "key": "content-type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{ \"price\": 36, \"stock\": 5, \"status\": \"live\" }" }
+            "header": [
+              {
+                "key": "x-admin-token",
+                "value": "{{token}}"
+              },
+              {
+                "key": "content-type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"price\": 36, \"stock\": 5, \"status\": \"live\" }"
+            }
           }
         },
         {
@@ -78,21 +170,158 @@
           "request": {
             "method": "POST",
             "url": "{{baseUrl}}/api/shops/{{slug}}/file",
-            "header": [{ "key": "x-admin-token", "value": "{{token}}" }],
-            "body": { "mode": "formdata", "formdata": [{ "key": "file", "type": "file", "src": [] }] }
+            "header": [
+              {
+                "key": "x-admin-token",
+                "value": "{{token}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            }
           }
         },
         {
           "name": "List orders",
-          "request": { "method": "GET", "url": "{{baseUrl}}/api/shops/{{slug}}/orders", "header": [{ "key": "x-admin-token", "value": "{{token}}" }] }
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/shops/{{slug}}/orders",
+            "header": [
+              {
+                "key": "x-admin-token",
+                "value": "{{token}}"
+              }
+            ]
+          }
         },
         {
           "name": "Mark order shipped (pushes tracking to PayPal)",
           "request": {
             "method": "POST",
             "url": "{{baseUrl}}/api/shops/{{slug}}/orders/:orderId/ship",
-            "header": [{ "key": "x-admin-token", "value": "{{token}}" }, { "key": "content-type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{ \"carrier\": \"USPS\", \"trackingNumber\": \"9400111899223817502345\" }" }
+            "header": [
+              {
+                "key": "x-admin-token",
+                "value": "{{token}}"
+              },
+              {
+                "key": "content-type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"carrier\": \"USPS\", \"trackingNumber\": \"9400111899223817502345\" }"
+            }
+          }
+        },
+        {
+          "name": "Check for missing details (Gemini)",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/shops/{{slug}}/suggest",
+            "header": [
+              {
+                "key": "x-admin-token",
+                "value": "{{token}}"
+              }
+            ]
+          }
+        },
+        {
+          "name": "Set buyer options and stock per combination",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/api/shops/{{slug}}",
+            "header": [
+              {
+                "key": "content-type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-admin-token",
+                "value": "{{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"options\": [\n    {\n      \"name\": \"Size\",\n      \"kind\": \"size\",\n      \"values\": [\n        {\n          \"label\": \"S\"\n        },\n        {\n          \"label\": \"M\"\n        },\n        {\n          \"label\": \"L\"\n        }\n      ]\n    },\n    {\n      \"name\": \"Color\",\n      \"kind\": \"color\",\n      \"values\": [\n        {\n          \"label\": \"Black\",\n          \"hex\": \"#111111\"\n        },\n        {\n          \"label\": \"Forest green\",\n          \"hex\": \"#2f5d3a\"\n        }\n      ]\n    }\n  ],\n  \"option_stock\": {\n    \"M / Black\": 4,\n    \"L / Forest green\": 0\n  }\n}"
+            }
+          }
+        },
+        {
+          "name": "Match photos to colours (Gemini)",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/shops/{{slug}}/match-photos",
+            "header": [
+              {
+                "key": "content-type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-admin-token",
+                "value": "{{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"colors\": [\n    {\n      \"label\": \"Black\",\n      \"hex\": \"#111111\"\n    },\n    {\n      \"label\": \"Forest green\",\n      \"hex\": \"#2f5d3a\"\n    }\n  ]\n}"
+            }
+          }
+        },
+        {
+          "name": "Set the photo for each colour",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/api/shops/{{slug}}/color-photos",
+            "header": [
+              {
+                "key": "content-type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-admin-token",
+                "value": "{{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"photos\": {\n    \"Black\": \"<photo id>\",\n    \"Forest green\": null\n  }\n}"
+            }
+          }
+        },
+        {
+          "name": "Connect PayPal (onboarding link)",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/shops/{{slug}}/paypal",
+            "header": [
+              {
+                "key": "x-admin-token",
+                "value": "{{token}}"
+              }
+            ]
+          }
+        },
+        {
+          "name": "Check PayPal connection",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/shops/{{slug}}/paypal",
+            "header": [
+              {
+                "key": "x-admin-token",
+                "value": "{{token}}"
+              }
+            ]
           }
         }
       ]
@@ -105,19 +334,189 @@
           "event": [
             {
               "listen": "test",
-              "script": { "exec": ["pm.collectionVariables.set('paypalOrderId', pm.response.json().id);"] }
+              "script": {
+                "exec": [
+                  "pm.collectionVariables.set('paypalOrderId', pm.response.json().id);"
+                ]
+              }
             }
           ],
           "request": {
             "method": "POST",
             "url": "{{baseUrl}}/api/orders",
-            "header": [{ "key": "content-type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{ \"slug\": \"{{slug}}\" }" }
+            "header": [
+              {
+                "key": "content-type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"slug\": \"{{slug}}\" }"
+            }
+          }
+        },
+        {
+          "name": "Create PayPal order with options",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.collectionVariables.set('paypalOrderId', pm.response.json().id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/orders",
+            "header": [
+              {
+                "key": "content-type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"slug\": \"{{slug}}\",\n  \"options\": {\n    \"Size\": \"M\",\n    \"Color\": \"Black\"\n  }\n}"
+            }
           }
         },
         {
           "name": "Capture PayPal order (after buyer approval)",
-          "request": { "method": "POST", "url": "{{baseUrl}}/api/orders/{{paypalOrderId}}/capture" }
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/orders/{{paypalOrderId}}/capture"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Agents",
+      "description": "What an AI shopping agent sees and calls. The buyer approves every payment at PayPal.",
+      "item": [
+        {
+          "name": "Product JSON for agents",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/agent/shops/{{slug}}",
+            "header": []
+          }
+        },
+        {
+          "name": "MCP: initialize",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/mcp",
+            "header": [
+              {
+                "key": "content-type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"jsonrpc\": \"2.0\",\n  \"id\": 1,\n  \"method\": \"initialize\",\n  \"params\": {\n    \"protocolVersion\": \"2025-06-18\",\n    \"capabilities\": {},\n    \"clientInfo\": {\n      \"name\": \"postman\",\n      \"version\": \"1\"\n    }\n  }\n}"
+            }
+          }
+        },
+        {
+          "name": "MCP: list tools",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/mcp",
+            "header": [
+              {
+                "key": "content-type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"jsonrpc\": \"2.0\",\n  \"id\": 2,\n  \"method\": \"tools/list\"\n}"
+            }
+          }
+        },
+        {
+          "name": "MCP: search_shops",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/mcp",
+            "header": [
+              {
+                "key": "content-type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"jsonrpc\": \"2.0\",\n  \"id\": 3,\n  \"method\": \"tools/call\",\n  \"params\": {\n    \"name\": \"search_shops\",\n    \"arguments\": {\n      \"query\": \"\"\n    }\n  }\n}"
+            }
+          }
+        },
+        {
+          "name": "MCP: get_product",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/mcp",
+            "header": [
+              {
+                "key": "content-type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"jsonrpc\": \"2.0\",\n  \"id\": 4,\n  \"method\": \"tools/call\",\n  \"params\": {\n    \"name\": \"get_product\",\n    \"arguments\": {\n      \"shop\": \"{{slug}}\"\n    }\n  }\n}"
+            }
+          }
+        },
+        {
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const r = pm.response.json().result;",
+                  "if (r && !r.isError) pm.collectionVariables.set('agentOrderId', r.structuredContent.order_id);",
+                  "// Open result.structuredContent.approve_url and approve as the sandbox buyer, then run get_order."
+                ]
+              }
+            }
+          ],
+          "name": "MCP: create_order",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/mcp",
+            "header": [
+              {
+                "key": "content-type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"jsonrpc\": \"2.0\",\n  \"id\": 5,\n  \"method\": \"tools/call\",\n  \"params\": {\n    \"name\": \"create_order\",\n    \"arguments\": {\n      \"shop\": \"{{slug}}\"\n    }\n  }\n}"
+            }
+          }
+        },
+        {
+          "name": "MCP: get_order",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/mcp",
+            "header": [
+              {
+                "key": "content-type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"jsonrpc\": \"2.0\",\n  \"id\": 6,\n  \"method\": \"tools/call\",\n  \"params\": {\n    \"name\": \"get_order\",\n    \"arguments\": {\n      \"order_id\": \"{{agentOrderId}}\"\n    }\n  }\n}"
+            }
+          }
         }
       ]
     }
