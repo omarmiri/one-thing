@@ -1,14 +1,24 @@
 toc:
   - group: Getting Started
     items:
+      - page: Quickstart
+        file: guides/quickstart.md
       - page: How OneThing works
         file: guides/how-it-works.md
+      - page: Authentication
+        file: guides/authentication.md
+      - page: Errors and limits
+        file: guides/errors-and-limits.md
+      - page: Test in the PayPal sandbox
+        file: guides/sandbox.md
+      - generate: SDK Quickstart
+        from: getting-started
+  - group: Guides
+    items:
       - page: Sell an app or game with access codes
         file: guides/access-codes.md
       - page: Let AI agents buy
         file: guides/agents.md
-      - generate: SDK Quickstart
-        from: getting-started
   - generate: API Endpoints
     from: endpoints
   - group: Events
