@@ -185,14 +185,19 @@ Target 2:45. Voiceover (VO) in quotes; everything else is on screen. Cut every w
 - Cut to the seller's orders grid: the order with the buyer's address → **Mark shipped** with a tracking number.
 - VO: "Buyers pay with PayPal or a card. You see the order, add tracking, and PayPal shows it to the buyer."
 
-**6. Buy from Muse (1:40–2:20)**
+**6. Buy from Muse (1:40–2:10)**
 - Muse with no setup. Prompt: "Find me a fun browser game on miriogames.com/market and buy it."
 - Muse reads the market, picks **Star Frog**, follows its Buy link to the OneThing shop and pays with PayPal sandbox.
 - The receipt shows the access code. "Start now" opens the game on miriogames, and it plays.
-- VO: "Shops are agent-ready. Here, Meta's Muse finds a game on an indie marketplace and buys it. That marketplace runs on OneThing's API: developers upload a game, connect their own PayPal and get paid directly."
-- Optional 3 s overlay: the docs portal (omarmiri.github.io/one-thing), "API, SDKs and an MCP server, generated with APIMatic".
+- VO: "Shops are agent-ready. Here, Meta's Muse finds a game on an indie marketplace and buys it, with the payment approved at PayPal."
 
-**7. Close (2:20–2:35)**
+**7. Create a product from the SDK (2:10–2:35)**
+- miriogames.com/market/upload: a developer fills in title, price, the game file and a cover → **Upload** → the manage page appears with its store page made → **Connect PayPal** (skip through) → **Publish**.
+- Split screen, 3 s: the market's server code calling the SDK, `shops.createShop(...)` and `shops.connectPayPal(slug, { returnUrl })`.
+- Cut to the docs portal (omarmiri.github.io/one-thing), "Build a marketplace on OneThing".
+- VO: "That marketplace is built on OneThing's API. Its server calls the SDK APIMatic generates from our spec: a developer uploads a game, connects their own PayPal and gets paid directly. Mirio Games never touches the money."
+
+**8. Close (2:35–2:45)**
 - Back to the first shop page, the logo and the URL.
 - VO: "One photo, one page, paid with PayPal. OneThing."
 
