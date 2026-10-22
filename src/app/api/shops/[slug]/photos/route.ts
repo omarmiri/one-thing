@@ -3,6 +3,7 @@ import sharp from "sharp";
 import { z } from "zod";
 import { requireShop } from "@/lib/auth";
 import { query } from "@/lib/db";
+import { readForm } from "@/lib/formBody";
 import { blobUrl, saveBlob, shopPhotos, updateShop, type Shop } from "@/lib/shops";
 
 // The product photos a seller adds while refining their shop. The cover (shops.photo_blob) is
@@ -18,12 +19,15 @@ async function save(shop: Shop, ids: string[]) {
   await updateShop(shop.id, { photo_blob: ids[0] ?? null, gallery_blobs: ids.slice(1) });
 }
 
-/** Add photos (form field "photo", one or more). Each is turned upright, resized and stored as WebP. */
+/**
+ * Add photos (form field "photo", one or more; or JSON { photo: [data URLs] }). Each is turned
+ * upright, resized and stored as WebP.
+ */
 export async function POST(req: Request, ctx: RouteContext<"/api/shops/[slug]/photos">) {
   const r = await requireShop(req, (await ctx.params).slug);
   if ("error" in r) return r.error;
   if (r.shop.product_type === "referral") return NextResponse.json({ error: "Recommendations use the retailer's photos." }, { status: 400 });
-  const files = (await req.formData()).getAll("photo").filter((f): f is File => f instanceof File && f.size > 0);
+  const files = (await readForm(req)).getAll("photo").filter((f): f is File => f instanceof File && f.size > 0);
   if (!files.length) return NextResponse.json({ error: "Choose a photo." }, { status: 400 });
 
   const ids = shopPhotos(r.shop);

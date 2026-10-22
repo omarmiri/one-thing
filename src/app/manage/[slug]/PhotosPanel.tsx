@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { photoDataUrl, Unreachable } from "@/lib/uploadFallback";
 
 // More photos, added while refining: the shop starts from one snapshot, and the seller adds the
 // other angles here. Buyers swipe through them on the shop page. The first photo is the cover.
@@ -30,9 +31,23 @@ export function PhotosPanel(props: { api: Api; initial: Photo[]; onChanged(photo
   }
 
   const add = (files: FileList) => {
+    const list = [...files];
     const body = new FormData();
-    for (const f of files) body.append("photo", f);
-    return run(() => props.api("/photos", { method: "POST", body }), files.length > 1 ? `Added ${files.length} photos` : "Photo added");
+    for (const f of list) body.append("photo", f);
+    return run(async () => {
+      try {
+        return await props.api("/photos", { method: "POST", body });
+      } catch (e) {
+        if (!(e instanceof Unreachable)) throw e;
+      }
+      // Some networks (corporate DLP, proxies) drop file uploads. Try again with the photos as text.
+      const photo = await Promise.all(list.map(photoDataUrl));
+      return props.api("/photos", { method: "POST", body: JSON.stringify({ photo }) }).catch((e) => {
+        throw e instanceof Unreachable
+          ? new Error("We couldn't send your photos. Your network may block uploads (common on work laptops). Try another network.")
+          : e;
+      });
+    }, list.length > 1 ? `Added ${list.length} photos` : "Photo added");
   };
   const order = (ids: string[], done?: string) =>
     run(() => props.api("/photos", { method: "PUT", body: JSON.stringify({ photos: ids }) }), done);

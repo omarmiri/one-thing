@@ -73,14 +73,17 @@ the AI's guesses and clicks **Go live**. The choices behind it:
 - **Three ways to start** at `/new`:
   - **Upload a photo** of your own product, with a sentence or two if you like. If the network
     drops the upload (corporate DLP and proxies often block file uploads), the browser shrinks the
-    photo to a JPEG and sends it again as base64 in a JSON body (`POST /api/shops` takes either).
-    If that fails too, the seller gets a clear error instead of an endless spinner.
+    photo to a JPEG and sends it again as base64 in a JSON body (`POST /api/shops` and
+    `POST /api/shops/:slug/photos` take either; see `src/lib/formBody.ts`). If that fails too, the
+    seller gets a clear error instead of an endless spinner. The Photos panel does the same.
   - **Paste a link.** A store product found by Channel3 becomes a recommendation; any other page
     is read (public addresses only, size- and time-capped) and its preview image becomes the photo.
   - **Find a product** with Channel3 search across 100M+ products, shown as "earn up to X%" cards.
 - **AI guesses everything** in one pass: product name, physical or digital, price, a short link
   name, and the page design (one of 4 layouts, a palette taken from the photo, a curated font
-  pair, headline, story, bullets, details and FAQ).
+  pair, headline, story, bullets, details and FAQ). A palette colour Gemini gets slightly wrong
+  (`#fff`, no `#`, `rgb()`) is repaired, and one it gets badly wrong is replaced with a default,
+  so a single bad colour never fails the whole design.
 - **Buyer options, suggested by the AI.** While drafting, Gemini works out whether the product
   comes in variants and proposes them: sizes in the usual range, colours with swatches sampled from
   the photo. Options the seller named start ticked; the AI's own guesses start unticked. One-of-a-kind

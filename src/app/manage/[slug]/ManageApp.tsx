@@ -7,6 +7,7 @@ import { OrdersGrid, type SellerOrder } from "./OrdersGrid";
 import { PhotosPanel, type Photo } from "./PhotosPanel";
 import { SetupPanel, type SetupInitial, type ToastAction } from "./SetupPanel";
 import type { WebhookEvent } from "@/lib/shops";
+import { Unreachable } from "@/lib/uploadFallback";
 
 type Initial = {
   status: "draft" | "live";
@@ -54,8 +55,14 @@ export function ManageApp(props: {
       const res = await fetch(`/api/shops/${slug}${path}`, {
         ...init,
         headers: { "x-admin-token": token, ...(init.body instanceof FormData ? {} : { "content-type": "application/json" }), ...init.headers },
+        signal: init.signal ?? AbortSignal.timeout(90_000),
+      }).catch(() => {
+        throw new Unreachable();
       });
-      const json = await res.json().catch(() => ({}));
+      // Every shop route answers in JSON, so anything else came from a proxy, not from us.
+      const json = await res.json().catch(() => {
+        throw new Unreachable();
+      });
       if (!res.ok) throw new Error(json.error ?? "Something went wrong.");
       return json;
     },

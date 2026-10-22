@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { photoDataUrl } from "@/lib/uploadFallback";
 
 type Start = "photo" | "link" | "find";
 type Found = {
@@ -39,27 +40,6 @@ async function send(body: FormData | string): Promise<Sent | null> {
     return json ? { res, json } : null;
   } catch {
     return null;
-  }
-}
-
-/** The photo as a JPEG data URL, at most 2048 px across, for networks that block file uploads. */
-async function photoDataUrl(f: File): Promise<string> {
-  try {
-    const img = await createImageBitmap(f, { imageOrientation: "from-image" });
-    const scale = Math.min(1, 2048 / Math.max(img.width, img.height));
-    const canvas = document.createElement("canvas");
-    canvas.width = Math.round(img.width * scale);
-    canvas.height = Math.round(img.height * scale);
-    canvas.getContext("2d")!.drawImage(img, 0, 0, canvas.width, canvas.height);
-    return canvas.toDataURL("image/jpeg", 0.88);
-  } catch {
-    // A format the browser can't draw: send it as it is.
-    return new Promise((resolve, reject) => {
-      const r = new FileReader();
-      r.onload = () => resolve(r.result as string);
-      r.onerror = () => reject(r.error);
-      r.readAsDataURL(f);
-    });
   }
 }
 
