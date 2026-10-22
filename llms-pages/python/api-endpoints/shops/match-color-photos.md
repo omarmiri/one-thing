@@ -1,0 +1,65 @@
+# Match Color Photos
+
+Source: /#/python/x-redirect/JTI0ZSUyRlNob3BzJTJGbWF0Y2hDb2xvclBob3Rvcw
+
+Gemini looks at the shop's photos and says which one shows each colour, so buyers who pick a colour see it. Suggests only; save the matches with `setColorPhotos`. Needs at least two photos.
+
+```python
+def match_color_photos(self,
+                      slug,
+                      body)
+```
+
+
+# Authentication
+
+This endpoint requires [AdminToken](/llms-pages/python/getting-started/sdk-quickstart/authorization.md)
+
+
+# Parameters
+
+| Parameter | Type | Tags | Description |
+|  --- | --- | --- | --- |
+| `slug` | `str` | Template, Required | The shop's link name (current or former). |
+| `body` | [`ApiShopsMatchPhotosRequest`](/llms-pages/python/models/structures/api-shops-match-photos-request.md) | Body, Required | - |
+
+
+# Response Type
+
+**200**: A photo id for each colour Gemini could match. Colours it couldn't place are left out.
+
+[`ApiShopsMatchPhotosResponse`](/llms-pages/python/models/structures/api-shops-match-photos-response.md)
+
+
+# Example Usage
+
+```python
+slug = 'raptorrush'
+
+body = ApiShopsMatchPhotosRequest(
+    colors=[
+        Color(
+            label='Forest green',
+            hex='#14171a'
+        )
+    ]
+)
+
+result = shops_api.match_color_photos(
+    slug,
+    body
+)
+print(result)
+```
+
+
+# Errors
+
+| HTTP Status Code | Error Description | Exception Class |
+|  --- | --- | --- |
+| 400 | Something in the request needs fixing; `error` says what. | [`ErrorException`](/llms-pages/python/models/exceptions/error.md) |
+| 404 | No such shop, or the admin token doesn't match it. | [`ErrorException`](/llms-pages/python/models/exceptions/error.md) |
+| 502 | Gemini, PayPal or Channel3 failed or isn't configured. | [`ErrorException`](/llms-pages/python/models/exceptions/error.md) |
+
+
+

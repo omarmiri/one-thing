@@ -5,6 +5,8 @@ Source: /#/python/x-redirect/JTI0ZSUyRkNoZWNrb3V0JTJGY3JlYXRlQ2hlY2tvdXRPcmRlcg
 Creates the PayPal order for one unit of a live shop's product. The amount always comes
 from the shop, never from the caller. Pass the returned `id` to the PayPal JS SDK.
 
+If the shop has buyer `options`, send one value for each. A sold-out combination answers 409.
+
 :information_source: **Note** This endpoint does not require authentication.
 
 ```python
@@ -31,7 +33,11 @@ def create_checkout_order(self,
 
 ```python
 body = ApiOrdersRequest(
-    slug='slug0'
+    slug='slug0',
+    options={
+        'Size': 'M',
+        'Color': 'Black'
+    }
 )
 
 result = checkout_api.create_checkout_order(body)

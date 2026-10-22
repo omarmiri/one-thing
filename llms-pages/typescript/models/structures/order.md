@@ -29,6 +29,8 @@ Source: /#/typescript/x-redirect/JTI0bSUyRk9yZGVy
 | `downloads` | `number \| undefined` | Optional | - |
 | `accessCode` | `string \| null \| undefined` | Optional | - |
 | `codeUses` | `number \| undefined` | Optional | - |
+| `channel` | [`Channel \| undefined`](/llms-pages/typescript/models/enumerations/channel.md) | Optional | `agent` for orders an AI agent placed through the MCP server. |
+| `options` | [`Record<string, OrderOptions> \| null \| undefined`](/llms-pages/typescript/models/oneof-anyof-definitions/order-options.md) | Optional | This is Map of a container for one-of cases. |
 | `paidAt` | `string \| null \| undefined` | Optional | - |
 | `createdAt` | `string \| undefined` | Optional | - |
 

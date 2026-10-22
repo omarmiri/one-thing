@@ -35,6 +35,26 @@ reorders or removes them; the first is the cover. With several photos, the shop 
 swipeable gallery, and buyers can open any photo full screen and page through the rest.
 
 
+# Getting paid
+
+`connectPayPal` sends the seller through PayPal's onboarding, after which sales go straight to
+their PayPal account; `getPayPalConnection` checks where that stands. A shop can also go live with
+just a `paypal_email`.
+
+
+# Sizes, colours and the questions buyers will ask
+
+While drafting, Gemini also suggests what buyers will want to choose (sizes, colours with swatches)
+and what they'll ask that the listing doesn't say, such as dimensions. They're saved as the shop's
+`suggestions` and applied only when the seller confirms: `updateShop` with `options` (and stock per
+combination in `option_stock`), and `facts` for the answers, which become product details.
+`checkMissingDetails` asks again after an edit.
+
+For colours, `matchColorPhotos` works out which photo shows each one and `setColorPhotos` saves
+it, so the shop page switches photo when a buyer picks a colour. Checkout then takes the buyer's
+pick as `options`, and the order records it.
+
+
 # Recommendations
 
 A shop made from a store's product page, or from `searchProducts`, is a **recommendation**:

@@ -38,7 +38,12 @@ This endpoint requires [AdminToken](/llms-pages/python/getting-started/sdk-quick
 ```python
 slug = 'raptorrush'
 
-body = ShopUpdate()
+body = ShopUpdate(
+    option_stock={
+        'M / Black': 4,
+        'L / Black': 0
+    }
+)
 
 result = shops_api.update_shop(
     slug,

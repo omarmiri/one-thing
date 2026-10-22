@@ -31,6 +31,15 @@ documentation:
     before unlocking. Raptor Rush on miriogames.com is a live example.
 
 
+    **Agent-ready.** Every live shop is also published for AI shopping agents: product JSON at
+
+    `getAgentProduct`, and an MCP server at `/api/mcp` with `search_shops`, `get_product`,
+
+    `create_order` and `get_order`. An agent can find and order, but the buyer still approves
+
+    every payment at PayPal.
+
+
     All money moves through PayPal (sandbox in this deployment). OneThing never holds card data.
 baseUri: https://one-thing-ash0.onrender.com
 securedBy: []
@@ -295,6 +304,112 @@ schemas:
         "in_gallery": {
           "description": "Feature the shop at `/gallery` while it's live. Off by default.",
           "type": "boolean"
+        },
+        "options": {
+          "description": "What the buyer picks (physical products only), replacing the current options; `[]` removes them. With options, stock is counted per combination in `option_stock` and the shop's own `stock` is cleared. At most 60 combinations.",
+          "type": "array",
+          "items": {
+            "id": "ShopOption",
+            "title": "ShopOption",
+            "description": "Something the buyer picks, such as a size or a colour. The shop still sells one product.",
+            "type": "object",
+            "properties": {
+              "name": {
+                "example": "Size",
+                "type": "string",
+                "maxLength": 20
+              },
+              "kind": {
+                "title": "Kind",
+                "description": "`color` shows swatches, and the photo of the picked colour.",
+                "type": "string",
+                "additionalProperties": false,
+                "enum": [
+                  "size",
+                  "color",
+                  "other"
+                ]
+              },
+              "values": {
+                "description": "",
+                "type": "array",
+                "items": {
+                  "id": "OptionValue",
+                  "title": "OptionValue",
+                  "type": "object",
+                  "properties": {
+                    "label": {
+                      "example": "M",
+                      "type": "string",
+                      "maxLength": 30
+                    },
+                    "hex": {
+                      "example": "#14171a",
+                      "type": "string",
+                      "pattern": "^#[0-9a-fA-F]{6}$"
+                    },
+                    "photo": {
+                      "description": "Colours: the shop photo (id) that shows this colour. See `matchColorPhotos`.",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "label"
+                  ]
+                },
+                "minItems": 1,
+                "maxItems": 12
+              }
+            },
+            "required": [
+              "name",
+              "kind",
+              "values"
+            ]
+          },
+          "maxItems": 3
+        },
+        "option_stock": {
+          "description": "Stock per combination, keyed by its values in option order joined with ` / ` (e.g. `M / Black`). A missing key or `null` means unlimited; `0` is sold out.",
+          "example": {
+            "M / Black": 4,
+            "L / Black": 0
+          },
+          "type": "object",
+          "additionalProperties": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int32"
+          },
+          "minimum": 0.0
+        },
+        "facts": {
+          "description": "Answers to the \"buyers will ask\" questions in `suggestions.missingFacts`. Each becomes a product detail on the page (replacing one with the same label) and drops off the list.",
+          "type": "array",
+          "items": {
+            "id": "Fact",
+            "title": "Fact",
+            "type": "object",
+            "properties": {
+              "label": {
+                "example": "Size",
+                "type": "string",
+                "maxLength": 30
+              },
+              "value": {
+                "example": "US women's 8",
+                "type": "string",
+                "maxLength": 100
+              }
+            },
+            "required": [
+              "label",
+              "value"
+            ]
+          },
+          "maxItems": 5
         }
       }
     }
@@ -562,6 +677,45 @@ schemas:
             "null"
           ]
         },
+        "paypal_merchant_id": {
+          "description": "The connected PayPal account (`connectPayPal`). Sales go here when it can receive payments.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "paypal_status": {
+          "oneOf": [
+            {
+              "id": "PayPalStatus",
+              "title": "PayPalStatus",
+              "description": "What PayPal last said about a connected seller account.",
+              "type": "object",
+              "properties": {
+                "receivable": {
+                  "description": "The account can receive payments.",
+                  "type": "boolean"
+                },
+                "emailConfirmed": {
+                  "description": "The seller has confirmed their email with PayPal.",
+                  "type": "boolean"
+                },
+                "checkedAt": {
+                  "type": "string",
+                  "format": "date-time"
+                }
+              },
+              "required": [
+                "receivable",
+                "emailConfirmed",
+                "checkedAt"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
         "zapier_hook_url": {
           "type": [
             "string",
@@ -571,12 +725,194 @@ schemas:
         "in_gallery": {
           "type": "boolean"
         },
-        "photo_blob": {
-          "description": "Image id for `getImage`.",
+        "account_id": {
+          "description": "The seller account that owns the shop, if it was made while signed in.",
           "type": [
             "string",
             "null"
           ]
+        },
+        "options": {
+          "description": "",
+          "type": "array",
+          "items": {
+            "id": "ShopOption",
+            "title": "ShopOption",
+            "description": "Something the buyer picks, such as a size or a colour. The shop still sells one product.",
+            "type": "object",
+            "properties": {
+              "name": {
+                "example": "Size",
+                "type": "string",
+                "maxLength": 20
+              },
+              "kind": {
+                "title": "Kind",
+                "description": "`color` shows swatches, and the photo of the picked colour.",
+                "type": "string",
+                "additionalProperties": false,
+                "enum": [
+                  "size",
+                  "color",
+                  "other"
+                ]
+              },
+              "values": {
+                "description": "",
+                "type": "array",
+                "items": {
+                  "id": "OptionValue",
+                  "title": "OptionValue",
+                  "type": "object",
+                  "properties": {
+                    "label": {
+                      "example": "M",
+                      "type": "string",
+                      "maxLength": 30
+                    },
+                    "hex": {
+                      "example": "#14171a",
+                      "type": "string",
+                      "pattern": "^#[0-9a-fA-F]{6}$"
+                    },
+                    "photo": {
+                      "description": "Colours: the shop photo (id) that shows this colour. See `matchColorPhotos`.",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "label"
+                  ]
+                },
+                "minItems": 1,
+                "maxItems": 12
+              }
+            },
+            "required": [
+              "name",
+              "kind",
+              "values"
+            ]
+          }
+        },
+        "option_stock": {
+          "description": "Stock per combination, keyed by its values in option order joined with ` / ` (e.g. `M / Black`). A missing key or `null` means unlimited; `0` is sold out.",
+          "example": {
+            "M / Black": 4,
+            "L / Black": 0
+          },
+          "type": "object",
+          "additionalProperties": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int32"
+          },
+          "minimum": 0.0
+        },
+        "suggestions": {
+          "oneOf": [
+            {
+              "id": "Suggestions",
+              "title": "Suggestions",
+              "description": "What Gemini thinks buyers will want to choose or ask. The seller confirms; nothing is applied on its own.",
+              "type": "object",
+              "properties": {
+                "oneOfAKind": {
+                  "description": "A single item (vintage, handmade), so options and stock don't apply.",
+                  "type": "boolean"
+                },
+                "options": {
+                  "description": "",
+                  "type": "array",
+                  "items": {
+                    "id": "Option",
+                    "title": "Option",
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "example": "Size",
+                        "type": "string",
+                        "maxLength": 20
+                      },
+                      "kind": {
+                        "$ref": "ShopOption#/properties/kind"
+                      },
+                      "values": {
+                        "description": "",
+                        "type": "array",
+                        "items": {
+                          "$ref": "OptionValue"
+                        },
+                        "minItems": 1,
+                        "maxItems": 12
+                      },
+                      "fromSeller": {
+                        "description": "The seller's description or photo named these values; otherwise they're a guess.",
+                        "type": "boolean"
+                      }
+                    },
+                    "required": [
+                      "name",
+                      "kind",
+                      "values"
+                    ]
+                  }
+                },
+                "missingFacts": {
+                  "description": "",
+                  "type": "array",
+                  "items": {
+                    "id": "MissingFact",
+                    "title": "MissingFact",
+                    "type": "object",
+                    "properties": {
+                      "label": {
+                        "example": "Size",
+                        "type": "string"
+                      },
+                      "question": {
+                        "example": "What size are the skates?",
+                        "type": "string"
+                      },
+                      "placeholder": {
+                        "example": "US women's 8",
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "label",
+                      "question",
+                      "placeholder"
+                    ]
+                  }
+                }
+              },
+              "required": [
+                "oneOfAKind",
+                "options",
+                "missingFacts"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "photo_blob": {
+          "description": "Image id for `getImage`. The cover photo.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "gallery_blobs": {
+          "description": "The other photos, in order.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
         },
         "hero_blob": {
           "type": [
@@ -889,6 +1225,653 @@ schemas:
         "ctaLabel"
       ]
     }
+- ShopOption: |
+    {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "id": "ShopOption",
+      "title": "ShopOption",
+      "description": "Something the buyer picks, such as a size or a colour. The shop still sells one product.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "example": "Size",
+          "type": "string",
+          "maxLength": 20
+        },
+        "kind": {
+          "title": "Kind",
+          "description": "`color` shows swatches, and the photo of the picked colour.",
+          "type": "string",
+          "additionalProperties": false,
+          "enum": [
+            "size",
+            "color",
+            "other"
+          ]
+        },
+        "values": {
+          "description": "",
+          "type": "array",
+          "items": {
+            "id": "OptionValue",
+            "title": "OptionValue",
+            "type": "object",
+            "properties": {
+              "label": {
+                "example": "M",
+                "type": "string",
+                "maxLength": 30
+              },
+              "hex": {
+                "example": "#14171a",
+                "type": "string",
+                "pattern": "^#[0-9a-fA-F]{6}$"
+              },
+              "photo": {
+                "description": "Colours: the shop photo (id) that shows this colour. See `matchColorPhotos`.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "label"
+            ]
+          },
+          "minItems": 1,
+          "maxItems": 12
+        }
+      },
+      "required": [
+        "name",
+        "kind",
+        "values"
+      ]
+    }
+- OptionValue: |
+    {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "id": "OptionValue",
+      "title": "OptionValue",
+      "type": "object",
+      "properties": {
+        "label": {
+          "example": "M",
+          "type": "string",
+          "maxLength": 30
+        },
+        "hex": {
+          "example": "#14171a",
+          "type": "string",
+          "pattern": "^#[0-9a-fA-F]{6}$"
+        },
+        "photo": {
+          "description": "Colours: the shop photo (id) that shows this colour. See `matchColorPhotos`.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "label"
+      ]
+    }
+- Suggestions: |
+    {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "id": "Suggestions",
+      "title": "Suggestions",
+      "description": "What Gemini thinks buyers will want to choose or ask. The seller confirms; nothing is applied on its own.",
+      "type": "object",
+      "properties": {
+        "oneOfAKind": {
+          "description": "A single item (vintage, handmade), so options and stock don't apply.",
+          "type": "boolean"
+        },
+        "options": {
+          "description": "",
+          "type": "array",
+          "items": {
+            "id": "Option",
+            "title": "Option",
+            "type": "object",
+            "properties": {
+              "name": {
+                "example": "Size",
+                "type": "string",
+                "maxLength": 20
+              },
+              "kind": {
+                "title": "Kind",
+                "description": "`color` shows swatches, and the photo of the picked colour.",
+                "type": "string",
+                "additionalProperties": false,
+                "enum": [
+                  "size",
+                  "color",
+                  "other"
+                ]
+              },
+              "values": {
+                "description": "",
+                "type": "array",
+                "items": {
+                  "id": "OptionValue",
+                  "title": "OptionValue",
+                  "type": "object",
+                  "properties": {
+                    "label": {
+                      "example": "M",
+                      "type": "string",
+                      "maxLength": 30
+                    },
+                    "hex": {
+                      "example": "#14171a",
+                      "type": "string",
+                      "pattern": "^#[0-9a-fA-F]{6}$"
+                    },
+                    "photo": {
+                      "description": "Colours: the shop photo (id) that shows this colour. See `matchColorPhotos`.",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "label"
+                  ]
+                },
+                "minItems": 1,
+                "maxItems": 12
+              },
+              "fromSeller": {
+                "description": "The seller's description or photo named these values; otherwise they're a guess.",
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "name",
+              "kind",
+              "values"
+            ]
+          }
+        },
+        "missingFacts": {
+          "description": "",
+          "type": "array",
+          "items": {
+            "id": "MissingFact",
+            "title": "MissingFact",
+            "type": "object",
+            "properties": {
+              "label": {
+                "example": "Size",
+                "type": "string"
+              },
+              "question": {
+                "example": "What size are the skates?",
+                "type": "string"
+              },
+              "placeholder": {
+                "example": "US women's 8",
+                "type": "string"
+              }
+            },
+            "required": [
+              "label",
+              "question",
+              "placeholder"
+            ]
+          }
+        }
+      },
+      "required": [
+        "oneOfAKind",
+        "options",
+        "missingFacts"
+      ]
+    }
+- PayPalStatus: |
+    {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "id": "PayPalStatus",
+      "title": "PayPalStatus",
+      "description": "What PayPal last said about a connected seller account.",
+      "type": "object",
+      "properties": {
+        "receivable": {
+          "description": "The account can receive payments.",
+          "type": "boolean"
+        },
+        "emailConfirmed": {
+          "description": "The seller has confirmed their email with PayPal.",
+          "type": "boolean"
+        },
+        "checkedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "receivable",
+        "emailConfirmed",
+        "checkedAt"
+      ]
+    }
+- AgentProduct: |
+    {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "id": "AgentProduct",
+      "title": "AgentProduct",
+      "description": "A live shop as an AI agent sees it. Recommendations have `offers`; everything else has `price` and is bought with `create_order`.",
+      "type": "object",
+      "properties": {
+        "shop": {
+          "description": "The link name, which the MCP tools take as `shop`.",
+          "type": "string"
+        },
+        "url": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "kind": {
+          "title": "Kind1",
+          "type": "string",
+          "additionalProperties": false,
+          "enum": [
+            "physical",
+            "digital",
+            "referral"
+          ]
+        },
+        "headline": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "highlights": {
+          "description": "",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "details": {
+          "description": "",
+          "type": "array",
+          "items": {
+            "id": "Detail",
+            "title": "Detail",
+            "type": "object",
+            "properties": {
+              "label": {
+                "type": "string"
+              },
+              "value": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "label",
+              "value"
+            ]
+          }
+        },
+        "faq": {
+          "description": "",
+          "type": "array",
+          "items": {
+            "id": "Faq",
+            "title": "Faq",
+            "type": "object",
+            "properties": {
+              "q": {
+                "type": "string"
+              },
+              "a": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "q",
+              "a"
+            ]
+          }
+        },
+        "images": {
+          "description": "",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "how_to_buy": {
+          "type": "string"
+        },
+        "price": {
+          "id": "AgentMoney",
+          "title": "AgentMoney",
+          "type": "object",
+          "properties": {
+            "amount": {
+              "example": 48.5,
+              "type": "number"
+            },
+            "currency": {
+              "example": "USD",
+              "type": "string"
+            },
+            "label": {
+              "example": "$48.50",
+              "type": "string"
+            }
+          },
+          "required": [
+            "amount",
+            "currency"
+          ]
+        },
+        "shipping": {
+          "description": "Physical products only.",
+          "oneOf": [
+            {
+              "id": "Shipping",
+              "title": "Shipping",
+              "type": "object",
+              "properties": {
+                "amount": {
+                  "type": "number"
+                },
+                "currency": {
+                  "type": "string"
+                },
+                "ships_to": {
+                  "description": "Country codes; empty means anywhere PayPal ships.",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "required": [
+                "amount",
+                "currency",
+                "ships_to"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "total": {
+          "$ref": "AgentMoney"
+        },
+        "delivery": {
+          "example": "Shipped. PayPal collects the buyer's address at checkout.",
+          "type": "string"
+        },
+        "availability": {
+          "examples": [
+            {
+              "Id": "Untitled Example1",
+              "Name": null,
+              "Value": "in_stock",
+              "ExternalValue": null,
+              "Description": null
+            },
+            {
+              "Id": "Untitled Example2",
+              "Name": null,
+              "Value": "in_stock (3 left)",
+              "ExternalValue": null,
+              "Description": null
+            },
+            {
+              "Id": "Untitled Example3",
+              "Name": null,
+              "Value": "sold_out",
+              "ExternalValue": null,
+              "Description": null
+            }
+          ],
+          "example": "in_stock",
+          "type": "string"
+        },
+        "options": {
+          "description": "Pass one value per option to `create_order`.",
+          "type": "array",
+          "items": {
+            "id": "Option1",
+            "title": "Option1",
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "values": {
+                "description": "",
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": [
+              "name",
+              "values"
+            ]
+          }
+        },
+        "variants": {
+          "description": "",
+          "type": "array",
+          "items": {
+            "id": "Variant",
+            "title": "Variant",
+            "type": "object",
+            "properties": {
+              "choice": {
+                "description": "The buyer's pick, one value per option, keyed by option name.",
+                "example": {
+                  "Size": "M",
+                  "Color": "Black"
+                },
+                "type": "object",
+                "additionalProperties": {
+                  "type": "string"
+                }
+              },
+              "availability": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "choice",
+              "availability"
+            ]
+          }
+        },
+        "offers": {
+          "description": "Recommendations only. Bought at the retailer.",
+          "type": "array",
+          "items": {
+            "id": "Offer1",
+            "title": "Offer1",
+            "type": "object",
+            "properties": {
+              "retailer": {
+                "type": "string"
+              },
+              "price": {
+                "type": "number"
+              },
+              "currency": {
+                "type": "string"
+              },
+              "in_stock": {
+                "type": "boolean"
+              },
+              "url": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "retailer",
+              "price",
+              "currency",
+              "in_stock",
+              "url"
+            ]
+          }
+        },
+        "mcp_server": {
+          "description": "The MCP server to order through (`getAgentProduct` only).",
+          "type": "string"
+        }
+      },
+      "required": [
+        "shop",
+        "url",
+        "name",
+        "kind",
+        "headline",
+        "description",
+        "highlights",
+        "details",
+        "faq",
+        "images",
+        "how_to_buy"
+      ]
+    }
+- AgentMoney: |
+    {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "id": "AgentMoney",
+      "title": "AgentMoney",
+      "type": "object",
+      "properties": {
+        "amount": {
+          "example": 48.5,
+          "type": "number"
+        },
+        "currency": {
+          "example": "USD",
+          "type": "string"
+        },
+        "label": {
+          "example": "$48.50",
+          "type": "string"
+        }
+      },
+      "required": [
+        "amount",
+        "currency"
+      ]
+    }
+- JsonRpcRequest: |
+    {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "id": "JsonRpcRequest",
+      "title": "JsonRpcRequest",
+      "type": "object",
+      "properties": {
+        "jsonrpc": {
+          "type": "string",
+          "enum": [
+            "2.0"
+          ]
+        },
+        "method": {
+          "title": "Method",
+          "type": "string",
+          "additionalProperties": false,
+          "enum": [
+            "initialize",
+            "ping",
+            "tools/list",
+            "tools/call",
+            "notifications/initialized"
+          ]
+        },
+        "id": {
+          "description": "Leave out for a notification.",
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "integer",
+              "format": "int32"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "params": {
+          "description": "For `tools/call`: `{ name, arguments }`.",
+          "type": "object"
+        }
+      },
+      "required": [
+        "jsonrpc",
+        "method"
+      ]
+    }
+- JsonRpcResponse: |
+    {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "id": "JsonRpcResponse",
+      "title": "JsonRpcResponse",
+      "type": "object",
+      "properties": {
+        "jsonrpc": {
+          "type": "string",
+          "enum": [
+            "2.0"
+          ]
+        },
+        "id": {
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "integer",
+              "format": "int32"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "result": {
+          "description": "For `tools/call`: `content` (the answer as JSON text), `structuredContent` (the same object) and `isError`.",
+          "type": "object"
+        },
+        "error": {
+          "id": "Error1",
+          "title": "Error1",
+          "type": "object",
+          "properties": {
+            "code": {
+              "example": -32601,
+              "type": "integer",
+              "format": "int32"
+            },
+            "message": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "code",
+            "message"
+          ]
+        }
+      },
+      "required": [
+        "jsonrpc",
+        "id"
+      ]
+    }
 - Referral: |
     {
       "$schema": "http://json-schema.org/draft-04/schema#",
@@ -1115,6 +2098,39 @@ schemas:
         "code_uses": {
           "type": "integer",
           "format": "int32"
+        },
+        "channel": {
+          "title": "Channel",
+          "description": "`agent` for orders an AI agent placed through the MCP server.",
+          "type": "string",
+          "additionalProperties": false,
+          "enum": [
+            "web",
+            "agent"
+          ]
+        },
+        "options": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "additionalProperties": {
+            "oneOf": [
+              {
+                "example": {
+                  "Size": "M",
+                  "Color": "Black"
+                },
+                "type": "object",
+                "additionalProperties": {
+                  "type": "string"
+                }
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
         },
         "paid_at": {
           "type": [
@@ -1511,6 +2527,17 @@ schemas:
       "properties": {
         "slug": {
           "type": "string"
+        },
+        "options": {
+          "description": "The buyer's pick, one value per option, keyed by option name.",
+          "example": {
+            "Size": "M",
+            "Color": "Black"
+          },
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
         }
       },
       "required": [
@@ -1549,6 +2576,47 @@ schemas:
         "clientToken"
       ]
     }
+- ApiShopsColorPhotosRequest: |
+    {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "id": "ApiShopsColorPhotosRequest",
+      "title": "ApiShopsColorPhotosRequest",
+      "type": "object",
+      "properties": {
+        "photos": {
+          "description": "Colour label → photo id, or `null`.",
+          "type": "object",
+          "additionalProperties": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "required": [
+        "photos"
+      ]
+    }
+- ApiShopsColorPhotosResponse: |
+    {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "id": "ApiShopsColorPhotosResponse",
+      "title": "ApiShopsColorPhotosResponse",
+      "type": "object",
+      "properties": {
+        "saved": {
+          "description": "",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "saved"
+      ]
+    }
 - ApiShopsFileResponse: |
     {
       "$schema": "http://json-schema.org/draft-04/schema#",
@@ -1566,6 +2634,66 @@ schemas:
       "required": [
         "ok",
         "filename"
+      ]
+    }
+- ApiShopsMatchPhotosRequest: |
+    {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "id": "ApiShopsMatchPhotosRequest",
+      "title": "ApiShopsMatchPhotosRequest",
+      "type": "object",
+      "properties": {
+        "colors": {
+          "description": "",
+          "type": "array",
+          "items": {
+            "id": "Color",
+            "title": "Color",
+            "type": "object",
+            "properties": {
+              "label": {
+                "example": "Forest green",
+                "type": "string",
+                "maxLength": 30
+              },
+              "hex": {
+                "example": "#14171a",
+                "type": "string",
+                "pattern": "^#[0-9a-fA-F]{6}$"
+              }
+            },
+            "required": [
+              "label"
+            ]
+          },
+          "minItems": 1,
+          "maxItems": 12
+        }
+      },
+      "required": [
+        "colors"
+      ]
+    }
+- ApiShopsMatchPhotosResponse: |
+    {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "id": "ApiShopsMatchPhotosResponse",
+      "title": "ApiShopsMatchPhotosResponse",
+      "type": "object",
+      "properties": {
+        "matches": {
+          "example": {
+            "Black": "b_8f2k1",
+            "Forest green": "b_q93md"
+          },
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "matches"
       ]
     }
 - ApiShopsOrdersShipRequest: |
@@ -1621,6 +2749,74 @@ schemas:
       "required": [
         "ok",
         "synced"
+      ]
+    }
+- ApiShopsPaypalResponse: |
+    {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "id": "ApiShopsPaypalResponse",
+      "title": "ApiShopsPaypalResponse",
+      "type": "object",
+      "properties": {
+        "url": {
+          "description": "PayPal's onboarding page for this shop.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "url"
+      ]
+    }
+- ApiShopsPaypalResponse1: |
+    {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "id": "ApiShopsPaypalResponse1",
+      "title": "ApiShopsPaypalResponse1",
+      "type": "object",
+      "properties": {
+        "merchantId": {
+          "description": "The seller's PayPal merchant id.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "status": {
+          "oneOf": [
+            {
+              "id": "PayPalStatus",
+              "title": "PayPalStatus",
+              "description": "What PayPal last said about a connected seller account.",
+              "type": "object",
+              "properties": {
+                "receivable": {
+                  "description": "The account can receive payments.",
+                  "type": "boolean"
+                },
+                "emailConfirmed": {
+                  "description": "The seller has confirmed their email with PayPal.",
+                  "type": "boolean"
+                },
+                "checkedAt": {
+                  "type": "string",
+                  "format": "date-time"
+                }
+              },
+              "required": [
+                "receivable",
+                "emailConfirmed",
+                "checkedAt"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "merchantId",
+        "status"
       ]
     }
 - ApiShopsPhotosRequest: |
@@ -1909,6 +3105,40 @@ schemas:
         "OTHER"
       ]
     }
+- Channel: |
+    {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "title": "Channel",
+      "description": "`agent` for orders an AI agent placed through the MCP server.",
+      "type": "string",
+      "additionalProperties": false,
+      "enum": [
+        "web",
+        "agent"
+      ]
+    }
+- Color: |
+    {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "id": "Color",
+      "title": "Color",
+      "type": "object",
+      "properties": {
+        "label": {
+          "example": "Forest green",
+          "type": "string",
+          "maxLength": 30
+        },
+        "hex": {
+          "example": "#14171a",
+          "type": "string",
+          "pattern": "^#[0-9a-fA-F]{6}$"
+        }
+      },
+      "required": [
+        "label"
+      ]
+    }
 - Delivery: |
     {
       "$schema": "http://json-schema.org/draft-04/schema#",
@@ -1951,6 +3181,27 @@ schemas:
         "value"
       ]
     }
+- Error1: |
+    {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "id": "Error1",
+      "title": "Error1",
+      "type": "object",
+      "properties": {
+        "code": {
+          "example": -32601,
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "code",
+        "message"
+      ]
+    }
 - Event: |
     {
       "$schema": "http://json-schema.org/draft-04/schema#",
@@ -1960,6 +3211,29 @@ schemas:
       "enum": [
         "order.paid",
         "order.shipped"
+      ]
+    }
+- Fact: |
+    {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "id": "Fact",
+      "title": "Fact",
+      "type": "object",
+      "properties": {
+        "label": {
+          "example": "Size",
+          "type": "string",
+          "maxLength": 30
+        },
+        "value": {
+          "example": "US women's 8",
+          "type": "string",
+          "maxLength": 100
+        }
+      },
+      "required": [
+        "label",
+        "value"
       ]
     }
 - Faq: |
@@ -2026,6 +3300,31 @@ schemas:
         "failed"
       ]
     }
+- Kind: |
+    {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "title": "Kind",
+      "description": "`color` shows swatches, and the photo of the picked colour.",
+      "type": "string",
+      "additionalProperties": false,
+      "enum": [
+        "size",
+        "color",
+        "other"
+      ]
+    }
+- Kind1: |
+    {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "title": "Kind1",
+      "type": "string",
+      "additionalProperties": false,
+      "enum": [
+        "physical",
+        "digital",
+        "referral"
+      ]
+    }
 - Layout: |
     {
       "$schema": "http://json-schema.org/draft-04/schema#",
@@ -2037,6 +3336,46 @@ schemas:
         "editorial",
         "minimal",
         "playful"
+      ]
+    }
+- Method: |
+    {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "title": "Method",
+      "type": "string",
+      "additionalProperties": false,
+      "enum": [
+        "initialize",
+        "ping",
+        "tools/list",
+        "tools/call",
+        "notifications/initialized"
+      ]
+    }
+- MissingFact: |
+    {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "id": "MissingFact",
+      "title": "MissingFact",
+      "type": "object",
+      "properties": {
+        "label": {
+          "example": "Size",
+          "type": "string"
+        },
+        "question": {
+          "example": "What size are the skates?",
+          "type": "string"
+        },
+        "placeholder": {
+          "example": "US women's 8",
+          "type": "string"
+        }
+      },
+      "required": [
+        "label",
+        "question",
+        "placeholder"
       ]
     }
 - Offer: |
@@ -2075,6 +3414,37 @@ schemas:
         "commission"
       ]
     }
+- Offer1: |
+    {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "id": "Offer1",
+      "title": "Offer1",
+      "type": "object",
+      "properties": {
+        "retailer": {
+          "type": "string"
+        },
+        "price": {
+          "type": "number"
+        },
+        "currency": {
+          "type": "string"
+        },
+        "in_stock": {
+          "type": "boolean"
+        },
+        "url": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "retailer",
+        "price",
+        "currency",
+        "in_stock",
+        "url"
+      ]
+    }
 - Ok: |
     {
       "$schema": "http://json-schema.org/draft-04/schema#",
@@ -2088,6 +3458,93 @@ schemas:
       },
       "required": [
         "ok"
+      ]
+    }
+- Option: |
+    {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "id": "Option",
+      "title": "Option",
+      "type": "object",
+      "properties": {
+        "name": {
+          "example": "Size",
+          "type": "string",
+          "maxLength": 20
+        },
+        "kind": {
+          "title": "Kind",
+          "description": "`color` shows swatches, and the photo of the picked colour.",
+          "type": "string",
+          "additionalProperties": false,
+          "enum": [
+            "size",
+            "color",
+            "other"
+          ]
+        },
+        "values": {
+          "description": "",
+          "type": "array",
+          "items": {
+            "id": "OptionValue",
+            "title": "OptionValue",
+            "type": "object",
+            "properties": {
+              "label": {
+                "example": "M",
+                "type": "string",
+                "maxLength": 30
+              },
+              "hex": {
+                "example": "#14171a",
+                "type": "string",
+                "pattern": "^#[0-9a-fA-F]{6}$"
+              },
+              "photo": {
+                "description": "Colours: the shop photo (id) that shows this colour. See `matchColorPhotos`.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "label"
+            ]
+          },
+          "minItems": 1,
+          "maxItems": 12
+        },
+        "fromSeller": {
+          "description": "The seller's description or photo named these values; otherwise they're a guess.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "name",
+        "kind",
+        "values"
+      ]
+    }
+- Option1: |
+    {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "id": "Option1",
+      "title": "Option1",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "values": {
+          "description": "",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "name",
+        "values"
       ]
     }
 - Order1: |
@@ -2251,6 +3708,33 @@ schemas:
         "physical"
       ]
     }
+- Shipping: |
+    {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "id": "Shipping",
+      "title": "Shipping",
+      "type": "object",
+      "properties": {
+        "amount": {
+          "type": "number"
+        },
+        "currency": {
+          "type": "string"
+        },
+        "ships_to": {
+          "description": "Country codes; empty means anywhere PayPal ships.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "amount",
+        "currency",
+        "ships_to"
+      ]
+    }
 - Shop1: |
     {
       "$schema": "http://json-schema.org/draft-04/schema#",
@@ -2358,6 +3842,33 @@ schemas:
         "auto",
         "physical",
         "digital"
+      ]
+    }
+- Variant: |
+    {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "id": "Variant",
+      "title": "Variant",
+      "type": "object",
+      "properties": {
+        "choice": {
+          "description": "The buyer's pick, one value per option, keyed by option name.",
+          "example": {
+            "Size": "M",
+            "Color": "Black"
+          },
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "availability": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "choice",
+        "availability"
       ]
     }
 securitySchemes:
@@ -3089,6 +4600,800 @@ securitySchemes:
                         "error"
                       ]
                     }
+      /suggest:
+        uriParameters: {}
+        post:
+          securedBy:
+          - AdminToken
+          description: >
+            Asks Gemini what buyers will want to choose (sizes, colours) and what they'll ask that the
+
+            listing doesn't say (dimensions, materials). `createShop` already does this once; call it
+
+            again after editing the product. The result is saved as the shop's `suggestions`.
+
+
+            Nothing changes on the shop page until the seller confirms: save options with `updateShop`
+
+            (`options`), and answer the questions with `updateShop` (`facts`). Not for recommendations.
+          responses:
+            '200':
+              description: The suggestions.
+              body:
+                application/json:
+                  schema: |
+                    {
+                      "id": "Suggestions",
+                      "title": "Suggestions",
+                      "description": "What Gemini thinks buyers will want to choose or ask. The seller confirms; nothing is applied on its own.",
+                      "type": "object",
+                      "properties": {
+                        "oneOfAKind": {
+                          "description": "A single item (vintage, handmade), so options and stock don't apply.",
+                          "type": "boolean"
+                        },
+                        "options": {
+                          "description": "",
+                          "type": "array",
+                          "items": {
+                            "id": "Option",
+                            "title": "Option",
+                            "type": "object",
+                            "properties": {
+                              "name": {
+                                "example": "Size",
+                                "type": "string",
+                                "maxLength": 20
+                              },
+                              "kind": {
+                                "title": "Kind",
+                                "description": "`color` shows swatches, and the photo of the picked colour.",
+                                "type": "string",
+                                "additionalProperties": false,
+                                "enum": [
+                                  "size",
+                                  "color",
+                                  "other"
+                                ]
+                              },
+                              "values": {
+                                "description": "",
+                                "type": "array",
+                                "items": {
+                                  "id": "OptionValue",
+                                  "title": "OptionValue",
+                                  "type": "object",
+                                  "properties": {
+                                    "label": {
+                                      "example": "M",
+                                      "type": "string",
+                                      "maxLength": 30
+                                    },
+                                    "hex": {
+                                      "example": "#14171a",
+                                      "type": "string",
+                                      "pattern": "^#[0-9a-fA-F]{6}$"
+                                    },
+                                    "photo": {
+                                      "description": "Colours: the shop photo (id) that shows this colour. See `matchColorPhotos`.",
+                                      "type": "string"
+                                    }
+                                  },
+                                  "required": [
+                                    "label"
+                                  ]
+                                },
+                                "minItems": 1,
+                                "maxItems": 12
+                              },
+                              "fromSeller": {
+                                "description": "The seller's description or photo named these values; otherwise they're a guess.",
+                                "type": "boolean"
+                              }
+                            },
+                            "required": [
+                              "name",
+                              "kind",
+                              "values"
+                            ]
+                          }
+                        },
+                        "missingFacts": {
+                          "description": "",
+                          "type": "array",
+                          "items": {
+                            "id": "MissingFact",
+                            "title": "MissingFact",
+                            "type": "object",
+                            "properties": {
+                              "label": {
+                                "example": "Size",
+                                "type": "string"
+                              },
+                              "question": {
+                                "example": "What size are the skates?",
+                                "type": "string"
+                              },
+                              "placeholder": {
+                                "example": "US women's 8",
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "label",
+                              "question",
+                              "placeholder"
+                            ]
+                          }
+                        }
+                      },
+                      "required": [
+                        "oneOfAKind",
+                        "options",
+                        "missingFacts"
+                      ]
+                    }
+            '400':
+              description: Something in the request needs fixing; `error` says what.
+              body:
+                application/json:
+                  schema: |
+                    {
+                      "id": "Error",
+                      "title": "Error",
+                      "type": "object",
+                      "properties": {
+                        "error": {
+                          "description": "A sentence you can show to a person.",
+                          "type": "string"
+                        },
+                        "field": {
+                          "description": "The form field at fault, when there is one.",
+                          "type": "string"
+                        },
+                        "detail": {
+                          "description": "The upstream service's own message, for debugging.",
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "error"
+                      ]
+                    }
+            '404':
+              description: No such shop, or the admin token doesn't match it.
+              body:
+                application/json:
+                  schema: |
+                    {
+                      "id": "Error",
+                      "title": "Error",
+                      "type": "object",
+                      "properties": {
+                        "error": {
+                          "description": "A sentence you can show to a person.",
+                          "type": "string"
+                        },
+                        "field": {
+                          "description": "The form field at fault, when there is one.",
+                          "type": "string"
+                        },
+                        "detail": {
+                          "description": "The upstream service's own message, for debugging.",
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "error"
+                      ]
+                    }
+            '502':
+              description: Gemini, PayPal or Channel3 failed or isn't configured.
+              body:
+                application/json:
+                  schema: |
+                    {
+                      "id": "Error",
+                      "title": "Error",
+                      "type": "object",
+                      "properties": {
+                        "error": {
+                          "description": "A sentence you can show to a person.",
+                          "type": "string"
+                        },
+                        "field": {
+                          "description": "The form field at fault, when there is one.",
+                          "type": "string"
+                        },
+                        "detail": {
+                          "description": "The upstream service's own message, for debugging.",
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "error"
+                      ]
+                    }
+      /match-photos:
+        uriParameters: {}
+        post:
+          securedBy:
+          - AdminToken
+          description: Gemini looks at the shop's photos and says which one shows each colour, so buyers who pick a colour see it. Suggests only; save the matches with `setColorPhotos`. Needs at least two photos.
+          headers:
+            Content-Type:
+              required: true
+              displayName: Content-Type
+              enum:
+              - application/json
+          body:
+            application/json:
+              schema: |
+                {
+                  "id": "ApiShopsMatchPhotosRequest",
+                  "title": "ApiShopsMatchPhotosRequest",
+                  "type": "object",
+                  "properties": {
+                    "colors": {
+                      "description": "",
+                      "type": "array",
+                      "items": {
+                        "id": "Color",
+                        "title": "Color",
+                        "type": "object",
+                        "properties": {
+                          "label": {
+                            "example": "Forest green",
+                            "type": "string",
+                            "maxLength": 30
+                          },
+                          "hex": {
+                            "example": "#14171a",
+                            "type": "string",
+                            "pattern": "^#[0-9a-fA-F]{6}$"
+                          }
+                        },
+                        "required": [
+                          "label"
+                        ]
+                      },
+                      "minItems": 1,
+                      "maxItems": 12
+                    }
+                  },
+                  "required": [
+                    "colors"
+                  ]
+                }
+              example: ''
+          responses:
+            '200':
+              description: A photo id for each colour Gemini could match. Colours it couldn't place are left out.
+              body:
+                application/json:
+                  schema: |
+                    {
+                      "id": "ApiShopsMatchPhotosResponse",
+                      "title": "ApiShopsMatchPhotosResponse",
+                      "type": "object",
+                      "properties": {
+                        "matches": {
+                          "example": {
+                            "Black": "b_8f2k1",
+                            "Forest green": "b_q93md"
+                          },
+                          "type": "object",
+                          "additionalProperties": {
+                            "type": "string"
+                          }
+                        }
+                      },
+                      "required": [
+                        "matches"
+                      ]
+                    }
+            '400':
+              description: Something in the request needs fixing; `error` says what.
+              body:
+                application/json:
+                  schema: |
+                    {
+                      "id": "Error",
+                      "title": "Error",
+                      "type": "object",
+                      "properties": {
+                        "error": {
+                          "description": "A sentence you can show to a person.",
+                          "type": "string"
+                        },
+                        "field": {
+                          "description": "The form field at fault, when there is one.",
+                          "type": "string"
+                        },
+                        "detail": {
+                          "description": "The upstream service's own message, for debugging.",
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "error"
+                      ]
+                    }
+            '404':
+              description: No such shop, or the admin token doesn't match it.
+              body:
+                application/json:
+                  schema: |
+                    {
+                      "id": "Error",
+                      "title": "Error",
+                      "type": "object",
+                      "properties": {
+                        "error": {
+                          "description": "A sentence you can show to a person.",
+                          "type": "string"
+                        },
+                        "field": {
+                          "description": "The form field at fault, when there is one.",
+                          "type": "string"
+                        },
+                        "detail": {
+                          "description": "The upstream service's own message, for debugging.",
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "error"
+                      ]
+                    }
+            '502':
+              description: Gemini, PayPal or Channel3 failed or isn't configured.
+              body:
+                application/json:
+                  schema: |
+                    {
+                      "id": "Error",
+                      "title": "Error",
+                      "type": "object",
+                      "properties": {
+                        "error": {
+                          "description": "A sentence you can show to a person.",
+                          "type": "string"
+                        },
+                        "field": {
+                          "description": "The form field at fault, when there is one.",
+                          "type": "string"
+                        },
+                        "detail": {
+                          "description": "The upstream service's own message, for debugging.",
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "error"
+                      ]
+                    }
+      /color-photos:
+        uriParameters: {}
+        put:
+          securedBy:
+          - AdminToken
+          description: Saves which photo shows each colour, and nothing else about the shop. Only colours already saved in the shop's options change; `null` clears a colour's photo. A photo id that isn't one of the shop's photos is ignored.
+          headers:
+            Content-Type:
+              required: true
+              displayName: Content-Type
+              enum:
+              - application/json
+          body:
+            application/json:
+              schema: |
+                {
+                  "id": "ApiShopsColorPhotosRequest",
+                  "title": "ApiShopsColorPhotosRequest",
+                  "type": "object",
+                  "properties": {
+                    "photos": {
+                      "description": "Colour label → photo id, or `null`.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "photos"
+                  ]
+                }
+              example: ''
+          responses:
+            '200':
+              description: The colours that were changed.
+              body:
+                application/json:
+                  schema: |
+                    {
+                      "id": "ApiShopsColorPhotosResponse",
+                      "title": "ApiShopsColorPhotosResponse",
+                      "type": "object",
+                      "properties": {
+                        "saved": {
+                          "description": "",
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        }
+                      },
+                      "required": [
+                        "saved"
+                      ]
+                    }
+            '400':
+              description: Something in the request needs fixing; `error` says what.
+              body:
+                application/json:
+                  schema: |
+                    {
+                      "id": "Error",
+                      "title": "Error",
+                      "type": "object",
+                      "properties": {
+                        "error": {
+                          "description": "A sentence you can show to a person.",
+                          "type": "string"
+                        },
+                        "field": {
+                          "description": "The form field at fault, when there is one.",
+                          "type": "string"
+                        },
+                        "detail": {
+                          "description": "The upstream service's own message, for debugging.",
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "error"
+                      ]
+                    }
+            '404':
+              description: No such shop, or the admin token doesn't match it.
+              body:
+                application/json:
+                  schema: |
+                    {
+                      "id": "Error",
+                      "title": "Error",
+                      "type": "object",
+                      "properties": {
+                        "error": {
+                          "description": "A sentence you can show to a person.",
+                          "type": "string"
+                        },
+                        "field": {
+                          "description": "The form field at fault, when there is one.",
+                          "type": "string"
+                        },
+                        "detail": {
+                          "description": "The upstream service's own message, for debugging.",
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "error"
+                      ]
+                    }
+      /paypal:
+        uriParameters: {}
+        post:
+          securedBy:
+          - AdminToken
+          description: >
+            Starts PayPal's seller onboarding (Partner Referrals). Send the seller's browser to the
+
+            returned `url`; they sign in to PayPal (or create a business account) and grant OneThing
+
+            permission. PayPal brings them back to `/api/shops/<slug>/paypal/return`, which saves the
+
+            connection and opens the manage page. From then on, sales are paid to that account.
+
+
+            Without a connection, a shop can still go live with a typed `paypal_email`.
+          responses:
+            '200':
+              description: Where to send the seller.
+              body:
+                application/json:
+                  schema: |
+                    {
+                      "id": "ApiShopsPaypalResponse",
+                      "title": "ApiShopsPaypalResponse",
+                      "type": "object",
+                      "properties": {
+                        "url": {
+                          "description": "PayPal's onboarding page for this shop.",
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "url"
+                      ]
+                    }
+            '404':
+              description: No such shop, or the admin token doesn't match it.
+              body:
+                application/json:
+                  schema: |
+                    {
+                      "id": "Error",
+                      "title": "Error",
+                      "type": "object",
+                      "properties": {
+                        "error": {
+                          "description": "A sentence you can show to a person.",
+                          "type": "string"
+                        },
+                        "field": {
+                          "description": "The form field at fault, when there is one.",
+                          "type": "string"
+                        },
+                        "detail": {
+                          "description": "The upstream service's own message, for debugging.",
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "error"
+                      ]
+                    }
+            '502':
+              description: Gemini, PayPal or Channel3 failed or isn't configured.
+              body:
+                application/json:
+                  schema: |
+                    {
+                      "id": "Error",
+                      "title": "Error",
+                      "type": "object",
+                      "properties": {
+                        "error": {
+                          "description": "A sentence you can show to a person.",
+                          "type": "string"
+                        },
+                        "field": {
+                          "description": "The form field at fault, when there is one.",
+                          "type": "string"
+                        },
+                        "detail": {
+                          "description": "The upstream service's own message, for debugging.",
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "error"
+                      ]
+                    }
+            '503':
+              description: Gemini, PayPal or Channel3 failed or isn't configured.
+              body:
+                application/json:
+                  schema: |
+                    {
+                      "id": "Error",
+                      "title": "Error",
+                      "type": "object",
+                      "properties": {
+                        "error": {
+                          "description": "A sentence you can show to a person.",
+                          "type": "string"
+                        },
+                        "field": {
+                          "description": "The form field at fault, when there is one.",
+                          "type": "string"
+                        },
+                        "detail": {
+                          "description": "The upstream service's own message, for debugging.",
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "error"
+                      ]
+                    }
+        get:
+          securedBy:
+          - AdminToken
+          description: Asks PayPal where the seller's connection stands and saves it on the shop. Also finds a connection the seller finished at PayPal without coming back.
+          responses:
+            '200':
+              description: The connection, or nulls if there is none yet.
+              body:
+                application/json:
+                  schema: |
+                    {
+                      "id": "ApiShopsPaypalResponse1",
+                      "title": "ApiShopsPaypalResponse1",
+                      "type": "object",
+                      "properties": {
+                        "merchantId": {
+                          "description": "The seller's PayPal merchant id.",
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        },
+                        "status": {
+                          "oneOf": [
+                            {
+                              "id": "PayPalStatus",
+                              "title": "PayPalStatus",
+                              "description": "What PayPal last said about a connected seller account.",
+                              "type": "object",
+                              "properties": {
+                                "receivable": {
+                                  "description": "The account can receive payments.",
+                                  "type": "boolean"
+                                },
+                                "emailConfirmed": {
+                                  "description": "The seller has confirmed their email with PayPal.",
+                                  "type": "boolean"
+                                },
+                                "checkedAt": {
+                                  "type": "string",
+                                  "format": "date-time"
+                                }
+                              },
+                              "required": [
+                                "receivable",
+                                "emailConfirmed",
+                                "checkedAt"
+                              ]
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        }
+                      },
+                      "required": [
+                        "merchantId",
+                        "status"
+                      ]
+                    }
+            '404':
+              description: No such shop, or the admin token doesn't match it.
+              body:
+                application/json:
+                  schema: |
+                    {
+                      "id": "Error",
+                      "title": "Error",
+                      "type": "object",
+                      "properties": {
+                        "error": {
+                          "description": "A sentence you can show to a person.",
+                          "type": "string"
+                        },
+                        "field": {
+                          "description": "The form field at fault, when there is one.",
+                          "type": "string"
+                        },
+                        "detail": {
+                          "description": "The upstream service's own message, for debugging.",
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "error"
+                      ]
+                    }
+            '502':
+              description: Gemini, PayPal or Channel3 failed or isn't configured.
+              body:
+                application/json:
+                  schema: |
+                    {
+                      "id": "Error",
+                      "title": "Error",
+                      "type": "object",
+                      "properties": {
+                        "error": {
+                          "description": "A sentence you can show to a person.",
+                          "type": "string"
+                        },
+                        "field": {
+                          "description": "The form field at fault, when there is one.",
+                          "type": "string"
+                        },
+                        "detail": {
+                          "description": "The upstream service's own message, for debugging.",
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "error"
+                      ]
+                    }
+            '503':
+              description: Gemini, PayPal or Channel3 failed or isn't configured.
+              body:
+                application/json:
+                  schema: |
+                    {
+                      "id": "Error",
+                      "title": "Error",
+                      "type": "object",
+                      "properties": {
+                        "error": {
+                          "description": "A sentence you can show to a person.",
+                          "type": "string"
+                        },
+                        "field": {
+                          "description": "The form field at fault, when there is one.",
+                          "type": "string"
+                        },
+                        "detail": {
+                          "description": "The upstream service's own message, for debugging.",
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "error"
+                      ]
+                    }
+        delete:
+          securedBy:
+          - AdminToken
+          description: Forgets the connected account. Sales go back to the shop's `paypal_email`.
+          responses:
+            '200':
+              description: Done.
+              body:
+                application/json:
+                  schema: |
+                    {
+                      "id": "Ok",
+                      "title": "Ok",
+                      "type": "object",
+                      "properties": {
+                        "ok": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "ok"
+                      ]
+                    }
+            '404':
+              description: No such shop, or the admin token doesn't match it.
+              body:
+                application/json:
+                  schema: |
+                    {
+                      "id": "Error",
+                      "title": "Error",
+                      "type": "object",
+                      "properties": {
+                        "error": {
+                          "description": "A sentence you can show to a person.",
+                          "type": "string"
+                        },
+                        "field": {
+                          "description": "The form field at fault, when there is one.",
+                          "type": "string"
+                        },
+                        "detail": {
+                          "description": "The upstream service's own message, for debugging.",
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "error"
+                      ]
+                    }
       /orders:
         uriParameters: {}
         /{orderId}/ship:
@@ -3337,6 +5642,39 @@ securitySchemes:
                           "code_uses": {
                             "type": "integer",
                             "format": "int32"
+                          },
+                          "channel": {
+                            "title": "Channel",
+                            "description": "`agent` for orders an AI agent placed through the MCP server.",
+                            "type": "string",
+                            "additionalProperties": false,
+                            "enum": [
+                              "web",
+                              "agent"
+                            ]
+                          },
+                          "options": {
+                            "type": [
+                              "object",
+                              "null"
+                            ],
+                            "additionalProperties": {
+                              "oneOf": [
+                                {
+                                  "example": {
+                                    "Size": "M",
+                                    "Color": "Black"
+                                  },
+                                  "type": "object",
+                                  "additionalProperties": {
+                                    "type": "string"
+                                  }
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            }
                           },
                           "paid_at": {
                             "type": [
@@ -3748,6 +6086,45 @@ securitySchemes:
                           "null"
                         ]
                       },
+                      "paypal_merchant_id": {
+                        "description": "The connected PayPal account (`connectPayPal`). Sales go here when it can receive payments.",
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      },
+                      "paypal_status": {
+                        "oneOf": [
+                          {
+                            "id": "PayPalStatus",
+                            "title": "PayPalStatus",
+                            "description": "What PayPal last said about a connected seller account.",
+                            "type": "object",
+                            "properties": {
+                              "receivable": {
+                                "description": "The account can receive payments.",
+                                "type": "boolean"
+                              },
+                              "emailConfirmed": {
+                                "description": "The seller has confirmed their email with PayPal.",
+                                "type": "boolean"
+                              },
+                              "checkedAt": {
+                                "type": "string",
+                                "format": "date-time"
+                              }
+                            },
+                            "required": [
+                              "receivable",
+                              "emailConfirmed",
+                              "checkedAt"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
                       "zapier_hook_url": {
                         "type": [
                           "string",
@@ -3757,12 +6134,194 @@ securitySchemes:
                       "in_gallery": {
                         "type": "boolean"
                       },
-                      "photo_blob": {
-                        "description": "Image id for `getImage`.",
+                      "account_id": {
+                        "description": "The seller account that owns the shop, if it was made while signed in.",
                         "type": [
                           "string",
                           "null"
                         ]
+                      },
+                      "options": {
+                        "description": "",
+                        "type": "array",
+                        "items": {
+                          "id": "ShopOption",
+                          "title": "ShopOption",
+                          "description": "Something the buyer picks, such as a size or a colour. The shop still sells one product.",
+                          "type": "object",
+                          "properties": {
+                            "name": {
+                              "example": "Size",
+                              "type": "string",
+                              "maxLength": 20
+                            },
+                            "kind": {
+                              "title": "Kind",
+                              "description": "`color` shows swatches, and the photo of the picked colour.",
+                              "type": "string",
+                              "additionalProperties": false,
+                              "enum": [
+                                "size",
+                                "color",
+                                "other"
+                              ]
+                            },
+                            "values": {
+                              "description": "",
+                              "type": "array",
+                              "items": {
+                                "id": "OptionValue",
+                                "title": "OptionValue",
+                                "type": "object",
+                                "properties": {
+                                  "label": {
+                                    "example": "M",
+                                    "type": "string",
+                                    "maxLength": 30
+                                  },
+                                  "hex": {
+                                    "example": "#14171a",
+                                    "type": "string",
+                                    "pattern": "^#[0-9a-fA-F]{6}$"
+                                  },
+                                  "photo": {
+                                    "description": "Colours: the shop photo (id) that shows this colour. See `matchColorPhotos`.",
+                                    "type": "string"
+                                  }
+                                },
+                                "required": [
+                                  "label"
+                                ]
+                              },
+                              "minItems": 1,
+                              "maxItems": 12
+                            }
+                          },
+                          "required": [
+                            "name",
+                            "kind",
+                            "values"
+                          ]
+                        }
+                      },
+                      "option_stock": {
+                        "description": "Stock per combination, keyed by its values in option order joined with ` / ` (e.g. `M / Black`). A missing key or `null` means unlimited; `0` is sold out.",
+                        "example": {
+                          "M / Black": 4,
+                          "L / Black": 0
+                        },
+                        "type": "object",
+                        "additionalProperties": {
+                          "type": [
+                            "integer",
+                            "null"
+                          ],
+                          "format": "int32"
+                        },
+                        "minimum": 0.0
+                      },
+                      "suggestions": {
+                        "oneOf": [
+                          {
+                            "id": "Suggestions",
+                            "title": "Suggestions",
+                            "description": "What Gemini thinks buyers will want to choose or ask. The seller confirms; nothing is applied on its own.",
+                            "type": "object",
+                            "properties": {
+                              "oneOfAKind": {
+                                "description": "A single item (vintage, handmade), so options and stock don't apply.",
+                                "type": "boolean"
+                              },
+                              "options": {
+                                "description": "",
+                                "type": "array",
+                                "items": {
+                                  "id": "Option",
+                                  "title": "Option",
+                                  "type": "object",
+                                  "properties": {
+                                    "name": {
+                                      "example": "Size",
+                                      "type": "string",
+                                      "maxLength": 20
+                                    },
+                                    "kind": {
+                                      "$ref": "ShopOption#/properties/kind"
+                                    },
+                                    "values": {
+                                      "description": "",
+                                      "type": "array",
+                                      "items": {
+                                        "$ref": "OptionValue"
+                                      },
+                                      "minItems": 1,
+                                      "maxItems": 12
+                                    },
+                                    "fromSeller": {
+                                      "description": "The seller's description or photo named these values; otherwise they're a guess.",
+                                      "type": "boolean"
+                                    }
+                                  },
+                                  "required": [
+                                    "name",
+                                    "kind",
+                                    "values"
+                                  ]
+                                }
+                              },
+                              "missingFacts": {
+                                "description": "",
+                                "type": "array",
+                                "items": {
+                                  "id": "MissingFact",
+                                  "title": "MissingFact",
+                                  "type": "object",
+                                  "properties": {
+                                    "label": {
+                                      "example": "Size",
+                                      "type": "string"
+                                    },
+                                    "question": {
+                                      "example": "What size are the skates?",
+                                      "type": "string"
+                                    },
+                                    "placeholder": {
+                                      "example": "US women's 8",
+                                      "type": "string"
+                                    }
+                                  },
+                                  "required": [
+                                    "label",
+                                    "question",
+                                    "placeholder"
+                                  ]
+                                }
+                              }
+                            },
+                            "required": [
+                              "oneOfAKind",
+                              "options",
+                              "missingFacts"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "photo_blob": {
+                        "description": "Image id for `getImage`. The cover photo.",
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      },
+                      "gallery_blobs": {
+                        "description": "The other photos, in order.",
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
                       },
                       "hero_blob": {
                         "type": [
@@ -4030,6 +6589,112 @@ securitySchemes:
                   "in_gallery": {
                     "description": "Feature the shop at `/gallery` while it's live. Off by default.",
                     "type": "boolean"
+                  },
+                  "options": {
+                    "description": "What the buyer picks (physical products only), replacing the current options; `[]` removes them. With options, stock is counted per combination in `option_stock` and the shop's own `stock` is cleared. At most 60 combinations.",
+                    "type": "array",
+                    "items": {
+                      "id": "ShopOption",
+                      "title": "ShopOption",
+                      "description": "Something the buyer picks, such as a size or a colour. The shop still sells one product.",
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "example": "Size",
+                          "type": "string",
+                          "maxLength": 20
+                        },
+                        "kind": {
+                          "title": "Kind",
+                          "description": "`color` shows swatches, and the photo of the picked colour.",
+                          "type": "string",
+                          "additionalProperties": false,
+                          "enum": [
+                            "size",
+                            "color",
+                            "other"
+                          ]
+                        },
+                        "values": {
+                          "description": "",
+                          "type": "array",
+                          "items": {
+                            "id": "OptionValue",
+                            "title": "OptionValue",
+                            "type": "object",
+                            "properties": {
+                              "label": {
+                                "example": "M",
+                                "type": "string",
+                                "maxLength": 30
+                              },
+                              "hex": {
+                                "example": "#14171a",
+                                "type": "string",
+                                "pattern": "^#[0-9a-fA-F]{6}$"
+                              },
+                              "photo": {
+                                "description": "Colours: the shop photo (id) that shows this colour. See `matchColorPhotos`.",
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "label"
+                            ]
+                          },
+                          "minItems": 1,
+                          "maxItems": 12
+                        }
+                      },
+                      "required": [
+                        "name",
+                        "kind",
+                        "values"
+                      ]
+                    },
+                    "maxItems": 3
+                  },
+                  "option_stock": {
+                    "description": "Stock per combination, keyed by its values in option order joined with ` / ` (e.g. `M / Black`). A missing key or `null` means unlimited; `0` is sold out.",
+                    "example": {
+                      "M / Black": 4,
+                      "L / Black": 0
+                    },
+                    "type": "object",
+                    "additionalProperties": {
+                      "type": [
+                        "integer",
+                        "null"
+                      ],
+                      "format": "int32"
+                    },
+                    "minimum": 0.0
+                  },
+                  "facts": {
+                    "description": "Answers to the \"buyers will ask\" questions in `suggestions.missingFacts`. Each becomes a product detail on the page (replacing one with the same label) and drops off the list.",
+                    "type": "array",
+                    "items": {
+                      "id": "Fact",
+                      "title": "Fact",
+                      "type": "object",
+                      "properties": {
+                        "label": {
+                          "example": "Size",
+                          "type": "string",
+                          "maxLength": 30
+                        },
+                        "value": {
+                          "example": "US women's 8",
+                          "type": "string",
+                          "maxLength": 100
+                        }
+                      },
+                      "required": [
+                        "label",
+                        "value"
+                      ]
+                    },
+                    "maxItems": 5
                   }
                 }
               }
@@ -4695,6 +7360,33 @@ securitySchemes:
                       }
                     }
                   }
+          '410':
+            description: The last unit (or the last of the buyer's combination) sold while they were paying. The payment isn't captured, so the buyer isn't charged.
+            body:
+              application/json:
+                schema: |
+                  {
+                    "id": "Error",
+                    "title": "Error",
+                    "type": "object",
+                    "properties": {
+                      "error": {
+                        "description": "A sentence you can show to a person.",
+                        "type": "string"
+                      },
+                      "field": {
+                        "description": "The form field at fault, when there is one.",
+                        "type": "string"
+                      },
+                      "detail": {
+                        "description": "The upstream service's own message, for debugging.",
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "error"
+                    ]
+                  }
           '422':
             description: The buyer's funding source was declined (`INSTRUMENT_DECLINED`); they can try another.
             body:
@@ -4754,6 +7446,9 @@ securitySchemes:
         Creates the PayPal order for one unit of a live shop's product. The amount always comes
 
         from the shop, never from the caller. Pass the returned `id` to the PayPal JS SDK.
+
+
+        If the shop has buyer `options`, send one value for each. A sold-out combination answers 409.
       headers:
         Content-Type:
           required: true
@@ -4770,6 +7465,17 @@ securitySchemes:
               "properties": {
                 "slug": {
                   "type": "string"
+                },
+                "options": {
+                  "description": "The buyer's pick, one value per option, keyed by option name.",
+                  "example": {
+                    "Size": "M",
+                    "Color": "Black"
+                  },
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  }
                 }
               },
               "required": [
@@ -5033,6 +7739,697 @@ securitySchemes:
                 }
         '404':
           description: Not a public shop image.
+  /agent/shops/{slug}:
+    uriParameters:
+      slug:
+        description: The shop's link name (current or former).
+        type: string
+        example: raptorrush
+        required: true
+        displayName: slug
+    get:
+      description: 'Everything an AI shopping agent needs to describe the product and decide to buy it: price, shipping, delivery, availability, options, images and FAQ. Public. Buying goes through the MCP server named in `mcp_server`. Shop pages also carry the same facts as schema.org `Product` JSON-LD.'
+      responses:
+        '200':
+          description: The product.
+          body:
+            application/json:
+              schema: |
+                {
+                  "id": "AgentProduct",
+                  "title": "AgentProduct",
+                  "description": "A live shop as an AI agent sees it. Recommendations have `offers`; everything else has `price` and is bought with `create_order`.",
+                  "type": "object",
+                  "properties": {
+                    "shop": {
+                      "description": "The link name, which the MCP tools take as `shop`.",
+                      "type": "string"
+                    },
+                    "url": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "kind": {
+                      "title": "Kind1",
+                      "type": "string",
+                      "additionalProperties": false,
+                      "enum": [
+                        "physical",
+                        "digital",
+                        "referral"
+                      ]
+                    },
+                    "headline": {
+                      "type": "string"
+                    },
+                    "description": {
+                      "type": "string"
+                    },
+                    "highlights": {
+                      "description": "",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "details": {
+                      "description": "",
+                      "type": "array",
+                      "items": {
+                        "id": "Detail",
+                        "title": "Detail",
+                        "type": "object",
+                        "properties": {
+                          "label": {
+                            "type": "string"
+                          },
+                          "value": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "label",
+                          "value"
+                        ]
+                      }
+                    },
+                    "faq": {
+                      "description": "",
+                      "type": "array",
+                      "items": {
+                        "id": "Faq",
+                        "title": "Faq",
+                        "type": "object",
+                        "properties": {
+                          "q": {
+                            "type": "string"
+                          },
+                          "a": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "q",
+                          "a"
+                        ]
+                      }
+                    },
+                    "images": {
+                      "description": "",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "how_to_buy": {
+                      "type": "string"
+                    },
+                    "price": {
+                      "id": "AgentMoney",
+                      "title": "AgentMoney",
+                      "type": "object",
+                      "properties": {
+                        "amount": {
+                          "example": 48.5,
+                          "type": "number"
+                        },
+                        "currency": {
+                          "example": "USD",
+                          "type": "string"
+                        },
+                        "label": {
+                          "example": "$48.50",
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "amount",
+                        "currency"
+                      ]
+                    },
+                    "shipping": {
+                      "description": "Physical products only.",
+                      "oneOf": [
+                        {
+                          "id": "Shipping",
+                          "title": "Shipping",
+                          "type": "object",
+                          "properties": {
+                            "amount": {
+                              "type": "number"
+                            },
+                            "currency": {
+                              "type": "string"
+                            },
+                            "ships_to": {
+                              "description": "Country codes; empty means anywhere PayPal ships.",
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              }
+                            }
+                          },
+                          "required": [
+                            "amount",
+                            "currency",
+                            "ships_to"
+                          ]
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "total": {
+                      "$ref": "AgentMoney"
+                    },
+                    "delivery": {
+                      "example": "Shipped. PayPal collects the buyer's address at checkout.",
+                      "type": "string"
+                    },
+                    "availability": {
+                      "examples": [
+                        {
+                          "Id": "Untitled Example1",
+                          "Name": null,
+                          "Value": "in_stock",
+                          "ExternalValue": null,
+                          "Description": null
+                        },
+                        {
+                          "Id": "Untitled Example2",
+                          "Name": null,
+                          "Value": "in_stock (3 left)",
+                          "ExternalValue": null,
+                          "Description": null
+                        },
+                        {
+                          "Id": "Untitled Example3",
+                          "Name": null,
+                          "Value": "sold_out",
+                          "ExternalValue": null,
+                          "Description": null
+                        }
+                      ],
+                      "example": "in_stock",
+                      "type": "string"
+                    },
+                    "options": {
+                      "description": "Pass one value per option to `create_order`.",
+                      "type": "array",
+                      "items": {
+                        "id": "Option1",
+                        "title": "Option1",
+                        "type": "object",
+                        "properties": {
+                          "name": {
+                            "type": "string"
+                          },
+                          "values": {
+                            "description": "",
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        },
+                        "required": [
+                          "name",
+                          "values"
+                        ]
+                      }
+                    },
+                    "variants": {
+                      "description": "",
+                      "type": "array",
+                      "items": {
+                        "id": "Variant",
+                        "title": "Variant",
+                        "type": "object",
+                        "properties": {
+                          "choice": {
+                            "description": "The buyer's pick, one value per option, keyed by option name.",
+                            "example": {
+                              "Size": "M",
+                              "Color": "Black"
+                            },
+                            "type": "object",
+                            "additionalProperties": {
+                              "type": "string"
+                            }
+                          },
+                          "availability": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "choice",
+                          "availability"
+                        ]
+                      }
+                    },
+                    "offers": {
+                      "description": "Recommendations only. Bought at the retailer.",
+                      "type": "array",
+                      "items": {
+                        "id": "Offer1",
+                        "title": "Offer1",
+                        "type": "object",
+                        "properties": {
+                          "retailer": {
+                            "type": "string"
+                          },
+                          "price": {
+                            "type": "number"
+                          },
+                          "currency": {
+                            "type": "string"
+                          },
+                          "in_stock": {
+                            "type": "boolean"
+                          },
+                          "url": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "retailer",
+                          "price",
+                          "currency",
+                          "in_stock",
+                          "url"
+                        ]
+                      }
+                    },
+                    "mcp_server": {
+                      "description": "The MCP server to order through (`getAgentProduct` only).",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "shop",
+                    "url",
+                    "name",
+                    "kind",
+                    "headline",
+                    "description",
+                    "highlights",
+                    "details",
+                    "faq",
+                    "images",
+                    "how_to_buy"
+                  ]
+                }
+        '404':
+          description: No live shop with that link name.
+          body:
+            application/json:
+              schema: |
+                {
+                  "id": "Error",
+                  "title": "Error",
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "description": "A sentence you can show to a person.",
+                      "type": "string"
+                    },
+                    "field": {
+                      "description": "The form field at fault, when there is one.",
+                      "type": "string"
+                    },
+                    "detail": {
+                      "description": "The upstream service's own message, for debugging.",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+  /mcp:
+    post:
+      description: >
+        A [Model Context Protocol](https://modelcontextprotocol.io) server, so agents such as
+
+        Claude can shop here. Add `https://<host>/api/mcp` to an MCP client as a Streamable HTTP
+
+        server. It's stateless: each POST carries one JSON-RPC 2.0 message (or a batch) and gets a
+
+        plain JSON reply, with no session and no event stream.
+
+
+        Methods: `initialize`, `ping`, `tools/list`, `tools/call`. Tools:
+
+
+        | Tool | Arguments | What it does |
+
+        |---|---|---|
+
+        | `search_shops` | `query?`, `limit?` (1–25) | Live gallery shops whose name or headline has every word |
+
+        | `get_product` | `shop` | The same object as `getAgentProduct` |
+
+        | `create_order` | `shop`, `options?` | One unit on order; returns `order_id` and `approve_url` |
+
+        | `get_order` | `order_id` | `awaiting_buyer_approval` or `paid`, with the receipt link once paid |
+
+
+        **The buyer always approves.** `create_order` charges nothing: the agent gives the buyer
+
+        `approve_url`, they pay at PayPal, and the agent polls `get_order`. Orders made this way
+
+        show `channel: agent` in `listOrders`.
+
+
+        Tool errors (an unknown shop, a sold-out size) come back as results with `isError: true`,
+
+        so the model can read them and try something else.
+      headers:
+        Content-Type:
+          required: true
+          displayName: Content-Type
+          enum:
+          - application/json
+      body:
+        application/json:
+          schema: |
+            {
+              "examples": [
+                {
+                  "Id": "search",
+                  "Name": "Find a shop",
+                  "Value": "{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"tools/call\",\"params\":{\"name\":\"search_shops\",\"arguments\":{\"query\":\"game\"}}}",
+                  "ExternalValue": null,
+                  "Description": null
+                },
+                {
+                  "Id": "order",
+                  "Name": "Order a size and colour",
+                  "Value": "{\"jsonrpc\":\"2.0\",\"id\":2,\"method\":\"tools/call\",\"params\":{\"name\":\"create_order\",\"arguments\":{\"shop\":\"trailtee\",\"options\":{\"Size\":\"M\",\"Color\":\"Black\"}}}}",
+                  "ExternalValue": null,
+                  "Description": null
+                }
+              ],
+              "example": {
+                "jsonrpc": "2.0",
+                "id": 1,
+                "method": "tools/call",
+                "params": {
+                  "name": "search_shops",
+                  "arguments": {
+                    "query": "game"
+                  }
+                }
+              },
+              "oneOf": [
+                {
+                  "id": "JsonRpcRequest",
+                  "title": "JsonRpcRequest",
+                  "type": "object",
+                  "properties": {
+                    "jsonrpc": {
+                      "type": "string",
+                      "enum": [
+                        "2.0"
+                      ]
+                    },
+                    "method": {
+                      "title": "Method",
+                      "type": "string",
+                      "additionalProperties": false,
+                      "enum": [
+                        "initialize",
+                        "ping",
+                        "tools/list",
+                        "tools/call",
+                        "notifications/initialized"
+                      ]
+                    },
+                    "id": {
+                      "description": "Leave out for a notification.",
+                      "oneOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "integer",
+                          "format": "int32"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "params": {
+                      "description": "For `tools/call`: `{ name, arguments }`.",
+                      "type": "object"
+                    }
+                  },
+                  "required": [
+                    "jsonrpc",
+                    "method"
+                  ]
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "id": "JsonRpcRequest",
+                    "title": "JsonRpcRequest",
+                    "type": "object",
+                    "properties": {
+                      "jsonrpc": {
+                        "type": "string",
+                        "enum": [
+                          "2.0"
+                        ]
+                      },
+                      "method": {
+                        "title": "Method",
+                        "type": "string",
+                        "additionalProperties": false,
+                        "enum": [
+                          "initialize",
+                          "ping",
+                          "tools/list",
+                          "tools/call",
+                          "notifications/initialized"
+                        ]
+                      },
+                      "id": {
+                        "description": "Leave out for a notification.",
+                        "oneOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "integer",
+                            "format": "int32"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "params": {
+                        "description": "For `tools/call`: `{ name, arguments }`.",
+                        "type": "object"
+                      }
+                    },
+                    "required": [
+                      "jsonrpc",
+                      "method"
+                    ]
+                  }
+                }
+              ]
+            }
+          example: '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"search_shops","arguments":{"query":"game"}}}'
+      responses:
+        '200':
+          description: The JSON-RPC reply (an array for a batch).
+          body:
+            application/json:
+              schema: |
+                {
+                  "x-is-dynamic": true,
+                  "oneOf": [
+                    {
+                      "id": "JsonRpcResponse",
+                      "title": "JsonRpcResponse",
+                      "type": "object",
+                      "properties": {
+                        "jsonrpc": {
+                          "type": "string",
+                          "enum": [
+                            "2.0"
+                          ]
+                        },
+                        "id": {
+                          "oneOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "integer",
+                              "format": "int32"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "result": {
+                          "description": "For `tools/call`: `content` (the answer as JSON text), `structuredContent` (the same object) and `isError`.",
+                          "type": "object"
+                        },
+                        "error": {
+                          "id": "Error1",
+                          "title": "Error1",
+                          "type": "object",
+                          "properties": {
+                            "code": {
+                              "example": -32601,
+                              "type": "integer",
+                              "format": "int32"
+                            },
+                            "message": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "code",
+                            "message"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "jsonrpc",
+                        "id"
+                      ]
+                    },
+                    {
+                      "type": "array",
+                      "items": {
+                        "id": "JsonRpcResponse",
+                        "title": "JsonRpcResponse",
+                        "type": "object",
+                        "properties": {
+                          "jsonrpc": {
+                            "type": "string",
+                            "enum": [
+                              "2.0"
+                            ]
+                          },
+                          "id": {
+                            "oneOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "integer",
+                                "format": "int32"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "result": {
+                            "description": "For `tools/call`: `content` (the answer as JSON text), `structuredContent` (the same object) and `isError`.",
+                            "type": "object"
+                          },
+                          "error": {
+                            "id": "Error1",
+                            "title": "Error1",
+                            "type": "object",
+                            "properties": {
+                              "code": {
+                                "example": -32601,
+                                "type": "integer",
+                                "format": "int32"
+                              },
+                              "message": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "code",
+                              "message"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "jsonrpc",
+                          "id"
+                        ]
+                      }
+                    }
+                  ]
+                }
+        '202':
+          description: Only notifications were sent; there's nothing to reply.
+        '400':
+          description: Not JSON (JSON-RPC parse error `-32700`).
+          body:
+            application/json:
+              schema: |
+                {
+                  "id": "JsonRpcResponse",
+                  "title": "JsonRpcResponse",
+                  "type": "object",
+                  "properties": {
+                    "jsonrpc": {
+                      "type": "string",
+                      "enum": [
+                        "2.0"
+                      ]
+                    },
+                    "id": {
+                      "oneOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "integer",
+                          "format": "int32"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "result": {
+                      "description": "For `tools/call`: `content` (the answer as JSON text), `structuredContent` (the same object) and `isError`.",
+                      "type": "object"
+                    },
+                    "error": {
+                      "id": "Error1",
+                      "title": "Error1",
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "example": -32601,
+                          "type": "integer",
+                          "format": "int32"
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "jsonrpc",
+                    "id"
+                  ]
+                }
   /account:
     /signin:
       post:
@@ -5163,5 +8560,45 @@ securitySchemes:
                     },
                     "required": [
                       "ok"
+                    ]
+                  }
+    /paypal:
+      get:
+        description: "A link for a browser, not for code: redirects to PayPal's sign-in page. PayPal sends the seller back to `/api/account/paypal/callback`, which signs them in (creating the account the first time), records the PayPal account their sales are paid into, and redirects to `next`."
+        queryParameters:
+          next:
+            description: A path on this site to land on afterwards. Defaults to `/account`.
+            type: string
+            example: /new
+            required: false
+            displayName: next
+        responses:
+          '302':
+            description: To PayPal's sign-in page.
+          '503':
+            description: Log in with PayPal isn't switched on for this server.
+            body:
+              application/json:
+                schema: |
+                  {
+                    "id": "Error",
+                    "title": "Error",
+                    "type": "object",
+                    "properties": {
+                      "error": {
+                        "description": "A sentence you can show to a person.",
+                        "type": "string"
+                      },
+                      "field": {
+                        "description": "The form field at fault, when there is one.",
+                        "type": "string"
+                      },
+                      "detail": {
+                        "description": "The upstream service's own message, for debugging.",
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "error"
                     ]
                   }

@@ -39,7 +39,12 @@ curl -X PATCH \
   -H 'Accept: application/json' \
   -H 'Content-Type: application/json' \
   -H 'x-admin-token: x-admin-token' \
-  --data-raw '{}'
+  --data-raw '{
+  "option_stock": {
+    "M / Black": 4,
+    "L / Black": 0
+  }
+}'
 ```
 
 

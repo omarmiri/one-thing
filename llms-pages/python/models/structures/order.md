@@ -29,6 +29,8 @@ Source: /#/python/x-redirect/JTI0bSUyRk9yZGVy
 | `downloads` | `int` | Optional | - |
 | `access_code` | `str` | Optional | - |
 | `code_uses` | `int` | Optional | - |
+| `channel` | [`Channel`](/llms-pages/python/models/enumerations/channel.md) | Optional | `agent` for orders an AI agent placed through the MCP server. |
+| `options` | Dict[str, Dict[str, str]] \| None | Optional | This is Dictionary of a container for one-of cases. |
 | `paid_at` | `datetime` | Optional | - |
 | `created_at` | `datetime` | Optional | - |
 

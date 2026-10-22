@@ -25,9 +25,16 @@ Source: /#/typescript/x-redirect/JTI0bSUyRlNob3A
 | `accessUrl` | `string \| null \| undefined` | Optional | - |
 | `paypalEmail` | `string \| null \| undefined` | Optional | - |
 | `sellerEmail` | `string \| null \| undefined` | Optional | - |
+| `paypalMerchantId` | `string \| null \| undefined` | Optional | The connected PayPal account (`connectPayPal`). Sales go here when it can receive payments. |
+| `paypalStatus` | [`ShopPaypalStatus \| null \| undefined`](/llms-pages/typescript/models/oneof-anyof-definitions/shop-paypal-status.md) | Optional | This is a container for one-of cases. |
 | `zapierHookUrl` | `string \| null \| undefined` | Optional | - |
 | `inGallery` | `boolean \| undefined` | Optional | - |
-| `photoBlob` | `string \| null \| undefined` | Optional | Image id for `getImage`. |
+| `accountId` | `string \| null \| undefined` | Optional | The seller account that owns the shop, if it was made while signed in. |
+| `options` | [`ShopOption[] \| undefined`](/llms-pages/typescript/models/structures/shop-option.md) | Optional | - |
+| `optionStock` | `Record<string, number \| null> \| undefined` | Optional | Stock per combination, keyed by its values in option order joined with `/` (e.g. `M / Black`). A missing key or `null` means unlimited; `0` is sold out.<br><br>**Constraints**: `>= 0` |
+| `suggestions` | [`ShopSuggestions \| null \| undefined`](/llms-pages/typescript/models/oneof-anyof-definitions/shop-suggestions.md) | Optional | This is a container for one-of cases. |
+| `photoBlob` | `string \| null \| undefined` | Optional | Image id for `getImage`. The cover photo. |
+| `galleryBlobs` | `string[] \| undefined` | Optional | The other photos, in order. |
 | `heroBlob` | `string \| null \| undefined` | Optional | - |
 | `heroStatus` | [`HeroStatus \| undefined`](/llms-pages/typescript/models/enumerations/hero-status.md) | Optional | - |
 | `heroError` | `string \| null \| undefined` | Optional | - |
@@ -110,6 +117,10 @@ const shop: Shop = {
   stock: 234,
   delivery: Delivery1.File,
   accessUrl: 'access_url0',
+  optionStock: {
+    'M / Black': 4,
+    'L / Black': 0
+  },
 };
 ```
 

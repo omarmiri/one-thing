@@ -42,6 +42,10 @@ This method returns an [`ApiResponse`](/llms-pages/typescript/sdk-infrastructure
 const slug = 'raptorrush';
 
 const body: ShopUpdate = {
+  optionStock: {
+    'M / Black': 4,
+    'L / Black': 0
+  },
 };
 
 try {

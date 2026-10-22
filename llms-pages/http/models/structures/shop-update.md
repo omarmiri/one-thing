@@ -20,12 +20,19 @@ Source: /#/http/x-redirect/JTI0bSUyRlNob3BVcGRhdGU
 | `seller_email` | `String` | Optional | - |
 | `zapier_hook_url` | `String` | Optional | - |
 | `in_gallery` | `Boolean` | Optional | Feature the shop at `/gallery` while it's live. Off by default. |
+| `options` | [`array<Shop Option>`](/llms-pages/http/models/structures/shop-option.md) | Optional | What the buyer picks (physical products only), replacing the current options; `[]` removes them. With options, stock is counted per combination in `option_stock` and the shop's own `stock` is cleared. At most 60 combinations.<br><br>**Constraints**: *Maximum Items*: `3` |
+| `option_stock` | `map<Number>` | Optional | Stock per combination, keyed by its values in option order joined with `/` (e.g. `M / Black`). A missing key or `null` means unlimited; `0` is sold out.<br><br>**Constraints**: `>= 0` |
+| `facts` | [`array<Fact>`](/llms-pages/http/models/structures/fact.md) | Optional | Answers to the "buyers will ask" questions in `suggestions.missingFacts`. Each becomes a product detail on the page (replacing one with the same label) and drops off the list.<br><br>**Constraints**: *Maximum Items*: `5` |
 
 
 # Example (as JSON)
 
 ```json
 {
+  "option_stock": {
+    "M / Black": 4,
+    "L / Black": 0
+  },
   "slug": "slug8",
   "status": "draft",
   "product_type": "physical",

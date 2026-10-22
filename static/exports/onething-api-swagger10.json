@@ -67,6 +67,39 @@
       ]
     },
     {
+      "path": "/api/account/paypal",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "A link for a browser, not for code: redirects to PayPal's sign-in page. PayPal sends the seller back to `/api/account/paypal/callback`, which signs them in (creating the account the first time), records the PayPal account their sales are paid into, and redirects to `next`.",
+          "nickname": "logInWithPayPal",
+          "parameters": [
+            {
+              "name": "next",
+              "description": "A path on this site to land on afterwards. Defaults to `/account`.",
+              "paramType": "query",
+              "required": false,
+              "allowMultiple": false,
+              "uniqueItems": false,
+              "type": "string"
+            }
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "responseMessages": [
+            {
+              "code": 503,
+              "responseModel": "Error",
+              "message": "Log in with PayPal isn't switched on for this server."
+            }
+          ],
+          "uniqueItems": false,
+          "type": "void"
+        }
+      ]
+    },
+    {
       "path": "/api/shops",
       "operations": [
         {
@@ -639,6 +672,301 @@
       ]
     },
     {
+      "path": "/api/shops/{slug}/suggest",
+      "operations": [
+        {
+          "method": "POST",
+          "summary": "Asks Gemini what buyers will want to choose (sizes, colours) and what they'll ask that the\nlisting doesn't say (dimensions, materials). `createShop` already does this once; call it\nagain after editing the product. The result is saved as the shop's `suggestions`.\n\nNothing changes on the shop page until the seller confirms: save options with `updateShop`\n(`options`), and answer the questions with `updateShop` (`facts`). Not for recommendations.\n",
+          "nickname": "checkMissingDetails",
+          "parameters": [
+            {
+              "name": "slug",
+              "description": "The shop's link name (current or former).",
+              "paramType": "path",
+              "required": true,
+              "allowMultiple": false,
+              "uniqueItems": false,
+              "type": "string"
+            }
+          ],
+          "authorizations": {
+            "AdminToken": []
+          },
+          "produces": [
+            "application/json"
+          ],
+          "responseMessages": [
+            {
+              "code": 400,
+              "responseModel": "Error",
+              "message": "Something in the request needs fixing; `error` says what."
+            },
+            {
+              "code": 404,
+              "responseModel": "Error",
+              "message": "No such shop, or the admin token doesn't match it."
+            },
+            {
+              "code": 502,
+              "responseModel": "Error",
+              "message": "Gemini, PayPal or Channel3 failed or isn't configured."
+            }
+          ],
+          "uniqueItems": false,
+          "$ref": "Suggestions"
+        }
+      ]
+    },
+    {
+      "path": "/api/shops/{slug}/match-photos",
+      "operations": [
+        {
+          "method": "POST",
+          "summary": "Gemini looks at the shop's photos and says which one shows each colour, so buyers who pick a colour see it. Suggests only; save the matches with `setColorPhotos`. Needs at least two photos.",
+          "nickname": "matchColorPhotos",
+          "parameters": [
+            {
+              "name": "slug",
+              "description": "The shop's link name (current or former).",
+              "paramType": "path",
+              "required": true,
+              "allowMultiple": false,
+              "uniqueItems": false,
+              "type": "string"
+            },
+            {
+              "name": "Content-Type",
+              "description": "",
+              "paramType": "header",
+              "required": true,
+              "allowMultiple": false,
+              "defaultValue": "application/json",
+              "uniqueItems": false,
+              "type": "string"
+            },
+            {
+              "name": "body",
+              "description": "",
+              "paramType": "body",
+              "required": true,
+              "allowMultiple": false,
+              "uniqueItems": false,
+              "type": "ApiShopsMatchPhotosRequest"
+            }
+          ],
+          "authorizations": {
+            "AdminToken": []
+          },
+          "produces": [
+            "application/json"
+          ],
+          "consumes": [
+            "application/json"
+          ],
+          "responseMessages": [
+            {
+              "code": 400,
+              "responseModel": "Error",
+              "message": "Something in the request needs fixing; `error` says what."
+            },
+            {
+              "code": 404,
+              "responseModel": "Error",
+              "message": "No such shop, or the admin token doesn't match it."
+            },
+            {
+              "code": 502,
+              "responseModel": "Error",
+              "message": "Gemini, PayPal or Channel3 failed or isn't configured."
+            }
+          ],
+          "uniqueItems": false,
+          "$ref": "ApiShopsMatchPhotosResponse"
+        }
+      ]
+    },
+    {
+      "path": "/api/shops/{slug}/color-photos",
+      "operations": [
+        {
+          "method": "PUT",
+          "summary": "Saves which photo shows each colour, and nothing else about the shop. Only colours already saved in the shop's options change; `null` clears a colour's photo. A photo id that isn't one of the shop's photos is ignored.",
+          "nickname": "setColorPhotos",
+          "parameters": [
+            {
+              "name": "slug",
+              "description": "The shop's link name (current or former).",
+              "paramType": "path",
+              "required": true,
+              "allowMultiple": false,
+              "uniqueItems": false,
+              "type": "string"
+            },
+            {
+              "name": "Content-Type",
+              "description": "",
+              "paramType": "header",
+              "required": true,
+              "allowMultiple": false,
+              "defaultValue": "application/json",
+              "uniqueItems": false,
+              "type": "string"
+            },
+            {
+              "name": "body",
+              "description": "",
+              "paramType": "body",
+              "required": true,
+              "allowMultiple": false,
+              "uniqueItems": false,
+              "type": "ApiShopsColorPhotosRequest"
+            }
+          ],
+          "authorizations": {
+            "AdminToken": []
+          },
+          "produces": [
+            "application/json"
+          ],
+          "consumes": [
+            "application/json"
+          ],
+          "responseMessages": [
+            {
+              "code": 400,
+              "responseModel": "Error",
+              "message": "Something in the request needs fixing; `error` says what."
+            },
+            {
+              "code": 404,
+              "responseModel": "Error",
+              "message": "No such shop, or the admin token doesn't match it."
+            }
+          ],
+          "uniqueItems": false,
+          "$ref": "ApiShopsColorPhotosResponse"
+        }
+      ]
+    },
+    {
+      "path": "/api/shops/{slug}/paypal",
+      "operations": [
+        {
+          "method": "POST",
+          "summary": "Starts PayPal's seller onboarding (Partner Referrals). Send the seller's browser to the\nreturned `url`; they sign in to PayPal (or create a business account) and grant OneThing\npermission. PayPal brings them back to `/api/shops/<slug>/paypal/return`, which saves the\nconnection and opens the manage page. From then on, sales are paid to that account.\n\nWithout a connection, a shop can still go live with a typed `paypal_email`.\n",
+          "nickname": "connectPayPal",
+          "parameters": [
+            {
+              "name": "slug",
+              "description": "The shop's link name (current or former).",
+              "paramType": "path",
+              "required": true,
+              "allowMultiple": false,
+              "uniqueItems": false,
+              "type": "string"
+            }
+          ],
+          "authorizations": {
+            "AdminToken": []
+          },
+          "produces": [
+            "application/json"
+          ],
+          "responseMessages": [
+            {
+              "code": 404,
+              "responseModel": "Error",
+              "message": "No such shop, or the admin token doesn't match it."
+            },
+            {
+              "code": 502,
+              "responseModel": "Error",
+              "message": "Gemini, PayPal or Channel3 failed or isn't configured."
+            },
+            {
+              "code": 503,
+              "responseModel": "Error",
+              "message": "Gemini, PayPal or Channel3 failed or isn't configured."
+            }
+          ],
+          "uniqueItems": false,
+          "$ref": "ApiShopsPaypalResponse"
+        },
+        {
+          "method": "GET",
+          "summary": "Asks PayPal where the seller's connection stands and saves it on the shop. Also finds a connection the seller finished at PayPal without coming back.",
+          "nickname": "getPayPalConnection",
+          "parameters": [
+            {
+              "name": "slug",
+              "description": "The shop's link name (current or former).",
+              "paramType": "path",
+              "required": true,
+              "allowMultiple": false,
+              "uniqueItems": false,
+              "type": "string"
+            }
+          ],
+          "authorizations": {
+            "AdminToken": []
+          },
+          "produces": [
+            "application/json"
+          ],
+          "responseMessages": [
+            {
+              "code": 404,
+              "responseModel": "Error",
+              "message": "No such shop, or the admin token doesn't match it."
+            },
+            {
+              "code": 502,
+              "responseModel": "Error",
+              "message": "Gemini, PayPal or Channel3 failed or isn't configured."
+            },
+            {
+              "code": 503,
+              "responseModel": "Error",
+              "message": "Gemini, PayPal or Channel3 failed or isn't configured."
+            }
+          ],
+          "uniqueItems": false,
+          "$ref": "ApiShopsPaypalResponse1"
+        },
+        {
+          "method": "DELETE",
+          "summary": "Forgets the connected account. Sales go back to the shop's `paypal_email`.",
+          "nickname": "disconnectPayPal",
+          "parameters": [
+            {
+              "name": "slug",
+              "description": "The shop's link name (current or former).",
+              "paramType": "path",
+              "required": true,
+              "allowMultiple": false,
+              "uniqueItems": false,
+              "type": "string"
+            }
+          ],
+          "authorizations": {
+            "AdminToken": []
+          },
+          "produces": [
+            "application/json"
+          ],
+          "responseMessages": [
+            {
+              "code": 404,
+              "responseModel": "Error",
+              "message": "No such shop, or the admin token doesn't match it."
+            }
+          ],
+          "uniqueItems": false,
+          "$ref": "Ok"
+        }
+      ]
+    },
+    {
       "path": "/api/slugs/check",
       "operations": [
         {
@@ -736,7 +1064,7 @@
       "operations": [
         {
           "method": "POST",
-          "summary": "Creates the PayPal order for one unit of a live shop's product. The amount always comes\nfrom the shop, never from the caller. Pass the returned `id` to the PayPal JS SDK.\n",
+          "summary": "Creates the PayPal order for one unit of a live shop's product. The amount always comes\nfrom the shop, never from the caller. Pass the returned `id` to the PayPal JS SDK.\n\nIf the shop has buyer `options`, send one value for each. A sold-out combination answers 409.\n",
           "nickname": "createCheckoutOrder",
           "parameters": [
             {
@@ -833,6 +1161,11 @@
               "code": 409,
               "responseModel": "ApiOrdersCapture409Error1",
               "message": "The buyer hasn't approved the order yet."
+            },
+            {
+              "code": 410,
+              "responseModel": "Error",
+              "message": "The last unit (or the last of the buyer's combination) sold while they were paying. The payment isn't captured, so the buyer isn't charged."
             },
             {
               "code": 422,
@@ -1104,6 +1437,85 @@
           "type": "object"
         }
       ]
+    },
+    {
+      "path": "/api/agent/shops/{slug}",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "Everything an AI shopping agent needs to describe the product and decide to buy it: price, shipping, delivery, availability, options, images and FAQ. Public. Buying goes through the MCP server named in `mcp_server`. Shop pages also carry the same facts as schema.org `Product` JSON-LD.",
+          "nickname": "getAgentProduct",
+          "parameters": [
+            {
+              "name": "slug",
+              "description": "The shop's link name (current or former).",
+              "paramType": "path",
+              "required": true,
+              "allowMultiple": false,
+              "uniqueItems": false,
+              "type": "string"
+            }
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "responseMessages": [
+            {
+              "code": 404,
+              "responseModel": "Error",
+              "message": "No live shop with that link name."
+            }
+          ],
+          "uniqueItems": false,
+          "$ref": "AgentProduct"
+        }
+      ]
+    },
+    {
+      "path": "/api/mcp",
+      "operations": [
+        {
+          "method": "POST",
+          "summary": "A [Model Context Protocol](https://modelcontextprotocol.io) server, so agents such as\nClaude can shop here. Add `https://<host>/api/mcp` to an MCP client as a Streamable HTTP\nserver. It's stateless: each POST carries one JSON-RPC 2.0 message (or a batch) and gets a\nplain JSON reply, with no session and no event stream.\n\nMethods: `initialize`, `ping`, `tools/list`, `tools/call`. Tools:\n\n| Tool | Arguments | What it does |\n|---|---|---|\n| `search_shops` | `query?`, `limit?` (1–25) | Live gallery shops whose name or headline has every word |\n| `get_product` | `shop` | The same object as `getAgentProduct` |\n| `create_order` | `shop`, `options?` | One unit on order; returns `order_id` and `approve_url` |\n| `get_order` | `order_id` | `awaiting_buyer_approval` or `paid`, with the receipt link once paid |\n\n**The buyer always approves.** `create_order` charges nothing: the agent gives the buyer\n`approve_url`, they pay at PayPal, and the agent polls `get_order`. Orders made this way\nshow `channel: agent` in `listOrders`.\n\nTool errors (an unknown shop, a sold-out size) come back as results with `isError: true`,\nso the model can read them and try something else.\n",
+          "nickname": "callMcp",
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "description": "",
+              "paramType": "header",
+              "required": true,
+              "allowMultiple": false,
+              "defaultValue": "application/json",
+              "uniqueItems": false,
+              "type": "string"
+            },
+            {
+              "name": "body",
+              "description": "",
+              "paramType": "body",
+              "required": true,
+              "allowMultiple": false,
+              "uniqueItems": false,
+              "type": "object"
+            }
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "consumes": [
+            "application/json"
+          ],
+          "responseMessages": [
+            {
+              "code": 400,
+              "responseModel": "JsonRpcResponse",
+              "message": "Not JSON (JSON-RPC parse error `-32700`)."
+            }
+          ],
+          "uniqueItems": false,
+          "type": "object"
+        }
+      ]
     }
   ],
   "models": {
@@ -1357,6 +1769,30 @@
           "description": "Feature the shop at `/gallery` while it's live. Off by default.",
           "uniqueItems": false,
           "type": "boolean"
+        },
+        "options": {
+          "description": "What the buyer picks (physical products only), replacing the current options; `[]` removes them. With options, stock is counted per combination in `option_stock` and the shop's own `stock` is cleared. At most 60 combinations.",
+          "items": {
+            "$ref": "ShopOption"
+          },
+          "uniqueItems": false,
+          "type": "array"
+        },
+        "option_stock": {
+          "description": "Stock per combination, keyed by its values in option order joined with ` / ` (e.g. `M / Black`). A missing key or `null` means unlimited; `0` is sold out.",
+          "minimum": "0",
+          "maximum": "",
+          "uniqueItems": false,
+          "type": "integer",
+          "format": "int32"
+        },
+        "facts": {
+          "description": "Answers to the \"buyers will ask\" questions in `suggestions.missingFacts`. Each becomes a product detail on the page (replacing one with the same label) and drops off the list.",
+          "items": {
+            "$ref": "Fact"
+          },
+          "uniqueItems": false,
+          "type": "array"
         }
       }
     },
@@ -1459,6 +1895,16 @@
           "uniqueItems": false,
           "type": "string"
         },
+        "paypal_merchant_id": {
+          "description": "The connected PayPal account (`connectPayPal`). Sales go here when it can receive payments.",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "paypal_status": {
+          "description": "",
+          "uniqueItems": false,
+          "$ref": "PayPalStatus"
+        },
         "zapier_hook_url": {
           "description": "",
           "uniqueItems": false,
@@ -1469,10 +1915,44 @@
           "uniqueItems": false,
           "type": "boolean"
         },
-        "photo_blob": {
-          "description": "Image id for `getImage`.",
+        "account_id": {
+          "description": "The seller account that owns the shop, if it was made while signed in.",
           "uniqueItems": false,
           "type": "string"
+        },
+        "options": {
+          "description": "",
+          "items": {
+            "$ref": "ShopOption"
+          },
+          "uniqueItems": false,
+          "type": "array"
+        },
+        "option_stock": {
+          "description": "Stock per combination, keyed by its values in option order joined with ` / ` (e.g. `M / Black`). A missing key or `null` means unlimited; `0` is sold out.",
+          "minimum": "0",
+          "maximum": "",
+          "uniqueItems": false,
+          "type": "integer",
+          "format": "int32"
+        },
+        "suggestions": {
+          "description": "",
+          "uniqueItems": false,
+          "$ref": "Suggestions"
+        },
+        "photo_blob": {
+          "description": "Image id for `getImage`. The cover photo.",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "gallery_blobs": {
+          "description": "The other photos, in order.",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": false,
+          "type": "array"
         },
         "hero_blob": {
           "description": "",
@@ -1651,6 +2131,361 @@
           "description": "",
           "uniqueItems": false,
           "type": "string"
+        }
+      }
+    },
+    "ShopOption": {
+      "id": "ShopOption",
+      "description": "Something the buyer picks, such as a size or a colour. The shop still sells one product.",
+      "required": [
+        "name",
+        "kind",
+        "values"
+      ],
+      "properties": {
+        "name": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "kind": {
+          "description": "`color` shows swatches, and the photo of the picked colour.",
+          "enum": [
+            "size",
+            "color",
+            "other"
+          ],
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "values": {
+          "description": "",
+          "items": {
+            "$ref": "OptionValue"
+          },
+          "uniqueItems": false,
+          "type": "array"
+        }
+      }
+    },
+    "OptionValue": {
+      "id": "OptionValue",
+      "required": [
+        "label"
+      ],
+      "properties": {
+        "label": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "hex": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "photo": {
+          "description": "Colours: the shop photo (id) that shows this colour. See `matchColorPhotos`.",
+          "uniqueItems": false,
+          "type": "string"
+        }
+      }
+    },
+    "Suggestions": {
+      "id": "Suggestions",
+      "description": "What Gemini thinks buyers will want to choose or ask. The seller confirms; nothing is applied on its own.",
+      "required": [
+        "oneOfAKind",
+        "options",
+        "missingFacts"
+      ],
+      "properties": {
+        "oneOfAKind": {
+          "description": "A single item (vintage, handmade), so options and stock don't apply.",
+          "uniqueItems": false,
+          "type": "boolean"
+        },
+        "options": {
+          "description": "",
+          "items": {
+            "$ref": "Option"
+          },
+          "uniqueItems": false,
+          "type": "array"
+        },
+        "missingFacts": {
+          "description": "",
+          "items": {
+            "$ref": "MissingFact"
+          },
+          "uniqueItems": false,
+          "type": "array"
+        }
+      }
+    },
+    "PayPalStatus": {
+      "id": "PayPalStatus",
+      "description": "What PayPal last said about a connected seller account.",
+      "required": [
+        "receivable",
+        "emailConfirmed",
+        "checkedAt"
+      ],
+      "properties": {
+        "receivable": {
+          "description": "The account can receive payments.",
+          "uniqueItems": false,
+          "type": "boolean"
+        },
+        "emailConfirmed": {
+          "description": "The seller has confirmed their email with PayPal.",
+          "uniqueItems": false,
+          "type": "boolean"
+        },
+        "checkedAt": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "AgentProduct": {
+      "id": "AgentProduct",
+      "description": "A live shop as an AI agent sees it. Recommendations have `offers`; everything else has `price` and is bought with `create_order`.",
+      "required": [
+        "shop",
+        "url",
+        "name",
+        "kind",
+        "headline",
+        "description",
+        "highlights",
+        "details",
+        "faq",
+        "images",
+        "how_to_buy"
+      ],
+      "properties": {
+        "shop": {
+          "description": "The link name, which the MCP tools take as `shop`.",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "url": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "name": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "kind": {
+          "description": "",
+          "enum": [
+            "physical",
+            "digital",
+            "referral"
+          ],
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "headline": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "description": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "highlights": {
+          "description": "",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": false,
+          "type": "array"
+        },
+        "details": {
+          "description": "",
+          "items": {
+            "$ref": "Detail"
+          },
+          "uniqueItems": false,
+          "type": "array"
+        },
+        "faq": {
+          "description": "",
+          "items": {
+            "$ref": "Faq"
+          },
+          "uniqueItems": false,
+          "type": "array"
+        },
+        "images": {
+          "description": "",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": false,
+          "type": "array"
+        },
+        "price": {
+          "description": "",
+          "uniqueItems": false,
+          "$ref": "AgentMoney"
+        },
+        "shipping": {
+          "description": "Physical products only.",
+          "uniqueItems": false,
+          "$ref": "Shipping"
+        },
+        "total": {
+          "description": "",
+          "uniqueItems": false,
+          "$ref": "AgentMoney"
+        },
+        "delivery": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "availability": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "options": {
+          "description": "Pass one value per option to `create_order`.",
+          "items": {
+            "$ref": "Option1"
+          },
+          "uniqueItems": false,
+          "type": "array"
+        },
+        "variants": {
+          "description": "",
+          "items": {
+            "$ref": "Variant"
+          },
+          "uniqueItems": false,
+          "type": "array"
+        },
+        "offers": {
+          "description": "Recommendations only. Bought at the retailer.",
+          "items": {
+            "$ref": "Offer1"
+          },
+          "uniqueItems": false,
+          "type": "array"
+        },
+        "how_to_buy": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "mcp_server": {
+          "description": "The MCP server to order through (`getAgentProduct` only).",
+          "uniqueItems": false,
+          "type": "string"
+        }
+      }
+    },
+    "AgentMoney": {
+      "id": "AgentMoney",
+      "required": [
+        "amount",
+        "currency"
+      ],
+      "properties": {
+        "amount": {
+          "description": "",
+          "minimum": "",
+          "maximum": "",
+          "uniqueItems": false,
+          "type": "number",
+          "format": "double"
+        },
+        "currency": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "label": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        }
+      }
+    },
+    "JsonRpcRequest": {
+      "id": "JsonRpcRequest",
+      "required": [
+        "jsonrpc",
+        "method"
+      ],
+      "properties": {
+        "jsonrpc": {
+          "description": "",
+          "defaultValue": "2.0",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "id": {
+          "description": "Leave out for a notification.",
+          "uniqueItems": false,
+          "type": "object"
+        },
+        "method": {
+          "description": "",
+          "enum": [
+            "initialize",
+            "ping",
+            "tools/list",
+            "tools/call",
+            "notifications/initialized"
+          ],
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "params": {
+          "description": "For `tools/call`: `{ name, arguments }`.",
+          "uniqueItems": false,
+          "type": "object"
+        }
+      }
+    },
+    "JsonRpcResponse": {
+      "id": "JsonRpcResponse",
+      "required": [
+        "jsonrpc",
+        "id"
+      ],
+      "properties": {
+        "jsonrpc": {
+          "description": "",
+          "defaultValue": "2.0",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "id": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "object"
+        },
+        "result": {
+          "description": "For `tools/call`: `content` (the answer as JSON text), `structuredContent` (the same object) and `isError`.",
+          "uniqueItems": false,
+          "type": "object"
+        },
+        "error": {
+          "description": "",
+          "uniqueItems": false,
+          "$ref": "Error1"
         }
       }
     },
@@ -1880,6 +2715,20 @@
           "type": "integer",
           "format": "int32"
         },
+        "channel": {
+          "description": "`agent` for orders an AI agent placed through the MCP server.",
+          "enum": [
+            "web",
+            "agent"
+          ],
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "options": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        },
         "paid_at": {
           "description": "",
           "uniqueItems": false,
@@ -2106,6 +2955,11 @@
           "description": "",
           "uniqueItems": false,
           "type": "string"
+        },
+        "options": {
+          "description": "The buyer's pick, one value per option, keyed by option name.",
+          "uniqueItems": false,
+          "type": "string"
         }
       }
     },
@@ -2135,6 +2989,35 @@
         }
       }
     },
+    "ApiShopsColorPhotosRequest": {
+      "id": "ApiShopsColorPhotosRequest",
+      "required": [
+        "photos"
+      ],
+      "properties": {
+        "photos": {
+          "description": "Colour label → photo id, or `null`.",
+          "uniqueItems": false,
+          "type": "string"
+        }
+      }
+    },
+    "ApiShopsColorPhotosResponse": {
+      "id": "ApiShopsColorPhotosResponse",
+      "required": [
+        "saved"
+      ],
+      "properties": {
+        "saved": {
+          "description": "",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": false,
+          "type": "array"
+        }
+      }
+    },
     "ApiShopsFileResponse": {
       "id": "ApiShopsFileResponse",
       "required": [
@@ -2148,6 +3031,35 @@
           "type": "boolean"
         },
         "filename": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        }
+      }
+    },
+    "ApiShopsMatchPhotosRequest": {
+      "id": "ApiShopsMatchPhotosRequest",
+      "required": [
+        "colors"
+      ],
+      "properties": {
+        "colors": {
+          "description": "",
+          "items": {
+            "$ref": "Color"
+          },
+          "uniqueItems": false,
+          "type": "array"
+        }
+      }
+    },
+    "ApiShopsMatchPhotosResponse": {
+      "id": "ApiShopsMatchPhotosResponse",
+      "required": [
+        "matches"
+      ],
+      "properties": {
+        "matches": {
           "description": "",
           "uniqueItems": false,
           "type": "string"
@@ -2201,6 +3113,38 @@
           "description": "Whether PayPal accepted the tracking number.",
           "uniqueItems": false,
           "type": "boolean"
+        }
+      }
+    },
+    "ApiShopsPaypalResponse": {
+      "id": "ApiShopsPaypalResponse",
+      "required": [
+        "url"
+      ],
+      "properties": {
+        "url": {
+          "description": "PayPal's onboarding page for this shop.",
+          "uniqueItems": false,
+          "type": "string"
+        }
+      }
+    },
+    "ApiShopsPaypalResponse1": {
+      "id": "ApiShopsPaypalResponse1",
+      "required": [
+        "merchantId",
+        "status"
+      ],
+      "properties": {
+        "merchantId": {
+          "description": "The seller's PayPal merchant id.",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "status": {
+          "description": "",
+          "uniqueItems": false,
+          "$ref": "PayPalStatus"
         }
       }
     },
@@ -2289,8 +3233,67 @@
         }
       }
     },
+    "Color": {
+      "id": "Color",
+      "required": [
+        "label"
+      ],
+      "properties": {
+        "label": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "hex": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        }
+      }
+    },
     "Detail": {
       "id": "Detail",
+      "required": [
+        "label",
+        "value"
+      ],
+      "properties": {
+        "label": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "value": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        }
+      }
+    },
+    "Error1": {
+      "id": "Error1",
+      "required": [
+        "code",
+        "message"
+      ],
+      "properties": {
+        "code": {
+          "description": "",
+          "minimum": "",
+          "maximum": "",
+          "uniqueItems": false,
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        }
+      }
+    },
+    "Fact": {
+      "id": "Fact",
       "required": [
         "label",
         "value"
@@ -2346,6 +3349,31 @@
         }
       }
     },
+    "MissingFact": {
+      "id": "MissingFact",
+      "required": [
+        "label",
+        "question",
+        "placeholder"
+      ],
+      "properties": {
+        "label": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "question": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "placeholder": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        }
+      }
+    },
     "Offer": {
       "id": "Offer",
       "required": [
@@ -2395,6 +3423,46 @@
         }
       }
     },
+    "Offer1": {
+      "id": "Offer1",
+      "required": [
+        "retailer",
+        "price",
+        "currency",
+        "in_stock",
+        "url"
+      ],
+      "properties": {
+        "retailer": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "price": {
+          "description": "",
+          "minimum": "",
+          "maximum": "",
+          "uniqueItems": false,
+          "type": "number",
+          "format": "double"
+        },
+        "currency": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "in_stock": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "boolean"
+        },
+        "url": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        }
+      }
+    },
     "Ok": {
       "id": "Ok",
       "required": [
@@ -2405,6 +3473,66 @@
           "description": "",
           "uniqueItems": false,
           "type": "boolean"
+        }
+      }
+    },
+    "Option": {
+      "id": "Option",
+      "required": [
+        "name",
+        "kind",
+        "values"
+      ],
+      "properties": {
+        "name": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "kind": {
+          "description": "`color` shows swatches, and the photo of the picked colour.",
+          "enum": [
+            "size",
+            "color",
+            "other"
+          ],
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "values": {
+          "description": "",
+          "items": {
+            "$ref": "OptionValue"
+          },
+          "uniqueItems": false,
+          "type": "array"
+        },
+        "fromSeller": {
+          "description": "The seller's description or photo named these values; otherwise they're a guess.",
+          "uniqueItems": false,
+          "type": "boolean"
+        }
+      }
+    },
+    "Option1": {
+      "id": "Option1",
+      "required": [
+        "name",
+        "values"
+      ],
+      "properties": {
+        "name": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "values": {
+          "description": "",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": false,
+          "type": "array"
         }
       }
     },
@@ -2526,6 +3654,37 @@
         }
       }
     },
+    "Shipping": {
+      "id": "Shipping",
+      "required": [
+        "amount",
+        "currency",
+        "ships_to"
+      ],
+      "properties": {
+        "amount": {
+          "description": "",
+          "minimum": "",
+          "maximum": "",
+          "uniqueItems": false,
+          "type": "number",
+          "format": "double"
+        },
+        "currency": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "ships_to": {
+          "description": "Country codes; empty means anywhere PayPal ships.",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": false,
+          "type": "array"
+        }
+      }
+    },
     "Shop1": {
       "id": "Shop1",
       "required": [],
@@ -2560,6 +3719,25 @@
           },
           "uniqueItems": false,
           "type": "array"
+        }
+      }
+    },
+    "Variant": {
+      "id": "Variant",
+      "required": [
+        "choice",
+        "availability"
+      ],
+      "properties": {
+        "choice": {
+          "description": "The buyer's pick, one value per option, keyed by option name.",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "availability": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
         }
       }
     }

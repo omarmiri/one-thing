@@ -13,6 +13,7 @@ Source: /#/typescript/x-redirect/JTI0bSUyRkFwaSUyNTIwT3JkZXJzJTI1MjBSZXF1ZXN0
 | Name | Type | Tags | Description |
 |  --- | --- | --- | --- |
 | `slug` | `string` | Required | - |
+| `options` | `Record<string, string> \| undefined` | Optional | The buyer's pick, one value per option, keyed by option name. |
 
 
 # Example
@@ -22,6 +23,10 @@ import { ApiOrdersRequest } from 'one-thing-sdk';
 
 const apiOrdersRequest: ApiOrdersRequest = {
   slug: 'slug4',
+  options: {
+    'Size': 'M',
+    'Color': 'Black'
+  },
 };
 ```
 

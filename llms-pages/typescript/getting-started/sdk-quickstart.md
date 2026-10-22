@@ -23,6 +23,11 @@ endpoints (checkout, access-code verification, downloads) are public.
 Each paid order gets a code such as `K7QF-M2XP-9HTD`; your app calls `verifyAccessCode`
 before unlocking. Raptor Rush on miriogames.com is a live example.
 
+**Agent-ready.** Every live shop is also published for AI shopping agents: product JSON at
+`getAgentProduct`, and an MCP server at `/api/mcp` with `search_shops`, `get_product`,
+`create_order` and `get_order`. An agent can find and order, but the buyer still approves
+every payment at PayPal.
+
 All money moves through PayPal (sandbox in this deployment). OneThing never holds card data.
 
 

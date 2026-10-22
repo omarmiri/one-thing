@@ -1,6 +1,6 @@
 # API Name: "OneThing API"
 # Host: https://one-thing-ash0.onrender.com
-# OneThing turns a photo, a link or a picked product into a live one-product shop that takes\nPayPal payments, or a recommendation page that earns referral commissions through Channel3.\n\n**How a shop is made**\n1. `createShop`: start from a photo, a link, or a Channel3 product. Gemini guesses what it\n   is, how it's delivered, the price, a short link and the page design. You get back the\n   shop's link name and an **admin token**.\n2. `updateShop`: correct anything the AI guessed, then set `status: live`.\n3. Buyers pay on `https://<host>/<slug>` with PayPal. Sellers read orders and ship them.\n\n**Auth.** Seller endpoints take the shop's admin token in the `x-admin-token` header. Buyer\nendpoints (checkout, access-code verification, downloads) are public.\n\n**Access codes.** A digital product can unlock an app or game instead of shipping a file.\nEach paid order gets a code such as `K7QF-M2XP-9HTD`; your app calls `verifyAccessCode`\nbefore unlocking. Raptor Rush on miriogames.com is a live example.\n\nAll money moves through PayPal (sandbox in this deployment). OneThing never holds card data.
+# OneThing turns a photo, a link or a picked product into a live one-product shop that takes\nPayPal payments, or a recommendation page that earns referral commissions through Channel3.\n\n**How a shop is made**\n1. `createShop`: start from a photo, a link, or a Channel3 product. Gemini guesses what it\n   is, how it's delivered, the price, a short link and the page design. You get back the\n   shop's link name and an **admin token**.\n2. `updateShop`: correct anything the AI guessed, then set `status: live`.\n3. Buyers pay on `https://<host>/<slug>` with PayPal. Sellers read orders and ship them.\n\n**Auth.** Seller endpoints take the shop's admin token in the `x-admin-token` header. Buyer\nendpoints (checkout, access-code verification, downloads) are public.\n\n**Access codes.** A digital product can unlock an app or game instead of shipping a file.\nEach paid order gets a code such as `K7QF-M2XP-9HTD`; your app calls `verifyAccessCode`\nbefore unlocking. Raptor Rush on miriogames.com is a live example.\n\n**Agent-ready.** Every live shop is also published for AI shopping agents: product JSON at\n`getAgentProduct`, and an MCP server at `/api/mcp` with `search_shops`, `get_product`,\n`create_order` and `get_order`. An agent can find and order, but the buyer still approves\nevery payment at PayPal.\n\nAll money moves through PayPal (sandbox in this deployment). OneThing never holds card data.
 
 enum AiSource {
     FALLBACK
@@ -13,6 +13,12 @@ enum Carrier {
     OTHER
     UPS
     USPS
+}
+
+"`agent` for orders an AI agent placed through the MCP server."
+enum Channel {
+    AGENT
+    WEB
 }
 
 "For digital products. If omitted, the AI guesses."
@@ -45,11 +51,32 @@ enum HeroStatus {
     READY
 }
 
+"`color` shows swatches, and the photo of the picked colour."
+enum Kind {
+    COLOR
+    OTHER
+    SIZE
+}
+
+enum Kind1 {
+    DIGITAL
+    PHYSICAL
+    REFERRAL
+}
+
 enum Layout {
     BOLDHERO
     EDITORIAL
     MINIMAL
     PLAYFUL
+}
+
+enum Method {
+    INITIALIZE
+    NOTIFICATIONSINITIALIZED
+    PING
+    TOOLSCALL
+    TOOLSLIST
 }
 
 "`referral` only for shops created from Channel3."
@@ -157,6 +184,12 @@ type ShopUpdate {
     zapierHookUrl: String
     "Feature the shop at `/gallery` while it's live. Off by default."
     inGallery: Boolean!
+    "What the buyer picks (physical products only), replacing the current options; `[]` removes them. With options, stock is counted per combination in `option_stock` and the shop's own `stock` is cleared. At most 60 combinations."
+    options: [ShopOption!]
+    "Stock per combination, keyed by its values in option order joined with ` / ` (e.g. `M / Black`). A missing key or `null` means unlimited; `0` is sold out."
+    optionStock: Int!
+    "Answers to the \"buyers will ask\" questions in `suggestions.missingFacts`. Each becomes a product detail on the page (replacing one with the same label) and drops off the list."
+    facts: [Fact!]
 }
 
 type Shop {
@@ -173,10 +206,21 @@ type Shop {
     accessUrl: String
     paypalEmail: String
     sellerEmail: String
+    "The connected PayPal account (`connectPayPal`). Sales go here when it can receive payments."
+    paypalMerchantId: String
+    paypalStatus: PayPalStatus
     zapierHookUrl: String
     inGallery: Boolean!
-    "Image id for `getImage`."
+    "The seller account that owns the shop, if it was made while signed in."
+    accountId: String
+    options: [ShopOption!]
+    "Stock per combination, keyed by its values in option order joined with ` / ` (e.g. `M / Black`). A missing key or `null` means unlimited; `0` is sold out."
+    optionStock: Int!
+    suggestions: Suggestions
+    "Image id for `getImage`. The cover photo."
     photoBlob: String
+    "The other photos, in order."
+    galleryBlobs: [String!]
     heroBlob: String
     heroStatus: HeroStatus!
     heroError: String
@@ -207,6 +251,90 @@ type DesignSpec {
     suggestedShippingUsd: Float!
     imageAlt: String!
     heroPrompt: String!
+}
+
+"Something the buyer picks, such as a size or a colour. The shop still sells one product."
+type ShopOption {
+    name: String!
+    "`color` shows swatches, and the photo of the picked colour."
+    kind: Kind!
+    values: [OptionValue!]
+}
+
+type OptionValue {
+    label: String!
+    hex: String!
+    "Colours: the shop photo (id) that shows this colour. See `matchColorPhotos`."
+    photo: String!
+}
+
+"What Gemini thinks buyers will want to choose or ask. The seller confirms; nothing is applied on its own."
+type Suggestions {
+    "A single item (vintage, handmade), so options and stock don't apply."
+    oneOfAKind: Boolean!
+    options: [Option!]
+    missingFacts: [MissingFact!]
+}
+
+"What PayPal last said about a connected seller account."
+type PayPalStatus {
+    "The account can receive payments."
+    receivable: Boolean!
+    "The seller has confirmed their email with PayPal."
+    emailConfirmed: Boolean!
+    checkedAt: String!
+}
+
+"A live shop as an AI agent sees it. Recommendations have `offers`; everything else has `price` and is bought with `create_order`."
+type AgentProduct {
+    "The link name, which the MCP tools take as `shop`."
+    shop: String!
+    url: String!
+    name: String!
+    kind: Kind1!
+    headline: String!
+    description: String!
+    highlights: [String!]
+    details: [Detail!]
+    faq: [Faq!]
+    images: [String!]
+    price: AgentMoney!
+    "Physical products only."
+    shipping: Shipping
+    total: AgentMoney!
+    delivery: String!
+    availability: String!
+    "Pass one value per option to `create_order`."
+    options: [Option1!]
+    variants: [Variant!]
+    "Recommendations only. Bought at the retailer."
+    offers: [Offer1!]
+    howToBuy: String!
+    "The MCP server to order through (`getAgentProduct` only)."
+    mcpServer: String!
+}
+
+type AgentMoney {
+    amount: Float!
+    currency: String!
+    label: String!
+}
+
+type JsonRpcRequest {
+    jsonrpc: String!
+    "Leave out for a notification."
+    id: String
+    method: Method!
+    "For `tools/call`: `{ name, arguments }`."
+    params: String!
+}
+
+type JsonRpcResponse {
+    jsonrpc: String!
+    id: String
+    "For `tools/call`: `content` (the answer as JSON text), `structuredContent` (the same object) and `isError`."
+    result: String!
+    error: Error1!
 }
 
 "A recommended Channel3 product. Buy links are Channel3-tracked, credited to this shop."
@@ -250,6 +378,9 @@ type Order {
     downloads: Int!
     accessCode: String
     codeUses: Int!
+    "`agent` for orders an AI agent placed through the MCP server."
+    channel: Channel!
+    options: String
     paidAt: String
     createdAt: String!
 }
@@ -313,6 +444,8 @@ type ApiOrdersCaptureResponse {
 
 type ApiOrdersRequest {
     slug: String!
+    "The buyer's pick, one value per option, keyed by option name."
+    options: String!
 }
 
 type ApiOrdersResponse {
@@ -325,9 +458,26 @@ type ApiPaypalClientTokenResponse {
     clientToken: String!
 }
 
+type ApiShopsColorPhotosRequest {
+    "Colour label → photo id, or `null`."
+    photos: String!
+}
+
+type ApiShopsColorPhotosResponse {
+    saved: [String!]
+}
+
 type ApiShopsFileResponse {
     ok: Boolean!
     filename: String!
+}
+
+type ApiShopsMatchPhotosRequest {
+    colors: [Color!]
+}
+
+type ApiShopsMatchPhotosResponse {
+    matches: String!
 }
 
 type ApiShopsOrdersShipRequest {
@@ -341,6 +491,17 @@ type ApiShopsOrdersShipResponse {
     ok: Boolean!
     "Whether PayPal accepted the tracking number."
     synced: Boolean!
+}
+
+type ApiShopsPaypalResponse {
+    "PayPal's onboarding page for this shop."
+    url: String!
+}
+
+type ApiShopsPaypalResponse1 {
+    "The seller's PayPal merchant id."
+    merchantId: String
+    status: PayPalStatus
 }
 
 type ApiShopsPhotosRequest {
@@ -370,7 +531,22 @@ type ApiSlugsCheckResponse {
     problem: String!
 }
 
+type Color {
+    label: String!
+    hex: String!
+}
+
 type Detail {
+    label: String!
+    value: String!
+}
+
+type Error1 {
+    code: Int!
+    message: String!
+}
+
+type Fact {
     label: String!
     value: String!
 }
@@ -385,6 +561,12 @@ type Fonts {
     body: String!
 }
 
+type MissingFact {
+    label: String!
+    question: String!
+    placeholder: String!
+}
+
 type Offer {
     domain: String!
     url: String!
@@ -395,8 +577,30 @@ type Offer {
     commission: Float!
 }
 
+type Offer1 {
+    retailer: String!
+    price: Float!
+    currency: String!
+    inStock: Boolean!
+    url: String!
+}
+
 type Ok {
     ok: Boolean!
+}
+
+type Option {
+    name: String!
+    "`color` shows swatches, and the photo of the picked colour."
+    kind: Kind!
+    values: [OptionValue!]
+    "The seller's description or photo named these values; otherwise they're a guess."
+    fromSeller: Boolean!
+}
+
+type Option1 {
+    name: String!
+    values: [String!]
 }
 
 type Order1 {
@@ -427,6 +631,13 @@ type Photo {
     url: String!
 }
 
+type Shipping {
+    amount: Float!
+    currency: String!
+    "Country codes; empty means anywhere PayPal ships."
+    shipsTo: [String!]
+}
+
 type Shop1 {
     slug: String!
     name: String!
@@ -435,6 +646,12 @@ type Shop1 {
 
 type ShopPhotos {
     photos: [Photo!]
+}
+
+type Variant {
+    "The buyer's pick, one value per option, keyed by option name."
+    choice: String!
+    availability: String!
 }
 
 input ApiAccountSigninRequestInput {
@@ -449,6 +666,12 @@ input CreateSigninInput {
 }
 
 input CreateSignoutInput {
+    xAdminToken: String!
+}
+
+input GetLoginwithpaypalInput {
+    "A path on this site to land on afterwards. Defaults to `/account`."
+    next: String!
     xAdminToken: String!
 }
 
@@ -486,6 +709,26 @@ input GetShopInput {
     xAdminToken: String!
 }
 
+input OptionValueInput {
+    label: String!
+    hex: String!
+    "Colours: the shop photo (id) that shows this colour. See `matchColorPhotos`."
+    photo: String!
+}
+
+"Something the buyer picks, such as a size or a colour. The shop still sells one product."
+input ShopOptionInput {
+    name: String!
+    "`color` shows swatches, and the photo of the picked colour."
+    kind: Kind!
+    values: [OptionValueInput!]
+}
+
+input FactInput {
+    label: String!
+    value: String!
+}
+
 input ShopUpdateInput {
     slug: String!
     status: Status!
@@ -502,6 +745,12 @@ input ShopUpdateInput {
     zapierHookUrl: String
     "Feature the shop at `/gallery` while it's live. Off by default."
     inGallery: Boolean!
+    "What the buyer picks (physical products only), replacing the current options; `[]` removes them. With options, stock is counted per combination in `option_stock` and the shop's own `stock` is cleared. At most 60 combinations."
+    options: [ShopOptionInput!]
+    "Stock per combination, keyed by its values in option order joined with ` / ` (e.g. `M / Black`). A missing key or `null` means unlimited; `0` is sold out."
+    optionStock: Int!
+    "Answers to the \"buyers will ask\" questions in `suggestions.missingFacts`. Each becomes a product detail on the page (replacing one with the same label) and drops off the list."
+    facts: [FactInput!]
 }
 
 input UpdateShopInput {
@@ -559,6 +808,60 @@ input UpdateSetphotoorderInput {
     xAdminToken: String!
 }
 
+input CreateCheckmissingdetailsInput {
+    "The shop's link name (current or former)."
+    slug: String!
+    xAdminToken: String!
+}
+
+input ColorInput {
+    label: String!
+    hex: String!
+}
+
+input ApiShopsMatchPhotosRequestInput {
+    colors: [ColorInput!]
+}
+
+input CreateMatchcolorphotosInput {
+    "The shop's link name (current or former)."
+    slug: String!
+    contentType: String!
+    body: ApiShopsMatchPhotosRequestInput!
+    xAdminToken: String!
+}
+
+input ApiShopsColorPhotosRequestInput {
+    "Colour label → photo id, or `null`."
+    photos: String!
+}
+
+input UpdateSetcolorphotosInput {
+    "The shop's link name (current or former)."
+    slug: String!
+    contentType: String!
+    body: ApiShopsColorPhotosRequestInput!
+    xAdminToken: String!
+}
+
+input CreateConnectpaypalInput {
+    "The shop's link name (current or former)."
+    slug: String!
+    xAdminToken: String!
+}
+
+input GetPayPalConnectionInput {
+    "The shop's link name (current or former)."
+    slug: String!
+    xAdminToken: String!
+}
+
+input DeleteDisconnectpaypalInput {
+    "The shop's link name (current or former)."
+    slug: String!
+    xAdminToken: String!
+}
+
 input GetChecklinknameInput {
     "Anything; it is normalised (`Raptor Rush` becomes `raptor-rush`)."
     name: String!
@@ -577,6 +880,8 @@ input GetPayPalClientTokenInput {
 
 input ApiOrdersRequestInput {
     slug: String!
+    "The buyer's pick, one value per option, keyed by option name."
+    options: String!
 }
 
 input CreateCheckoutOrderInput {
@@ -644,9 +949,25 @@ input GetImageInput {
     xAdminToken: String!
 }
 
+input GetAgentProductInput {
+    "The shop's link name (current or former)."
+    slug: String!
+    xAdminToken: String!
+}
+
+input CreateCallmcpInput {
+    contentType: String!
+    body: String!
+    xAdminToken: String!
+}
+
 type Query {
+    "A link for a browser, not for code: redirects to PayPal's sign-in page. PayPal sends the seller back to `/api/account/paypal/callback`, which signs them in (creating the account the first time), records the PayPal account their sales are paid into, and redirects to `next`."
+    getLoginwithpaypal(input: GetLoginwithpaypalInput!): String
     "Everything about the shop, including the AI's design spec and guesses."
     getShop(input: GetShopInput!): Shop!
+    "Asks PayPal where the seller's connection stands and saves it on the shop. Also finds a connection the seller finished at PayPal without coming back."
+    getPayPalConnection(input: GetPayPalConnectionInput!): ApiShopsPaypalResponse1!
     "Normalises a proposed link name and says whether a new shop can use it."
     getChecklinkname(input: GetChecklinknameInput!): ApiSlugsCheckResponse!
     "Searches 100M+ products from 25k+ stores through Channel3. Pass a result's `id` to `createShop` with `source=channel3`."
@@ -661,6 +982,8 @@ type Query {
     getDownloadfile(input: GetDownloadfileInput!): String!
     "Public images only. Purchased files are never served here."
     getImage(input: GetImageInput!): String!
+    "Everything an AI shopping agent needs to describe the product and decide to buy it: price, shipping, delivery, availability, options, images and FAQ. Public. Buying goes through the MCP server named in `mcp_server`. Shop pages also carry the same facts as schema.org `Product` JSON-LD."
+    getAgentProduct(input: GetAgentProductInput!): AgentProduct!
 }
 
 type Mutation {
@@ -682,7 +1005,17 @@ type Mutation {
     addPhotos(input: AddPhotosInput!): ShopPhotos!
     "Sets the photo order; the first becomes the cover. Leaving a photo out removes it."
     updateSetphotoorder(input: UpdateSetphotoorderInput!): ShopPhotos!
-    "Creates the PayPal order for one unit of a live shop's product. The amount always comes\nfrom the shop, never from the caller. Pass the returned `id` to the PayPal JS SDK."
+    "Asks Gemini what buyers will want to choose (sizes, colours) and what they'll ask that the\nlisting doesn't say (dimensions, materials). `createShop` already does this once; call it\nagain after editing the product. The result is saved as the shop's `suggestions`.\n\nNothing changes on the shop page until the seller confirms: save options with `updateShop`\n(`options`), and answer the questions with `updateShop` (`facts`). Not for recommendations."
+    createCheckmissingdetails(input: CreateCheckmissingdetailsInput!): Suggestions!
+    "Gemini looks at the shop's photos and says which one shows each colour, so buyers who pick a colour see it. Suggests only; save the matches with `setColorPhotos`. Needs at least two photos."
+    createMatchcolorphotos(input: CreateMatchcolorphotosInput!): ApiShopsMatchPhotosResponse!
+    "Saves which photo shows each colour, and nothing else about the shop. Only colours already saved in the shop's options change; `null` clears a colour's photo. A photo id that isn't one of the shop's photos is ignored."
+    updateSetcolorphotos(input: UpdateSetcolorphotosInput!): ApiShopsColorPhotosResponse!
+    "Starts PayPal's seller onboarding (Partner Referrals). Send the seller's browser to the\nreturned `url`; they sign in to PayPal (or create a business account) and grant OneThing\npermission. PayPal brings them back to `/api/shops/<slug>/paypal/return`, which saves the\nconnection and opens the manage page. From then on, sales are paid to that account.\n\nWithout a connection, a shop can still go live with a typed `paypal_email`."
+    createConnectpaypal(input: CreateConnectpaypalInput!): ApiShopsPaypalResponse!
+    "Forgets the connected account. Sales go back to the shop's `paypal_email`."
+    deleteDisconnectpaypal(input: DeleteDisconnectpaypalInput!): Ok!
+    "Creates the PayPal order for one unit of a live shop's product. The amount always comes\nfrom the shop, never from the caller. Pass the returned `id` to the PayPal JS SDK.\n\nIf the shop has buyer `options`, send one value for each. A sold-out combination answers 409."
     createCheckoutOrder(input: CreateCheckoutOrderInput!): ApiOrdersResponse!
     "Call after the buyer approves. Records the sale; digital orders get a download link or access code.\nSafe to call repeatedly: before approval it answers 409, so a page can poll it while the PayPal window is open."
     createCapturecheckoutorder(input: CreateCapturecheckoutorderInput!): ApiOrdersCaptureResponse!
@@ -690,6 +1023,8 @@ type Mutation {
     createVerifyaccesscode(input: CreateVerifyaccesscodeInput!): ApiAccessVerifyResponse!
     "Saves the tracking number and pushes it to PayPal, so the buyer sees it in PayPal."
     createMarkordershipped(input: CreateMarkordershippedInput!): ApiShopsOrdersShipResponse!
+    "A [Model Context Protocol](https://modelcontextprotocol.io) server, so agents such as\nClaude can shop here. Add `https://<host>/api/mcp` to an MCP client as a Streamable HTTP\nserver. It's stateless: each POST carries one JSON-RPC 2.0 message (or a batch) and gets a\nplain JSON reply, with no session and no event stream.\n\nMethods: `initialize`, `ping`, `tools/list`, `tools/call`. Tools:\n\n| Tool | Arguments | What it does |\n|---|---|---|\n| `search_shops` | `query?`, `limit?` (1–25) | Live gallery shops whose name or headline has every word |\n| `get_product` | `shop` | The same object as `getAgentProduct` |\n| `create_order` | `shop`, `options?` | One unit on order; returns `order_id` and `approve_url` |\n| `get_order` | `order_id` | `awaiting_buyer_approval` or `paid`, with the receipt link once paid |\n\n**The buyer always approves.** `create_order` charges nothing: the agent gives the buyer\n`approve_url`, they pay at PayPal, and the agent polls `get_order`. Orders made this way\nshow `channel: agent` in `listOrders`.\n\nTool errors (an unknown shop, a sold-out size) come back as results with `isError: true`,\nso the model can read them and try something else."
+    createCallmcp(input: CreateCallmcpInput!): String!
 }
 
 schema {

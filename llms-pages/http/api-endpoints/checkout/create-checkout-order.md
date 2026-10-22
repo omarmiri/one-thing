@@ -5,6 +5,8 @@ Source: /#/http/x-redirect/JTI0ZSUyRkNoZWNrb3V0JTJGY3JlYXRlQ2hlY2tvdXRPcmRlcg
 Creates the PayPal order for one unit of a live shop's product. The amount always comes
 from the shop, never from the caller. Pass the returned `id` to the PayPal JS SDK.
 
+If the shop has buyer `options`, send one value for each. A sold-out combination answers 409.
+
 :information_source: **Note** This endpoint does not require authentication.
 
 ```http
@@ -34,7 +36,11 @@ curl -X POST \
   -H 'Accept: application/json' \
   -H 'Content-Type: application/json' \
   --data-raw '{
-  "slug": "slug0"
+  "slug": "slug0",
+  "options": {
+    "Size": "M",
+    "Color": "Black"
+  }
 }'
 ```
 

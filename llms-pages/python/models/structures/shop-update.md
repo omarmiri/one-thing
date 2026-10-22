@@ -25,6 +25,9 @@ Source: /#/python/x-redirect/JTI0bSUyRlNob3BVcGRhdGU
 | `seller_email` | `str` | Optional | - |
 | `zapier_hook_url` | `str` | Optional | - |
 | `in_gallery` | `bool` | Optional | Feature the shop at `/gallery` while it's live. Off by default. |
+| `options` | [`List[ShopOption]`](/llms-pages/python/models/structures/shop-option.md) | Optional | What the buyer picks (physical products only), replacing the current options; `[]` removes them. With options, stock is counted per combination in `option_stock` and the shop's own `stock` is cleared. At most 60 combinations.<br><br>**Constraints**: *Maximum Items*: `3` |
+| `option_stock` | `Dict[str, int]` | Optional | Stock per combination, keyed by its values in option order joined with `/` (e.g. `M / Black`). A missing key or `null` means unlimited; `0` is sold out.<br><br>**Constraints**: `>= 0` |
+| `facts` | [`List[Fact]`](/llms-pages/python/models/structures/fact.md) | Optional | Answers to the "buyers will ask" questions in `suggestions.missingFacts`. Each becomes a product detail on the page (replacing one with the same label) and drops off the list.<br><br>**Constraints**: *Maximum Items*: `5` |
 
 
 # Example
@@ -39,7 +42,11 @@ shop_update = ShopUpdate(
     status=Status.DRAFT,
     product_type=ProductType.DIGITAL,
     price=171.58,
-    shipping=205.88
+    shipping=205.88,
+    option_stock={
+        'M / Black': 4,
+        'L / Black': 0
+    }
 )
 ```
 

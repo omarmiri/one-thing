@@ -24,6 +24,8 @@ Source: /#/http/x-redirect/JTI0bSUyRk9yZGVy
 | `downloads` | `Number` | Optional | - |
 | `access_code` | `String` | Optional | - |
 | `code_uses` | `Number` | Optional | - |
+| `channel` | [`Channel`](/llms-pages/http/models/enumerations/channel.md) | Optional | `agent` for orders an AI agent placed through the MCP server. |
+| `options` | [`map<map<String>>`](/llms-pages/http/models/oneof-anyof-definitions/order-options.md) | Optional | - |
 | `paid_at` | `DateTime` | Optional | - |
 | `created_at` | `DateTime` | Optional | - |
 

@@ -25,9 +25,16 @@ Source: /#/python/x-redirect/JTI0bSUyRlNob3A
 | `access_url` | `str` | Optional | - |
 | `paypal_email` | `str` | Optional | - |
 | `seller_email` | `str` | Optional | - |
+| `paypal_merchant_id` | `str` | Optional | The connected PayPal account (`connectPayPal`). Sales go here when it can receive payments. |
+| `paypal_status` | [PayPalStatus](/llms-pages/python/models/structures/pay-pal-status.md) \| None | Optional | This is a container for one-of cases. |
 | `zapier_hook_url` | `str` | Optional | - |
 | `in_gallery` | `bool` | Optional | - |
-| `photo_blob` | `str` | Optional | Image id for `getImage`. |
+| `account_id` | `str` | Optional | The seller account that owns the shop, if it was made while signed in. |
+| `options` | [`List[ShopOption]`](/llms-pages/python/models/structures/shop-option.md) | Optional | - |
+| `option_stock` | `Dict[str, int]` | Optional | Stock per combination, keyed by its values in option order joined with `/` (e.g. `M / Black`). A missing key or `null` means unlimited; `0` is sold out.<br><br>**Constraints**: `>= 0` |
+| `suggestions` | [Suggestions](/llms-pages/python/models/structures/suggestions.md) \| None | Optional | This is a container for one-of cases. |
+| `photo_blob` | `str` | Optional | Image id for `getImage`. The cover photo. |
+| `gallery_blobs` | `List[str]` | Optional | The other photos, in order. |
 | `hero_blob` | `str` | Optional | - |
 | `hero_status` | [`HeroStatus`](/llms-pages/python/models/enumerations/hero-status.md) | Optional | - |
 | `hero_error` | `str` | Optional | - |
@@ -112,7 +119,11 @@ shop = Shop(
     ship_countries='ship_countries4',
     stock=234,
     delivery=Delivery1.FILE,
-    access_url='access_url0'
+    access_url='access_url0',
+    option_stock={
+        'M / Black': 4,
+        'L / Black': 0
+    }
 )
 ```
 

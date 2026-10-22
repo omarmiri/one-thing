@@ -6,8 +6,8 @@
     {
       "name": "OneThing API",
       "_type": "workspace",
-      "_id": "wrk_04b0672ff12e40859b4333d31c9036dd",
-      "description": "OneThing turns a photo, a link or a picked product into a live one-product shop that takes\nPayPal payments, or a recommendation page that earns referral commissions through Channel3.\n\n**How a shop is made**\n1. `createShop`: start from a photo, a link, or a Channel3 product. Gemini guesses what it\n   is, how it's delivered, the price, a short link and the page design. You get back the\n   shop's link name and an **admin token**.\n2. `updateShop`: correct anything the AI guessed, then set `status: live`.\n3. Buyers pay on `https://<host>/<slug>` with PayPal. Sellers read orders and ship them.\n\n**Auth.** Seller endpoints take the shop's admin token in the `x-admin-token` header. Buyer\nendpoints (checkout, access-code verification, downloads) are public.\n\n**Access codes.** A digital product can unlock an app or game instead of shipping a file.\nEach paid order gets a code such as `K7QF-M2XP-9HTD`; your app calls `verifyAccessCode`\nbefore unlocking. Raptor Rush on miriogames.com is a live example.\n\nAll money moves through PayPal (sandbox in this deployment). OneThing never holds card data.\n"
+      "_id": "wrk_fc31d762e64940c988c58963d1856414",
+      "description": "OneThing turns a photo, a link or a picked product into a live one-product shop that takes\nPayPal payments, or a recommendation page that earns referral commissions through Channel3.\n\n**How a shop is made**\n1. `createShop`: start from a photo, a link, or a Channel3 product. Gemini guesses what it\n   is, how it's delivered, the price, a short link and the page design. You get back the\n   shop's link name and an **admin token**.\n2. `updateShop`: correct anything the AI guessed, then set `status: live`.\n3. Buyers pay on `https://<host>/<slug>` with PayPal. Sellers read orders and ship them.\n\n**Auth.** Seller endpoints take the shop's admin token in the `x-admin-token` header. Buyer\nendpoints (checkout, access-code verification, downloads) are public.\n\n**Access codes.** A digital product can unlock an app or game instead of shipping a file.\nEach paid order gets a code such as `K7QF-M2XP-9HTD`; your app calls `verifyAccessCode`\nbefore unlocking. Raptor Rush on miriogames.com is a live example.\n\n**Agent-ready.** Every live shop is also published for AI shopping agents: product JSON at\n`getAgentProduct`, and an MCP server at `/api/mcp` with `search_shops`, `get_product`,\n`create_order` and `get_order`. An agent can find and order, but the buyer still approves\nevery payment at PayPal.\n\nAll money moves through PayPal (sandbox in this deployment). OneThing never holds card data.\n"
     },
     {
       "name": "production",
@@ -15,8 +15,8 @@
         "default": "https://one-thing-ash0.onrender.com"
       },
       "_type": "environment",
-      "_id": "env_cadfa1df088a4ed99c52dcd1363eb5ea",
-      "parentId": "wrk_04b0672ff12e40859b4333d31c9036dd"
+      "_id": "env_4a2280a26450403aaaf45510503cb123",
+      "parentId": "wrk_fc31d762e64940c988c58963d1856414"
     },
     {
       "name": "local",
@@ -24,64 +24,71 @@
         "default": "http://localhost:3000"
       },
       "_type": "environment",
-      "_id": "env_116ce1ea0a154e2dab1792802830d4c9",
-      "parentId": "wrk_04b0672ff12e40859b4333d31c9036dd"
+      "_id": "env_5c131bfc9a2f472abf684c9c00057bdc",
+      "parentId": "wrk_fc31d762e64940c988c58963d1856414"
     },
     {
       "name": "Accounts",
       "_type": "request_group",
-      "_id": "fld_81ff5621950b4e10b27f1b737ebc4a1c",
-      "parentId": "wrk_04b0672ff12e40859b4333d31c9036dd",
+      "_id": "fld_39a245b8904047148710b62f8654de2d",
+      "parentId": "wrk_fc31d762e64940c988c58963d1856414",
       "description": "Sign in as a seller with an email or a phone number. Shops made while signed in belong to the account."
     },
     {
       "name": "Shops",
       "_type": "request_group",
-      "_id": "fld_464a845af2784524a36e946ca1a18a32",
-      "parentId": "wrk_04b0672ff12e40859b4333d31c9036dd",
+      "_id": "fld_af135b7f33eb44a894cef910501aafa7",
+      "parentId": "wrk_fc31d762e64940c988c58963d1856414",
       "description": "Create a shop and manage it as its seller."
     },
     {
       "name": "Links",
       "_type": "request_group",
-      "_id": "fld_5664f4b220e04095bb39c16bb6abe733",
-      "parentId": "wrk_04b0672ff12e40859b4333d31c9036dd",
+      "_id": "fld_6d530eb3d6da422f8dc2157c1268108a",
+      "parentId": "wrk_fc31d762e64940c988c58963d1856414",
       "description": "Short shop links (`/<slug>`)."
     },
     {
       "name": "Products",
       "_type": "request_group",
-      "_id": "fld_b58a32c5f7064d06a217f4c930493008",
-      "parentId": "wrk_04b0672ff12e40859b4333d31c9036dd",
+      "_id": "fld_a06a53029f5b48db9f3339c288f5b1f2",
+      "parentId": "wrk_fc31d762e64940c988c58963d1856414",
       "description": "Find products to recommend (Channel3 catalog)."
     },
     {
       "name": "Checkout",
       "_type": "request_group",
-      "_id": "fld_dc9bf6fa294740688d9538c0c7f3aecb",
-      "parentId": "wrk_04b0672ff12e40859b4333d31c9036dd",
+      "_id": "fld_42706de8be8c435e9bcc5c704a23082a",
+      "parentId": "wrk_fc31d762e64940c988c58963d1856414",
       "description": "Buyer-side PayPal checkout."
     },
     {
       "name": "Access codes",
       "_type": "request_group",
-      "_id": "fld_dcfbe41f0b9842659681b2a5776b8634",
-      "parentId": "wrk_04b0672ff12e40859b4333d31c9036dd",
+      "_id": "fld_e1a85b95d74d4894be067f05c91339dd",
+      "parentId": "wrk_fc31d762e64940c988c58963d1856414",
       "description": "Unlock a paid app or game with a buyer's code."
     },
     {
       "name": "Orders",
       "_type": "request_group",
-      "_id": "fld_f1442f7e30a049439d8be52d5bec70d2",
-      "parentId": "wrk_04b0672ff12e40859b4333d31c9036dd",
+      "_id": "fld_908def2a3d3c46239e6df1c0c3f254bd",
+      "parentId": "wrk_fc31d762e64940c988c58963d1856414",
       "description": "The seller's orders, fulfilment and PayPal webhook log."
     },
     {
       "name": "Files",
       "_type": "request_group",
-      "_id": "fld_4fa9b117f0054be08fd05b4c73303dcb",
-      "parentId": "wrk_04b0672ff12e40859b4333d31c9036dd",
+      "_id": "fld_bf9fc0c00c324f7e955cf82b5f7bc47f",
+      "parentId": "wrk_fc31d762e64940c988c58963d1856414",
       "description": "Digital downloads and shop images."
+    },
+    {
+      "name": "Agents",
+      "_type": "request_group",
+      "_id": "fld_9b5d5253691d49aebf78da47b904b0cc",
+      "parentId": "wrk_fc31d762e64940c988c58963d1856414",
+      "description": "Machine-readable shops and the MCP server AI shopping agents buy through."
     },
     {
       "name": "signIn",
@@ -99,8 +106,8 @@
         }
       ],
       "_type": "request",
-      "_id": "req_7f6d31a45eec46bda40256e7b6e2c439",
-      "parentId": "fld_81ff5621950b4e10b27f1b737ebc4a1c",
+      "_id": "req_4014954037e34f1099631aade9a69be9",
+      "parentId": "fld_39a245b8904047148710b62f8654de2d",
       "description": "Signs in with an email address or a phone number, creating the account the first time. There's no password and no verification (sandbox). The response sets the `ot_session` cookie; shops created with it belong to the account and are listed on `/account`. Signing in with an email also claims older shops whose seller email matches. In a browser, sellers can instead use Log in with PayPal (`/api/account/paypal`), which also records the PayPal account their sales are paid into."
     },
     {
@@ -108,9 +115,25 @@
       "method": "POST",
       "url": "{{default}}/api/account/signout",
       "_type": "request",
-      "_id": "req_b549afad839a46be9c50246d37ce1c79",
-      "parentId": "fld_81ff5621950b4e10b27f1b737ebc4a1c",
+      "_id": "req_05cc61c0845142769dfbdd1291442280",
+      "parentId": "fld_39a245b8904047148710b62f8654de2d",
       "description": "Ends this browser's session and clears the `ot_session` cookie."
+    },
+    {
+      "name": "logInWithPayPal",
+      "method": "GET",
+      "url": "{{default}}/api/account/paypal",
+      "parameters": [
+        {
+          "name": "next",
+          "value": "/new",
+          "disabled": false
+        }
+      ],
+      "_type": "request",
+      "_id": "req_bb58728547bd4728bb31c8470bcb4379",
+      "parentId": "fld_39a245b8904047148710b62f8654de2d",
+      "description": "A link for a browser, not for code: redirects to PayPal's sign-in page. PayPal sends the seller back to `/api/account/paypal/callback`, which signs them in (creating the account the first time), records the PayPal account their sales are paid into, and redirects to `next`."
     },
     {
       "name": "createShop",
@@ -122,37 +145,37 @@
           {
             "type": "text",
             "name": "source",
-            "value": "link",
+            "value": "photo",
             "disabled": false
           },
           {
             "type": "file",
             "name": "photo",
-            "value": "path/to/file98",
+            "value": "path/to/file87",
             "disabled": false
           },
           {
             "type": "text",
             "name": "description",
-            "value": "description22",
+            "value": "description67",
             "disabled": false
           },
           {
             "type": "text",
             "name": "url",
-            "value": "url46",
+            "value": "url17",
             "disabled": false
           },
           {
             "type": "text",
             "name": "productId",
-            "value": "productId88",
+            "value": "productId63",
             "disabled": false
           },
           {
             "type": "text",
             "name": "slug",
-            "value": "slug82",
+            "value": "slug58",
             "disabled": false
           },
           {
@@ -170,56 +193,56 @@
           {
             "type": "text",
             "name": "access_url",
-            "value": "access_url21",
+            "value": "access_url20",
             "disabled": false
           },
           {
             "type": "text",
             "name": "price",
-            "value": "177.91455359784334",
+            "value": "213.56221821730674",
             "disabled": false
           },
           {
             "type": "text",
             "name": "shipping",
-            "value": "216.22593835137886",
+            "value": "186.08412632296822",
             "disabled": false
           },
           {
             "type": "text",
             "name": "stock",
-            "value": "133",
+            "value": "218",
             "disabled": false
           },
           {
             "type": "text",
             "name": "ship_countries",
-            "value": "ship_countries73",
+            "value": "ship_countries88",
             "disabled": false
           },
           {
             "type": "text",
             "name": "paypal_email",
-            "value": "paypal_email74",
+            "value": "paypal_email61",
             "disabled": false
           },
           {
             "type": "text",
             "name": "seller_email",
-            "value": "seller_email7",
+            "value": "seller_email85",
             "disabled": false
           },
           {
             "type": "file",
             "name": "digital_file",
-            "value": "path/to/file54",
+            "value": "path/to/file49",
             "disabled": false
           }
         ]
       },
       "_type": "request",
-      "_id": "req_9cda77d6ba8941cbb838fcde2e9b4691",
-      "parentId": "fld_464a845af2784524a36e946ca1a18a32",
+      "_id": "req_cc30453dafd74453a7e10cb3bbd123a0",
+      "parentId": "fld_af135b7f33eb44a894cef910501aafa7",
       "description": "Starts a draft shop from one of three sources. Gemini designs the page and guesses the\nsetup; check it with `getShop`, adjust with `updateShop`, then go live.\n\nSent with a session cookie from `signIn`, the shop belongs to that account, which also\nbecomes its seller email (and PayPal email, after Log in with PayPal) unless you give one.\n\n- `source=photo`: a `photo` and/or a `description` of your own product.\n- `source=link`: a `url`. If Channel3 recognises it as a store's product page, the shop\n  becomes a recommendation (`product_type: referral`); otherwise the page is read and you\n  sell the product yourself with PayPal.\n- `source=channel3`: a `productId` from `searchProducts` (a recommendation).\n\nTakes 15–40 seconds. Hero art, if available, is generated afterwards (`hero_status`).\n"
     },
     {
@@ -229,13 +252,13 @@
       "headers": [
         {
           "name": "x-admin-token",
-          "value": "x-admin-token28",
+          "value": "x-admin-token74",
           "disabled": false
         }
       ],
       "_type": "request",
-      "_id": "req_e507d9bef8334bbeb7de3999b403bba7",
-      "parentId": "fld_464a845af2784524a36e946ca1a18a32",
+      "_id": "req_a72ba3b721e14ac8932c289a28e786f0",
+      "parentId": "fld_af135b7f33eb44a894cef910501aafa7",
       "description": "Everything about the shop, including the AI's design spec and guesses."
     },
     {
@@ -244,7 +267,7 @@
       "url": "{{default}}/api/shops/{slug}",
       "body": {
         "mimeType": "application/json",
-        "text": "{\n  \"slug\": \"slug17\",\n  \"status\": \"draft\",\n  \"product_type\": \"digital\",\n  \"price\": 6669.8172404472725,\n  \"shipping\": 1.6070236842651298,\n  \"stock\": 151,\n  \"ship_countries\": \"ship_countries49\",\n  \"delivery\": \"file\",\n  \"access_url\": \"access_url65\",\n  \"paypal_email\": \"paypal_email26\",\n  \"seller_email\": \"seller_email5\",\n  \"zapier_hook_url\": \"zapier_hook_url56\",\n  \"in_gallery\": false\n}"
+        "text": "{\n  \"slug\": \"slug25\",\n  \"status\": \"draft\",\n  \"product_type\": \"digital\",\n  \"price\": 4469.188416023523,\n  \"shipping\": 59.53213187073586,\n  \"stock\": 233,\n  \"ship_countries\": \"ship_countries70\",\n  \"delivery\": \"file\",\n  \"access_url\": \"access_url24\",\n  \"paypal_email\": \"paypal_email79\",\n  \"seller_email\": \"seller_email74\",\n  \"zapier_hook_url\": \"zapier_hook_url93\",\n  \"in_gallery\": true,\n  \"options\": [\n    {\n      \"name\": \"Size\",\n      \"kind\": \"color\",\n      \"values\": [\n        {\n          \"label\": \"M\",\n          \"hex\": \"#14171a\",\n          \"photo\": \"photo47\"\n        }\n      ]\n    }\n  ],\n  \"option_stock\": {\n    \"M / Black\": 4,\n    \"L / Black\": 0\n  },\n  \"facts\": [\n    {\n      \"label\": \"Size\",\n      \"value\": \"US women's 8\"\n    }\n  ]\n}"
       },
       "headers": [
         {
@@ -254,13 +277,13 @@
         },
         {
           "name": "x-admin-token",
-          "value": "x-admin-token36",
+          "value": "x-admin-token58",
           "disabled": false
         }
       ],
       "_type": "request",
-      "_id": "req_42aeef5ae3a6468c975a0577d9bf988a",
-      "parentId": "fld_464a845af2784524a36e946ca1a18a32",
+      "_id": "req_fee3fc3c1fc949ecb27a12573a42e1f7",
+      "parentId": "fld_af135b7f33eb44a894cef910501aafa7",
       "description": "Changes only the fields you send. Renaming `slug` keeps the old link working (it\nredirects). Set `status: live` to publish; a digital product needs its file (or, for\naccess codes, `access_url`) first.\n"
     },
     {
@@ -279,13 +302,13 @@
         },
         {
           "name": "x-admin-token",
-          "value": "x-admin-token18",
+          "value": "x-admin-token89",
           "disabled": false
         }
       ],
       "_type": "request",
-      "_id": "req_4c43d5f727244c3796d613e64693788b",
-      "parentId": "fld_464a845af2784524a36e946ca1a18a32",
+      "_id": "req_1bca2b10acdc49b9b264c59849f3e14c",
+      "parentId": "fld_af135b7f33eb44a894cef910501aafa7",
       "description": "\"Make it warmer\", \"shorter copy\", \"more premium\". Gemini edits the design spec."
     },
     {
@@ -295,13 +318,13 @@
       "headers": [
         {
           "name": "x-admin-token",
-          "value": "x-admin-token72",
+          "value": "x-admin-token87",
           "disabled": false
         }
       ],
       "_type": "request",
-      "_id": "req_7f36a4bad14c45138a9af107405c7ef7",
-      "parentId": "fld_464a845af2784524a36e946ca1a18a32",
+      "_id": "req_c5797762ede749e9a4559be41bf1f546",
+      "parentId": "fld_af135b7f33eb44a894cef910501aafa7",
       "description": "Starts generation in the background. Poll `getShop` for `hero_status`."
     },
     {
@@ -314,7 +337,7 @@
           {
             "type": "file",
             "name": "file",
-            "value": "path/to/file32",
+            "value": "path/to/file65",
             "disabled": false
           }
         ]
@@ -322,13 +345,13 @@
       "headers": [
         {
           "name": "x-admin-token",
-          "value": "x-admin-token76",
+          "value": "x-admin-token61",
           "disabled": false
         }
       ],
       "_type": "request",
-      "_id": "req_b6284db2c07b4f529f19a3ff6d75542b",
-      "parentId": "fld_464a845af2784524a36e946ca1a18a32",
+      "_id": "req_3740983804b94652ae984d54e6798e40",
+      "parentId": "fld_af135b7f33eb44a894cef910501aafa7",
       "description": "Uploads or replaces a digital product's file, up to 25 MB. Each paid order gets a download link for it."
     },
     {
@@ -341,7 +364,7 @@
           {
             "type": "file",
             "name": "photo",
-            "value": "path/to/file9",
+            "value": "path/to/file70",
             "disabled": false
           }
         ]
@@ -349,13 +372,13 @@
       "headers": [
         {
           "name": "x-admin-token",
-          "value": "x-admin-token75",
+          "value": "x-admin-token50",
           "disabled": false
         }
       ],
       "_type": "request",
-      "_id": "req_bf03e9b4519d4d20a70d84469193a694",
-      "parentId": "fld_464a845af2784524a36e946ca1a18a32",
+      "_id": "req_126c01162b2046edbdf18f57ecddd39c",
+      "parentId": "fld_af135b7f33eb44a894cef910501aafa7",
       "description": "Adds one or more photos after the cover. Each is turned upright, resized to at most 2000 px and stored as WebP. A shop holds up to 8 photos; buyers swipe through them on the shop page. Not for recommendations, which show the retailer's photos."
     },
     {
@@ -364,7 +387,7 @@
       "url": "{{default}}/api/shops/{slug}/photos",
       "body": {
         "mimeType": "application/json",
-        "text": "{\n  \"photos\": [\n    \"photos77\"\n  ]\n}"
+        "text": "{\n  \"photos\": [\n    \"photos15\"\n  ]\n}"
       },
       "headers": [
         {
@@ -374,14 +397,128 @@
         },
         {
           "name": "x-admin-token",
-          "value": "x-admin-token32",
+          "value": "x-admin-token1",
           "disabled": false
         }
       ],
       "_type": "request",
-      "_id": "req_c3ccb732b36340dd85952facb142cdef",
-      "parentId": "fld_464a845af2784524a36e946ca1a18a32",
+      "_id": "req_347aaa032b084db09ae1e587133c93a4",
+      "parentId": "fld_af135b7f33eb44a894cef910501aafa7",
       "description": "Sets the photo order; the first becomes the cover. Leaving a photo out removes it."
+    },
+    {
+      "name": "checkMissingDetails",
+      "method": "POST",
+      "url": "{{default}}/api/shops/{slug}/suggest",
+      "headers": [
+        {
+          "name": "x-admin-token",
+          "value": "x-admin-token10",
+          "disabled": false
+        }
+      ],
+      "_type": "request",
+      "_id": "req_95c88ade589c4cd2bf48b37f62fc47bf",
+      "parentId": "fld_af135b7f33eb44a894cef910501aafa7",
+      "description": "Asks Gemini what buyers will want to choose (sizes, colours) and what they'll ask that the\nlisting doesn't say (dimensions, materials). `createShop` already does this once; call it\nagain after editing the product. The result is saved as the shop's `suggestions`.\n\nNothing changes on the shop page until the seller confirms: save options with `updateShop`\n(`options`), and answer the questions with `updateShop` (`facts`). Not for recommendations.\n"
+    },
+    {
+      "name": "matchColorPhotos",
+      "method": "POST",
+      "url": "{{default}}/api/shops/{slug}/match-photos",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"colors\": [\n    {\n      \"label\": \"Forest green\",\n      \"hex\": \"#14171a\"\n    }\n  ]\n}"
+      },
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json",
+          "disabled": false
+        },
+        {
+          "name": "x-admin-token",
+          "value": "x-admin-token11",
+          "disabled": false
+        }
+      ],
+      "_type": "request",
+      "_id": "req_da2188127d4d4621969c3ffc7165192f",
+      "parentId": "fld_af135b7f33eb44a894cef910501aafa7",
+      "description": "Gemini looks at the shop's photos and says which one shows each colour, so buyers who pick a colour see it. Suggests only; save the matches with `setColorPhotos`. Needs at least two photos."
+    },
+    {
+      "name": "setColorPhotos",
+      "method": "PUT",
+      "url": "{{default}}/api/shops/{slug}/color-photos",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"photos\": {\n    \"key1\": \"photos50\"\n  }\n}"
+      },
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json",
+          "disabled": false
+        },
+        {
+          "name": "x-admin-token",
+          "value": "x-admin-token83",
+          "disabled": false
+        }
+      ],
+      "_type": "request",
+      "_id": "req_cbc4af6376f94ecfbc35d851b3b6257c",
+      "parentId": "fld_af135b7f33eb44a894cef910501aafa7",
+      "description": "Saves which photo shows each colour, and nothing else about the shop. Only colours already saved in the shop's options change; `null` clears a colour's photo. A photo id that isn't one of the shop's photos is ignored."
+    },
+    {
+      "name": "connectPayPal",
+      "method": "POST",
+      "url": "{{default}}/api/shops/{slug}/paypal",
+      "headers": [
+        {
+          "name": "x-admin-token",
+          "value": "x-admin-token38",
+          "disabled": false
+        }
+      ],
+      "_type": "request",
+      "_id": "req_d8dabd21dc944cd4b2fb193356b34d05",
+      "parentId": "fld_af135b7f33eb44a894cef910501aafa7",
+      "description": "Starts PayPal's seller onboarding (Partner Referrals). Send the seller's browser to the\nreturned `url`; they sign in to PayPal (or create a business account) and grant OneThing\npermission. PayPal brings them back to `/api/shops/<slug>/paypal/return`, which saves the\nconnection and opens the manage page. From then on, sales are paid to that account.\n\nWithout a connection, a shop can still go live with a typed `paypal_email`.\n"
+    },
+    {
+      "name": "getPayPalConnection",
+      "method": "GET",
+      "url": "{{default}}/api/shops/{slug}/paypal",
+      "headers": [
+        {
+          "name": "x-admin-token",
+          "value": "x-admin-token31",
+          "disabled": false
+        }
+      ],
+      "_type": "request",
+      "_id": "req_6c33b7d964c743a9828709e09e071ef2",
+      "parentId": "fld_af135b7f33eb44a894cef910501aafa7",
+      "description": "Asks PayPal where the seller's connection stands and saves it on the shop. Also finds a connection the seller finished at PayPal without coming back."
+    },
+    {
+      "name": "disconnectPayPal",
+      "method": "DELETE",
+      "url": "{{default}}/api/shops/{slug}/paypal",
+      "headers": [
+        {
+          "name": "x-admin-token",
+          "value": "x-admin-token1",
+          "disabled": false
+        }
+      ],
+      "_type": "request",
+      "_id": "req_e44885e773b54c3b99d9bb3f07009d23",
+      "parentId": "fld_af135b7f33eb44a894cef910501aafa7",
+      "description": "Forgets the connected account. Sales go back to the shop's `paypal_email`."
     },
     {
       "name": "checkLinkName",
@@ -390,13 +527,13 @@
       "parameters": [
         {
           "name": "name",
-          "value": "name87",
+          "value": "name76",
           "disabled": false
         }
       ],
       "_type": "request",
-      "_id": "req_ee78ffd7d5a4499eab3b3cf25ffc88ba",
-      "parentId": "fld_5664f4b220e04095bb39c16bb6abe733",
+      "_id": "req_9554bc5b48794903930de6aab3ea0c0a",
+      "parentId": "fld_6d530eb3d6da422f8dc2157c1268108a",
       "description": "Normalises a proposed link name and says whether a new shop can use it."
     },
     {
@@ -411,8 +548,8 @@
         }
       ],
       "_type": "request",
-      "_id": "req_c4cc331a0dc14a3ab90c8bf331c907da",
-      "parentId": "fld_b58a32c5f7064d06a217f4c930493008",
+      "_id": "req_1a68a3bb27864d2bb8cfaf5b5d1ed713",
+      "parentId": "fld_a06a53029f5b48db9f3339c288f5b1f2",
       "description": "Searches 100M+ products from 25k+ stores through Channel3. Pass a result's `id` to `createShop` with `source=channel3`."
     },
     {
@@ -420,8 +557,8 @@
       "method": "GET",
       "url": "{{default}}/api/paypal/client-token",
       "_type": "request",
-      "_id": "req_06a3be0d1a204cffacb1d5cb2cc6ebb6",
-      "parentId": "fld_dc9bf6fa294740688d9538c0c7f3aecb",
+      "_id": "req_d4109133f3bd4b85bef9a60c3788529a",
+      "parentId": "fld_42706de8be8c435e9bcc5c704a23082a",
       "description": "A browser-safe client token for the PayPal JavaScript SDK v6\n(`paypal.createInstance({ clientToken })`), bound to the requesting site's domain.\nShop pages call this before showing the PayPal button.\n"
     },
     {
@@ -430,7 +567,7 @@
       "url": "{{default}}/api/orders",
       "body": {
         "mimeType": "application/json",
-        "text": "{\n  \"slug\": \"slug73\"\n}"
+        "text": "{\n  \"slug\": \"slug96\",\n  \"options\": {\n    \"Size\": \"M\",\n    \"Color\": \"Black\"\n  }\n}"
       },
       "headers": [
         {
@@ -440,17 +577,17 @@
         }
       ],
       "_type": "request",
-      "_id": "req_6ba0b65eea984b0eab9b76c0f1d3448c",
-      "parentId": "fld_dc9bf6fa294740688d9538c0c7f3aecb",
-      "description": "Creates the PayPal order for one unit of a live shop's product. The amount always comes\nfrom the shop, never from the caller. Pass the returned `id` to the PayPal JS SDK.\n"
+      "_id": "req_67adb6a342eb4b099e3ee402b96e22b5",
+      "parentId": "fld_42706de8be8c435e9bcc5c704a23082a",
+      "description": "Creates the PayPal order for one unit of a live shop's product. The amount always comes\nfrom the shop, never from the caller. Pass the returned `id` to the PayPal JS SDK.\n\nIf the shop has buyer `options`, send one value for each. A sold-out combination answers 409.\n"
     },
     {
       "name": "captureCheckoutOrder",
       "method": "POST",
       "url": "{{default}}/api/orders/{paypalOrderId}/capture",
       "_type": "request",
-      "_id": "req_714bfc3ac9f248eab02d8b2eee180658",
-      "parentId": "fld_dc9bf6fa294740688d9538c0c7f3aecb",
+      "_id": "req_37cd7811a4b34097a95b0b9f85a246e2",
+      "parentId": "fld_42706de8be8c435e9bcc5c704a23082a",
       "description": "Call after the buyer approves. Records the sale; digital orders get a download link or access code.\nSafe to call repeatedly: before approval it answers 409, so a page can poll it while the PayPal window is open.\n"
     },
     {
@@ -469,8 +606,8 @@
         }
       ],
       "_type": "request",
-      "_id": "req_faeb743463f2403da84572c5ac668ffb",
-      "parentId": "fld_dcfbe41f0b9842659681b2a5776b8634",
+      "_id": "req_1670be7c07644bd68b30cfba57bb3b96",
+      "parentId": "fld_e1a85b95d74d4894be067f05c91339dd",
       "description": "For apps and games sold with access codes. Callable from any origin (CORS `*`): it only\nanswers valid or not for one shop, and counts uses. Accepts the shop's current or former\nlink names, and codes typed loosely (lower case, spaces, no dashes).\n"
     },
     {
@@ -480,13 +617,13 @@
       "headers": [
         {
           "name": "x-admin-token",
-          "value": "x-admin-token45",
+          "value": "x-admin-token39",
           "disabled": false
         }
       ],
       "_type": "request",
-      "_id": "req_a69a3fd9f5f8497aa5db771c73220a7a",
-      "parentId": "fld_f1442f7e30a049439d8be52d5bec70d2",
+      "_id": "req_18f1a970763b4c5b972c756358e2360c",
+      "parentId": "fld_908def2a3d3c46239e6df1c0c3f254bd",
       "description": "Newest first. Checkouts that were never approved are left out."
     },
     {
@@ -495,7 +632,7 @@
       "url": "{{default}}/api/shops/{slug}/orders/{orderId}/ship",
       "body": {
         "mimeType": "application/json",
-        "text": "{\n  \"carrier\": \"DHL\",\n  \"trackingNumber\": \"trackingNumber20\",\n  \"carrierName\": \"carrierName43\"\n}"
+        "text": "{\n  \"carrier\": \"DHL\",\n  \"trackingNumber\": \"trackingNumber3\",\n  \"carrierName\": \"carrierName41\"\n}"
       },
       "headers": [
         {
@@ -505,13 +642,13 @@
         },
         {
           "name": "x-admin-token",
-          "value": "x-admin-token44",
+          "value": "x-admin-token60",
           "disabled": false
         }
       ],
       "_type": "request",
-      "_id": "req_12c82c983ac448b6b786c4defd54aa5c",
-      "parentId": "fld_f1442f7e30a049439d8be52d5bec70d2",
+      "_id": "req_1ed0377868944e469d31dc2d80cb9ebc",
+      "parentId": "fld_908def2a3d3c46239e6df1c0c3f254bd",
       "description": "Saves the tracking number and pushes it to PayPal, so the buyer sees it in PayPal."
     },
     {
@@ -521,13 +658,13 @@
       "headers": [
         {
           "name": "x-admin-token",
-          "value": "x-admin-token92",
+          "value": "x-admin-token40",
           "disabled": false
         }
       ],
       "_type": "request",
-      "_id": "req_ae2becc215bc4272bd2b036925833c1f",
-      "parentId": "fld_f1442f7e30a049439d8be52d5bec70d2",
+      "_id": "req_a1e027891a344ebfaef2d3cced7f484e",
+      "parentId": "fld_908def2a3d3c46239e6df1c0c3f254bd",
       "description": "The last 50 PayPal webhook deliveries about this shop's orders, with signature results."
     },
     {
@@ -535,8 +672,8 @@
       "method": "GET",
       "url": "{{default}}/api/download/{token}",
       "_type": "request",
-      "_id": "req_da853d624ccc44b4b4fa39d6b8d80327",
-      "parentId": "fld_4fa9b117f0054be08fd05b4c73303dcb",
+      "_id": "req_99a6daee7b6548d6b1dbb94056939768",
+      "parentId": "fld_bf9fc0c00c324f7e955cf82b5f7bc47f",
       "description": "A paid digital order's private link. Works 5 times within 14 days."
     },
     {
@@ -544,9 +681,38 @@
       "method": "GET",
       "url": "{{default}}/api/blobs/{id}",
       "_type": "request",
-      "_id": "req_11fbe7b7434a4615a2c4e2519ff2a78d",
-      "parentId": "fld_4fa9b117f0054be08fd05b4c73303dcb",
+      "_id": "req_23c97332d41e45e893f249eeaf7d3cac",
+      "parentId": "fld_bf9fc0c00c324f7e955cf82b5f7bc47f",
       "description": "Public images only. Purchased files are never served here."
+    },
+    {
+      "name": "getAgentProduct",
+      "method": "GET",
+      "url": "{{default}}/api/agent/shops/{slug}",
+      "_type": "request",
+      "_id": "req_7d4ec538a5494c3ebbaeb21bfe1a8ffb",
+      "parentId": "fld_9b5d5253691d49aebf78da47b904b0cc",
+      "description": "Everything an AI shopping agent needs to describe the product and decide to buy it: price, shipping, delivery, availability, options, images and FAQ. Public. Buying goes through the MCP server named in `mcp_server`. Shop pages also carry the same facts as schema.org `Product` JSON-LD."
+    },
+    {
+      "name": "callMcp",
+      "method": "POST",
+      "url": "{{default}}/api/mcp",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"tools/call\",\"params\":{\"name\":\"search_shops\",\"arguments\":{\"query\":\"game\"}}}"
+      },
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json",
+          "disabled": false
+        }
+      ],
+      "_type": "request",
+      "_id": "req_512d1b0e41e74ecaa01b978787f0f3e7",
+      "parentId": "fld_9b5d5253691d49aebf78da47b904b0cc",
+      "description": "A [Model Context Protocol](https://modelcontextprotocol.io) server, so agents such as\nClaude can shop here. Add `https://<host>/api/mcp` to an MCP client as a Streamable HTTP\nserver. It's stateless: each POST carries one JSON-RPC 2.0 message (or a batch) and gets a\nplain JSON reply, with no session and no event stream.\n\nMethods: `initialize`, `ping`, `tools/list`, `tools/call`. Tools:\n\n| Tool | Arguments | What it does |\n|---|---|---|\n| `search_shops` | `query?`, `limit?` (1–25) | Live gallery shops whose name or headline has every word |\n| `get_product` | `shop` | The same object as `getAgentProduct` |\n| `create_order` | `shop`, `options?` | One unit on order; returns `order_id` and `approve_url` |\n| `get_order` | `order_id` | `awaiting_buyer_approval` or `paid`, with the receipt link once paid |\n\n**The buyer always approves.** `create_order` charges nothing: the agent gives the buyer\n`approve_url`, they pay at PayPal, and the agent polls `get_order`. Orders made this way\nshow `channel: agent` in `listOrders`.\n\nTool errors (an unknown shop, a sold-out size) come back as results with `isError: true`,\nso the model can read them and try something else.\n"
     }
   ]
 }
