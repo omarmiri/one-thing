@@ -1,6 +1,6 @@
 import "server-only";
 import { GoogleGenAI, ThinkingLevel } from "@google/genai";
-import { DesignSpec, designJsonSchema, ensureReadable, fallbackSpec, Generated, LAYOUTS } from "./design";
+import { DesignSpec, designJsonSchema, ensureReadable, fallbackSpec, Generated, LAYOUTS, repairPalette } from "./design";
 import { ShopOption, type Suggestions } from "./options";
 import { Direction } from "./showcase";
 
@@ -154,7 +154,10 @@ async function generateDesign(parts: object[]): Promise<Generated> {
     responseJsonSchema: designJsonSchema(),
     temperature: 0.8,
   });
-  const out = Generated.parse(JSON.parse(res.text ?? ""));
+  const raw = JSON.parse(res.text ?? "");
+  const fixed = repairPalette(raw);
+  if (fixed.length) console.warn(`gemini design: repaired palette (${fixed.join("; ")})`);
+  const out = Generated.parse(raw);
   console.info(`gemini design: ${res.modelVersion ?? TEXT_MODEL} in ${((Date.now() - t0) / 1000).toFixed(1)}s`);
   return { ...out, ...ensureReadable(out) };
 }

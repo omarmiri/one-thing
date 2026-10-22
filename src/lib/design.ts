@@ -72,6 +72,48 @@ export function designJsonSchema(schema: z.ZodType = Generated): object {
   return strip(z.toJSONSchema(schema)) as object;
 }
 
+// ---- Palette repair: Gemini's colours sometimes miss the #rrggbb format. ----
+
+const DEFAULT_PALETTE = {
+  background: "#fbf7f2", surface: "#ffffff", text: "#1c1917",
+  muted: "#57534e", accent: "#c2410c", accentText: "#ffffff",
+};
+
+/** A near-miss colour (#fff, no #, #rrggbbaa, rgb(), a hex in other text) as #rrggbb, else null. */
+export function toHex(v: unknown): string | null {
+  if (typeof v !== "string") return null;
+  const s = v.trim().toLowerCase();
+  if (s === "white") return "#ffffff";
+  if (s === "black") return "#000000";
+  let m = /^#?([0-9a-f]{6})(?:[0-9a-f]{2})?$/.exec(s);
+  if (m) return `#${m[1]}`;
+  m = /^#?([0-9a-f])([0-9a-f])([0-9a-f])[0-9a-f]?$/.exec(s);
+  if (m) return `#${m[1]}${m[1]}${m[2]}${m[2]}${m[3]}${m[3]}`;
+  m = /^rgba?\(\s*(\d{1,3})[\s,]+(\d{1,3})[\s,]+(\d{1,3})/.exec(s);
+  if (m) return `#${m.slice(1, 4).map((n) => Math.min(255, Number(n)).toString(16).padStart(2, "0")).join("")}`;
+  m = /#([0-9a-f]{6})(?![0-9a-f])/.exec(s);
+  return m ? `#${m[1]}` : null;
+}
+
+/**
+ * Fixes the palette of Gemini's raw JSON in place, before it's parsed, so one bad colour can't
+ * sink the whole design. Unrepairable colours get a default; ensureReadable fixes contrast after.
+ * Returns what changed, for the log.
+ */
+export function repairPalette(raw: unknown): string[] {
+  if (!raw || typeof raw !== "object") return [];
+  const r = raw as { palette?: unknown };
+  const p = (r.palette && typeof r.palette === "object" ? r.palette : (r.palette = {})) as Record<string, unknown>;
+  const fixed: string[] = [];
+  for (const [k, fallback] of Object.entries(DEFAULT_PALETTE)) {
+    if (typeof p[k] === "string" && /^#[0-9a-fA-F]{6}$/.test(p[k] as string)) continue;
+    const next = toHex(p[k]) ?? fallback;
+    fixed.push(`${k}: ${JSON.stringify(p[k])} → ${next}`);
+    p[k] = next;
+  }
+  return fixed;
+}
+
 // ---- Contrast guard: Gemini picks good palettes, but not always readable ones. ----
 
 function luminance(h: string): number {
@@ -114,10 +156,7 @@ export function fallbackSpec(description: string, type: "digital" | "physical"):
     productType: type,
     productName: name,
     layout: "bold-hero",
-    palette: {
-      background: "#fbf7f2", surface: "#ffffff", text: "#1c1917",
-      muted: "#57534e", accent: "#c2410c", accentText: "#ffffff",
-    },
+    palette: { ...DEFAULT_PALETTE },
     fonts: { heading: "Fraunces", body: "Inter" },
     eyebrow: type === "digital" ? "Instant download" : "Made with care",
     headline: name,
