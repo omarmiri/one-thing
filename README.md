@@ -303,14 +303,6 @@ service URL.
 | **Postman** | A collection covering the whole API |
 | Next.js 16, PostgreSQL / PGlite, Tailwind, zod | App framework and data |
 
-## Roadmap
-
-Planned, not built yet (details in [PLAN.md](PLAN.md)):
-
-- **Seller copilot** on the PayPal Agent Toolkit: "how did I do this week?", refunds, invoices.
-- **A platform fee** on each sale. Sellers already grant it while connecting PayPal; it needs
-  checkout to move onto the Platform app.
-
 ## License
 
 MIT. See [LICENSE](LICENSE).
