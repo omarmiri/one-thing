@@ -24,6 +24,45 @@ const STAGES: Record<Start, string[]> = {
 
 const money = (n: number, c: string) => new Intl.NumberFormat("en-US", { style: "currency", currency: c }).format(n);
 
+type Sent = { res: Response; json: { error?: string; slug?: string; token?: string; manageUrl?: string } };
+
+/** POSTs to /api/shops. Null when our server never answered: no network, a timeout, or a proxy's block page. */
+async function send(body: FormData | string): Promise<Sent | null> {
+  try {
+    const res = await fetch("/api/shops", {
+      method: "POST",
+      body,
+      headers: typeof body === "string" ? { "content-type": "application/json" } : undefined,
+      signal: AbortSignal.timeout(90_000),
+    });
+    const json = await res.json().catch(() => null);
+    return json ? { res, json } : null;
+  } catch {
+    return null;
+  }
+}
+
+/** The photo as a JPEG data URL, at most 2048 px across, for networks that block file uploads. */
+async function photoDataUrl(f: File): Promise<string> {
+  try {
+    const img = await createImageBitmap(f, { imageOrientation: "from-image" });
+    const scale = Math.min(1, 2048 / Math.max(img.width, img.height));
+    const canvas = document.createElement("canvas");
+    canvas.width = Math.round(img.width * scale);
+    canvas.height = Math.round(img.height * scale);
+    canvas.getContext("2d")!.drawImage(img, 0, 0, canvas.width, canvas.height);
+    return canvas.toDataURL("image/jpeg", 0.88);
+  } catch {
+    // A format the browser can't draw: send it as it is.
+    return new Promise((resolve, reject) => {
+      const r = new FileReader();
+      r.onload = () => resolve(r.result as string);
+      r.onerror = () => reject(r.error);
+      r.readAsDataURL(f);
+    });
+  }
+}
+
 export function NewShopForm({ geminiReady, channel3Ready }: { geminiReady: boolean; channel3Ready: boolean }) {
   const router = useRouter();
   const [start, setStart] = useState<Start>("photo");
@@ -89,17 +128,28 @@ export function NewShopForm({ geminiReady, channel3Ready }: { geminiReady: boole
     setError(null);
     setStage(0);
     setBusy(true);
-    const res = await fetch("/api/shops", { method: "POST", body });
-    const json = await res.json().catch(() => ({ error: "Something went wrong. Please try again." }));
-    if (!res.ok) {
+    let sent = await send(body);
+    // Some networks (corporate DLP, proxies) drop file uploads. Try again with the photo as text.
+    if (!sent && photo) {
+      const fields = Object.fromEntries([...body].filter(([k]) => k !== "photo")) as Record<string, string>;
+      const data = await photoDataUrl(photo).catch(() => null);
+      if (data) sent = await send(JSON.stringify({ ...fields, photo: data }));
+    }
+    if (!sent || !sent.res.ok) {
       setBusy(false);
-      setError(json.error);
+      setError(
+        sent?.json.error ??
+          (photo
+            ? "We couldn't send your photo. Your network may block uploads (common on work laptops). Try another network, or describe the product in a sentence instead."
+            : "We couldn't reach OneThing. Check your connection and try again."),
+      );
       return;
     }
+    const { json } = sent;
     try {
-      localStorage.setItem(`one-thing:${json.slug}`, json.token);
+      localStorage.setItem(`one-thing:${json.slug}`, json.token!);
     } catch {}
-    router.push(json.manageUrl);
+    router.push(json.manageUrl!);
   }
 
   const tab = (s: Start, label: string, hint: string) => (

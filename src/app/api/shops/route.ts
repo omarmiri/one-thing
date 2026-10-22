@@ -24,6 +24,22 @@ const file = (f: FormData, k: string) => {
   const v = f.get(k);
   return v instanceof File && v.size > 0 ? v : null;
 };
+/**
+ * The body as FormData. Also takes the same fields as JSON, with `photo` as a base64 data URL:
+ * the browser's fallback when a network (corporate DLP, proxies) blocks multipart file uploads.
+ */
+async function readForm(req: Request): Promise<FormData> {
+  if (!req.headers.get("content-type")?.includes("application/json")) return req.formData();
+  const json = (await req.json().catch(() => null)) as Record<string, unknown> | null;
+  const form = new FormData();
+  for (const [k, v] of Object.entries(json ?? {})) {
+    if (typeof v !== "string") continue;
+    const m = k === "photo" ? /^data:([\w.+-]+\/[\w.+-]+);base64,(.+)$/.exec(v) : null;
+    if (m) form.set(k, new File([Buffer.from(m[2], "base64")], "photo", { type: m[1] }));
+    else if (k !== "photo") form.set(k, v);
+  }
+  return form;
+}
 const fail = (error: string, status = 400, field?: string) => NextResponse.json({ error, ...(field && { field }) }, { status });
 
 /**
@@ -40,7 +56,7 @@ export async function POST(req: Request) {
   const k = await requestKey(req);
   if (k && "invalid" in k) return badKey();
   const apiKey = k?.key ?? null;
-  const form = await req.formData();
+  const form = await readForm(req);
   const source = str(form, "source") ?? "photo";
   const id = newId();
   let description = str(form, "description");

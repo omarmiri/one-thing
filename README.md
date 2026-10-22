@@ -71,7 +71,10 @@ the AI's guesses and clicks **Go live**. The choices behind it:
   **Log in with PayPal**, which also sets the PayPal account sales are paid into. **Your shops**
   (`/account`) lists every shop with its manage page.
 - **Three ways to start** at `/new`:
-  - **Upload a photo** of your own product, with a sentence or two if you like.
+  - **Upload a photo** of your own product, with a sentence or two if you like. If the network
+    drops the upload (corporate DLP and proxies often block file uploads), the browser shrinks the
+    photo to a JPEG and sends it again as base64 in a JSON body (`POST /api/shops` takes either).
+    If that fails too, the seller gets a clear error instead of an endless spinner.
   - **Paste a link.** A store product found by Channel3 becomes a recommendation; any other page
     is read (public addresses only, size- and time-capped) and its preview image becomes the photo.
   - **Find a product** with Channel3 search across 100M+ products, shown as "earn up to X%" cards.
