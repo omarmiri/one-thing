@@ -1,6 +1,6 @@
 import Link from "next/link";
-import { GalleryCard } from "@/components/GalleryCard";
-import { listLiveShops } from "@/lib/shops";
+import { ShopCarousel } from "@/components/ShopCarousel";
+import { listLiveShops, shopView } from "@/lib/shops";
 
 // Reads live shops: render per request, not once at build time.
 export const dynamic = "force-dynamic";
@@ -12,7 +12,7 @@ const STEPS = [
 ];
 
 export default async function Home() {
-  const latest = await listLiveShops(3);
+  const latest = await listLiveShops(40);
 
   return (
     <main className="flex-1">
@@ -55,17 +55,20 @@ export default async function Home() {
       </section>
 
       {latest.length > 0 && (
-        <section className="mx-auto max-w-6xl px-4 pb-24 sm:px-6">
-          <div className="flex items-baseline">
-            <h2 className="text-2xl font-bold tracking-tight">Made with OneThing</h2>
-            <Link href="/gallery" className="ml-auto font-semibold text-accent">
-              See the gallery →
-            </Link>
-          </div>
-          <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {latest.map((s) => (
-              <GalleryCard key={s.id} shop={s} />
-            ))}
+        <section className="mx-auto max-w-6xl px-4 pb-12 sm:px-6">
+          <div className="rounded-xl border border-line bg-white p-4 sm:p-5">
+            <ShopCarousel
+              shops={latest.map((s) => {
+                const view = shopView(s);
+                return {
+                  slug: s.slug,
+                  name: s.spec.productName,
+                  image: view.photoUrl ?? view.heroUrl ?? s.referral?.image ?? null,
+                  background: s.spec.palette.surface,
+                  text: s.spec.palette.text,
+                };
+              })}
+            />
           </div>
         </section>
       )}

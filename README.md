@@ -156,7 +156,7 @@ the AI's guesses and clicks **Go live**. The choices behind it:
 ### Everyone
 
 - **Gallery** at `/gallery`: every live shop, newest first, each card in that shop's own palette, in a dense marketplace-style grid (2 columns on phones up to 6 on wide screens). The
-  home page shows the three newest. Ticking "Show in the OneThing gallery" only *asks*: a shop
+  home page shows the newest 40 as a compact "Made with OneThing" carousel of photos, paged with arrows. Ticking "Show in the OneThing gallery" only *asks*: a shop
   appears in the gallery, on the home page and in agent search once it's approved at
   `/admin/gallery?key=<ADMIN_KEY>`, a review page that isn't linked anywhere and needs no sign-in,
   just the secret key. Changing an approved shop's photos, product name or headline sends it back
