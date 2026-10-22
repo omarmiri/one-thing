@@ -40,6 +40,7 @@ export type Shop = {
   account_id: string | null;
   api_key_id: string | null; // made by a platform's API key: its seller isn't the account owner
   paypal_return_url: string | null; // where Connect PayPal sends the seller back (a platform's page)
+  paypal_tracking_id: string | null; // the latest Connect PayPal attempt (null: older shops used id)
   showcase: Showcase | null;
   showcase_blobs: string[];
   gallery_blobs: string[];

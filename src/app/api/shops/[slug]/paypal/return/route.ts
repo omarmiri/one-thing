@@ -24,7 +24,7 @@ export async function GET(_req: Request, ctx: RouteContext<"/api/shops/[slug]/pa
 
   let outcome = "failed";
   try {
-    const found = await connectedMerchant(shop.id);
+    const found = await connectedMerchant(shop.paypal_tracking_id ?? shop.id);
     if (found) {
       await saveConnection(shop, found.merchantId, found.status);
       outcome = found.status.receivable && found.status.emailConfirmed ? "connected" : "incomplete";

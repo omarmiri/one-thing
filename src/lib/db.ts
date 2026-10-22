@@ -141,6 +141,10 @@ CREATE TABLE IF NOT EXISTS api_keys (
 -- where Connect PayPal returns them.
 ALTER TABLE shops ADD COLUMN IF NOT EXISTS api_key_id text REFERENCES api_keys(id);
 ALTER TABLE shops ADD COLUMN IF NOT EXISTS paypal_return_url text;
+-- The tracking_id of the latest Connect PayPal attempt. Each attempt gets its own, so a seller
+-- can switch to a different PayPal account (PayPal keeps answering an old one with the first
+-- account that onboarded). Null on older shops, which used the shop id.
+ALTER TABLE shops ADD COLUMN IF NOT EXISTS paypal_tracking_id text;
 
 -- Every link name a shop has had (the current one is shops.slug). Old names redirect.
 CREATE TABLE IF NOT EXISTS shop_slugs (
