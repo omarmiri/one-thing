@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "OneThing API",
-    "_postman_id": "9d475b4c-15f3-4ed0-9d86-6ae22112f932",
+    "_postman_id": "3d9c5707-f26a-438b-8227-d8938d4e9afa",
     "description": "OneThing turns a photo, a link or a picked product into a live one-product shop that takes\nPayPal payments, or a recommendation page that earns referral commissions through Channel3.\n\n**How a shop is made**\n1. `createShop`: start from a photo, a link, or a Channel3 product. Gemini guesses what it\n   is, how it's delivered, the price, a short link and the page design. You get back the\n   shop's link name and an **admin token**.\n2. `updateShop`: correct anything the AI guessed, then set `status: live`.\n3. Buyers pay on `https://<host>/<slug>` with PayPal. Sellers read orders and ship them.\n\n**Auth.** Seller endpoints take the shop's admin token in the `x-admin-token` header. Buyer\nendpoints (checkout, access-code verification, downloads) are public.\n\n**Access codes.** A digital product can unlock an app or game instead of shipping a file.\nEach paid order gets a code such as `K7QF-M2XP-9HTD`; your app calls `verifyAccessCode`\nbefore unlocking. Raptor Rush on miriogames.com is a live example.\n\n**Agent-ready.** Every live shop is also published for AI shopping agents: product JSON at\n`getAgentProduct`, and an MCP server at `/api/mcp` with `search_shops`, `get_product`,\n`create_order` and `get_order`. An agent can find and order, but the buyer still approves\nevery payment at PayPal.\n\nAll money moves through PayPal (sandbox in this deployment). OneThing never holds card data.\n",
     "schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
   },
@@ -11,7 +11,7 @@
       "description": "Sign in as a seller with an email or a phone number. Shops made while signed in belong to the account.",
       "item": [
         {
-          "id": "c56291dc-aa63-427a-9202-0d306ef67b90",
+          "id": "29599073-e7cc-4662-8fe1-6e387b22e630",
           "name": "signIn",
           "request": {
             "url": {
@@ -55,11 +55,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"id\": \"id68\",\n  \"email\": \"email57\",\n  \"phone\": \"phone88\"\n}",
+              "body": "{\n  \"id\": \"id14\",\n  \"email\": \"email10\",\n  \"phone\": \"phone47\"\n}",
               "status": "Signed in. The `ot_session` cookie is set.",
               "code": 200,
               "name": "Response_200",
-              "id": "d49339a6-ded6-445f-a380-3dfaa56fab09"
+              "id": "0c204d54-a56d-4614-a543-33cc223a5a00"
             },
             {
               "header": [
@@ -69,16 +69,16 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"error\": \"error75\",\n  \"field\": \"field10\",\n  \"detail\": \"detail93\"\n}",
+              "body": "{\n  \"error\": \"error54\",\n  \"field\": \"field28\",\n  \"detail\": \"detail81\"\n}",
               "status": "Something in the request needs fixing; `error` says what.",
               "code": 400,
               "name": "Response_400",
-              "id": "fb6ecdba-da7b-427e-8538-deedbb878347"
+              "id": "e957cee4-fa5e-4695-ba95-39d8aec0d487"
             }
           ]
         },
         {
-          "id": "28c5454b-f8cd-4612-933a-2748a32ff936",
+          "id": "fe0e637f-515d-4b1c-84c5-ac8296bb4600",
           "name": "signOut",
           "request": {
             "url": {
@@ -114,12 +114,12 @@
               "status": "Done.",
               "code": 200,
               "name": "Response_200",
-              "id": "38809e28-152a-4695-bb92-1ef68ad0ded1"
+              "id": "82d0778d-7d1b-4c01-875a-2a6b6eed5428"
             }
           ]
         },
         {
-          "id": "8fa5c8ef-6a54-422c-881b-e919f1950af1",
+          "id": "be8fd2da-cbdc-4099-87fe-0224c2049a7b",
           "name": "logInWithPayPal",
           "request": {
             "url": {
@@ -156,7 +156,7 @@
               "status": "To PayPal's sign-in page.",
               "code": 302,
               "name": "Response_302",
-              "id": "9df4c14f-5f09-4797-9704-732f34f9492c"
+              "id": "4b49e9d9-1853-43dc-a0e7-06dea4e3fab2"
             },
             {
               "header": [
@@ -166,11 +166,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"error\": \"error75\",\n  \"field\": \"field10\",\n  \"detail\": \"detail93\"\n}",
+              "body": "{\n  \"error\": \"error54\",\n  \"field\": \"field28\",\n  \"detail\": \"detail81\"\n}",
               "status": "Log in with PayPal isn't switched on for this server.",
               "code": 503,
               "name": "Response_503",
-              "id": "382ece9c-5884-41e2-8e33-35fe79324962"
+              "id": "a02065ae-5831-4a70-833e-19adeeae2f74"
             }
           ]
         }
@@ -181,7 +181,7 @@
       "description": "Create a shop and manage it as its seller.",
       "item": [
         {
-          "id": "b2e83bf4-1893-4d7e-adae-80b21fe78f2d",
+          "id": "6a9db217-1542-40b4-9d8e-a5d3ceee28d2",
           "name": "createShop",
           "request": {
             "url": {
@@ -215,28 +215,28 @@
                 },
                 {
                   "key": "description",
-                  "value": "description33",
+                  "value": "description56",
                   "disabled": false,
                   "type": "text",
                   "description": "`source=photo`: a sentence or two about the product. Required if there is no photo."
                 },
                 {
                   "key": "url",
-                  "value": "url93",
+                  "value": "url51",
                   "disabled": false,
                   "type": "text",
                   "description": "`source=link`: a product page, or your own app or game page."
                 },
                 {
                   "key": "productId",
-                  "value": "productId58",
+                  "value": "productId85",
                   "disabled": false,
                   "type": "text",
                   "description": "`source=channel3`: a product id from `searchProducts`."
                 },
                 {
                   "key": "slug",
-                  "value": "slug28",
+                  "value": "slug30",
                   "disabled": false,
                   "type": "text",
                   "description": "The link name you want. If omitted, the AI suggests one."
@@ -255,49 +255,49 @@
                 },
                 {
                   "key": "access_url",
-                  "value": "access_url17",
+                  "value": "access_url75",
                   "disabled": false,
                   "type": "text",
                   "description": "Where buyers use an access code."
                 },
                 {
                   "key": "price",
-                  "value": "197.68795185659926",
+                  "value": "234.18204511169714",
                   "disabled": false,
                   "type": "text",
                   "description": "USD. If omitted, the AI suggests a price."
                 },
                 {
                   "key": "shipping",
-                  "value": "152.72074101509835",
+                  "value": "230.13712729711537",
                   "disabled": false,
                   "type": "text",
                   "description": ""
                 },
                 {
                   "key": "stock",
-                  "value": "102",
+                  "value": "38",
                   "disabled": false,
                   "type": "text",
                   "description": ""
                 },
                 {
                   "key": "ship_countries",
-                  "value": "ship_countries62",
+                  "value": "ship_countries43",
                   "disabled": false,
                   "type": "text",
                   "description": ""
                 },
                 {
                   "key": "paypal_email",
-                  "value": "paypal_email44",
+                  "value": "paypal_email56",
                   "disabled": false,
                   "type": "text",
                   "description": ""
                 },
                 {
                   "key": "seller_email",
-                  "value": "seller_email7",
+                  "value": "seller_email58",
                   "disabled": false,
                   "type": "text",
                   "description": ""
@@ -322,11 +322,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"slug\": \"dragonflight\",\n  \"token\": \"token25\",\n  \"manageUrl\": \"manageUrl39\"\n}",
+              "body": "{\n  \"slug\": \"dragonflight\",\n  \"token\": \"token87\",\n  \"manageUrl\": \"manageUrl34\"\n}",
               "status": "Draft created.",
               "code": 200,
               "name": "Response_200",
-              "id": "1fc1ff5a-8b5d-4f38-8391-9696b0d52816"
+              "id": "3eabf805-4477-403d-a01c-2e5b4d8ef011"
             },
             {
               "header": [
@@ -336,11 +336,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"error\": \"error75\",\n  \"field\": \"field10\",\n  \"detail\": \"detail93\"\n}",
+              "body": "{\n  \"error\": \"error54\",\n  \"field\": \"field28\",\n  \"detail\": \"detail81\"\n}",
               "status": "Something in the request needs fixing; `error` says what.",
               "code": 400,
               "name": "Response_400",
-              "id": "42f0d360-f270-4dd1-ad3c-30a65219093e"
+              "id": "21b88ca8-6fe3-492f-9973-cef5effa0852"
             },
             {
               "header": [
@@ -350,11 +350,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"error\": \"error75\",\n  \"field\": \"field10\",\n  \"detail\": \"detail93\"\n}",
+              "body": "{\n  \"error\": \"error54\",\n  \"field\": \"field28\",\n  \"detail\": \"detail81\"\n}",
               "status": "Taken or unavailable (a link name, or a sold-out product).",
               "code": 409,
               "name": "Response_409",
-              "id": "82b79ee4-a95e-4401-92da-cd094f635aad"
+              "id": "314cec0d-90fd-4210-973f-417c20df5fd4"
             },
             {
               "header": [
@@ -364,16 +364,16 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"error\": \"error75\",\n  \"field\": \"field10\",\n  \"detail\": \"detail93\"\n}",
+              "body": "{\n  \"error\": \"error54\",\n  \"field\": \"field28\",\n  \"detail\": \"detail81\"\n}",
               "status": "Gemini, PayPal or Channel3 failed or isn't configured.",
               "code": 502,
               "name": "Response_502",
-              "id": "7d61d01c-9add-485b-b135-02c09edd92b8"
+              "id": "a0dea0e5-ca86-4d8e-ae6f-73254ee48c06"
             }
           ]
         },
         {
-          "id": "6d736f3f-4d6b-467a-b3f2-cb8e5a61a8ab",
+          "id": "9ee7e8c6-ca5d-45a8-b36a-ce0415d71104",
           "name": "getShop",
           "request": {
             "url": {
@@ -395,7 +395,7 @@
               "type": "apikey",
               "apikey": {
                 "key": "x-admin-token",
-                "value": "x-admin-token18",
+                "value": "x-admin-token92",
                 "in": "header"
               }
             },
@@ -422,11 +422,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"id\": \"id9\",\n  \"slug\": \"slug20\",\n  \"status\": \"draft\",\n  \"product_type\": \"physical\",\n  \"price_cents\": 34,\n  \"currency\": \"USD\",\n  \"spec\": {\n    \"productType\": \"digital\",\n    \"productName\": \"productName48\",\n    \"layout\": \"editorial\",\n    \"palette\": {\n      \"background\": \"#14171a\",\n      \"surface\": \"#14171a\",\n      \"text\": \"#14171a\",\n      \"muted\": \"#14171a\",\n      \"accent\": \"#14171a\",\n      \"accentText\": \"#14171a\"\n    },\n    \"fonts\": {\n      \"heading\": \"heading96\",\n      \"body\": \"body15\"\n    },\n    \"headline\": \"headline98\",\n    \"bullets\": [\n      \"bullets65\"\n    ],\n    \"faq\": [\n      {\n        \"q\": \"q54\",\n        \"a\": \"a89\"\n      }\n    ],\n    \"ctaLabel\": \"ctaLabel25\",\n    \"eyebrow\": \"eyebrow14\",\n    \"subheadline\": \"subheadline74\",\n    \"story\": \"story61\",\n    \"details\": [\n      {\n        \"label\": \"label32\",\n        \"value\": \"value66\"\n      }\n    ],\n    \"suggestedPriceUsd\": 3.0484298198563575,\n    \"suggestedShippingUsd\": 160.58314990540748,\n    \"imageAlt\": \"imageAlt14\",\n    \"heroPrompt\": \"heroPrompt8\"\n  },\n  \"shipping_cents\": 85,\n  \"ship_countries\": \"ship_countries26\",\n  \"stock\": 102,\n  \"delivery\": \"file\",\n  \"access_url\": \"access_url94\",\n  \"paypal_email\": \"paypal_email22\",\n  \"seller_email\": \"seller_email92\",\n  \"paypal_merchant_id\": \"paypal_merchant_id49\",\n  \"paypal_status\": {\n    \"receivable\": false,\n    \"emailConfirmed\": true,\n    \"checkedAt\": \"2027-01-17T00:30:34.7220847Z\"\n  },\n  \"zapier_hook_url\": \"zapier_hook_url24\",\n  \"in_gallery\": false,\n  \"account_id\": \"account_id63\",\n  \"options\": [\n    {\n      \"name\": \"Size\",\n      \"kind\": \"size\",\n      \"values\": [\n        {\n          \"label\": \"M\",\n          \"hex\": \"#14171a\",\n          \"photo\": \"photo48\"\n        }\n      ]\n    }\n  ],\n  \"option_stock\": {\n    \"M / Black\": 4,\n    \"L / Black\": 0\n  },\n  \"suggestions\": {\n    \"oneOfAKind\": true,\n    \"options\": [\n      {\n        \"name\": \"Size\",\n        \"kind\": \"size\",\n        \"values\": [\n          {\n            \"label\": \"M\",\n            \"hex\": \"#14171a\",\n            \"photo\": \"photo48\"\n          }\n        ],\n        \"fromSeller\": true\n      }\n    ],\n    \"missingFacts\": [\n      {\n        \"label\": \"Size\",\n        \"question\": \"What size are the skates?\",\n        \"placeholder\": \"US women's 8\"\n      }\n    ]\n  },\n  \"photo_blob\": \"photo_blob87\",\n  \"gallery_blobs\": [\n    \"gallery_blobs56\"\n  ],\n  \"hero_blob\": \"hero_blob16\",\n  \"hero_status\": \"ready\",\n  \"hero_error\": \"hero_error54\",\n  \"ai_source\": \"gemini\",\n  \"source_url\": \"source_url39\",\n  \"referral\": {\n    \"productId\": \"productId53\",\n    \"title\": \"title25\",\n    \"offers\": [\n      {\n        \"domain\": \"domain17\",\n        \"url\": \"url20\",\n        \"price\": 186.8415205907701,\n        \"currency\": \"currency53\",\n        \"inStock\": false,\n        \"commission\": 149.84225731363014\n      }\n    ],\n    \"brand\": \"brand56\",\n    \"image\": \"image87\"\n  },\n  \"created_at\": \"2027-01-18T00:30:34.7222801Z\"\n}",
+              "body": "{\n  \"id\": \"id77\",\n  \"slug\": \"slug23\",\n  \"status\": \"draft\",\n  \"product_type\": \"digital\",\n  \"price_cents\": 135,\n  \"currency\": \"USD\",\n  \"spec\": {\n    \"productType\": \"digital\",\n    \"productName\": \"productName22\",\n    \"layout\": \"minimal\",\n    \"palette\": {\n      \"background\": \"#14171a\",\n      \"surface\": \"#14171a\",\n      \"text\": \"#14171a\",\n      \"muted\": \"#14171a\",\n      \"accent\": \"#14171a\",\n      \"accentText\": \"#14171a\"\n    },\n    \"fonts\": {\n      \"heading\": \"heading14\",\n      \"body\": \"body27\"\n    },\n    \"headline\": \"headline44\",\n    \"bullets\": [\n      \"bullets54\"\n    ],\n    \"faq\": [\n      {\n        \"q\": \"q13\",\n        \"a\": \"a25\"\n      }\n    ],\n    \"ctaLabel\": \"ctaLabel12\",\n    \"eyebrow\": \"eyebrow87\",\n    \"subheadline\": \"subheadline46\",\n    \"story\": \"story70\",\n    \"details\": [\n      {\n        \"label\": \"label77\",\n        \"value\": \"value14\"\n      }\n    ],\n    \"suggestedPriceUsd\": 16.53303331849944,\n    \"suggestedShippingUsd\": 62.81389387662778,\n    \"imageAlt\": \"imageAlt5\",\n    \"heroPrompt\": \"heroPrompt9\"\n  },\n  \"shipping_cents\": 196,\n  \"ship_countries\": \"ship_countries98\",\n  \"stock\": 181,\n  \"delivery\": \"file\",\n  \"access_url\": \"access_url6\",\n  \"paypal_email\": \"paypal_email10\",\n  \"seller_email\": \"seller_email63\",\n  \"paypal_merchant_id\": \"paypal_merchant_id11\",\n  \"paypal_status\": {\n    \"receivable\": true,\n    \"emailConfirmed\": false,\n    \"checkedAt\": \"2026-12-30T00:40:28.1889177Z\"\n  },\n  \"zapier_hook_url\": \"zapier_hook_url45\",\n  \"in_gallery\": false,\n  \"account_id\": \"account_id35\",\n  \"options\": [\n    {\n      \"name\": \"Size\",\n      \"kind\": \"size\",\n      \"values\": [\n        {\n          \"label\": \"M\",\n          \"hex\": \"#14171a\",\n          \"photo\": \"photo90\"\n        }\n      ]\n    }\n  ],\n  \"option_stock\": {\n    \"M / Black\": 4,\n    \"L / Black\": 0\n  },\n  \"suggestions\": {\n    \"oneOfAKind\": true,\n    \"options\": [\n      {\n        \"name\": \"Size\",\n        \"kind\": \"size\",\n        \"values\": [\n          {\n            \"label\": \"M\",\n            \"hex\": \"#14171a\",\n            \"photo\": \"photo90\"\n          }\n        ],\n        \"fromSeller\": true\n      }\n    ],\n    \"missingFacts\": [\n      {\n        \"label\": \"Size\",\n        \"question\": \"What size are the skates?\",\n        \"placeholder\": \"US women's 8\"\n      }\n    ]\n  },\n  \"photo_blob\": \"photo_blob65\",\n  \"gallery_blobs\": [\n    \"gallery_blobs62\"\n  ],\n  \"hero_blob\": \"hero_blob86\",\n  \"hero_status\": \"pending\",\n  \"hero_error\": \"hero_error87\",\n  \"ai_source\": \"gemini\",\n  \"source_url\": \"source_url37\",\n  \"referral\": {\n    \"productId\": \"productId14\",\n    \"title\": \"title67\",\n    \"offers\": [\n      {\n        \"domain\": \"domain3\",\n        \"url\": \"url16\",\n        \"price\": 173.19033325919028,\n        \"currency\": \"currency73\",\n        \"inStock\": false,\n        \"commission\": 136.5257332162941\n      }\n    ],\n    \"brand\": \"brand47\",\n    \"image\": \"image95\"\n  },\n  \"created_at\": \"2026-11-20T00:40:28.1891077Z\"\n}",
               "status": "The shop.",
               "code": 200,
               "name": "Response_200",
-              "id": "869f0950-003b-4252-8fb5-646bd493bd92"
+              "id": "13867efd-0278-4e79-a844-64befd71dd07"
             },
             {
               "header": [
@@ -436,16 +436,16 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"error\": \"error75\",\n  \"field\": \"field10\",\n  \"detail\": \"detail93\"\n}",
+              "body": "{\n  \"error\": \"error54\",\n  \"field\": \"field28\",\n  \"detail\": \"detail81\"\n}",
               "status": "No such shop, or the admin token doesn't match it.",
               "code": 404,
               "name": "Response_404",
-              "id": "d7067f7f-e587-48f3-9e9d-22ab4918864e"
+              "id": "dda06de3-f3a3-476a-bc26-db74537b0bb9"
             }
           ]
         },
         {
-          "id": "23b6ee5c-07b6-42ef-be79-53ecd8b998d9",
+          "id": "47a77070-ecf3-4174-80fd-cdf6b5884a87",
           "name": "updateShop",
           "request": {
             "url": {
@@ -467,7 +467,7 @@
               "type": "apikey",
               "apikey": {
                 "key": "x-admin-token",
-                "value": "x-admin-token79",
+                "value": "x-admin-token48",
                 "in": "header"
               }
             },
@@ -487,7 +487,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"slug\": \"slug54\",\n  \"status\": \"draft\",\n  \"product_type\": \"physical\",\n  \"price\": 1741.9388245258972,\n  \"shipping\": 91.55104253664459,\n  \"stock\": 172,\n  \"ship_countries\": \"ship_countries15\",\n  \"delivery\": \"file\",\n  \"access_url\": \"access_url13\",\n  \"paypal_email\": \"paypal_email22\",\n  \"seller_email\": \"seller_email51\",\n  \"zapier_hook_url\": \"zapier_hook_url5\",\n  \"in_gallery\": false,\n  \"options\": [\n    {\n      \"name\": \"Size\",\n      \"kind\": \"color\",\n      \"values\": [\n        {\n          \"label\": \"M\",\n          \"hex\": \"#14171a\",\n          \"photo\": \"photo90\"\n        }\n      ]\n    }\n  ],\n  \"option_stock\": {\n    \"M / Black\": 4,\n    \"L / Black\": 0\n  },\n  \"facts\": [\n    {\n      \"label\": \"Size\",\n      \"value\": \"US women's 8\"\n    }\n  ]\n}",
+              "raw": "{\n  \"slug\": \"slug75\",\n  \"status\": \"draft\",\n  \"product_type\": \"digital\",\n  \"price\": 3028.947540580723,\n  \"shipping\": 299.735906538583,\n  \"stock\": 202,\n  \"ship_countries\": \"ship_countries49\",\n  \"delivery\": \"file\",\n  \"access_url\": \"access_url64\",\n  \"paypal_email\": \"paypal_email68\",\n  \"seller_email\": \"seller_email80\",\n  \"zapier_hook_url\": \"zapier_hook_url39\",\n  \"in_gallery\": true,\n  \"options\": [\n    {\n      \"name\": \"Size\",\n      \"kind\": \"size\",\n      \"values\": [\n        {\n          \"label\": \"M\",\n          \"hex\": \"#14171a\",\n          \"photo\": \"photo24\"\n        }\n      ]\n    }\n  ],\n  \"option_stock\": {\n    \"M / Black\": 4,\n    \"L / Black\": 0\n  },\n  \"facts\": [\n    {\n      \"label\": \"Size\",\n      \"value\": \"US women's 8\"\n    }\n  ]\n}",
               "disabled": false
             },
             "description": "Changes only the fields you send. Renaming `slug` keeps the old link working (it\nredirects). Set `status: live` to publish; a digital product needs its file (or, for\naccess codes, `access_url`) first.\n"
@@ -501,11 +501,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"ok\": false,\n  \"slug\": \"slug87\"\n}",
+              "body": "{\n  \"ok\": true,\n  \"slug\": \"slug64\"\n}",
               "status": "Saved.",
               "code": 200,
               "name": "Response_200",
-              "id": "a464e12c-3693-4496-bf55-ecabe129c7ec"
+              "id": "923ea89d-872a-4051-a889-db5b53dfd82c"
             },
             {
               "header": [
@@ -515,11 +515,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"error\": \"error75\",\n  \"field\": \"field10\",\n  \"detail\": \"detail93\"\n}",
+              "body": "{\n  \"error\": \"error54\",\n  \"field\": \"field28\",\n  \"detail\": \"detail81\"\n}",
               "status": "Something in the request needs fixing; `error` says what.",
               "code": 400,
               "name": "Response_400",
-              "id": "b94ac7c8-83c0-4c97-a366-a9a1f8f2bbcb"
+              "id": "289b9c9b-e9d0-4bd2-a88a-13f2c18dc369"
             },
             {
               "header": [
@@ -529,16 +529,16 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"error\": \"error75\",\n  \"field\": \"field10\",\n  \"detail\": \"detail93\"\n}",
+              "body": "{\n  \"error\": \"error54\",\n  \"field\": \"field28\",\n  \"detail\": \"detail81\"\n}",
               "status": "No such shop, or the admin token doesn't match it.",
               "code": 404,
               "name": "Response_404",
-              "id": "51d9ec8d-33fc-44ef-abdf-066df20c920a"
+              "id": "3d196c54-51bd-4868-9c4a-eb0128d8c7ca"
             }
           ]
         },
         {
-          "id": "3a208058-496c-4259-b791-364cf59e1127",
+          "id": "791a4caa-db03-4601-a5ae-843c6949248a",
           "name": "refineShopDesign",
           "request": {
             "url": {
@@ -560,7 +560,7 @@
               "type": "apikey",
               "apikey": {
                 "key": "x-admin-token",
-                "value": "x-admin-token38",
+                "value": "x-admin-token60",
                 "in": "header"
               }
             },
@@ -594,11 +594,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"spec\": {\n    \"productType\": \"digital\",\n    \"productName\": \"productName48\",\n    \"layout\": \"editorial\",\n    \"palette\": {\n      \"background\": \"#14171a\",\n      \"surface\": \"#14171a\",\n      \"text\": \"#14171a\",\n      \"muted\": \"#14171a\",\n      \"accent\": \"#14171a\",\n      \"accentText\": \"#14171a\"\n    },\n    \"fonts\": {\n      \"heading\": \"heading96\",\n      \"body\": \"body15\"\n    },\n    \"headline\": \"headline98\",\n    \"bullets\": [\n      \"bullets65\"\n    ],\n    \"faq\": [\n      {\n        \"q\": \"q54\",\n        \"a\": \"a89\"\n      }\n    ],\n    \"ctaLabel\": \"ctaLabel25\",\n    \"eyebrow\": \"eyebrow14\",\n    \"subheadline\": \"subheadline74\",\n    \"story\": \"story61\",\n    \"details\": [\n      {\n        \"label\": \"label32\",\n        \"value\": \"value66\"\n      }\n    ],\n    \"suggestedPriceUsd\": 3.0484298198563575,\n    \"suggestedShippingUsd\": 160.58314990540748,\n    \"imageAlt\": \"imageAlt14\",\n    \"heroPrompt\": \"heroPrompt8\"\n  }\n}",
+              "body": "{\n  \"spec\": {\n    \"productType\": \"digital\",\n    \"productName\": \"productName22\",\n    \"layout\": \"minimal\",\n    \"palette\": {\n      \"background\": \"#14171a\",\n      \"surface\": \"#14171a\",\n      \"text\": \"#14171a\",\n      \"muted\": \"#14171a\",\n      \"accent\": \"#14171a\",\n      \"accentText\": \"#14171a\"\n    },\n    \"fonts\": {\n      \"heading\": \"heading14\",\n      \"body\": \"body27\"\n    },\n    \"headline\": \"headline44\",\n    \"bullets\": [\n      \"bullets54\"\n    ],\n    \"faq\": [\n      {\n        \"q\": \"q13\",\n        \"a\": \"a25\"\n      }\n    ],\n    \"ctaLabel\": \"ctaLabel12\",\n    \"eyebrow\": \"eyebrow87\",\n    \"subheadline\": \"subheadline46\",\n    \"story\": \"story70\",\n    \"details\": [\n      {\n        \"label\": \"label77\",\n        \"value\": \"value14\"\n      }\n    ],\n    \"suggestedPriceUsd\": 16.53303331849944,\n    \"suggestedShippingUsd\": 62.81389387662778,\n    \"imageAlt\": \"imageAlt5\",\n    \"heroPrompt\": \"heroPrompt9\"\n  }\n}",
               "status": "The new design.",
               "code": 200,
               "name": "Response_200",
-              "id": "ee2e409f-e003-4779-8a14-e30e09153065"
+              "id": "4e6d6323-7742-4797-9d2b-3aa8394594bb"
             },
             {
               "header": [
@@ -608,11 +608,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"error\": \"error75\",\n  \"field\": \"field10\",\n  \"detail\": \"detail93\"\n}",
+              "body": "{\n  \"error\": \"error54\",\n  \"field\": \"field28\",\n  \"detail\": \"detail81\"\n}",
               "status": "Something in the request needs fixing; `error` says what.",
               "code": 400,
               "name": "Response_400",
-              "id": "c6539cf4-7024-453c-8e5f-520d7436f945"
+              "id": "8abd2e4e-cfde-4a01-8cdc-2657335c03f5"
             },
             {
               "header": [
@@ -622,11 +622,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"error\": \"error75\",\n  \"field\": \"field10\",\n  \"detail\": \"detail93\"\n}",
+              "body": "{\n  \"error\": \"error54\",\n  \"field\": \"field28\",\n  \"detail\": \"detail81\"\n}",
               "status": "No such shop, or the admin token doesn't match it.",
               "code": 404,
               "name": "Response_404",
-              "id": "0417f91f-2973-4049-8266-9f0d2a75cea0"
+              "id": "42191dce-e28e-4d55-88fb-b18c2062695f"
             },
             {
               "header": [
@@ -636,16 +636,16 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"error\": \"error75\",\n  \"field\": \"field10\",\n  \"detail\": \"detail93\"\n}",
+              "body": "{\n  \"error\": \"error54\",\n  \"field\": \"field28\",\n  \"detail\": \"detail81\"\n}",
               "status": "Gemini, PayPal or Channel3 failed or isn't configured.",
               "code": 502,
               "name": "Response_502",
-              "id": "93942611-acef-46d3-9909-92b15b174e3c"
+              "id": "6d6800f9-23ec-4ae7-8b72-fa6eada14601"
             }
           ]
         },
         {
-          "id": "68aac3e7-fa30-4bea-80a2-bc9183fcd0f3",
+          "id": "a82685e0-15b0-4cf4-a72e-61b423858a5d",
           "name": "regenerateHeroArt",
           "request": {
             "url": {
@@ -667,7 +667,7 @@
               "type": "apikey",
               "apikey": {
                 "key": "x-admin-token",
-                "value": "x-admin-token46",
+                "value": "x-admin-token2",
                 "in": "header"
               }
             },
@@ -698,7 +698,7 @@
               "status": "Done.",
               "code": 200,
               "name": "Response_200",
-              "id": "2cbfada5-b811-4b65-8451-849ce49a6b4b"
+              "id": "0589a12b-cc46-485b-a34b-8d21563785dd"
             },
             {
               "header": [
@@ -708,11 +708,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"error\": \"error75\",\n  \"field\": \"field10\",\n  \"detail\": \"detail93\"\n}",
+              "body": "{\n  \"error\": \"error54\",\n  \"field\": \"field28\",\n  \"detail\": \"detail81\"\n}",
               "status": "Something in the request needs fixing; `error` says what.",
               "code": 400,
               "name": "Response_400",
-              "id": "0ee73846-7c77-4b62-acaa-6cacf8810419"
+              "id": "4a8fab10-c646-4b08-bcf9-c6d08be60023"
             },
             {
               "header": [
@@ -722,16 +722,16 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"error\": \"error75\",\n  \"field\": \"field10\",\n  \"detail\": \"detail93\"\n}",
+              "body": "{\n  \"error\": \"error54\",\n  \"field\": \"field28\",\n  \"detail\": \"detail81\"\n}",
               "status": "No such shop, or the admin token doesn't match it.",
               "code": 404,
               "name": "Response_404",
-              "id": "e7a6fc96-13fc-4d1f-aabc-7b77dcecafa5"
+              "id": "92cf26af-c19c-4150-86bc-3d4d6c1a22ff"
             }
           ]
         },
         {
-          "id": "ac625cf5-46b6-4985-b0bd-b777df7482e3",
+          "id": "b61595bd-bedf-4273-a7bb-2162be43777d",
           "name": "uploadDigitalFile",
           "request": {
             "url": {
@@ -753,7 +753,7 @@
               "type": "apikey",
               "apikey": {
                 "key": "x-admin-token",
-                "value": "x-admin-token82",
+                "value": "x-admin-token15",
                 "in": "header"
               }
             },
@@ -788,11 +788,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"ok\": true,\n  \"filename\": \"filename30\"\n}",
+              "body": "{\n  \"ok\": true,\n  \"filename\": \"filename81\"\n}",
               "status": "Uploaded.",
               "code": 200,
               "name": "Response_200",
-              "id": "1ade3385-0d95-48e5-bfc2-37de4363f09a"
+              "id": "df8d42ec-4a7c-4739-9e48-e96601212212"
             },
             {
               "header": [
@@ -802,11 +802,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"error\": \"error75\",\n  \"field\": \"field10\",\n  \"detail\": \"detail93\"\n}",
+              "body": "{\n  \"error\": \"error54\",\n  \"field\": \"field28\",\n  \"detail\": \"detail81\"\n}",
               "status": "Something in the request needs fixing; `error` says what.",
               "code": 400,
               "name": "Response_400",
-              "id": "66be5437-4818-43b5-8385-904ac2210745"
+              "id": "819dfaf5-4ee4-4176-b3bc-14eb166db5cc"
             },
             {
               "header": [
@@ -816,16 +816,16 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"error\": \"error75\",\n  \"field\": \"field10\",\n  \"detail\": \"detail93\"\n}",
+              "body": "{\n  \"error\": \"error54\",\n  \"field\": \"field28\",\n  \"detail\": \"detail81\"\n}",
               "status": "No such shop, or the admin token doesn't match it.",
               "code": 404,
               "name": "Response_404",
-              "id": "e0045d41-7b73-4b42-970c-5530ca346629"
+              "id": "ff935b6c-3251-463a-9cdb-7cd20d46403e"
             }
           ]
         },
         {
-          "id": "d7c3c9d7-b4e0-4dd0-aa41-34459f655923",
+          "id": "243ad96f-daff-485c-960d-e47b2cd2e782",
           "name": "addPhotos",
           "request": {
             "url": {
@@ -847,7 +847,7 @@
               "type": "apikey",
               "apikey": {
                 "key": "x-admin-token",
-                "value": "x-admin-token16",
+                "value": "x-admin-token91",
                 "in": "header"
               }
             },
@@ -882,11 +882,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"photos\": [\n    {\n      \"id\": \"id7\",\n      \"url\": \"url86\"\n    }\n  ]\n}",
+              "body": "{\n  \"photos\": [\n    {\n      \"id\": \"id67\",\n      \"url\": \"url40\"\n    }\n  ]\n}",
               "status": "The shop's photos, cover first.",
               "code": 200,
               "name": "Response_200",
-              "id": "aabad69d-faa4-40f5-8488-2ba2d69e8bff"
+              "id": "700af635-c7c1-4b98-aa9e-56dd3d5edf61"
             },
             {
               "header": [
@@ -896,11 +896,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"error\": \"error75\",\n  \"field\": \"field10\",\n  \"detail\": \"detail93\"\n}",
+              "body": "{\n  \"error\": \"error54\",\n  \"field\": \"field28\",\n  \"detail\": \"detail81\"\n}",
               "status": "Something in the request needs fixing; `error` says what.",
               "code": 400,
               "name": "Response_400",
-              "id": "7fc1f1d3-e461-476b-8678-b7fb31481903"
+              "id": "54664875-371c-45e2-af39-fd1875b357c0"
             },
             {
               "header": [
@@ -910,16 +910,16 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"error\": \"error75\",\n  \"field\": \"field10\",\n  \"detail\": \"detail93\"\n}",
+              "body": "{\n  \"error\": \"error54\",\n  \"field\": \"field28\",\n  \"detail\": \"detail81\"\n}",
               "status": "No such shop, or the admin token doesn't match it.",
               "code": 404,
               "name": "Response_404",
-              "id": "1e8be6a4-3658-47b4-a785-253a05ea4c53"
+              "id": "5f84f122-6199-4a33-b985-b3330e2cb9dc"
             }
           ]
         },
         {
-          "id": "bfc62c54-75b8-48e6-8f81-f95156053677",
+          "id": "78855825-381d-41ae-88ab-64a6c7734c79",
           "name": "setPhotoOrder",
           "request": {
             "url": {
@@ -941,7 +941,7 @@
               "type": "apikey",
               "apikey": {
                 "key": "x-admin-token",
-                "value": "x-admin-token18",
+                "value": "x-admin-token19",
                 "in": "header"
               }
             },
@@ -961,7 +961,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"photos\": [\n    \"photos1\"\n  ]\n}",
+              "raw": "{\n  \"photos\": [\n    \"photos87\"\n  ]\n}",
               "disabled": false
             },
             "description": "Sets the photo order; the first becomes the cover. Leaving a photo out removes it."
@@ -975,11 +975,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"photos\": [\n    {\n      \"id\": \"id7\",\n      \"url\": \"url86\"\n    }\n  ]\n}",
+              "body": "{\n  \"photos\": [\n    {\n      \"id\": \"id67\",\n      \"url\": \"url40\"\n    }\n  ]\n}",
               "status": "The shop's photos, cover first.",
               "code": 200,
               "name": "Response_200",
-              "id": "e84feca7-2eec-4f81-b786-318013b1d569"
+              "id": "9a17db96-9f2d-453a-a055-0b181082f3c8"
             },
             {
               "header": [
@@ -989,11 +989,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"error\": \"error75\",\n  \"field\": \"field10\",\n  \"detail\": \"detail93\"\n}",
+              "body": "{\n  \"error\": \"error54\",\n  \"field\": \"field28\",\n  \"detail\": \"detail81\"\n}",
               "status": "Something in the request needs fixing; `error` says what.",
               "code": 400,
               "name": "Response_400",
-              "id": "d3ec4046-cac8-4d29-bd7b-f44e8b9ba9a0"
+              "id": "9d0e0bb2-f9c7-4b9c-8bef-d5e7e737d556"
             },
             {
               "header": [
@@ -1003,16 +1003,16 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"error\": \"error75\",\n  \"field\": \"field10\",\n  \"detail\": \"detail93\"\n}",
+              "body": "{\n  \"error\": \"error54\",\n  \"field\": \"field28\",\n  \"detail\": \"detail81\"\n}",
               "status": "No such shop, or the admin token doesn't match it.",
               "code": 404,
               "name": "Response_404",
-              "id": "93d622bc-1f95-4c77-85f4-c78b910dcddd"
+              "id": "f2ff8925-314d-4e0a-8338-9161844736a0"
             }
           ]
         },
         {
-          "id": "99ad6e26-fd6c-4014-9703-91f634425ca7",
+          "id": "2889f621-0e23-4039-aeb0-b7ac2a20cde8",
           "name": "checkMissingDetails",
           "request": {
             "url": {
@@ -1034,7 +1034,7 @@
               "type": "apikey",
               "apikey": {
                 "key": "x-admin-token",
-                "value": "x-admin-token84",
+                "value": "x-admin-token59",
                 "in": "header"
               }
             },
@@ -1061,11 +1061,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"oneOfAKind\": true,\n  \"options\": [\n    {\n      \"name\": \"Size\",\n      \"kind\": \"size\",\n      \"values\": [\n        {\n          \"label\": \"M\",\n          \"hex\": \"#14171a\",\n          \"photo\": \"photo48\"\n        }\n      ],\n      \"fromSeller\": true\n    }\n  ],\n  \"missingFacts\": [\n    {\n      \"label\": \"Size\",\n      \"question\": \"What size are the skates?\",\n      \"placeholder\": \"US women's 8\"\n    }\n  ]\n}",
+              "body": "{\n  \"oneOfAKind\": true,\n  \"options\": [\n    {\n      \"name\": \"Size\",\n      \"kind\": \"size\",\n      \"values\": [\n        {\n          \"label\": \"M\",\n          \"hex\": \"#14171a\",\n          \"photo\": \"photo90\"\n        }\n      ],\n      \"fromSeller\": true\n    }\n  ],\n  \"missingFacts\": [\n    {\n      \"label\": \"Size\",\n      \"question\": \"What size are the skates?\",\n      \"placeholder\": \"US women's 8\"\n    }\n  ]\n}",
               "status": "The suggestions.",
               "code": 200,
               "name": "Response_200",
-              "id": "a6854662-6024-49f5-9c8e-01b2acbcb7eb"
+              "id": "a7209521-c5d9-4855-97fd-cc1a25469b56"
             },
             {
               "header": [
@@ -1075,11 +1075,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"error\": \"error75\",\n  \"field\": \"field10\",\n  \"detail\": \"detail93\"\n}",
+              "body": "{\n  \"error\": \"error54\",\n  \"field\": \"field28\",\n  \"detail\": \"detail81\"\n}",
               "status": "Something in the request needs fixing; `error` says what.",
               "code": 400,
               "name": "Response_400",
-              "id": "33b141af-9c29-4649-bf40-9d6093b2045e"
+              "id": "3779d3a1-3092-41e8-9460-3f629d074774"
             },
             {
               "header": [
@@ -1089,11 +1089,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"error\": \"error75\",\n  \"field\": \"field10\",\n  \"detail\": \"detail93\"\n}",
+              "body": "{\n  \"error\": \"error54\",\n  \"field\": \"field28\",\n  \"detail\": \"detail81\"\n}",
               "status": "No such shop, or the admin token doesn't match it.",
               "code": 404,
               "name": "Response_404",
-              "id": "2f063be2-4d25-42bd-a9cb-2633922428d4"
+              "id": "2f0b9082-1e6e-4eed-993a-f756b04cb45c"
             },
             {
               "header": [
@@ -1103,16 +1103,16 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"error\": \"error75\",\n  \"field\": \"field10\",\n  \"detail\": \"detail93\"\n}",
+              "body": "{\n  \"error\": \"error54\",\n  \"field\": \"field28\",\n  \"detail\": \"detail81\"\n}",
               "status": "Gemini, PayPal or Channel3 failed or isn't configured.",
               "code": 502,
               "name": "Response_502",
-              "id": "95cf86a7-dd1d-426c-a211-84ce34aff177"
+              "id": "2a7b0b0a-25e2-4ed9-acb0-403f259152e8"
             }
           ]
         },
         {
-          "id": "1265e070-2fbd-4a76-86e8-97dea0ba2e7d",
+          "id": "89965f1e-91a4-4978-a5f6-046b9a3f48cb",
           "name": "matchColorPhotos",
           "request": {
             "url": {
@@ -1134,7 +1134,7 @@
               "type": "apikey",
               "apikey": {
                 "key": "x-admin-token",
-                "value": "x-admin-token14",
+                "value": "x-admin-token23",
                 "in": "header"
               }
             },
@@ -1172,7 +1172,7 @@
               "status": "A photo id for each colour Gemini could match. Colours it couldn't place are left out.",
               "code": 200,
               "name": "Response_200",
-              "id": "5103f344-7f9f-4f44-9681-e1fa910815fe"
+              "id": "42183e75-9fe4-485c-8dab-b2814483ff08"
             },
             {
               "header": [
@@ -1182,11 +1182,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"error\": \"error75\",\n  \"field\": \"field10\",\n  \"detail\": \"detail93\"\n}",
+              "body": "{\n  \"error\": \"error54\",\n  \"field\": \"field28\",\n  \"detail\": \"detail81\"\n}",
               "status": "Something in the request needs fixing; `error` says what.",
               "code": 400,
               "name": "Response_400",
-              "id": "1862e060-1eb7-49f0-be3e-93ac0c50ff98"
+              "id": "ab7dcfbd-cef5-4ad6-adcb-8cf744a48e16"
             },
             {
               "header": [
@@ -1196,11 +1196,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"error\": \"error75\",\n  \"field\": \"field10\",\n  \"detail\": \"detail93\"\n}",
+              "body": "{\n  \"error\": \"error54\",\n  \"field\": \"field28\",\n  \"detail\": \"detail81\"\n}",
               "status": "No such shop, or the admin token doesn't match it.",
               "code": 404,
               "name": "Response_404",
-              "id": "2f5aca15-0971-4419-bc48-e3d5ec4732b7"
+              "id": "036af34f-62cd-41f6-8383-57b756bb1f33"
             },
             {
               "header": [
@@ -1210,16 +1210,16 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"error\": \"error75\",\n  \"field\": \"field10\",\n  \"detail\": \"detail93\"\n}",
+              "body": "{\n  \"error\": \"error54\",\n  \"field\": \"field28\",\n  \"detail\": \"detail81\"\n}",
               "status": "Gemini, PayPal or Channel3 failed or isn't configured.",
               "code": 502,
               "name": "Response_502",
-              "id": "860d5a10-3c24-4763-a50c-e17b89f99cbb"
+              "id": "19a16c29-b9ff-4aa0-9686-61e4cb596b48"
             }
           ]
         },
         {
-          "id": "31157f81-4e34-4a24-a691-84baf36cdb94",
+          "id": "edfb108a-87e0-4054-84d4-a0cfd4918609",
           "name": "setColorPhotos",
           "request": {
             "url": {
@@ -1241,7 +1241,7 @@
               "type": "apikey",
               "apikey": {
                 "key": "x-admin-token",
-                "value": "x-admin-token86",
+                "value": "x-admin-token76",
                 "in": "header"
               }
             },
@@ -1261,7 +1261,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"photos\": {\n    \"key1\": \"photos93\"\n  }\n}",
+              "raw": "{\n  \"photos\": {\n    \"key1\": \"photos22\"\n  }\n}",
               "disabled": false
             },
             "description": "Saves which photo shows each colour, and nothing else about the shop. Only colours already saved in the shop's options change; `null` clears a colour's photo. A photo id that isn't one of the shop's photos is ignored."
@@ -1275,11 +1275,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"saved\": [\n    \"saved67\"\n  ]\n}",
+              "body": "{\n  \"saved\": [\n    \"saved45\"\n  ]\n}",
               "status": "The colours that were changed.",
               "code": 200,
               "name": "Response_200",
-              "id": "0ffb9192-a9c5-4139-8c96-f56a5b303ef9"
+              "id": "fcfce801-b76b-490b-a81f-b744a72154e5"
             },
             {
               "header": [
@@ -1289,11 +1289,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"error\": \"error75\",\n  \"field\": \"field10\",\n  \"detail\": \"detail93\"\n}",
+              "body": "{\n  \"error\": \"error54\",\n  \"field\": \"field28\",\n  \"detail\": \"detail81\"\n}",
               "status": "Something in the request needs fixing; `error` says what.",
               "code": 400,
               "name": "Response_400",
-              "id": "1c64ec22-3a71-4546-a39e-c848f2aa665d"
+              "id": "e3742f59-7274-4a46-8633-052ff89b1239"
             },
             {
               "header": [
@@ -1303,16 +1303,16 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"error\": \"error75\",\n  \"field\": \"field10\",\n  \"detail\": \"detail93\"\n}",
+              "body": "{\n  \"error\": \"error54\",\n  \"field\": \"field28\",\n  \"detail\": \"detail81\"\n}",
               "status": "No such shop, or the admin token doesn't match it.",
               "code": 404,
               "name": "Response_404",
-              "id": "1c09a2a9-6564-460f-8024-80faab0c16b3"
+              "id": "59bf851d-25ff-44c5-9eff-2c65efb686a8"
             }
           ]
         },
         {
-          "id": "5ed840e6-d4b9-42c7-931b-a9046a7ae48a",
+          "id": "0ba336d4-591c-465e-a54c-27d165179d14",
           "name": "connectPayPal",
           "request": {
             "url": {
@@ -1334,7 +1334,7 @@
               "type": "apikey",
               "apikey": {
                 "key": "x-admin-token",
-                "value": "x-admin-token79",
+                "value": "x-admin-token82",
                 "in": "header"
               }
             },
@@ -1361,11 +1361,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"url\": \"url11\"\n}",
+              "body": "{\n  \"url\": \"url3\"\n}",
               "status": "Where to send the seller.",
               "code": 200,
               "name": "Response_200",
-              "id": "a5c4a2f9-e1ae-4589-a30a-03a3428204ee"
+              "id": "9d9e2d4a-4d15-43e9-980c-4bb558000948"
             },
             {
               "header": [
@@ -1375,11 +1375,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"error\": \"error75\",\n  \"field\": \"field10\",\n  \"detail\": \"detail93\"\n}",
+              "body": "{\n  \"error\": \"error54\",\n  \"field\": \"field28\",\n  \"detail\": \"detail81\"\n}",
               "status": "No such shop, or the admin token doesn't match it.",
               "code": 404,
               "name": "Response_404",
-              "id": "16c61a8b-2386-4bc6-af1f-0795b5cae68a"
+              "id": "4f7fb6de-f559-40b8-9f0e-4d71b3633ce5"
             },
             {
               "header": [
@@ -1389,11 +1389,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"error\": \"error75\",\n  \"field\": \"field10\",\n  \"detail\": \"detail93\"\n}",
+              "body": "{\n  \"error\": \"error54\",\n  \"field\": \"field28\",\n  \"detail\": \"detail81\"\n}",
               "status": "Gemini, PayPal or Channel3 failed or isn't configured.",
               "code": 502,
               "name": "Response_502",
-              "id": "1ca5f77c-3c45-4493-a148-671491b5ef0d"
+              "id": "a90f8332-8209-470d-b0d9-be44b075c8bf"
             },
             {
               "header": [
@@ -1403,16 +1403,16 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"error\": \"error75\",\n  \"field\": \"field10\",\n  \"detail\": \"detail93\"\n}",
+              "body": "{\n  \"error\": \"error54\",\n  \"field\": \"field28\",\n  \"detail\": \"detail81\"\n}",
               "status": "Gemini, PayPal or Channel3 failed or isn't configured.",
               "code": 503,
               "name": "Response_503",
-              "id": "33280405-c244-4fe9-8886-c39f3ffaaca0"
+              "id": "e1f003d0-bd53-4973-99f8-d672148cb26c"
             }
           ]
         },
         {
-          "id": "83ebb803-97a2-4206-8da0-7cf4e0a64d3e",
+          "id": "ff828849-343e-4709-a142-20a50b7f5cc5",
           "name": "getPayPalConnection",
           "request": {
             "url": {
@@ -1434,7 +1434,7 @@
               "type": "apikey",
               "apikey": {
                 "key": "x-admin-token",
-                "value": "x-admin-token82",
+                "value": "x-admin-token17",
                 "in": "header"
               }
             },
@@ -1461,11 +1461,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"merchantId\": \"merchantId28\",\n  \"status\": {\n    \"receivable\": false,\n    \"emailConfirmed\": true,\n    \"checkedAt\": \"2027-01-17T00:30:34.7220847Z\"\n  }\n}",
+              "body": "{\n  \"merchantId\": \"merchantId46\",\n  \"status\": {\n    \"receivable\": true,\n    \"emailConfirmed\": false,\n    \"checkedAt\": \"2026-12-30T00:40:28.1889177Z\"\n  }\n}",
               "status": "The connection, or nulls if there is none yet.",
               "code": 200,
               "name": "Response_200",
-              "id": "3e72493e-fc05-4e64-a5af-9407ae59b4a5"
+              "id": "e8d10d94-3c96-48cf-a34b-d3ec80dcd1ca"
             },
             {
               "header": [
@@ -1475,11 +1475,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"error\": \"error75\",\n  \"field\": \"field10\",\n  \"detail\": \"detail93\"\n}",
+              "body": "{\n  \"error\": \"error54\",\n  \"field\": \"field28\",\n  \"detail\": \"detail81\"\n}",
               "status": "No such shop, or the admin token doesn't match it.",
               "code": 404,
               "name": "Response_404",
-              "id": "d396a76e-3d29-4e33-af85-061f64b56287"
+              "id": "ed2ca134-f7a1-45fe-9490-a826e69a9ee7"
             },
             {
               "header": [
@@ -1489,11 +1489,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"error\": \"error75\",\n  \"field\": \"field10\",\n  \"detail\": \"detail93\"\n}",
+              "body": "{\n  \"error\": \"error54\",\n  \"field\": \"field28\",\n  \"detail\": \"detail81\"\n}",
               "status": "Gemini, PayPal or Channel3 failed or isn't configured.",
               "code": 502,
               "name": "Response_502",
-              "id": "0bd601bb-44e6-4db9-8ada-7421a5853f70"
+              "id": "27453b36-2fdb-4086-8335-0c02d5878a2a"
             },
             {
               "header": [
@@ -1503,16 +1503,16 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"error\": \"error75\",\n  \"field\": \"field10\",\n  \"detail\": \"detail93\"\n}",
+              "body": "{\n  \"error\": \"error54\",\n  \"field\": \"field28\",\n  \"detail\": \"detail81\"\n}",
               "status": "Gemini, PayPal or Channel3 failed or isn't configured.",
               "code": 503,
               "name": "Response_503",
-              "id": "47955742-5bd3-4182-b6cc-d81bbc511e4b"
+              "id": "5a8da63d-3278-4ff3-a45d-a8d34005c37c"
             }
           ]
         },
         {
-          "id": "fbb9fc43-d311-43c8-ad2e-b33008c98153",
+          "id": "faf20fb1-fd5c-4b9f-99cb-7654488b7f65",
           "name": "disconnectPayPal",
           "request": {
             "url": {
@@ -1534,7 +1534,7 @@
               "type": "apikey",
               "apikey": {
                 "key": "x-admin-token",
-                "value": "x-admin-token64",
+                "value": "x-admin-token22",
                 "in": "header"
               }
             },
@@ -1565,7 +1565,7 @@
               "status": "Done.",
               "code": 200,
               "name": "Response_200",
-              "id": "6bfe7c31-1670-4813-855b-32f57fb5f0c5"
+              "id": "fa9dda70-e11a-45e3-8311-986c086c7ca5"
             },
             {
               "header": [
@@ -1575,11 +1575,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"error\": \"error75\",\n  \"field\": \"field10\",\n  \"detail\": \"detail93\"\n}",
+              "body": "{\n  \"error\": \"error54\",\n  \"field\": \"field28\",\n  \"detail\": \"detail81\"\n}",
               "status": "No such shop, or the admin token doesn't match it.",
               "code": 404,
               "name": "Response_404",
-              "id": "7ccd6322-2a70-412c-a0ab-9782ef6be287"
+              "id": "7caae011-fb17-47aa-9c71-da7e5a4e0a94"
             }
           ]
         }
@@ -1590,7 +1590,7 @@
       "description": "Short shop links (`/<slug>`).",
       "item": [
         {
-          "id": "6b6d45dc-76d4-4f8f-a49c-b55d9b8a64c5",
+          "id": "5ae6b070-986a-41ca-a4a3-3e0eac2c51c1",
           "name": "checkLinkName",
           "request": {
             "url": {
@@ -1601,7 +1601,7 @@
               "query": [
                 {
                   "key": "name",
-                  "value": "name79",
+                  "value": "name88",
                   "description": "Anything; it is normalised (`Raptor Rush` becomes `raptor-rush`).",
                   "disabled": false
                 }
@@ -1630,11 +1630,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"slug\": \"slug64\",\n  \"available\": true,\n  \"problem\": \"problem22\"\n}",
+              "body": "{\n  \"slug\": \"slug8\",\n  \"available\": true,\n  \"problem\": \"problem32\"\n}",
               "status": "The normalised name and whether it can be used.",
               "code": 200,
               "name": "Response_200",
-              "id": "255663fa-e8e7-4691-b795-c1d44b9207eb"
+              "id": "0f03b5b1-e709-47e7-b541-e8bf4ec0a2a7"
             }
           ]
         }
@@ -1645,7 +1645,7 @@
       "description": "Find products to recommend (Channel3 catalog).",
       "item": [
         {
-          "id": "c00dc906-0cd9-4480-9e07-0674b93d75b6",
+          "id": "97f42eff-053e-4b34-98f4-2931bbb35088",
           "name": "searchProducts",
           "request": {
             "url": {
@@ -1685,11 +1685,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"products\": [\n    {\n      \"id\": \"id6\",\n      \"title\": \"title83\",\n      \"image\": \"image23\",\n      \"price\": 162.03942102355498,\n      \"currency\": \"currency5\",\n      \"retailer\": \"retailer46\",\n      \"retailers\": 25,\n      \"commission\": 41.921882241116094,\n      \"brand\": \"brand86\"\n    }\n  ]\n}",
+              "body": "{\n  \"products\": [\n    {\n      \"id\": \"id90\",\n      \"title\": \"title91\",\n      \"image\": \"image35\",\n      \"price\": 234.57645789946503,\n      \"currency\": \"currency35\",\n      \"retailer\": \"retailer20\",\n      \"retailers\": 41,\n      \"commission\": 99.18238472929603,\n      \"brand\": \"brand39\"\n    }\n  ]\n}",
               "status": "Up to 12 products.",
               "code": 200,
               "name": "Response_200",
-              "id": "e91b2d11-2fc0-402a-a0de-60edc2da6a24"
+              "id": "ee82432a-4560-47ef-b0b4-2efbc047c5db"
             },
             {
               "header": [
@@ -1699,11 +1699,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"error\": \"error75\",\n  \"field\": \"field10\",\n  \"detail\": \"detail93\"\n}",
+              "body": "{\n  \"error\": \"error54\",\n  \"field\": \"field28\",\n  \"detail\": \"detail81\"\n}",
               "status": "Gemini, PayPal or Channel3 failed or isn't configured.",
               "code": 502,
               "name": "Response_502",
-              "id": "bda072ba-1850-4a9a-b2ce-67837dd6f7fc"
+              "id": "5e24b6d9-62c6-4697-a98d-aa4dd8876fc7"
             },
             {
               "header": [
@@ -1713,11 +1713,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"error\": \"error75\",\n  \"field\": \"field10\",\n  \"detail\": \"detail93\"\n}",
+              "body": "{\n  \"error\": \"error54\",\n  \"field\": \"field28\",\n  \"detail\": \"detail81\"\n}",
               "status": "Gemini, PayPal or Channel3 failed or isn't configured.",
               "code": 503,
               "name": "Response_503",
-              "id": "5be030a4-cd01-4e43-9297-d23def481b80"
+              "id": "3a2da50f-6309-4b07-94a2-50643cbb5677"
             }
           ]
         }
@@ -1728,7 +1728,7 @@
       "description": "Buyer-side PayPal checkout.",
       "item": [
         {
-          "id": "62d63b76-71c7-4dc6-ad6c-fd8ce78f417f",
+          "id": "a9b9bcf0-924f-475b-b270-8b8e63fbb3d4",
           "name": "getPayPalClientToken",
           "request": {
             "url": {
@@ -1760,11 +1760,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"clientToken\": \"clientToken37\"\n}",
+              "body": "{\n  \"clientToken\": \"clientToken62\"\n}",
               "status": "A token for this site's domain.",
               "code": 200,
               "name": "Response_200",
-              "id": "4275199f-9251-47b4-8d7a-b25d2c4cea68"
+              "id": "2043d7f2-c909-4074-a98d-7cd8881428bf"
             },
             {
               "header": [
@@ -1774,11 +1774,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"error\": \"error75\",\n  \"field\": \"field10\",\n  \"detail\": \"detail93\"\n}",
+              "body": "{\n  \"error\": \"error54\",\n  \"field\": \"field28\",\n  \"detail\": \"detail81\"\n}",
               "status": "Gemini, PayPal or Channel3 failed or isn't configured.",
               "code": 502,
               "name": "Response_502",
-              "id": "305249b0-007f-4ea2-973b-456008791f73"
+              "id": "bb9cc4d5-0b14-49af-94c8-bce6ec548a3c"
             },
             {
               "header": [
@@ -1788,16 +1788,16 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"error\": \"error75\",\n  \"field\": \"field10\",\n  \"detail\": \"detail93\"\n}",
+              "body": "{\n  \"error\": \"error54\",\n  \"field\": \"field28\",\n  \"detail\": \"detail81\"\n}",
               "status": "Gemini, PayPal or Channel3 failed or isn't configured.",
               "code": 503,
               "name": "Response_503",
-              "id": "51b44eb5-5165-4b81-896a-c98e4eea3a83"
+              "id": "7aa5f566-4dbe-44da-9168-be7817dc95da"
             }
           ]
         },
         {
-          "id": "1ec214e0-007d-41be-84ed-a928f7311288",
+          "id": "47a994ff-2507-4436-b623-ed11ca1308f9",
           "name": "createCheckoutOrder",
           "request": {
             "url": {
@@ -1822,7 +1822,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"slug\": \"slug31\",\n  \"options\": {\n    \"Size\": \"M\",\n    \"Color\": \"Black\"\n  }\n}",
+              "raw": "{\n  \"slug\": \"slug14\",\n  \"options\": {\n    \"Size\": \"M\",\n    \"Color\": \"Black\"\n  }\n}",
               "disabled": false
             },
             "description": "Creates the PayPal order for one unit of a live shop's product. The amount always comes\nfrom the shop, never from the caller. Pass the returned `id` to the PayPal JS SDK.\n\nIf the shop has buyer `options`, send one value for each. A sold-out combination answers 409.\n"
@@ -1836,11 +1836,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"id\": \"id25\"\n}",
+              "body": "{\n  \"id\": \"id1\"\n}",
               "status": "PayPal order created.",
               "code": 200,
               "name": "Response_200",
-              "id": "61f8187a-d481-4d75-87ac-8f0c297cd64a"
+              "id": "5ffd37c8-444e-4458-9a8b-6f5fa9a243c7"
             },
             {
               "header": [
@@ -1850,11 +1850,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"error\": \"error75\",\n  \"field\": \"field10\",\n  \"detail\": \"detail93\"\n}",
+              "body": "{\n  \"error\": \"error54\",\n  \"field\": \"field28\",\n  \"detail\": \"detail81\"\n}",
               "status": "Something in the request needs fixing; `error` says what.",
               "code": 400,
               "name": "Response_400",
-              "id": "31016962-8bc6-4b04-ac15-3163547565cc"
+              "id": "85ffc253-d1fb-417c-819e-618655e78715"
             },
             {
               "header": [
@@ -1864,11 +1864,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"error\": \"error75\",\n  \"field\": \"field10\",\n  \"detail\": \"detail93\"\n}",
+              "body": "{\n  \"error\": \"error54\",\n  \"field\": \"field28\",\n  \"detail\": \"detail81\"\n}",
               "status": "No such shop, or the admin token doesn't match it.",
               "code": 404,
               "name": "Response_404",
-              "id": "2bc023b8-8bdd-4694-81bd-6e3eff1d4fb6"
+              "id": "3208e6b0-0e81-453f-9610-9dac0d91a063"
             },
             {
               "header": [
@@ -1878,11 +1878,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"error\": \"error75\",\n  \"field\": \"field10\",\n  \"detail\": \"detail93\"\n}",
+              "body": "{\n  \"error\": \"error54\",\n  \"field\": \"field28\",\n  \"detail\": \"detail81\"\n}",
               "status": "Taken or unavailable (a link name, or a sold-out product).",
               "code": 409,
               "name": "Response_409",
-              "id": "eeb20f95-57c8-40c8-b6c2-88d1ad91d96f"
+              "id": "37bc80f3-4e22-4668-8c43-ba37c44f5e45"
             },
             {
               "header": [
@@ -1892,11 +1892,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"error\": \"error75\",\n  \"field\": \"field10\",\n  \"detail\": \"detail93\"\n}",
+              "body": "{\n  \"error\": \"error54\",\n  \"field\": \"field28\",\n  \"detail\": \"detail81\"\n}",
               "status": "Gemini, PayPal or Channel3 failed or isn't configured.",
               "code": 502,
               "name": "Response_502",
-              "id": "e313f90d-0174-4261-aef0-82d3f2e40637"
+              "id": "29ad4c6c-72ca-44cc-b3ec-4bed30e7534a"
             },
             {
               "header": [
@@ -1906,16 +1906,16 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"error\": \"error75\",\n  \"field\": \"field10\",\n  \"detail\": \"detail93\"\n}",
+              "body": "{\n  \"error\": \"error54\",\n  \"field\": \"field28\",\n  \"detail\": \"detail81\"\n}",
               "status": "Gemini, PayPal or Channel3 failed or isn't configured.",
               "code": 503,
               "name": "Response_503",
-              "id": "ac67a579-13f8-4e05-aba8-a05cd6ff022e"
+              "id": "fb034017-42f8-4ebb-9204-6c3a1b7653d8"
             }
           ]
         },
         {
-          "id": "20b7f7cf-be5f-494a-9a64-f51d12f59fc9",
+          "id": "82f7f71b-135f-4d52-a4ca-c5018d499ba5",
           "name": "captureCheckoutOrder",
           "request": {
             "url": {
@@ -1927,7 +1927,7 @@
                 {
                   "id": "paypalOrderId",
                   "key": "paypalOrderId",
-                  "value": "paypalOrderId25",
+                  "value": "paypalOrderId96",
                   "type": "string",
                   "description": "The PayPal order id that `createCheckoutOrder` returned."
                 }
@@ -1956,11 +1956,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"orderId\": \"orderId10\",\n  \"status\": \"paid\"\n}",
+              "body": "{\n  \"orderId\": \"orderId76\",\n  \"status\": \"paid\"\n}",
               "status": "Paid.",
               "code": 200,
               "name": "Response_200",
-              "id": "92ad20d0-4a34-4e85-9d29-41b5ad557e80"
+              "id": "76beacbf-65ef-47e4-9a81-a66d0a415b55"
             },
             {
               "header": [
@@ -1970,11 +1970,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"error\": \"error75\",\n  \"field\": \"field10\",\n  \"detail\": \"detail93\"\n}",
+              "body": "{\n  \"error\": \"error54\",\n  \"field\": \"field28\",\n  \"detail\": \"detail81\"\n}",
               "status": "Something in the request needs fixing; `error` says what.",
               "code": 402,
               "name": "Response_402",
-              "id": "e6cf6d77-a61e-4a57-8b8b-f4d6ce42d6b8"
+              "id": "ecc97af9-be35-46fa-9fbc-194b88e70533"
             },
             {
               "header": [
@@ -1984,11 +1984,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"error\": \"error75\",\n  \"field\": \"field10\",\n  \"detail\": \"detail93\"\n}",
+              "body": "{\n  \"error\": \"error54\",\n  \"field\": \"field28\",\n  \"detail\": \"detail81\"\n}",
               "status": "No such shop, or the admin token doesn't match it.",
               "code": 404,
               "name": "Response_404",
-              "id": "47804951-418b-405a-9bd6-85363b07da0d"
+              "id": "ad52e926-2704-4029-b1f0-37c91b51c005"
             },
             {
               "header": [
@@ -2002,7 +2002,7 @@
               "status": "The buyer hasn't approved the order yet.",
               "code": 409,
               "name": "Response_409",
-              "id": "79f5301e-1b15-4f40-a570-f0932cc0fc21"
+              "id": "a4b1f8f0-84ee-4fb0-9883-c4c58e05f323"
             },
             {
               "header": [
@@ -2012,11 +2012,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"error\": \"error75\",\n  \"field\": \"field10\",\n  \"detail\": \"detail93\"\n}",
+              "body": "{\n  \"error\": \"error54\",\n  \"field\": \"field28\",\n  \"detail\": \"detail81\"\n}",
               "status": "The last unit (or the last of the buyer's combination) sold while they were paying. The payment isn't captured, so the buyer isn't charged.",
               "code": 410,
               "name": "Response_410",
-              "id": "82235225-948c-4c35-b9a4-57d351746d56"
+              "id": "f3829028-e381-47e7-a814-e6b23365cb76"
             },
             {
               "header": [
@@ -2026,11 +2026,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"error\": \"error75\",\n  \"field\": \"field10\",\n  \"detail\": \"detail93\"\n}",
+              "body": "{\n  \"error\": \"error54\",\n  \"field\": \"field28\",\n  \"detail\": \"detail81\"\n}",
               "status": "The buyer's funding source was declined (`INSTRUMENT_DECLINED`); they can try another.",
               "code": 422,
               "name": "Response_422",
-              "id": "009a4ecc-cc69-4643-8d3e-2c8d5c6888f5"
+              "id": "eda07c76-7d3f-4bf0-a228-fbc8d4138b3d"
             },
             {
               "header": [
@@ -2040,11 +2040,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"error\": \"error75\",\n  \"field\": \"field10\",\n  \"detail\": \"detail93\"\n}",
+              "body": "{\n  \"error\": \"error54\",\n  \"field\": \"field28\",\n  \"detail\": \"detail81\"\n}",
               "status": "Gemini, PayPal or Channel3 failed or isn't configured.",
               "code": 502,
               "name": "Response_502",
-              "id": "24874629-d952-41c9-a30c-d75d91d0f601"
+              "id": "8aeb7483-81f6-4139-b18d-b443b1f06d77"
             }
           ]
         }
@@ -2055,7 +2055,7 @@
       "description": "Unlock a paid app or game with a buyer's code.",
       "item": [
         {
-          "id": "aaae2ab5-4305-4e0d-a403-a571c929df9f",
+          "id": "6fcc639a-040e-4199-8f33-e40c8a8f3594",
           "name": "verifyAccessCode",
           "request": {
             "url": {
@@ -2094,11 +2094,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"valid\": false,\n  \"product\": \"product86\"\n}",
+              "body": "{\n  \"valid\": false,\n  \"product\": \"product35\"\n}",
               "status": "The answer. Invalid codes are also a 200.",
               "code": 200,
               "name": "Response_200",
-              "id": "f085fb14-6967-4853-b284-2af773e52d13"
+              "id": "ea9ba553-c1f2-4957-94be-c6085d7fd1e1"
             }
           ]
         }
@@ -2109,7 +2109,7 @@
       "description": "The seller's orders, fulfilment and PayPal webhook log.",
       "item": [
         {
-          "id": "cdcdb4b9-70f6-4463-96cf-63cb718fb985",
+          "id": "242bdead-3577-485b-bd12-0e61883bffd8",
           "name": "listOrders",
           "request": {
             "url": {
@@ -2131,7 +2131,7 @@
               "type": "apikey",
               "apikey": {
                 "key": "x-admin-token",
-                "value": "x-admin-token32",
+                "value": "x-admin-token49",
                 "in": "header"
               }
             },
@@ -2158,11 +2158,11 @@
                   "disabled": false
                 }
               ],
-              "body": "[\n  {\n    \"id\": \"id9\",\n    \"status\": \"created\",\n    \"amount_cents\": 176,\n    \"currency\": \"currency41\",\n    \"fulfillment_status\": \"none\",\n    \"paypal_order_id\": \"paypal_order_id42\",\n    \"shipping_cents\": 166,\n    \"buyer_email\": \"buyer_email84\",\n    \"buyer_name\": \"buyer_name41\",\n    \"shipping_address\": {\n      \"key1\": \"shipping_address89\"\n    },\n    \"capture_id\": \"capture_id81\",\n    \"carrier\": \"carrier23\",\n    \"tracking_number\": \"tracking_number16\",\n    \"tracking_synced\": false,\n    \"downloads\": 119,\n    \"access_code\": \"access_code4\",\n    \"code_uses\": 231,\n    \"channel\": \"web\",\n    \"options\": {\n      \"key1\": {\n        \"key1\": \"57\"\n      }\n    },\n    \"paid_at\": \"2026-11-21T00:30:34.733182Z\",\n    \"created_at\": \"2026-10-26T00:30:34.733194Z\"\n  }\n]",
+              "body": "[\n  {\n    \"id\": \"id83\",\n    \"status\": \"created\",\n    \"amount_cents\": 195,\n    \"currency\": \"currency68\",\n    \"fulfillment_status\": \"to_ship\",\n    \"paypal_order_id\": \"paypal_order_id11\",\n    \"shipping_cents\": 37,\n    \"buyer_email\": \"buyer_email51\",\n    \"buyer_name\": \"buyer_name68\",\n    \"shipping_address\": {\n      \"key1\": \"shipping_address87\"\n    },\n    \"capture_id\": \"capture_id43\",\n    \"carrier\": \"carrier81\",\n    \"tracking_number\": \"tracking_number83\",\n    \"tracking_synced\": false,\n    \"downloads\": 57,\n    \"access_code\": \"access_code68\",\n    \"code_uses\": 39,\n    \"channel\": \"web\",\n    \"options\": {\n      \"key1\": {\n        \"key1\": \"9\"\n      }\n    },\n    \"paid_at\": \"2026-10-27T00:40:28.1966689Z\",\n    \"created_at\": \"2026-12-25T00:40:28.1966806Z\"\n  }\n]",
               "status": "Orders.",
               "code": 200,
               "name": "Response_200",
-              "id": "f73d362d-93d4-4525-bd87-48041769b7a0"
+              "id": "2afc8b4c-ca07-43a3-ba39-c28c8cdb83c0"
             },
             {
               "header": [
@@ -2172,16 +2172,16 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"error\": \"error75\",\n  \"field\": \"field10\",\n  \"detail\": \"detail93\"\n}",
+              "body": "{\n  \"error\": \"error54\",\n  \"field\": \"field28\",\n  \"detail\": \"detail81\"\n}",
               "status": "No such shop, or the admin token doesn't match it.",
               "code": 404,
               "name": "Response_404",
-              "id": "9ef536ce-9ecb-406d-a393-bca9ad6a2b1a"
+              "id": "8a61a46c-b76d-411d-a6a2-a7a5c7c50fe8"
             }
           ]
         },
         {
-          "id": "a5f54490-c596-4996-b351-c1906a21e515",
+          "id": "87d6fa44-468e-4fb9-a675-11cace050dd7",
           "name": "markOrderShipped",
           "request": {
             "url": {
@@ -2200,7 +2200,7 @@
                 {
                   "id": "orderId",
                   "key": "orderId",
-                  "value": "orderId25",
+                  "value": "orderId14",
                   "type": "string",
                   "description": "OneThing's order id (`Order.id`)."
                 }
@@ -2210,7 +2210,7 @@
               "type": "apikey",
               "apikey": {
                 "key": "x-admin-token",
-                "value": "x-admin-token17",
+                "value": "x-admin-token46",
                 "in": "header"
               }
             },
@@ -2230,7 +2230,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"carrier\": \"UPS\",\n  \"trackingNumber\": \"trackingNumber50\",\n  \"carrierName\": \"carrierName21\"\n}",
+              "raw": "{\n  \"carrier\": \"FEDEX\",\n  \"trackingNumber\": \"trackingNumber15\",\n  \"carrierName\": \"carrierName47\"\n}",
               "disabled": false
             },
             "description": "Saves the tracking number and pushes it to PayPal, so the buyer sees it in PayPal."
@@ -2244,11 +2244,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"ok\": true,\n  \"synced\": false\n}",
+              "body": "{\n  \"ok\": false,\n  \"synced\": true\n}",
               "status": "Shipped.",
               "code": 200,
               "name": "Response_200",
-              "id": "d83a9e18-c760-49c7-8730-0628d86bc65d"
+              "id": "21ed2e44-973d-48cb-bc8f-ac34cd94b38a"
             },
             {
               "header": [
@@ -2258,11 +2258,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"error\": \"error75\",\n  \"field\": \"field10\",\n  \"detail\": \"detail93\"\n}",
+              "body": "{\n  \"error\": \"error54\",\n  \"field\": \"field28\",\n  \"detail\": \"detail81\"\n}",
               "status": "Something in the request needs fixing; `error` says what.",
               "code": 400,
               "name": "Response_400",
-              "id": "3413dcf7-d243-4892-8508-8923669df01c"
+              "id": "c8f2ff95-182f-4c34-8f22-cb8fa92901d7"
             },
             {
               "header": [
@@ -2272,16 +2272,16 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"error\": \"error75\",\n  \"field\": \"field10\",\n  \"detail\": \"detail93\"\n}",
+              "body": "{\n  \"error\": \"error54\",\n  \"field\": \"field28\",\n  \"detail\": \"detail81\"\n}",
               "status": "No such shop, or the admin token doesn't match it.",
               "code": 404,
               "name": "Response_404",
-              "id": "b46b2108-8270-4650-9d99-b73a0edf78e4"
+              "id": "fee6bc83-5e74-4ff5-87e2-f66804f91eed"
             }
           ]
         },
         {
-          "id": "9b0a4d75-aed4-46ae-aa00-9626645e85db",
+          "id": "01e1d98a-6d11-4a30-81b5-7fce82bc2a18",
           "name": "listWebhookEvents",
           "request": {
             "url": {
@@ -2303,7 +2303,7 @@
               "type": "apikey",
               "apikey": {
                 "key": "x-admin-token",
-                "value": "x-admin-token6",
+                "value": "x-admin-token1",
                 "in": "header"
               }
             },
@@ -2330,11 +2330,11 @@
                   "disabled": false
                 }
               ],
-              "body": "[\n  {\n    \"id\": \"id69\",\n    \"event_type\": \"PAYMENT.CAPTURE.COMPLETED\",\n    \"verified\": false,\n    \"outcome\": \"Confirmed: order already paid\",\n    \"received_at\": \"2026-10-30T00:30:34.7370279Z\",\n    \"paypal_order_id\": \"paypal_order_id29\",\n    \"summary\": \"2.99 USD\"\n  }\n]",
+              "body": "[\n  {\n    \"id\": \"id23\",\n    \"event_type\": \"PAYMENT.CAPTURE.COMPLETED\",\n    \"verified\": false,\n    \"outcome\": \"Confirmed: order already paid\",\n    \"received_at\": \"2026-12-27T00:40:28.1972154Z\",\n    \"paypal_order_id\": \"paypal_order_id67\",\n    \"summary\": \"2.99 USD\"\n  }\n]",
               "status": "Events, newest first.",
               "code": 200,
               "name": "Response_200",
-              "id": "21371368-32f8-488f-a41a-d25d14c1f482"
+              "id": "c314bebb-d500-497f-b98d-52544d9c55f4"
             },
             {
               "header": [
@@ -2344,11 +2344,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"error\": \"error75\",\n  \"field\": \"field10\",\n  \"detail\": \"detail93\"\n}",
+              "body": "{\n  \"error\": \"error54\",\n  \"field\": \"field28\",\n  \"detail\": \"detail81\"\n}",
               "status": "No such shop, or the admin token doesn't match it.",
               "code": 404,
               "name": "Response_404",
-              "id": "d7bfb1ed-331a-4f79-b926-92cab81fe453"
+              "id": "02dd4ee9-b552-48cf-a9b9-09de6b533043"
             }
           ]
         }
@@ -2359,7 +2359,7 @@
       "description": "Digital downloads and shop images.",
       "item": [
         {
-          "id": "742f3598-9909-4b74-b9be-e0d8893ef201",
+          "id": "9f870bd2-33a9-4c39-9ba3-4bd2a9426fd6",
           "name": "downloadFile",
           "request": {
             "url": {
@@ -2371,7 +2371,7 @@
                 {
                   "id": "token",
                   "key": "token",
-                  "value": "token43",
+                  "value": "token54",
                   "type": "string",
                   "description": "The download token from a paid order's thank-you page."
                 }
@@ -2398,7 +2398,7 @@
               "status": "The file.",
               "code": 200,
               "name": "Response_200",
-              "id": "ceb07008-9ead-4be5-b899-d5b9f28d86fc"
+              "id": "9cbd8c59-1f96-439b-94de-045e637e9937"
             },
             {
               "header": [
@@ -2408,16 +2408,16 @@
                   "disabled": false
                 }
               ],
-              "body": "response 41065",
+              "body": "response 41019",
               "status": "Expired or used up.",
               "code": 410,
               "name": "Response_410",
-              "id": "eac9e4ae-51a4-427c-ad8e-264ee5440b1d"
+              "id": "25a7cf0c-d9fc-4895-80b6-c156841fa9fc"
             }
           ]
         },
         {
-          "id": "57479ad6-4437-40d1-93db-ffb3e1732802",
+          "id": "110c5e73-b864-4052-ab1e-544413d7771b",
           "name": "getImage",
           "request": {
             "url": {
@@ -2429,7 +2429,7 @@
                 {
                   "id": "id",
                   "key": "id",
-                  "value": "id85",
+                  "value": "id86",
                   "type": "string",
                   "description": "A shop's `photo_blob` or `hero_blob`."
                 }
@@ -2462,14 +2462,14 @@
               "status": "The image.",
               "code": 200,
               "name": "Response_200",
-              "id": "1f52a96e-92c3-44a0-99d0-9c6fb14acc9c"
+              "id": "3e86d8d7-a9fb-4db8-b200-53a7e1aafe0b"
             },
             {
               "header": [],
               "status": "Not a public shop image.",
               "code": 404,
               "name": "Response_404",
-              "id": "62450bbd-81c9-4dcb-90e3-0d7496622e3a"
+              "id": "716e2fa7-e732-4c98-9417-15db183a30ae"
             }
           ]
         }
@@ -2480,7 +2480,7 @@
       "description": "Machine-readable shops and the MCP server AI shopping agents buy through.",
       "item": [
         {
-          "id": "ad9b2ea1-4070-4f6c-9ebf-c94a5ef6d68b",
+          "id": "022b1110-ca47-4404-9d04-4af415d13aea",
           "name": "getAgentProduct",
           "request": {
             "url": {
@@ -2521,11 +2521,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"shop\": \"shop18\",\n  \"url\": \"url79\",\n  \"name\": \"name42\",\n  \"kind\": \"physical\",\n  \"headline\": \"headline94\",\n  \"description\": \"description93\",\n  \"highlights\": [\n    \"highlights70\"\n  ],\n  \"details\": [\n    {\n      \"label\": \"label32\",\n      \"value\": \"value66\"\n    }\n  ],\n  \"faq\": [\n    {\n      \"q\": \"q54\",\n      \"a\": \"a89\"\n    }\n  ],\n  \"images\": [\n    \"images36\"\n  ],\n  \"how_to_buy\": \"how_to_buy42\",\n  \"price\": {\n    \"amount\": 48.5,\n    \"currency\": \"USD\",\n    \"label\": \"$48.50\"\n  },\n  \"shipping\": {\n    \"amount\": 252.68743271941838,\n    \"currency\": \"currency27\",\n    \"ships_to\": [\n      \"ships_to17\"\n    ]\n  },\n  \"total\": {\n    \"amount\": 48.5,\n    \"currency\": \"USD\",\n    \"label\": \"$48.50\"\n  },\n  \"delivery\": \"Shipped. PayPal collects the buyer's address at checkout.\",\n  \"availability\": \"in_stock\",\n  \"options\": [\n    {\n      \"name\": \"name15\",\n      \"values\": [\n        \"values32\"\n      ]\n    }\n  ],\n  \"variants\": [\n    {\n      \"choice\": {\n        \"Size\": \"M\",\n        \"Color\": \"Black\"\n      },\n      \"availability\": \"availability51\"\n    }\n  ],\n  \"offers\": [\n    {\n      \"retailer\": \"retailer38\",\n      \"price\": 151.41018792418615,\n      \"currency\": \"currency3\",\n      \"in_stock\": false,\n      \"url\": \"url8\"\n    }\n  ],\n  \"mcp_server\": \"mcp_server62\"\n}",
+              "body": "{\n  \"shop\": \"shop95\",\n  \"url\": \"url86\",\n  \"name\": \"name91\",\n  \"kind\": \"digital\",\n  \"headline\": \"headline39\",\n  \"description\": \"description76\",\n  \"highlights\": [\n    \"highlights80\"\n  ],\n  \"details\": [\n    {\n      \"label\": \"label77\",\n      \"value\": \"value14\"\n    }\n  ],\n  \"faq\": [\n    {\n      \"q\": \"q13\",\n      \"a\": \"a25\"\n    }\n  ],\n  \"images\": [\n    \"images65\"\n  ],\n  \"how_to_buy\": \"how_to_buy26\",\n  \"price\": {\n    \"amount\": 48.5,\n    \"currency\": \"USD\",\n    \"label\": \"$48.50\"\n  },\n  \"shipping\": {\n    \"amount\": 129.62445693179677,\n    \"currency\": \"currency62\",\n    \"ships_to\": [\n      \"ships_to62\"\n    ]\n  },\n  \"total\": {\n    \"amount\": 48.5,\n    \"currency\": \"USD\",\n    \"label\": \"$48.50\"\n  },\n  \"delivery\": \"Shipped. PayPal collects the buyer's address at checkout.\",\n  \"availability\": \"in_stock\",\n  \"options\": [\n    {\n      \"name\": \"name74\",\n      \"values\": [\n        \"values74\"\n      ]\n    }\n  ],\n  \"variants\": [\n    {\n      \"choice\": {\n        \"Size\": \"M\",\n        \"Color\": \"Black\"\n      },\n      \"availability\": \"availability73\"\n    }\n  ],\n  \"offers\": [\n    {\n      \"retailer\": \"retailer54\",\n      \"price\": 232.72407033780317,\n      \"currency\": \"currency86\",\n      \"in_stock\": true,\n      \"url\": \"url91\"\n    }\n  ],\n  \"mcp_server\": \"mcp_server51\"\n}",
               "status": "The product.",
               "code": 200,
               "name": "Response_200",
-              "id": "90351c8b-f866-4161-9eae-62d58d152030"
+              "id": "aa680e82-ea57-4fd0-bb42-863877f6027d"
             },
             {
               "header": [
@@ -2535,16 +2535,16 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"error\": \"error75\",\n  \"field\": \"field10\",\n  \"detail\": \"detail93\"\n}",
+              "body": "{\n  \"error\": \"error54\",\n  \"field\": \"field28\",\n  \"detail\": \"detail81\"\n}",
               "status": "No live shop with that link name.",
               "code": 404,
               "name": "Response_404",
-              "id": "922f3d4c-d436-423d-b581-8ef0b7a971ce"
+              "id": "ddf0548c-599f-40d5-a856-aebf4ade1e00"
             }
           ]
         },
         {
-          "id": "85ab3ff6-ab4d-4ffb-a310-dde4a75053c1",
+          "id": "5d290cf0-45d2-446e-befe-5db9cfea03b9",
           "name": "callMcp",
           "request": {
             "url": {
@@ -2583,18 +2583,18 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"jsonrpc\": \"2.0\",\n  \"id\": 12,\n  \"result\": {\n    \"result0\": \"result8\"\n  },\n  \"error\": {\n    \"code\": -32601,\n    \"message\": \"message75\"\n  }\n}",
+              "body": "{\n  \"jsonrpc\": \"2.0\",\n  \"id\": 38,\n  \"result\": {},\n  \"error\": {\n    \"code\": -32601,\n    \"message\": \"message32\"\n  }\n}",
               "status": "The JSON-RPC reply (an array for a batch).",
               "code": 200,
               "name": "Response_200",
-              "id": "1b7a0db9-3322-492e-96f3-396ed42bcafb"
+              "id": "03a415d4-5389-457b-90fd-eb28744f79ac"
             },
             {
               "header": [],
               "status": "Only notifications were sent; there's nothing to reply.",
               "code": 202,
               "name": "Response_202",
-              "id": "758181e3-3297-4687-9ea3-84717327c5c1"
+              "id": "b7923c14-780b-428a-b5ff-41200df00e43"
             },
             {
               "header": [
@@ -2604,11 +2604,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"jsonrpc\": \"2.0\",\n  \"id\": 12,\n  \"result\": {\n    \"result0\": \"result8\"\n  },\n  \"error\": {\n    \"code\": -32601,\n    \"message\": \"message75\"\n  }\n}",
+              "body": "{\n  \"jsonrpc\": \"2.0\",\n  \"id\": 38,\n  \"result\": {},\n  \"error\": {\n    \"code\": -32601,\n    \"message\": \"message32\"\n  }\n}",
               "status": "Not JSON (JSON-RPC parse error `-32700`).",
               "code": 400,
               "name": "Response_400",
-              "id": "6aca530c-2c5d-407f-92d8-c28a3da1e8d7"
+              "id": "dda331b4-91aa-4fd1-8abb-d7933e7d072a"
             }
           ]
         }
