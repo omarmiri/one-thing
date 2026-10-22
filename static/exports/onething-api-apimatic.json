@@ -69,7 +69,7 @@
       ]
     },
     "PlatformKey": {
-      "Description": "A platform API key (`ot_sk_…`) for a marketplace that makes shops for its own sellers. Made on the website's `/account` page after Log in with PayPal, and shown once. It reaches every shop its account owns, so keep it on your server.",
+      "Description": "A platform API key (`ot_sk_…`) for a marketplace that makes shops for its own sellers. Made on the website's `/account/keys` page after Log in with PayPal, and shown once. It reaches every shop its account owns, so keep it on your server.",
       "AuthenticationType": "OAuth_v2_BearerToken",
       "Parameters": [],
       "OAuthInfo": {

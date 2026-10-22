@@ -4,7 +4,7 @@ __export_source: apimatic.transformer
 resources:
 - name: OneThing API
   _type: workspace
-  _id: wrk_d1f1624065284927bdbfded42505e6bc
+  _id: wrk_9ea01789ad2742a7a3a18153320e156c
   description: >
     OneThing turns a photo, a link or a picked product into a live one-product shop that takes
 
@@ -49,63 +49,63 @@ resources:
   data:
     default: https://one-thing-ash0.onrender.com
   _type: environment
-  _id: env_3e3d28f1e0fb4e71afacd0e001c7372e
-  parentId: wrk_d1f1624065284927bdbfded42505e6bc
+  _id: env_b90869d32658427eb03a2023a1562997
+  parentId: wrk_9ea01789ad2742a7a3a18153320e156c
 - name: local
   data:
     default: http://localhost:3000
   _type: environment
-  _id: env_4d509dd35b124b3f9ec1e2d82304f39b
-  parentId: wrk_d1f1624065284927bdbfded42505e6bc
+  _id: env_12138cb825f24fdc9f4b1485b3dd66ed
+  parentId: wrk_9ea01789ad2742a7a3a18153320e156c
 - name: Accounts
   _type: request_group
-  _id: fld_06530dda646a47dba9d9770b1475ae16
-  parentId: wrk_d1f1624065284927bdbfded42505e6bc
+  _id: fld_561ef28c079b436ebdb332be247f625c
+  parentId: wrk_9ea01789ad2742a7a3a18153320e156c
   description: Sign in as a seller with an email or a phone number. Shops made while signed in belong to the account.
 - name: Shops
   _type: request_group
-  _id: fld_68f459412e264ce1833769bfd1153357
-  parentId: wrk_d1f1624065284927bdbfded42505e6bc
+  _id: fld_53d961cd6fa84150a3109edc31ff6b2f
+  parentId: wrk_9ea01789ad2742a7a3a18153320e156c
   description: Create a shop and manage it as its seller.
 - name: Links
   _type: request_group
-  _id: fld_080ceeeae3c44cbfb46939439ca45619
-  parentId: wrk_d1f1624065284927bdbfded42505e6bc
+  _id: fld_31b48bbb966e43c08c48ecfad5738a68
+  parentId: wrk_9ea01789ad2742a7a3a18153320e156c
   description: Short shop links (`/<slug>`).
 - name: Products
   _type: request_group
-  _id: fld_ac2be8ff86044d5c819fa320c4cf6010
-  parentId: wrk_d1f1624065284927bdbfded42505e6bc
+  _id: fld_b59fd088f38d4dcea5f07946e197f746
+  parentId: wrk_9ea01789ad2742a7a3a18153320e156c
   description: Find products to recommend (Channel3 catalog).
 - name: Checkout
   _type: request_group
-  _id: fld_8e38a6f35b16485e927850ae12ffa522
-  parentId: wrk_d1f1624065284927bdbfded42505e6bc
+  _id: fld_392e481c666b45f990a0fe4577352cdb
+  parentId: wrk_9ea01789ad2742a7a3a18153320e156c
   description: Buyer-side PayPal checkout.
 - name: Access codes
   _type: request_group
-  _id: fld_6db24de6aaf44ceda1c9e2d8defcbe2c
-  parentId: wrk_d1f1624065284927bdbfded42505e6bc
+  _id: fld_753b024d51c94937a656494a8ff9741e
+  parentId: wrk_9ea01789ad2742a7a3a18153320e156c
   description: Unlock a paid app or game with a buyer's code.
 - name: Orders
   _type: request_group
-  _id: fld_0ca757dab85f40158b02b159105ad217
-  parentId: wrk_d1f1624065284927bdbfded42505e6bc
+  _id: fld_b06bc9ba2a444a39bc5e67c73f63667b
+  parentId: wrk_9ea01789ad2742a7a3a18153320e156c
   description: The seller's orders, fulfilment and PayPal webhook log.
 - name: Files
   _type: request_group
-  _id: fld_33269f906bc5460eb6830d69490ee092
-  parentId: wrk_d1f1624065284927bdbfded42505e6bc
+  _id: fld_f022491c5b0c4524b88f34205a394d14
+  parentId: wrk_9ea01789ad2742a7a3a18153320e156c
   description: Digital downloads and shop images.
 - name: Agents
   _type: request_group
-  _id: fld_632b3f245ba545ccb99a7aa67b7c3898
-  parentId: wrk_d1f1624065284927bdbfded42505e6bc
+  _id: fld_302828c84eca4b1485f2e5b2467b0f1b
+  parentId: wrk_9ea01789ad2742a7a3a18153320e156c
   description: Machine-readable shops and the MCP server AI shopping agents buy through.
 - name: Platforms
   _type: request_group
-  _id: fld_739116718de7435883e376519f3aae4a
-  parentId: wrk_d1f1624065284927bdbfded42505e6bc
+  _id: fld_ea781a0bab614ead9b827733d27cdbec
+  parentId: wrk_9ea01789ad2742a7a3a18153320e156c
   description: For marketplaces that make and run shops for their own sellers with one API key.
 - name: signIn
   method: POST
@@ -121,15 +121,15 @@ resources:
     value: application/json
     disabled: false
   _type: request
-  _id: req_0397a41b61ba4928aba9e872d01295a6
-  parentId: fld_06530dda646a47dba9d9770b1475ae16
+  _id: req_413fa7ea5fe24aabbb95b5294df83a81
+  parentId: fld_561ef28c079b436ebdb332be247f625c
   description: Signs in with an email address or a phone number, creating the account the first time. There's no password and no verification (sandbox). The response sets the `ot_session` cookie; shops created with it belong to the account and are listed on `/account`. Signing in with an email also claims older shops whose seller email matches. In a browser, sellers can instead use Log in with PayPal (`/api/account/paypal`), which also records the PayPal account their sales are paid into.
 - name: signOut
   method: POST
   url: '{{default}}/api/account/signout'
   _type: request
-  _id: req_58bba94a9b6d435b8bda318da32b4c80
-  parentId: fld_06530dda646a47dba9d9770b1475ae16
+  _id: req_014f8b52f04c4ee3abcd2664def473e3
+  parentId: fld_561ef28c079b436ebdb332be247f625c
   description: Ends this browser's session and clears the `ot_session` cookie.
 - name: logInWithPayPal
   method: GET
@@ -139,8 +139,8 @@ resources:
     value: /new
     disabled: false
   _type: request
-  _id: req_95bb6b2ddf4d4a779cb67084226f8b61
-  parentId: fld_06530dda646a47dba9d9770b1475ae16
+  _id: req_ea0ed703f96947f5828b713336963606
+  parentId: fld_561ef28c079b436ebdb332be247f625c
   description: "A link for a browser, not for code: redirects to PayPal's sign-in page. PayPal sends the seller back to `/api/account/paypal/callback`, which signs them in (creating the account the first time), records the PayPal account their sales are paid into, and redirects to `next`."
 - name: createShop
   method: POST
@@ -150,27 +150,27 @@ resources:
     params:
     - type: text
       name: source
-      value: link
+      value: photo
       disabled: false
     - type: file
       name: photo
-      value: path/to/file50
+      value: path/to/file40
       disabled: false
     - type: text
       name: description
-      value: description4
+      value: description28
       disabled: false
     - type: text
       name: url
-      value: url15
+      value: url20
       disabled: false
     - type: text
       name: productId
-      value: productId10
+      value: productId77
       disabled: false
     - type: text
       name: slug
-      value: slug73
+      value: slug68
       disabled: false
     - type: text
       name: type
@@ -182,40 +182,40 @@ resources:
       disabled: false
     - type: text
       name: access_url
-      value: access_url12
+      value: access_url53
       disabled: false
     - type: text
       name: price
-      value: '108.90923735644847'
+      value: '109.86519750536814'
       disabled: false
     - type: text
       name: shipping
-      value: '225.80009284137876'
+      value: '131.97386391232834'
       disabled: false
     - type: text
       name: stock
-      value: '228'
+      value: '78'
       disabled: false
     - type: text
       name: ship_countries
-      value: ship_countries7
+      value: ship_countries38
       disabled: false
     - type: text
       name: paypal_email
-      value: paypal_email41
+      value: paypal_email64
       disabled: false
     - type: text
       name: seller_email
-      value: seller_email25
+      value: seller_email1
       disabled: false
     - type: file
       name: digital_file
-      value: path/to/file79
+      value: path/to/file41
       disabled: false
   authentication: {}
   _type: request
-  _id: req_664a3a52473041b6b9ae642fbc082150
-  parentId: fld_68f459412e264ce1833769bfd1153357
+  _id: req_8cd1eba184b04229a7dfc7b6fa18de04
+  parentId: fld_53d961cd6fa84150a3109edc31ff6b2f
   description: >
     Starts a draft shop from one of three sources. Gemini designs the page and guesses the
 
@@ -250,11 +250,11 @@ resources:
   url: '{{default}}/api/shops/{slug}'
   headers:
   - name: x-admin-token
-    value: x-admin-token3
+    value: x-admin-token33
     disabled: false
   _type: request
-  _id: req_1e74faba5a8f4762a3268d0212f45b1c
-  parentId: fld_68f459412e264ce1833769bfd1153357
+  _id: req_006ea65e022a493ba63c7729581a7c05
+  parentId: fld_53d961cd6fa84150a3109edc31ff6b2f
   description: Everything about the shop, including the AI's design spec and guesses.
 - name: updateShop
   method: PATCH
@@ -263,28 +263,28 @@ resources:
     mimeType: application/json
     text: >-
       {
-        "slug": "slug33",
+        "slug": "slug80",
         "status": "draft",
-        "product_type": "digital",
-        "price": 109.3539066414051,
-        "shipping": 152.3343571943287,
-        "stock": 180,
-        "ship_countries": "ship_countries79",
+        "product_type": "physical",
+        "price": 6976.602320161281,
+        "shipping": 377.26096273886606,
+        "stock": 49,
+        "ship_countries": "ship_countries38",
         "delivery": "file",
-        "access_url": "access_url27",
-        "paypal_email": "paypal_email90",
-        "seller_email": "seller_email79",
-        "zapier_hook_url": "zapier_hook_url25",
-        "in_gallery": true,
+        "access_url": "access_url23",
+        "paypal_email": "paypal_email32",
+        "seller_email": "seller_email26",
+        "zapier_hook_url": "zapier_hook_url28",
+        "in_gallery": false,
         "options": [
           {
             "name": "Size",
-            "kind": "color",
+            "kind": "size",
             "values": [
               {
                 "label": "M",
                 "hex": "#14171a",
-                "photo": "photo82"
+                "photo": "photo7"
               }
             ]
           }
@@ -305,11 +305,11 @@ resources:
     value: application/json
     disabled: false
   - name: x-admin-token
-    value: x-admin-token13
+    value: x-admin-token1
     disabled: false
   _type: request
-  _id: req_b03cc222964b4cdb9b53b56ddcbcc827
-  parentId: fld_68f459412e264ce1833769bfd1153357
+  _id: req_b99c2766c8fb49b6a1de37235fc30a47
+  parentId: fld_53d961cd6fa84150a3109edc31ff6b2f
   description: >
     Changes only the fields you send. Renaming `slug` keeps the old link working (it
 
@@ -330,22 +330,22 @@ resources:
     value: application/json
     disabled: false
   - name: x-admin-token
-    value: x-admin-token78
+    value: x-admin-token60
     disabled: false
   _type: request
-  _id: req_3e9985295dcb459bb86bb59a5cfe48a1
-  parentId: fld_68f459412e264ce1833769bfd1153357
+  _id: req_dbb80c3a6ec945f892a064b2518777ea
+  parentId: fld_53d961cd6fa84150a3109edc31ff6b2f
   description: '"Make it warmer", "shorter copy", "more premium". Gemini edits the design spec.'
 - name: regenerateHeroArt
   method: POST
   url: '{{default}}/api/shops/{slug}/hero'
   headers:
   - name: x-admin-token
-    value: x-admin-token2
+    value: x-admin-token34
     disabled: false
   _type: request
-  _id: req_614dd7f3bc7040148b44a5364e146264
-  parentId: fld_68f459412e264ce1833769bfd1153357
+  _id: req_d946ccbddf084ce38a623b5619400a1a
+  parentId: fld_53d961cd6fa84150a3109edc31ff6b2f
   description: Starts generation in the background. Poll `getShop` for `hero_status`.
 - name: uploadDigitalFile
   method: POST
@@ -355,15 +355,15 @@ resources:
     params:
     - type: file
       name: file
-      value: path/to/file75
+      value: path/to/file22
       disabled: false
   headers:
   - name: x-admin-token
-    value: x-admin-token74
+    value: x-admin-token87
     disabled: false
   _type: request
-  _id: req_65c5ae3ef801418a9995ccf16126ca5f
-  parentId: fld_68f459412e264ce1833769bfd1153357
+  _id: req_915a5cd1613544379af4df761e805b29
+  parentId: fld_53d961cd6fa84150a3109edc31ff6b2f
   description: Uploads or replaces a digital product's file, up to 25 MB. Each paid order gets a download link for it.
 - name: addPhotos
   method: POST
@@ -373,15 +373,15 @@ resources:
     params:
     - type: file
       name: photo
-      value: path/to/file46
+      value: path/to/file91
       disabled: false
   headers:
   - name: x-admin-token
-    value: x-admin-token76
+    value: x-admin-token2
     disabled: false
   _type: request
-  _id: req_ce23a6db1ca24cbd9ab24910203a6969
-  parentId: fld_68f459412e264ce1833769bfd1153357
+  _id: req_d6b635fb627744df8bb403d3347560e6
+  parentId: fld_53d961cd6fa84150a3109edc31ff6b2f
   description: Adds one or more photos after the cover. Each is turned upright, resized to at most 2000 px and stored as WebP. A shop holds up to 8 photos; buyers swipe through them on the shop page. Not for recommendations, which show the retailer's photos.
 - name: setPhotoOrder
   method: PUT
@@ -391,7 +391,7 @@ resources:
     text: >-
       {
         "photos": [
-          "photos92"
+          "photos12"
         ]
       }
   headers:
@@ -399,22 +399,22 @@ resources:
     value: application/json
     disabled: false
   - name: x-admin-token
-    value: x-admin-token93
+    value: x-admin-token95
     disabled: false
   _type: request
-  _id: req_a7aeedff5dd14459b810341ffb9036f0
-  parentId: fld_68f459412e264ce1833769bfd1153357
+  _id: req_64352e5f98ac48cab99319fe02861fd6
+  parentId: fld_53d961cd6fa84150a3109edc31ff6b2f
   description: Sets the photo order; the first becomes the cover. Leaving a photo out removes it.
 - name: checkMissingDetails
   method: POST
   url: '{{default}}/api/shops/{slug}/suggest'
   headers:
   - name: x-admin-token
-    value: x-admin-token56
+    value: x-admin-token47
     disabled: false
   _type: request
-  _id: req_6141a4c07ad040a9ae9f3c312dfa26d5
-  parentId: fld_68f459412e264ce1833769bfd1153357
+  _id: req_0385597adc054c06b770e22599e68f85
+  parentId: fld_53d961cd6fa84150a3109edc31ff6b2f
   description: >
     Asks Gemini what buyers will want to choose (sizes, colours) and what they'll ask that the
 
@@ -445,11 +445,11 @@ resources:
     value: application/json
     disabled: false
   - name: x-admin-token
-    value: x-admin-token92
+    value: x-admin-token25
     disabled: false
   _type: request
-  _id: req_33f778354e324e288d771d14c8533ea6
-  parentId: fld_68f459412e264ce1833769bfd1153357
+  _id: req_2573ba6a73b1413bbfb680cd93ec2f49
+  parentId: fld_53d961cd6fa84150a3109edc31ff6b2f
   description: Gemini looks at the shop's photos and says which one shows each colour, so buyers who pick a colour see it. Suggests only; save the matches with `setColorPhotos`. Needs at least two photos.
 - name: setColorPhotos
   method: PUT
@@ -459,7 +459,7 @@ resources:
     text: >-
       {
         "photos": {
-          "key1": "photos2"
+          "key1": "photos65"
         }
       }
   headers:
@@ -467,11 +467,11 @@ resources:
     value: application/json
     disabled: false
   - name: x-admin-token
-    value: x-admin-token26
+    value: x-admin-token31
     disabled: false
   _type: request
-  _id: req_a90fa259e2124cc88394fcfa166e18e2
-  parentId: fld_68f459412e264ce1833769bfd1153357
+  _id: req_b3802ef0d8b74d5dadd1d81bd6f54f57
+  parentId: fld_53d961cd6fa84150a3109edc31ff6b2f
   description: Saves which photo shows each colour, and nothing else about the shop. Only colours already saved in the shop's options change; `null` clears a colour's photo. A photo id that isn't one of the shop's photos is ignored.
 - name: connectPayPal
   method: POST
@@ -487,11 +487,11 @@ resources:
     value: application/json
     disabled: false
   - name: x-admin-token
-    value: x-admin-token56
+    value: x-admin-token63
     disabled: false
   _type: request
-  _id: req_0b2ab394823a44e78a8e58aa9a58c48f
-  parentId: fld_68f459412e264ce1833769bfd1153357
+  _id: req_14565ebc943b45eb92c3cc1b5a03be8e
+  parentId: fld_53d961cd6fa84150a3109edc31ff6b2f
   description: >
     Starts PayPal's seller onboarding (Partner Referrals). Send the seller's browser to the
 
@@ -515,33 +515,33 @@ resources:
   url: '{{default}}/api/shops/{slug}/paypal'
   headers:
   - name: x-admin-token
-    value: x-admin-token70
+    value: x-admin-token94
     disabled: false
   _type: request
-  _id: req_c42d0b305d1b448a9c068c440f88ac74
-  parentId: fld_68f459412e264ce1833769bfd1153357
+  _id: req_51399f7260c749a0b51580ef60a4a1f1
+  parentId: fld_53d961cd6fa84150a3109edc31ff6b2f
   description: Asks PayPal where the seller's connection stands and saves it on the shop. Also finds a connection the seller finished at PayPal without coming back.
 - name: disconnectPayPal
   method: DELETE
   url: '{{default}}/api/shops/{slug}/paypal'
   headers:
   - name: x-admin-token
-    value: x-admin-token79
+    value: x-admin-token17
     disabled: false
   _type: request
-  _id: req_23d09ae4daed464083e84d563c00c993
-  parentId: fld_68f459412e264ce1833769bfd1153357
+  _id: req_bc19b70c76424674ad415c2b0712e8aa
+  parentId: fld_53d961cd6fa84150a3109edc31ff6b2f
   description: Forgets the connected account. Sales go back to the shop's `paypal_email`.
 - name: checkLinkName
   method: GET
   url: '{{default}}/api/slugs/check'
   parameters:
   - name: name
-    value: name40
+    value: name23
     disabled: false
   _type: request
-  _id: req_916e663abe2741ada648490496d3317e
-  parentId: fld_080ceeeae3c44cbfb46939439ca45619
+  _id: req_4932da0606164f70b9035627dd0ae16b
+  parentId: fld_31b48bbb966e43c08c48ecfad5738a68
   description: Normalises a proposed link name and says whether a new shop can use it.
 - name: searchProducts
   method: GET
@@ -551,15 +551,15 @@ resources:
     value: gifts for trail runners under $60
     disabled: false
   _type: request
-  _id: req_e71250d93da64d5482776ecb9588cec6
-  parentId: fld_ac2be8ff86044d5c819fa320c4cf6010
+  _id: req_784dc2d7a2564a3b887d464089f7ca2e
+  parentId: fld_b59fd088f38d4dcea5f07946e197f746
   description: Searches 100M+ products from 25k+ stores through Channel3. Pass a result's `id` to `createShop` with `source=channel3`.
 - name: getPayPalClientToken
   method: GET
   url: '{{default}}/api/paypal/client-token'
   _type: request
-  _id: req_3498b59d23504a48b412ce806241d3be
-  parentId: fld_8e38a6f35b16485e927850ae12ffa522
+  _id: req_6d1e546b6278475ea34ce648ffcba530
+  parentId: fld_392e481c666b45f990a0fe4577352cdb
   description: >
     A browser-safe client token for the PayPal JavaScript SDK v6
 
@@ -573,7 +573,7 @@ resources:
     mimeType: application/json
     text: >-
       {
-        "slug": "slug94",
+        "slug": "slug48",
         "options": {
           "Size": "M",
           "Color": "Black"
@@ -584,8 +584,8 @@ resources:
     value: application/json
     disabled: false
   _type: request
-  _id: req_6e8d0d753e4441568799c9d6bd9c5ddf
-  parentId: fld_8e38a6f35b16485e927850ae12ffa522
+  _id: req_72423e8c889049869a7a560ace45999b
+  parentId: fld_392e481c666b45f990a0fe4577352cdb
   description: >
     Creates the PayPal order for one unit of a live shop's product. The amount always comes
 
@@ -597,8 +597,8 @@ resources:
   method: POST
   url: '{{default}}/api/orders/{paypalOrderId}/capture'
   _type: request
-  _id: req_8eab952bc1b446d988fec8b9af43149e
-  parentId: fld_8e38a6f35b16485e927850ae12ffa522
+  _id: req_101c3a57f96c4e93a0c2a928c57a9a45
+  parentId: fld_392e481c666b45f990a0fe4577352cdb
   description: >
     Call after the buyer approves. Records the sale; digital orders get a download link or access code.
 
@@ -618,8 +618,8 @@ resources:
     value: application/json
     disabled: false
   _type: request
-  _id: req_a2c475de185144949530a925a15b3e94
-  parentId: fld_6db24de6aaf44ceda1c9e2d8defcbe2c
+  _id: req_b18347fbaba641b0b33197107c96ff74
+  parentId: fld_753b024d51c94937a656494a8ff9741e
   description: >
     For apps and games sold with access codes. Callable from any origin (CORS `*`): it only
 
@@ -631,11 +631,11 @@ resources:
   url: '{{default}}/api/shops/{slug}/orders'
   headers:
   - name: x-admin-token
-    value: x-admin-token44
+    value: x-admin-token79
     disabled: false
   _type: request
-  _id: req_347285aef9044cbeabf5b7065c388691
-  parentId: fld_0ca757dab85f40158b02b159105ad217
+  _id: req_3e6b8e8551084ad6b6a1372152ff939d
+  parentId: fld_b06bc9ba2a444a39bc5e67c73f63667b
   description: Newest first. Checkouts that were never approved are left out.
 - name: markOrderShipped
   method: POST
@@ -644,52 +644,52 @@ resources:
     mimeType: application/json
     text: >-
       {
-        "carrier": "DHL",
-        "trackingNumber": "trackingNumber87",
-        "carrierName": "carrierName48"
+        "carrier": "USPS",
+        "trackingNumber": "trackingNumber19",
+        "carrierName": "carrierName90"
       }
   headers:
   - name: Content-Type
     value: application/json
     disabled: false
   - name: x-admin-token
-    value: x-admin-token34
+    value: x-admin-token84
     disabled: false
   _type: request
-  _id: req_8e31e0e9741245aaadb30ffe060f7762
-  parentId: fld_0ca757dab85f40158b02b159105ad217
+  _id: req_074a712bd1194a31832db6eace53d044
+  parentId: fld_b06bc9ba2a444a39bc5e67c73f63667b
   description: Saves the tracking number and pushes it to PayPal, so the buyer sees it in PayPal.
 - name: listWebhookEvents
   method: GET
   url: '{{default}}/api/shops/{slug}/webhooks'
   headers:
   - name: x-admin-token
-    value: x-admin-token19
+    value: x-admin-token62
     disabled: false
   _type: request
-  _id: req_f48fd2d22abb4f90b55c659abf17fc8f
-  parentId: fld_0ca757dab85f40158b02b159105ad217
+  _id: req_c5a469dc39764cccaf830fd132b0efc1
+  parentId: fld_b06bc9ba2a444a39bc5e67c73f63667b
   description: The last 50 PayPal webhook deliveries about this shop's orders, with signature results.
 - name: downloadFile
   method: GET
   url: '{{default}}/api/download/{token}'
   _type: request
-  _id: req_c0fddbb47dfc45c784e6e675cff42dab
-  parentId: fld_33269f906bc5460eb6830d69490ee092
+  _id: req_a18631e7e89a4770a5922a88b592c2e7
+  parentId: fld_f022491c5b0c4524b88f34205a394d14
   description: A paid digital order's private link. Works 5 times within 14 days.
 - name: getImage
   method: GET
   url: '{{default}}/api/blobs/{id}'
   _type: request
-  _id: req_ef3732ceb2f24fe78af392ffcfbba627
-  parentId: fld_33269f906bc5460eb6830d69490ee092
+  _id: req_1cf893e7ded6434b92c1d2dd520c957e
+  parentId: fld_f022491c5b0c4524b88f34205a394d14
   description: Public images only. Purchased files are never served here.
 - name: getAgentProduct
   method: GET
   url: '{{default}}/api/agent/shops/{slug}'
   _type: request
-  _id: req_2de03a32638a43dfa3d2b4563515c1b2
-  parentId: fld_632b3f245ba545ccb99a7aa67b7c3898
+  _id: req_fcec6e3fdde843cb86dac940e2d88aa7
+  parentId: fld_302828c84eca4b1485f2e5b2467b0f1b
   description: 'Everything an AI shopping agent needs to describe the product and decide to buy it: price, shipping, delivery, availability, options, images and FAQ. Public. Buying goes through the MCP server named in `mcp_server`. Shop pages also carry the same facts as schema.org `Product` JSON-LD.'
 - name: callMcp
   method: POST
@@ -702,8 +702,8 @@ resources:
     value: application/json
     disabled: false
   _type: request
-  _id: req_01024681b56948a5a745e16b2ac863eb
-  parentId: fld_632b3f245ba545ccb99a7aa67b7c3898
+  _id: req_0d620e20e90942c3bd0ab42fc3809cb9
+  parentId: fld_302828c84eca4b1485f2e5b2467b0f1b
   description: >
     A [Model Context Protocol](https://modelcontextprotocol.io) server, so agents such as
 
@@ -750,6 +750,6 @@ resources:
   authentication:
     type: bearer
   _type: request
-  _id: req_14653adad02648bbb3d553dc3702d81a
-  parentId: fld_739116718de7435883e376519f3aae4a
+  _id: req_c5772fa6bec14db8b37abbc25ef659fc
+  parentId: fld_ea781a0bab614ead9b827733d27cdbec
   description: "Every shop the API key's account owns, newest first, with what a catalog page needs: name, price, cover, link, whether PayPal is connected and how many sales it has."

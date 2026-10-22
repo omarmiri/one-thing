@@ -34,14 +34,14 @@ A marketplace that makes shops for its own sellers (a game store, a craft site) 
 Authorization: Bearer ot_sk_…
 ```
 
-- **Making one:** sign in on the website with **Log in with PayPal** and open `/account` →
-  Developer API keys. A typed email isn't enough: keys need a verified sign-in. The key is shown
+- **Making one:** sign in on the website with **Log in with PayPal** and open
+  `/account/keys` (linked from `/account`). A typed email isn't enough: keys need a verified sign-in. The key is shown
   once; OneThing stores only a hash of it.
 - **What it reaches:** shops created with it (and any other shop of the same account), through
   every seller endpoint. Another account's shop answers 404.
 - **Return addresses:** the https origins you register on the key are the only places
   `connectPayPal` will send your sellers back to.
-- **Revoking:** one click on `/account`. Calls with it get 401 at once; the shops stay.
+- **Revoking:** one click on `/account/keys`. Calls with it get 401 at once; the shops stay.
 
 See **Build a marketplace on OneThing** for the whole flow.
 
