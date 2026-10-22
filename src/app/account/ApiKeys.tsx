@@ -46,8 +46,8 @@ export function ApiKeys({ keys, verified }: { keys: Key[]; verified: boolean }) 
   }
 
   return (
-    <section className="mt-12">
-      <h2 className="text-xl font-bold tracking-tight">Developer API keys</h2>
+    <section className="mt-8">
+      <h1 className="text-3xl font-bold tracking-tight">Developer API keys</h1>
       <p className="mt-1 text-sm text-muted">
         For a platform that makes shops for its own sellers, such as a game marketplace. A key manages the shops it creates
         through the API. Keep it on your server. See the{" "}
@@ -58,7 +58,7 @@ export function ApiKeys({ keys, verified }: { keys: Key[]; verified: boolean }) 
         <div className="mt-4 flex flex-wrap items-center gap-4 rounded-2xl border border-line bg-white p-4">
           <p className="flex-1 text-sm">Keys need a verified sign-in. Log in with PayPal to make or revoke them.</p>
           <div className="w-full sm:w-64">
-            <PayPalLoginButton next="/account" />
+            <PayPalLoginButton next="/account/keys" />
           </div>
         </div>
       ) : (

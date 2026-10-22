@@ -7,7 +7,7 @@ import { newId } from "./ids";
 // (Authorization: Bearer ot_sk_…) instead of keeping each shop's admin token. A key reaches the
 // shops of the account that made it, nothing else. Only a SHA-256 of the key is stored: it is
 // shown once, and a database leak doesn't hand out working keys. Keys are made and revoked on
-// /account by a PayPal-verified session (see the api_keys schema in db.ts).
+// /account/keys by a PayPal-verified session (see the api_keys schema in db.ts).
 
 export type ApiKey = {
   id: string;

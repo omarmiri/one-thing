@@ -187,7 +187,7 @@ valid. The image below recreates that session ([source](docs/muse-checkout-demo.
 - **Postman collection:** [postman/one-thing.postman_collection.json](postman/one-thing.postman_collection.json),
   with Seller, Buyer and Agents (MCP) folders.
 - **Platform API keys** for marketplaces that make shops for their own sellers:
-  `Authorization: Bearer ot_sk_…`, made and revoked on `/account` after Log in with PayPal (a typed
+  `Authorization: Bearer ot_sk_…`, made and revoked on `/account/keys` after Log in with PayPal (a typed
   email isn't enough), stored only as a SHA-256 hash. A key reaches its account's shops only;
   `GET /api/platform/shops` lists them, and `connectPayPal` takes a `returnUrl` on an origin
   registered with the key. Shops made with a key inherit nothing (email, PayPal) from the account.

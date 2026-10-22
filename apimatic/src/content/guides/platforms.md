@@ -11,7 +11,7 @@ that calls OneThing through the TypeScript SDK generated from this portal.
 
 ## 1. Get a key
 
-On the website, **Log in with PayPal**, open `/account` → Developer API keys, and make a key with
+On the website, **Log in with PayPal**, open `/account/keys` (linked from `/account`), and make a key with
 your site's origin as a return address (`https://www.miriogames.com`). Keep it in your server's
 secrets; never put it in a web page.
 
