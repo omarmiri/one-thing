@@ -25,6 +25,7 @@ export type SetupInitial = {
   sellerEmail: string | null;
   zapierHookUrl: string | null;
   inGallery: boolean;
+  galleryStatus: "pending" | "approved" | "rejected";
   options: ShopOption[];
   optionStock: OptionStock;
   suggestions: Suggestions | null;
@@ -483,7 +484,15 @@ export function SetupPanel(props: {
         <input name="in_gallery" type="checkbox" defaultChecked={s.inGallery} className="mt-0.5 size-4 accent-current" />
         <span>
           <span className="font-medium">Show in the OneThing gallery</span>
-          <span className="block text-muted">Feature this page at /gallery once it&apos;s live. You can turn it off any time.</span>
+          <span className="block text-muted">
+            {!s.inGallery
+              ? "Ask to feature this page at /gallery once it's live. Each page is reviewed first. You can turn it off any time."
+              : s.galleryStatus === "approved"
+                ? "In the gallery while it's live. You can turn it off any time."
+                : s.galleryStatus === "rejected"
+                  ? "This page wasn't accepted for the gallery."
+                  : "Waiting for review. It appears at /gallery once approved."}
+          </span>
         </span>
       </label>
 

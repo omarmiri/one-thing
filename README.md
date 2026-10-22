@@ -150,7 +150,10 @@ the AI's guesses and clicks **Go live**. The choices behind it:
 ### Everyone
 
 - **Gallery** at `/gallery`: every live shop, newest first, each card in that shop's own palette, in a dense marketplace-style grid (2 columns on phones up to 6 on wide screens). The
-  home page shows the three newest.
+  home page shows the three newest. Ticking "Show in the OneThing gallery" only *asks*: a shop
+  appears in the gallery, on the home page and in agent search once it's approved at
+  `/admin/gallery?key=<ADMIN_KEY>`, a review page that isn't linked anywhere and needs no sign-in,
+  just the secret key. Shops already in the gallery when review was added stayed approved.
 
 ### AI agents
 
@@ -292,6 +295,7 @@ full experience:
 | `PAYPAL_PARTNER_CLIENT_ID`, `PAYPAL_PARTNER_CLIENT_SECRET`, `PAYPAL_PARTNER_MERCHANT_ID` | A second sandbox app of type **Platform** (Partner Referrals needs one), and the merchant ID of its sandbox business account | **Connect PayPal**: sellers onboard their own PayPal account; the manage page shows PayPal's checklist and Go live waits for it (a typed PayPal email still works as a fallback) |
 | `PAYPAL_WEBHOOK_ID` | Same app → Webhooks → `<APP_URL>/api/paypal/webhook`, event `PAYMENT.CAPTURE.COMPLETED` | Confirms payments if the buyer closes the tab mid-checkout (needs a public URL) |
 | `CHANNEL3_API_KEY` | [Channel3 developers](https://trychannel3.com/developers) | "Find a product", store-link lookup and recommendation shops |
+| `ADMIN_KEY` | Any long random string (Render generates one) | **Gallery review** at `/admin/gallery?key=<ADMIN_KEY>`; without it no shop can be approved into the gallery |
 
 ## Deploy to Render
 

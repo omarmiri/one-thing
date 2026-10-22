@@ -165,6 +165,14 @@ CREATE TABLE IF NOT EXISTS webhook_events (
   received_at      timestamptz NOT NULL DEFAULT now()
 );
 CREATE INDEX IF NOT EXISTS webhook_events_shop_idx ON webhook_events(shop_id, received_at DESC);
+
+-- Gallery review: in_gallery is the seller asking, gallery_status is the site admin's answer
+-- (/admin/gallery). A shop shows in the gallery only when both say yes. Added without a default
+-- so the one-time backfill can tell old rows apart: shops already in the gallery are approved.
+ALTER TABLE shops ADD COLUMN IF NOT EXISTS gallery_status text;    -- pending | approved | rejected
+UPDATE shops SET gallery_status = CASE WHEN in_gallery THEN 'approved' ELSE 'pending' END WHERE gallery_status IS NULL;
+ALTER TABLE shops ALTER COLUMN gallery_status SET DEFAULT 'pending';
+ALTER TABLE shops ALTER COLUMN gallery_status SET NOT NULL;
 `;
 
 async function open(): Promise<Db> {

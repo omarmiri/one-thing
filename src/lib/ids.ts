@@ -30,3 +30,9 @@ export function tokensMatch(given: string | null | undefined, expected: string):
 // RENDER_EXTERNAL_URL on every web service, so an unset APP_URL there still gets the real host.
 export const appUrl = () =>
   (process.env.APP_URL || process.env.RENDER_EXTERNAL_URL || "http://localhost:3000").replace(/\/$/, "");
+
+/**
+ * The gallery review key (ADMIN_KEY): /admin/gallery?key=… approves shops for the gallery with
+ * no sign-in, like a shop's private manage link. Unset means the review page doesn't exist.
+ */
+export const isAdminKey = (given: string | null | undefined) => Boolean(process.env.ADMIN_KEY) && tokensMatch(given, process.env.ADMIN_KEY!);

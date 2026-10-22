@@ -36,7 +36,8 @@ export type Shop = {
   access_url: string | null;
   referral: Referral | null;
   source_url: string | null;
-  in_gallery: boolean;
+  in_gallery: boolean; // the seller asked to be in the gallery
+  gallery_status: GalleryStatus; // the site admin's answer (/admin/gallery)
   account_id: string | null;
   api_key_id: string | null; // made by a platform's API key: its seller isn't the account owner
   paypal_return_url: string | null; // where Connect PayPal sends the seller back (a platform's page)
@@ -167,10 +168,25 @@ export const listWebhookEvents = (shopId: string) =>
 export const getOrder =(id: string) => one<Order>("SELECT * FROM orders WHERE id = $1", [id]);
 
 /** Live shops whose sellers opted into the public gallery, newest first. */
+export type GalleryStatus = "pending" | "approved" | "rejected";
+
 export const listLiveShops = async (limit = 60) =>
-  (await query<Shop>("SELECT * FROM shops WHERE status = 'live' AND in_gallery ORDER BY created_at DESC LIMIT $1", [limit])).map(
-    (row) => hydrate(row)!,
-  );
+  (
+    await query<Shop>(
+      "SELECT * FROM shops WHERE status = 'live' AND in_gallery AND gallery_status = 'approved' ORDER BY created_at DESC LIMIT $1",
+      [limit],
+    )
+  ).map((row) => hydrate(row)!);
+
+/** Shops that asked to be in the gallery, for review: waiting ones first, then newest. */
+export const listGalleryRequests = async () =>
+  (
+    await query<Shop>(
+      "SELECT * FROM shops WHERE in_gallery ORDER BY gallery_status = 'pending' DESC, created_at DESC LIMIT 200",
+    )
+  ).map((row) => hydrate(row)!);
+
+export const setGalleryStatus = (id: string, status: GalleryStatus) => updateShop(id, { gallery_status: status });
 
 export const blobUrl = (id: string | null) => (id ? `/api/blobs/${id}` : null);
 

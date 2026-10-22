@@ -38,6 +38,8 @@ services:
         sync: false
       - key: APP_URL
         sync: false # e.g. https://one-thing.onrender.com; falls back to RENDER_EXTERNAL_URL
+      - key: ADMIN_KEY
+        generateValue: true # gallery review: /admin/gallery?key=<this>
 
 databases:
   - name: one-thing-db

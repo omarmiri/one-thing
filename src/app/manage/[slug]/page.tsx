@@ -54,6 +54,7 @@ export default async function Manage(props: PageProps<"/manage/[slug]">) {
           sellerEmail: shop.seller_email,
           zapierHookUrl: shop.zapier_hook_url,
           inGallery: shop.in_gallery,
+          galleryStatus: shop.gallery_status,
           options: shop.options ?? [],
           optionStock: shop.option_stock ?? {},
           suggestions: shop.suggestions,
