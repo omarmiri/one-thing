@@ -12,5 +12,6 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Bad status" }, { status: 400 });
   }
   await setGalleryStatus(String(f.get("id") ?? ""), status);
-  return NextResponse.redirect(new URL(`/admin/gallery?key=${encodeURIComponent(key)}`, req.url), 303);
+  // A relative Location: behind Render's proxy req.url is http://localhost:3000, not the public host.
+  return new Response(null, { status: 303, headers: { Location: `/admin/gallery?key=${encodeURIComponent(key)}` } });
 }
