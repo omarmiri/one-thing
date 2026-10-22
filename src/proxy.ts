@@ -7,7 +7,7 @@ const DOCS_ORIGIN = "https://omarmiri.github.io";
 const CORS = {
   "access-control-allow-origin": DOCS_ORIGIN,
   "access-control-allow-methods": "GET, POST, PATCH, PUT, DELETE, OPTIONS",
-  "access-control-allow-headers": "content-type, x-admin-token",
+  "access-control-allow-headers": "content-type, x-admin-token, authorization",
   "access-control-max-age": "86400",
   vary: "origin",
 };

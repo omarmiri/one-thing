@@ -14,8 +14,9 @@ info:
     2. `updateShop`: correct anything the AI guessed, then set `status: live`.
     3. Buyers pay on `https://<host>/<slug>` with PayPal. Sellers read orders and ship them.
 
-    **Auth.** Seller endpoints take the shop's admin token in the `x-admin-token` header. Buyer
-    endpoints (checkout, access-code verification, downloads) are public.
+    **Auth.** Seller endpoints take the shop's admin token in the `x-admin-token` header, or a
+    **platform API key** (`Authorization: Bearer ot_sk_…`) for marketplaces that make shops for
+    their own sellers. Buyer endpoints (checkout, access-code verification, downloads) are public.
 
     **Access codes.** A digital product can unlock an app or game instead of shipping a file.
     Each paid order gets a code such as `K7QF-M2XP-9HTD`; your app calls `verifyAccessCode`
@@ -72,6 +73,8 @@ tags:
     description: Digital downloads and shop images.
   - name: Agents
     description: Machine-readable shops and the MCP server AI shopping agents buy through.
+  - name: Platforms
+    description: For marketplaces that make and run shops for their own sellers with one API key.
 
 security: []
 
@@ -181,6 +184,14 @@ paths:
         - `source=channel3`: a `productId` from `searchProducts` (a recommendation).
 
         Takes 15–40 seconds. Hero art, if available, is generated afterwards (`hero_status`).
+
+        **Platforms:** sent with a platform API key, the shop belongs to the key's account, so the
+        key can manage it from then on (no need to keep the admin token). It's made for one of the
+        platform's sellers, so it inherits nothing from the account: set `paypal_email` or call
+        `connectPayPal` for that seller.
+      security:
+        - {}
+        - PlatformKey: []
       requestBody:
         required: true
         content:
@@ -214,6 +225,7 @@ paths:
       description: Everything about the shop, including the AI's design spec and guesses.
       security:
         - AdminToken: []
+        - PlatformKey: []
       responses:
         '200':
           description: The shop.
@@ -233,6 +245,7 @@ paths:
         access codes, `access_url`) first.
       security:
         - AdminToken: []
+        - PlatformKey: []
       requestBody:
         required: true
         content:
@@ -268,6 +281,7 @@ paths:
       description: '"Make it warmer", "shorter copy", "more premium". Gemini edits the design spec.'
       security:
         - AdminToken: []
+        - PlatformKey: []
       requestBody:
         required: true
         content:
@@ -308,6 +322,7 @@ paths:
       description: Starts generation in the background. Poll `getShop` for `hero_status`.
       security:
         - AdminToken: []
+        - PlatformKey: []
       responses:
         '200':
           $ref: '#/components/responses/Ok'
@@ -326,6 +341,7 @@ paths:
       description: Uploads or replaces a digital product's file, up to 25 MB. Each paid order gets a download link for it.
       security:
         - AdminToken: []
+        - PlatformKey: []
       requestBody:
         required: true
         content:
@@ -369,6 +385,7 @@ paths:
         Not for recommendations, which show the retailer's photos.
       security:
         - AdminToken: []
+        - PlatformKey: []
       requestBody:
         required: true
         content:
@@ -395,6 +412,7 @@ paths:
       description: Sets the photo order; the first becomes the cover. Leaving a photo out removes it.
       security:
         - AdminToken: []
+        - PlatformKey: []
       requestBody:
         required: true
         content:
@@ -433,6 +451,7 @@ paths:
         (`options`), and answer the questions with `updateShop` (`facts`). Not for recommendations.
       security:
         - AdminToken: []
+        - PlatformKey: []
       responses:
         '200':
           description: The suggestions.
@@ -459,6 +478,7 @@ paths:
         a colour see it. Suggests only; save the matches with `setColorPhotos`. Needs at least two photos.
       security:
         - AdminToken: []
+        - PlatformKey: []
       requestBody:
         required: true
         content:
@@ -516,6 +536,7 @@ paths:
         one of the shop's photos is ignored.
       security:
         - AdminToken: []
+        - PlatformKey: []
       requestBody:
         required: true
         content:
@@ -561,8 +582,25 @@ paths:
         connection and opens the manage page. From then on, sales are paid to that account.
 
         Without a connection, a shop can still go live with a typed `paypal_email`.
+
+        **Platforms:** call it with your API key and a `returnUrl`, and PayPal's flow ends on your own
+        page instead, as `returnUrl?paypal=connected|incomplete|cancelled|failed&shop=<slug>`. The
+        URL's origin must be one registered on the key.
       security:
         - AdminToken: []
+        - PlatformKey: []
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                returnUrl:
+                  type: string
+                  format: uri
+                  description: Platform key only. Where to send the seller after PayPal.
+                  examples: ['https://www.miriogames.com/market/manage/?g=7Hq2']
       responses:
         '200':
           description: Where to send the seller.
@@ -590,6 +628,7 @@ paths:
         connection the seller finished at PayPal without coming back.
       security:
         - AdminToken: []
+        - PlatformKey: []
       responses:
         '200':
           description: The connection, or nulls if there is none yet.
@@ -619,11 +658,50 @@ paths:
       description: Forgets the connected account. Sales go back to the shop's `paypal_email`.
       security:
         - AdminToken: []
+        - PlatformKey: []
       responses:
         '200':
           $ref: '#/components/responses/Ok'
         '404':
           $ref: '#/components/responses/NotFound'
+
+  /api/platform/shops:
+    get:
+      tags: [Platforms]
+      operationId: listMyShops
+      summary: List the platform's shops
+      description: >-
+        Every shop the API key's account owns, newest first, with what a catalog page needs: name,
+        price, cover, link, whether PayPal is connected and how many sales it has.
+      security:
+        - PlatformKey: []
+      parameters:
+        - name: status
+          in: query
+          required: false
+          description: Only shops with this status, e.g. `live` for a public catalog.
+          schema:
+            type: string
+            enum: [draft, live]
+      responses:
+        '200':
+          description: The shops.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [shops]
+                properties:
+                  shops:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/PlatformShop'
+        '401':
+          description: No API key, or it's wrong or revoked.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
   /api/shops/{slug}/orders:
     parameters:
@@ -635,6 +713,7 @@ paths:
       description: Newest first. Checkouts that were never approved are left out.
       security:
         - AdminToken: []
+        - PlatformKey: []
       responses:
         '200':
           description: Orders.
@@ -663,6 +742,7 @@ paths:
       description: Saves the tracking number and pushes it to PayPal, so the buyer sees it in PayPal.
       security:
         - AdminToken: []
+        - PlatformKey: []
       requestBody:
         required: true
         content:
@@ -711,6 +791,7 @@ paths:
       description: The last 50 PayPal webhook deliveries about this shop's orders, with signature results.
       security:
         - AdminToken: []
+        - PlatformKey: []
       responses:
         '200':
           description: Events, newest first.
@@ -1136,6 +1217,13 @@ components:
       in: header
       name: x-admin-token
       description: The shop's admin token, returned once by `createShop`. Keep it secret.
+    PlatformKey:
+      type: http
+      scheme: bearer
+      description: >-
+        A platform API key (`ot_sk_…`) for a marketplace that makes shops for its own sellers. Made
+        on the website's `/account` page after Log in with PayPal, and shown once. It reaches every
+        shop its account owns, so keep it on your server.
 
   parameters:
     Slug:
@@ -1190,7 +1278,7 @@ components:
           schema:
             $ref: '#/components/schemas/Error'
     NotFound:
-      description: No such shop, or the admin token doesn't match it.
+      description: No such shop, or the admin token or API key doesn't match it.
       content:
         application/json:
           schema:
@@ -1747,6 +1835,40 @@ components:
         mcp_server:
           type: string
           description: The MCP server to order through (`getAgentProduct` only).
+
+    PlatformShop:
+      type: object
+      required: [slug, status, name, product_type, price, url, paypal_connected, sales, created_at]
+      properties:
+        slug:
+          type: string
+        status:
+          type: string
+          enum: [draft, live]
+        name:
+          type: string
+        headline:
+          type: string
+        product_type:
+          type: string
+          enum: [physical, digital, referral]
+        price:
+          $ref: '#/components/schemas/AgentMoney'
+        url:
+          type: string
+          description: The shop page buyers pay on.
+        cover:
+          type: [string, 'null']
+          description: The cover image's URL.
+        paypal_connected:
+          type: boolean
+          description: The seller connected a PayPal account that can be paid.
+        sales:
+          type: integer
+          description: Paid orders.
+        created_at:
+          type: string
+          format: date-time
 
     AgentMoney:
       type: object

@@ -3,6 +3,8 @@ import { accountLabel, currentAccount } from "@/lib/accounts";
 import { blobUrl, listAccountShops, money, shopPhotos } from "@/lib/shops";
 import { PayPalLoginButton, SignInForm } from "@/components/SignInForm";
 import { paypalLoginEnabled } from "@/lib/paypal";
+import { listKeys } from "@/lib/apiKeys";
+import { ApiKeys } from "./ApiKeys";
 import { SignOutButton } from "./SignOutButton";
 
 export const dynamic = "force-dynamic";
@@ -35,7 +37,7 @@ export default async function AccountPage(props: PageProps<"/account">) {
     );
   }
 
-  const shops = await listAccountShops(account.id);
+  const [shops, keys] = await Promise.all([listAccountShops(account.id), listKeys(account.id)]);
   return (
     <main className="mx-auto w-full max-w-3xl px-4 py-10 sm:py-14">
       <header className="flex items-center gap-4">
@@ -96,6 +98,7 @@ export default async function AccountPage(props: PageProps<"/account">) {
           })}
         </ul>
       )}
+      <ApiKeys keys={keys} verified={account.session_via === "paypal"} />
     </main>
   );
 }

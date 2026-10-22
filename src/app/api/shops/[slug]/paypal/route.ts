@@ -1,5 +1,6 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
+import { toOrigin } from "@/lib/apiKeys";
 import { requireShop } from "@/lib/auth";
 import { appUrl } from "@/lib/ids";
 import { connectedMerchant, connectUrl, merchantStatus, PayPalError, paypalConnectEnabled } from "@/lib/paypal";
@@ -14,7 +15,20 @@ export async function POST(req: Request, ctx: RouteContext<"/api/shops/[slug]/pa
   const r = await requireShop(req, (await ctx.params).slug);
   if ("error" in r) return r.error;
   const { shop } = r;
-  const account = shop.account_id ? await one<{ email: string | null }>("SELECT email FROM accounts WHERE id = $1", [shop.account_id]) : null;
+  // A platform sends its seller back to its own page: only with its key, and only to an origin
+  // registered on the key, so this can't be turned into an open redirect.
+  const body = (await req.json().catch(() => null)) as { returnUrl?: unknown } | null;
+  if (body?.returnUrl !== undefined) {
+    const url = typeof body.returnUrl === "string" ? body.returnUrl : "";
+    const origin = toOrigin(url);
+    if (!r.key) return NextResponse.json({ error: "returnUrl needs a platform API key.", field: "returnUrl" }, { status: 400 });
+    if (!origin || !r.key.return_origins.includes(origin)) {
+      return NextResponse.json({ error: `returnUrl must be on an origin registered for this API key (${r.key.return_origins.join(", ") || "none yet"}).`, field: "returnUrl" }, { status: 400 });
+    }
+    await updateShop(shop.id, { paypal_return_url: url });
+  }
+  // A platform's seller isn't the account owner, so don't prefill the owner's email.
+  const account = shop.account_id && !shop.api_key_id ? await one<{ email: string | null }>("SELECT email FROM accounts WHERE id = $1", [shop.account_id]) : null;
   try {
     const url = await connectUrl(shop.id, `${appUrl()}/api/shops/${shop.slug}/paypal/return`, shop.paypal_email ?? shop.seller_email ?? account?.email);
     // PayPal's return can't carry the private manage link, so this browser remembers it.

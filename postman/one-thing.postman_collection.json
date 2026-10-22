@@ -24,6 +24,10 @@
     {
       "key": "agentOrderId",
       "value": ""
+    },
+    {
+      "key": "apiKey",
+      "value": ""
     }
   ],
   "item": [
@@ -515,6 +519,130 @@
             "body": {
               "mode": "raw",
               "raw": "{\n  \"jsonrpc\": \"2.0\",\n  \"id\": 6,\n  \"method\": \"tools/call\",\n  \"params\": {\n    \"name\": \"get_order\",\n    \"arguments\": {\n      \"order_id\": \"{{agentOrderId}}\"\n    }\n  }\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Platforms",
+      "description": "For a marketplace that makes shops for its own sellers. Set apiKey to a key from /account (Log in with PayPal first).",
+      "item": [
+        {
+          "name": "Create a shop for a seller (API key)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.collectionVariables.set('slug', pm.response.json().slug);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/shops",
+            "header": [
+              {
+                "key": "authorization",
+                "value": "Bearer {{apiKey}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "source",
+                  "value": "photo",
+                  "type": "text"
+                },
+                {
+                  "key": "description",
+                  "value": "Star Frog, a one-screen arcade game about a frog catching falling stars.",
+                  "type": "text"
+                },
+                {
+                  "key": "type",
+                  "value": "digital",
+                  "type": "text"
+                },
+                {
+                  "key": "delivery",
+                  "value": "access_code",
+                  "type": "text"
+                },
+                {
+                  "key": "access_url",
+                  "value": "https://www.example.com/play/?g=starfrog",
+                  "type": "text"
+                },
+                {
+                  "key": "price",
+                  "value": "2.99",
+                  "type": "text"
+                },
+                {
+                  "key": "photo",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "List the platform's shops",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/platform/shops?status=live",
+            "header": [
+              {
+                "key": "authorization",
+                "value": "Bearer {{apiKey}}"
+              }
+            ]
+          }
+        },
+        {
+          "name": "Connect PayPal, back to the platform",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/shops/{{slug}}/paypal",
+            "header": [
+              {
+                "key": "authorization",
+                "value": "Bearer {{apiKey}}"
+              },
+              {
+                "key": "content-type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"returnUrl\": \"https://www.example.com/manage/?g=starfrog\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Go live (API key)",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/api/shops/{{slug}}",
+            "header": [
+              {
+                "key": "authorization",
+                "value": "Bearer {{apiKey}}"
+              },
+              {
+                "key": "content-type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"status\": \"live\" }"
             }
           }
         }

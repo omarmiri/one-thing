@@ -1,5 +1,7 @@
 import { after, NextResponse } from "next/server";
 import { currentAccount } from "@/lib/accounts";
+import { requestKey } from "@/lib/apiKeys";
+import { badKey } from "@/lib/auth";
 import { buildShowcase } from "@/lib/assets";
 import { channel3Enabled, describeProduct, getProduct, lookupUrl, mainImage, toReferral, type C3Product } from "@/lib/channel3";
 import { one, query } from "@/lib/db";
@@ -34,6 +36,10 @@ const fail = (error: string, status = 400, field?: string) => NextResponse.json(
  * The seller checks those guesses on the manage page and goes live.
  */
 export async function POST(req: Request) {
+  // A platform's key: the shop belongs to the key's account, but its seller is the platform's.
+  const k = await requestKey(req);
+  if (k && "invalid" in k) return badKey();
+  const apiKey = k?.key ?? null;
   const form = await req.formData();
   const source = str(form, "source") ?? "photo";
   const id = newId();
@@ -154,11 +160,13 @@ export async function POST(req: Request) {
   const built = await showcaseJob;
   const suggestions = await suggestJob;
   // Signed in: the shop belongs to the account, and its email is where seller mail goes.
-  const account = await currentAccount();
+  // Made with a platform key: the platform's account owns it, but the account's own email and
+  // PayPal are not this seller's, so nothing is inherited.
+  const account = apiKey ? null : await currentAccount();
   // A PayPal account connected on another of the seller's shops pays for this one too.
   const connected = account
     ? await one<{ paypal_merchant_id: string; paypal_status: unknown }>(
-        "SELECT paypal_merchant_id, paypal_status FROM shops WHERE account_id = $1 AND paypal_merchant_id IS NOT NULL ORDER BY updated_at DESC LIMIT 1",
+        "SELECT paypal_merchant_id, paypal_status FROM shops WHERE account_id = $1 AND api_key_id IS NULL AND paypal_merchant_id IS NOT NULL ORDER BY updated_at DESC LIMIT 1",
         [account.id],
       )
     : null;
@@ -166,8 +174,9 @@ export async function POST(req: Request) {
   await query(
     `INSERT INTO shops (id, slug, admin_token, seller_email, paypal_email, description, product_type, price_cents,
        shipping_cents, ship_countries, stock, photo_blob, digital_blob, hero_status, spec, ai_source, delivery,
-       access_url, referral, source_url, showcase, showcase_blobs, account_id, paypal_merchant_id, paypal_status, suggestions)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26)`,
+       access_url, referral, source_url, showcase, showcase_blobs, account_id, paypal_merchant_id, paypal_status, suggestions,
+       api_key_id)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,$27)`,
     [
       id, slug, adminToken, str(form, "seller_email") ?? account?.email ?? null, str(form, "paypal_email") ?? account?.paypal_email ?? null, description, productType, price,
       productType === "physical" ? (cents(str(form, "shipping")) ?? Math.round(spec.suggestedShippingUsd * 100)) : 0,
@@ -180,10 +189,11 @@ export async function POST(req: Request) {
       sourceUrl,
       built ? JSON.stringify(built.showcase) : null,
       built?.blobs ?? [],
-      account?.id ?? null,
+      apiKey?.account_id ?? account?.id ?? null,
       connected?.paypal_merchant_id ?? null,
       connected ? JSON.stringify(connected.paypal_status) : null,
       suggestions ? JSON.stringify(suggestions) : null,
+      apiKey?.id ?? null,
     ],
   );
   await claimSlug(slug, id);

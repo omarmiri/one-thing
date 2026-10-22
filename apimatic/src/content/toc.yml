@@ -15,6 +15,8 @@ toc:
         from: getting-started
   - group: Guides
     items:
+      - page: Build a marketplace on OneThing
+        file: guides/platforms.md
       - page: Sell an app or game with access codes
         file: guides/access-codes.md
       - page: Let AI agents buy

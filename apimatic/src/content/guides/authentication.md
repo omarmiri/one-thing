@@ -21,13 +21,33 @@ be used to discover which shops exist.
 Lost the token? A shop created while signed in also opens from the seller's `/account` page on
 the website.
 
+## Platforms: API keys
+
+A marketplace that makes shops for its own sellers (a game store, a craft site) uses one
+**platform API key** instead of keeping every shop's admin token:
+
+```http
+Authorization: Bearer ot_sk_…
+```
+
+- **Making one:** sign in on the website with **Log in with PayPal** and open `/account` →
+  Developer API keys. A typed email isn't enough: keys need a verified sign-in. The key is shown
+  once; OneThing stores only a hash of it.
+- **What it reaches:** shops created with it (and any other shop of the same account), through
+  every seller endpoint. Another account's shop answers 404.
+- **Return addresses:** the https origins you register on the key are the only places
+  `connectPayPal` will send your sellers back to.
+- **Revoking:** one click on `/account`. Calls with it get 401 at once; the shops stay.
+
+See **Build a marketplace on OneThing** for the whole flow.
+
 ## Seller accounts: the session cookie
 
 `signIn` takes an email address or a phone number and sets an `ot_session` cookie (there's no
 password or verification, since this deployment is sandbox only). Calling `createShop` with that
 cookie makes the shop belong to the account, which lists all of the seller's shops at `/account`.
 The cookie doesn't replace the admin token for the API: seller endpoints still need
-`x-admin-token`.
+`x-admin-token` or an API key.
 
 On the website, sellers can also use **Log in with PayPal** (`logInWithPayPal`), which signs them
 in and records the PayPal account their sales are paid into.

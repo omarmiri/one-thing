@@ -34,6 +34,13 @@ export async function GET(_req: Request, ctx: RouteContext<"/api/shops/[slug]/pa
   } catch (err) {
     console.error("Connect PayPal return:", err);
   }
+  // A platform's seller goes back to the platform (its URL was checked against the key).
+  if (shop.paypal_return_url) {
+    const back = new URL(shop.paypal_return_url);
+    back.searchParams.set("paypal", outcome);
+    back.searchParams.set("shop", shop.slug);
+    return NextResponse.redirect(back.toString());
+  }
   // Without the remembered link, the manage page still opens for a signed-in owner.
   const q = new URLSearchParams({ ...(token && { token }), paypal: outcome });
   return NextResponse.redirect(`${appUrl()}/manage/${shop.slug}?${q}`);

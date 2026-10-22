@@ -121,6 +121,26 @@ CREATE TABLE IF NOT EXISTS sessions (
 -- The account a shop belongs to; null for shops made before accounts, until someone claims them.
 ALTER TABLE shops ADD COLUMN IF NOT EXISTS account_id text REFERENCES accounts(id);
 CREATE INDEX IF NOT EXISTS shops_account ON shops (account_id);
+-- How the session signed in: 'identifier' (typed, unverified) or 'paypal'. API keys need 'paypal'.
+ALTER TABLE sessions ADD COLUMN IF NOT EXISTS via text NOT NULL DEFAULT 'identifier';
+
+-- Platform API keys (src/lib/apiKeys.ts): a platform's server creates and manages its account's
+-- shops with one key. Only a SHA-256 of the key is kept; prefix is for telling keys apart.
+CREATE TABLE IF NOT EXISTS api_keys (
+  id              text PRIMARY KEY,
+  account_id      text NOT NULL REFERENCES accounts(id),
+  name            text NOT NULL,
+  key_hash        text NOT NULL UNIQUE,
+  prefix          text NOT NULL,
+  return_origins  text[] NOT NULL DEFAULT '{}',       -- where connectPayPal may send sellers back
+  created_at      timestamptz NOT NULL DEFAULT now(),
+  last_used_at    timestamptz,
+  revoked_at      timestamptz
+);
+-- The key that created a shop (its sellers are the platform's, not the account owner's), and
+-- where Connect PayPal returns them.
+ALTER TABLE shops ADD COLUMN IF NOT EXISTS api_key_id text REFERENCES api_keys(id);
+ALTER TABLE shops ADD COLUMN IF NOT EXISTS paypal_return_url text;
 
 -- Every link name a shop has had (the current one is shops.slug). Old names redirect.
 CREATE TABLE IF NOT EXISTS shop_slugs (

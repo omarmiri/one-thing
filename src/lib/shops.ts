@@ -38,6 +38,8 @@ export type Shop = {
   source_url: string | null;
   in_gallery: boolean;
   account_id: string | null;
+  api_key_id: string | null; // made by a platform's API key: its seller isn't the account owner
+  paypal_return_url: string | null; // where Connect PayPal sends the seller back (a platform's page)
   showcase: Showcase | null;
   showcase_blobs: string[];
   gallery_blobs: string[];
@@ -113,12 +115,15 @@ export async function updateShop(id: string, fields: Partial<Omit<Shop, "id">>) 
   await query(`UPDATE shops SET ${sets}, updated_at = now() WHERE id = $1`, [id, ...values]);
 }
 
-/** A shop's connected PayPal account; the seller's other shops that have none get it too. */
-export async function saveConnection(shop: Pick<Shop, "id" | "account_id">, merchantId: string, status: PayPalStatus) {
+/**
+ * A shop's connected PayPal account; the seller's other shops that have none get it too. Not for
+ * a platform's shops (api_key_id): each belongs to a different seller, so nothing is shared.
+ */
+export async function saveConnection(shop: Pick<Shop, "id" | "account_id" | "api_key_id">, merchantId: string, status: PayPalStatus) {
   await updateShop(shop.id, { paypal_merchant_id: merchantId, paypal_status: status });
-  if (shop.account_id) {
+  if (shop.account_id && !shop.api_key_id) {
     await query(
-      "UPDATE shops SET paypal_merchant_id = $2, paypal_status = $3, updated_at = now() WHERE account_id = $1 AND paypal_merchant_id IS NULL",
+      "UPDATE shops SET paypal_merchant_id = $2, paypal_status = $3, updated_at = now() WHERE account_id = $1 AND api_key_id IS NULL AND paypal_merchant_id IS NULL",
       [shop.account_id, merchantId, JSON.stringify(status)],
     );
   }

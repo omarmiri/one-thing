@@ -26,7 +26,7 @@ export async function GET(req: Request) {
   try {
     const identity = await paypalIdentity(code);
     const account = await signInWithPayPal(identity, await currentAccount());
-    await startSession(account.id);
+    await startSession(account.id, "paypal");
     return NextResponse.redirect(`${appUrl()}${next}`);
   } catch (e) {
     console.error(e);

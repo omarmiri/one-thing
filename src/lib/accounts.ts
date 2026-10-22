@@ -58,9 +58,12 @@ async function claimShops(account: Account) {
  * Its PayPal email becomes where sales are paid, on every shop that doesn't have one yet.
  */
 export async function signInWithPayPal(pp: PayPalIdentity, signedIn: Account | null): Promise<Account> {
+  // An account already tied to another PayPal user is never re-tied: whoever typed its email
+  // could otherwise take it over (and its API keys) with their own PayPal.
+  const mine = signedIn && (!signedIn.paypal_user_id || signedIn.paypal_user_id === pp.userId) ? signedIn : null;
   let account =
     (await one<Account>("SELECT * FROM accounts WHERE paypal_user_id = $1", [pp.userId])) ??
-    signedIn ??
+    mine ??
     (pp.email ? await one<Account>("SELECT * FROM accounts WHERE email = $1", [pp.email]) : null);
   if (!account) {
     const id = newId(9);
@@ -77,14 +80,15 @@ export async function signInWithPayPal(pp: PayPalIdentity, signedIn: Account | n
   account = (await one<Account>("SELECT * FROM accounts WHERE id = $1", [account.id]))!;
   await claimShops(account);
   if (account.paypal_email) {
-    await query("UPDATE shops SET paypal_email = $2 WHERE account_id = $1 AND paypal_email IS NULL", [account.id, account.paypal_email]);
+    await query("UPDATE shops SET paypal_email = $2 WHERE account_id = $1 AND api_key_id IS NULL AND paypal_email IS NULL", [account.id, account.paypal_email]);
   }
   return account;
 }
 
-export async function startSession(accountId: string) {
+/** via "paypal": signed in through PayPal, so the person is verified (API keys need this). */
+export async function startSession(accountId: string, via: "identifier" | "paypal" = "identifier") {
   const token = newId(24);
-  await query("INSERT INTO sessions (token, account_id) VALUES ($1, $2)", [token, accountId]);
+  await query("INSERT INTO sessions (token, account_id, via) VALUES ($1, $2, $3)", [token, accountId, via]);
   (await cookies()).set(COOKIE, token, {
     httpOnly: true,
     sameSite: "lax",
@@ -102,10 +106,10 @@ export async function endSession() {
 }
 
 /** The signed-in account, or null. */
-export async function currentAccount(): Promise<Account | null> {
+export async function currentAccount(): Promise<(Account & { session_via: "identifier" | "paypal" }) | null> {
   const token = (await cookies()).get(COOKIE)?.value;
   if (!token) return null;
-  return one<Account>("SELECT a.* FROM sessions s JOIN accounts a ON a.id = s.account_id WHERE s.token = $1", [token]);
+  return one("SELECT a.*, s.via AS session_via FROM sessions s JOIN accounts a ON a.id = s.account_id WHERE s.token = $1", [token]);
 }
 
 export const accountLabel = (a: Account) => a.email ?? a.phone ?? "your account";
