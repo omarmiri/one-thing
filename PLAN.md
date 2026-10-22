@@ -152,14 +152,56 @@ Video: show one of each. The main demo is a physical item (photo → shop → Pa
 
 **Cut list if time runs short (cut from the bottom):** AG Grid → agent endpoint → hybrid add-ons. Never cut: the photo-to-shop-to-PayPal-sale loop.
 
-## 6. Demo video script (under 3 minutes)
-1. 0:00 Problem: one product, ten tools. (15 s)
-2. 0:15 Snap a photo → live shop in 60 s. (40 s)
-3. 0:55 Buyer asks the concierge a question → pays with PayPal sandbox. (35 s)
-4. 1:30 Seller copilot: "how'd I do?" / "refund that order." (25 s)
-5. 1:55 No product? Channel3 picks → commission → PayPal Payout. (30 s)
-6. 2:25 An AI agent buys from a shop on its own. (25 s)
-7. 2:50 Close.
+## 6. Demo video script (under 3 minutes, rewritten Oct 22)
+
+Target 2:45. Voiceover (VO) in quotes; everything else is on screen. Cut every wait (Gemini's
+15–40 s, PayPal redirects) to a jump or a 2× speed-up.
+
+**1. Intro (0:00–0:10)**
+- On screen: the finished shop page scrolling, then hard cut to a phone photo.
+- VO: "You have one thing to sell. Here's how long it takes to sell it with OneThing."
+
+**2. Sign in (0:10–0:20)**
+- `/account` → **Log in with PayPal** → PayPal sandbox sign-in → back, signed in.
+- VO: "No new password. Sign in with PayPal."
+
+**3. Upload a photo (0:20–0:50)**
+- `/new` → drop in the product photo (a tee or mug in two colours shows the options well) → speed through the wait.
+- The manage page appears: designed page, headline, price, link.
+- VO: "One photo. Gemini works out what it is, writes the page, picks a price and a link, and designs it."
+- Quick beats (2–3 s each):
+  - **Buyers will ask** lists sizes, colours and the missing facts.
+  - One chat refine: click "Make it feel more premium" and the page restyles.
+- VO: "It even asks what buyers will want to know."
+
+**4. Connect PayPal (0:50–1:10)**
+- **Connect PayPal** → PayPal onboarding → Sign in with the sandbox business account → back to the checklist, all ticked → **Go live with PayPal**.
+- VO: "Connect your PayPal business account once. Every sale goes straight to you."
+
+**5. Show the shop and buy (1:10–1:40)**
+- The live shop: scroll the feature story, swipe the gallery, open Inspect, pick a colour (the photo switches).
+- **PayPal** button → sandbox buyer pays → thank-you page.
+- Optional 2 s: the QR code for paying on a phone.
+- Cut to the seller's orders grid: the order with the buyer's address → **Mark shipped** with a tracking number.
+- VO: "Buyers pay with PayPal or a card. You see the order, add tracking, and PayPal shows it to the buyer."
+
+**6. Buy from Muse (1:40–2:20)**
+- Muse with no setup. Prompt: "Find me a fun browser game on miriogames.com/market and buy it."
+- Muse reads the market, picks **Star Frog**, follows its Buy link to the OneThing shop and pays with PayPal sandbox.
+- The receipt shows the access code. "Start now" opens the game on miriogames, and it plays.
+- VO: "Shops are agent-ready. Here, Meta's Muse finds a game on an indie marketplace and buys it. That marketplace runs on OneThing's API: developers upload a game, connect their own PayPal and get paid directly."
+- Optional 3 s overlay: the docs portal (omarmiri.github.io/one-thing), "API, SDKs and an MCP server, generated with APIMatic".
+
+**7. Close (2:20–2:35)**
+- Back to the first shop page, the logo and the URL.
+- VO: "One photo, one page, paid with PayPal. OneThing."
+
+**Before recording**
+- Rename the sandbox partner business account from "Test Store" to OneThing; it shows on the Connect PayPal page.
+- Open the Render site a minute ahead, so the first page load isn't slow.
+- Have three sandbox accounts ready: the seller (sign in), a business account that has never connected (for Connect PayPal), and the buyer.
+- Run the Muse step once off camera. Muse earlier bought through the OneThing gallery; it hasn't been tried on the miriogames market page, which renders its list with JavaScript.
+- Use a fresh browser profile, logged out of PayPal, so PayPal shows its sign-in pages instead of jumping ahead.
 
 ## 7. Open questions
 - Solo or team?
