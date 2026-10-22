@@ -149,7 +149,7 @@ the AI's guesses and clicks **Go live**. The choices behind it:
 
 ### Everyone
 
-- **Gallery** at `/gallery`: every live shop, newest first, each card in that shop's own palette. The
+- **Gallery** at `/gallery`: every live shop, newest first, each card in that shop's own palette, in a dense marketplace-style grid (2 columns on phones up to 6 on wide screens). The
   home page shows the three newest.
 
 ### AI agents
