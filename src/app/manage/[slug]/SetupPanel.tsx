@@ -488,7 +488,7 @@ export function SetupPanel(props: {
             {!s.inGallery
               ? "Ask to feature this page at /gallery once it's live. Each page is reviewed first. You can turn it off any time."
               : s.galleryStatus === "approved"
-                ? "In the gallery while it's live. You can turn it off any time."
+                ? "In the gallery while it's live. Changing the photos, name or headline sends it back for review."
                 : s.galleryStatus === "rejected"
                   ? "This page wasn't accepted for the gallery."
                   : "Waiting for review. It appears at /gallery once approved."}

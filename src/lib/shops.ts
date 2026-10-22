@@ -106,15 +106,31 @@ export async function getOwnedShop(slug: string, token: string | null | undefine
 // jsonb columns: written as JSON text (node-postgres would turn a JS array into a Postgres array).
 const JSONB = new Set(["spec", "paypal_status", "options", "option_stock", "suggestions"]);
 
+// What the gallery review approved: changing any of these sends an approved shop back to review,
+// so a harmless page can't be approved and then swapped for something else.
+const REVIEWED_IMAGES = ["photo_blob", "gallery_blobs", "hero_blob", "showcase_blobs"];
+const REVIEWED_TEXT = ["productName", "headline"]; // in spec
+
 export async function updateShop(id: string, fields: Partial<Omit<Shop, "id">>) {
   const keys = Object.keys(fields);
   if (!keys.length) return;
-  const sets = keys.map((k, i) => `${k} = $${i + 2}`).join(", ");
+  const sets = keys.map((k, i) => `${k} = $${i + 2}`);
   const values = keys.map((k) => {
     const v = (fields as Record<string, unknown>)[k];
     return JSONB.has(k) && v !== null ? JSON.stringify(v) : v;
   });
-  await query(`UPDATE shops SET ${sets}, updated_at = now() WHERE id = $1`, [id, ...values]);
+  // Compared against the old row (SET expressions see values from before the update).
+  const changed = keys.flatMap((k, i) =>
+    REVIEWED_IMAGES.includes(k)
+      ? [`${k} IS DISTINCT FROM $${i + 2}`]
+      : k === "spec"
+        ? REVIEWED_TEXT.map((f) => `spec->>'${f}' IS DISTINCT FROM $${i + 2}::jsonb->>'${f}'`)
+        : [],
+  );
+  if (changed.length && !keys.includes("gallery_status")) {
+    sets.push(`gallery_status = CASE WHEN gallery_status = 'approved' AND (${changed.join(" OR ")}) THEN 'pending' ELSE gallery_status END`);
+  }
+  await query(`UPDATE shops SET ${sets.join(", ")}, updated_at = now() WHERE id = $1`, [id, ...values]);
 }
 
 /**
