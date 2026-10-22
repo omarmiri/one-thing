@@ -138,10 +138,10 @@ Video: show one of each. The main demo is a physical item (photo → shop → Pa
 - [ ] Verify with real keys: Gemini models on your key, a sandbox sale end to end, tracking sync on an email-payee order
 
 **Week 2 — AI and sponsors**
-- [ ] Buyer concierge chat on each shop, grounded in the product data, that can start checkout
+- [ ] ~~Buyer concierge chat on each shop, grounded in the product data, that can start checkout~~ (dropped Oct 21)
 - [ ] Seller copilot via the PayPal Agent Toolkit (transactions, refunds, invoice, tracking)
 - [ ] Channel3: "no product" mode (audience → picks → review page) and "goes great with" add-ons
-- [ ] Commission ledger plus **PayPal Payouts** of creator earnings (simulate attributed sales in sandbox if real ones don't arrive in time)
+- [ ] ~~Commission ledger plus **PayPal Payouts** of creator earnings~~ (dropped Oct 21)
 - [ ] Seller dashboard: orders, commissions and payouts in **AG Grid**
 
 **Week 3 — agentic commerce, polish, submission**
@@ -167,6 +167,8 @@ Video: show one of each. The main demo is a physical item (photo → shop → Pa
 - Is the name final? (Check the domain.)
 
 ## 8. Next features (planned Oct 20)
+
+**Oct 21: dropped earnings/Payouts, subscriptions, the buyer concierge chat and one-time-code sign-in.** Sections C below and the Payouts parts of B are kept only for the record.
 
 Build order: **games → earnings ledger + Payouts → Channel3 → subscriptions**. Channel3 and subscriptions both pay sellers through the same ledger and PayPal Payouts, so that piece is built once and comes first.
 
