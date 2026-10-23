@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { agentCreateOrder, AgentError, agentGetOrder, agentProduct, liveShop, searchShops } from "@/lib/agent";
+import { recordVisit } from "@/lib/stats";
 
 /**
  * OneThing's MCP server, so AI agents can shop here: find a shop, read the product, order it.
@@ -55,7 +56,7 @@ type Rpc = { jsonrpc: "2.0"; id?: string | number | null; method: string; params
 const result = (id: Rpc["id"], r: unknown) => ({ jsonrpc: "2.0", id, result: r });
 const failure = (id: Rpc["id"], code: number, message: string) => ({ jsonrpc: "2.0", id: id ?? null, error: { code, message } });
 
-async function handle(msg: Rpc) {
+async function handle(msg: Rpc, h: Headers) {
   const { id, method, params = {} } = msg;
   switch (method) {
     case "initialize": {
@@ -90,6 +91,9 @@ async function handle(msg: Rpc) {
           isError,
         });
       if (!args.success) return reply({ error: args.error.issues.map((i) => `${i.path.join(".")}: ${i.message}`).join("; ") }, true);
+      // A tool call about one shop (get_product, create_order) is an agent visit to it.
+      const about = (args.data as { shop?: string }).shop;
+      if (about) await recordVisit({ slug: about }, h, "agent");
       try {
         return reply(await (tool.run as (a: unknown) => Promise<unknown>)(args.data));
       } catch (err) {
@@ -107,7 +111,7 @@ export async function POST(req: Request) {
   const body = (await req.json().catch(() => undefined)) as Rpc | Rpc[] | undefined;
   if (!body || typeof body !== "object") return NextResponse.json(failure(null, -32700, "Parse error"), { status: 400 });
   const batch = Array.isArray(body);
-  const replies = (await Promise.all((batch ? body : [body]).map((m) => (m?.method ? handle(m) : failure(m?.id, -32600, "Invalid request"))))).filter(
+  const replies = (await Promise.all((batch ? body : [body]).map((m) => (m?.method ? handle(m, req.headers) : failure(m?.id, -32600, "Invalid request"))))).filter(
     (r) => r !== null,
   );
   // Only notifications: accepted, nothing to say.

@@ -7,6 +7,8 @@ import { OrdersGrid, type SellerOrder } from "./OrdersGrid";
 import { PhotosPanel, type Photo } from "./PhotosPanel";
 import { SetupPanel, type SetupInitial, type ToastAction } from "./SetupPanel";
 import type { WebhookEvent } from "@/lib/shops";
+import type { Stats } from "@/lib/stats";
+import { StatsView } from "@/components/StatsView";
 import { Unreachable } from "@/lib/uploadFallback";
 
 type Initial = {
@@ -197,6 +199,8 @@ export function ManageApp(props: {
         </aside>
       </div>
 
+      <StatsSection api={api} live={status === "live"} />
+
       <section className="mx-auto max-w-7xl px-4 pb-16">
         <h2 className="mb-3 text-xl font-semibold">Orders</h2>
         <OrdersGrid
@@ -360,6 +364,40 @@ function DesignPanel(props: {
         </>
       )}
     </div>
+  );
+}
+
+// ---- Visitors and sales ----------------------------------------------------------------------
+
+function StatsSection({ api, live }: { api: Api; live: boolean }) {
+  const [days, setDays] = useState(30);
+  const [stats, setStats] = useState<(Stats & { currency: string }) | null>(null);
+  useEffect(() => {
+    let stale = false;
+    (api(`/stats?days=${days}`) as Promise<unknown>).then(
+      (s) => !stale && setStats(s as Stats & { currency: string }),
+      () => {},
+    );
+    return () => {
+      stale = true;
+    };
+  }, [api, days]);
+
+  return (
+    <section className="mx-auto max-w-7xl px-4 pb-16">
+      <div className="mb-3 flex flex-wrap items-baseline gap-3">
+        <h2 className="text-xl font-semibold">Visitors and sales</h2>
+        <span className="text-sm text-muted">{live ? "No cookies: each visitor is counted once a day" : "Counting starts when you go live"}</span>
+        <div className="ml-auto flex gap-1 text-sm">
+          {[7, 30, 90].map((d) => (
+            <button key={d} onClick={() => setDays(d)} className={`rounded-full px-3 py-1 ${d === days ? "bg-foreground text-background" : "border border-line"}`}>
+              {d} days
+            </button>
+          ))}
+        </div>
+      </div>
+      <div className={panel}>{stats ? <StatsView stats={stats} currency={stats.currency} /> : <p className="text-sm text-muted">Loading…</p>}</div>
+    </section>
   );
 }
 

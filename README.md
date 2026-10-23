@@ -117,6 +117,14 @@ the AI's guesses and clicks **Go live**. The choices behind it:
 - **A manage page** (open from Your shops, or by its private link): settings, publish, photos, and an
   [AG Grid](https://www.ag-grid.com/) orders table with sort, filter, search and **Mark shipped**.
   A **Via** column shows whether each order came from the shop page or an AI agent.
+- **Visitors and sales** on the manage page (7, 30 or 90 days): visitors → checkouts started →
+  paid, conversion and revenue, side by side for people on the shop page and AI agents, with
+  visitors per day, where people came from and which agents read the shop. No cookies: a visitor
+  is a hash of IP, browser and the day ([src/lib/stats.ts](src/lib/stats.ts)), so nobody is
+  followed past a day. People are counted by a beacon the page sends once loaded, so crawlers
+  that don't run JavaScript don't count, and the seller's own preview never does. An agent visit is
+  a read of the product JSON, an MCP `get_product`/`create_order`, the `llms.txt` order link, or
+  an assistant fetching the page for a user (ChatGPT-User, Claude-User, Perplexity-User…).
 - **Physical products:** PayPal collects the shipping address, stock counts down and shows "sold
   out" at zero, and tracking numbers are pushed to PayPal so buyers see them there.
 - **Digital products**, delivered one of two ways:
@@ -167,6 +175,8 @@ the AI's guesses and clicks **Go live**. The choices behind it:
   pasted link's page text isn't kept, so B doesn't see it), and "Show version B" swaps the two so
   the preview and the live page show it. Swap again to go back. The hero art stays as it was.
   Without the key there's no panel and the endpoint answers 404, so sellers never see it.
+- **Site stats** at `/admin/stats?key=<ADMIN_KEY>` (not linked anywhere): the same funnel for the
+  whole site, people vs agents, plus a table of every shop with visits or orders.
 
 ### AI agents
 
@@ -330,7 +340,7 @@ full experience:
 | `PAYPAL_PARTNER_CLIENT_ID`, `PAYPAL_PARTNER_CLIENT_SECRET`, `PAYPAL_PARTNER_MERCHANT_ID` | A second sandbox app of type **Platform** (Partner Referrals needs one), and the merchant ID of its sandbox business account | **Connect PayPal**: sellers onboard their own PayPal account; the manage page shows PayPal's checklist and Go live waits for it (a typed PayPal email still works as a fallback) |
 | `PAYPAL_WEBHOOK_ID` | Same app → Webhooks → `<APP_URL>/api/paypal/webhook`, event `PAYMENT.CAPTURE.COMPLETED` | Confirms payments if the buyer closes the tab mid-checkout (needs a public URL) |
 | `CHANNEL3_API_KEY` | [Channel3 developers](https://trychannel3.com/developers) | "Find a product", store-link lookup and recommendation shops |
-| `ADMIN_KEY` | Any long random string (Render generates one) | **Gallery review** at `/admin/gallery?key=<ADMIN_KEY>`; without it no shop can be approved into the gallery. Also unlocks the design A/B test (`&ab=<ADMIN_KEY>` on a manage link) |
+| `ADMIN_KEY` | Any long random string (Render generates one) | **Gallery review** at `/admin/gallery?key=<ADMIN_KEY>`; without it no shop can be approved into the gallery. Also unlocks the design A/B test (`&ab=<ADMIN_KEY>` on a manage link) and site stats at `/admin/stats?key=<ADMIN_KEY>`. It salts the visitor hashes too, so changing it splits that day's visitors in two |
 
 ## Deploy to Render
 

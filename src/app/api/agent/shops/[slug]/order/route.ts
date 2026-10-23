@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { agentCreateOrder, AgentError, liveShop } from "@/lib/agent";
+import { recordVisit } from "@/lib/stats";
 
 /**
  * Orders one unit with a GET: create_order for AI assistants that can only fetch URLs. The
@@ -13,6 +14,7 @@ export async function GET(req: Request, ctx: RouteContext<"/api/agent/shops/[slu
   const headers = { "cache-control": "no-store", "x-robots-tag": "noindex, nofollow" };
   try {
     const shop = await liveShop((await ctx.params).slug);
+    await recordVisit(shop, req.headers, "agent");
     const params = new URL(req.url).searchParams;
     // Names and values are matched without caring about case: ?size=m works for Size "M".
     const options = shop.product_type === "physical" ? (shop.options ?? []) : [];

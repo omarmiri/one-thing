@@ -1,10 +1,13 @@
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import { notFound, permanentRedirect } from "next/navigation";
 import { MotionRoot } from "@/components/motion/MotionRoot";
 import { ShopBuy } from "@/components/shop/ShopBuy";
 import { ShopPage } from "@/components/shop/ShopPage";
+import { VisitBeacon } from "@/components/shop/VisitBeacon";
 import { appUrl, tokensMatch } from "@/lib/ids";
 import { blobUrl, getShopBySlug, shopPhotos, shopView, type Shop as ShopRow } from "@/lib/shops";
+import { isAiFetcher, recordVisit } from "@/lib/stats";
 
 export const dynamic = "force-dynamic";
 
@@ -29,6 +32,10 @@ export default async function Shop(props: PageProps<"/[slug]">) {
   // Drafts are visible only to their seller (manage page preview link carries the token).
   const isOwner = shop && typeof token === "string" && tokensMatch(token, shop.admin_token);
   if (!shop || (shop.status !== "live" && !isOwner)) notFound();
+  // An assistant reading the page for someone runs no JavaScript, so it's counted here instead.
+  const live = shop.status === "live" && !isOwner;
+  const h = await headers();
+  if (live && isAiFetcher(h)) await recordVisit(shop, h, "agent");
   // Motion is on unless the link asks for the plain page (?motion=0).
   const motion = (await props.searchParams).motion !== "0" ? { feel: "calm" as const } : undefined;
 
@@ -39,6 +46,7 @@ export default async function Shop(props: PageProps<"/[slug]">) {
           Draft preview: only you can see this. Go live from your manage page.
         </div>
       )}
+      {live && <VisitBeacon slug={shop.slug} />}
       {shop.status === "live" && (
         <script
           type="application/ld+json"

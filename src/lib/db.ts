@@ -177,6 +177,22 @@ ALTER TABLE shops ADD COLUMN IF NOT EXISTS gallery_status text;    -- pending | 
 UPDATE shops SET gallery_status = CASE WHEN in_gallery THEN 'approved' ELSE 'pending' END WHERE gallery_status IS NULL;
 ALTER TABLE shops ALTER COLUMN gallery_status SET DEFAULT 'pending';
 ALTER TABLE shops ALTER COLUMN gallery_status SET NOT NULL;
+
+-- Visits (src/lib/stats.ts): one row per shop, day, visitor and channel; hits counts repeats.
+-- visitor is a hash of IP, browser and the day, so it can't follow anyone across days. No cookies.
+-- web = a person on the shop page (counted by a beacon, so bots without JavaScript don't count);
+-- agent = an AI agent reading the shop (product JSON, MCP, the order link, or an AI fetcher on the page).
+CREATE TABLE IF NOT EXISTS visits (
+  shop_id   text NOT NULL REFERENCES shops(id),
+  day       date NOT NULL DEFAULT current_date,
+  visitor   text NOT NULL,
+  channel   text NOT NULL,                            -- web | agent
+  agent     text,                                     -- e.g. ChatGPT, Claude; agent only
+  referrer  text,                                     -- referring site's host; web only
+  hits      integer NOT NULL DEFAULT 1,
+  PRIMARY KEY (shop_id, day, visitor, channel)
+);
+CREATE INDEX IF NOT EXISTS visits_day_idx ON visits(day);
 `;
 
 async function open(): Promise<Db> {
