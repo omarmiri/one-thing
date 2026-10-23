@@ -1534,6 +1534,53 @@
       ]
     },
     {
+      "path": "/api/agent/shops/{slug}/order",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "Orders one unit with a GET: the MCP `create_order` tool for AI assistants that can only\nfetch URLs, such as free-tier ChatGPT or Grok. Nothing is charged. The reply has `pay_url`,\nwhere the buyer pays at PayPal, and `status_url` (`getAgentOrder`), which says when they\nhave and what they got.\n\nFor a product with options, pass the buyer's pick as query parameters named after the\noptions (`?Size=9`, or `?Color=Ice+Blue&Size=L`); names and values are matched without\nregard to case. You rarely build this URL yourself: `getAgentProduct` and `/llms.txt`\nwrite it out in full (`order_url`, or `variants[].order_url`), because some assistants\nonly open URLs they have been shown.\n\nEvery request makes a new order, so open it once, after the buyer says to buy. A link\npreviewer opening it leaves an unpaid order at most: stock is only taken when a payment\nis captured. Replies are `no-store` and `X-Robots-Tag: noindex, nofollow`.\n",
+          "nickname": "orderByLink",
+          "parameters": [
+            {
+              "name": "slug",
+              "description": "The shop's link name (current or former).",
+              "paramType": "path",
+              "required": true,
+              "allowMultiple": false,
+              "uniqueItems": false,
+              "type": "string"
+            },
+            {
+              "name": "Size",
+              "description": "An example option. The real parameter names are the product's option names from `getAgentProduct` (`options[].name`), one per option.",
+              "paramType": "query",
+              "required": false,
+              "allowMultiple": false,
+              "uniqueItems": false,
+              "type": "string"
+            }
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "responseMessages": [
+            {
+              "code": 400,
+              "responseModel": "Error",
+              "message": "A missing or unknown option value, or sold out. `error` names the valid values."
+            },
+            {
+              "code": 404,
+              "responseModel": "Error",
+              "message": "No live shop with that link name."
+            }
+          ],
+          "uniqueItems": false,
+          "$ref": "AgentCreatedOrder"
+        }
+      ]
+    },
+    {
       "path": "/api/agent/orders/{orderId}",
       "operations": [
         {
@@ -2544,6 +2591,11 @@
           "uniqueItems": false,
           "type": "array"
         },
+        "order_url": {
+          "description": "Products without options: `orderByLink`, which orders one unit with a GET. Left out when sold out. With options, each variant has its own.",
+          "uniqueItems": false,
+          "type": "string"
+        },
         "offers": {
           "description": "Recommendations only. Bought at the retailer.",
           "items": {
@@ -2607,6 +2659,56 @@
         },
         "url": {
           "description": "The shop page.",
+          "uniqueItems": false,
+          "type": "string"
+        }
+      }
+    },
+    "AgentCreatedOrder": {
+      "id": "AgentCreatedOrder",
+      "description": "A new order, as `create_order` and `orderByLink` return it.",
+      "required": [
+        "order_id",
+        "status",
+        "total",
+        "pay_url",
+        "status_url",
+        "next_step"
+      ],
+      "properties": {
+        "order_id": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "status": {
+          "description": "",
+          "defaultValue": "awaiting_buyer_approval",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "total": {
+          "description": "The total with shipping, as a label.",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "options": {
+          "description": "The buyer's pick, one value per option, keyed by option name.",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "pay_url": {
+          "description": "Where the buyer pays (redirects to PayPal). Safe to show in chat.",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "status_url": {
+          "description": "`getAgentOrder` for this order.",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "next_step": {
+          "description": "",
           "uniqueItems": false,
           "type": "string"
         }
@@ -4322,6 +4424,11 @@
         },
         "availability": {
           "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "order_url": {
+          "description": "`orderByLink` for this pick. Left out when it's sold out.",
           "uniqueItems": false,
           "type": "string"
         }

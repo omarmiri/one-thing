@@ -31,6 +31,7 @@ A live shop as an AI agent sees it. Recommendations have `offers`; everything el
 | `availability` | `string \| undefined` | Optional | - |
 | `options` | [`Option1[] \| undefined`](/llms-pages/typescript/models/structures/option-1.md) | Optional | Pass one value per option to `create_order`. |
 | `variants` | [`Variant[] \| undefined`](/llms-pages/typescript/models/structures/variant.md) | Optional | - |
+| `orderUrl` | `string \| undefined` | Optional | Products without options: `orderByLink`, which orders one unit with a GET. Left out when sold out. With options, each variant has its own. |
 | `offers` | [`Offer1[] \| undefined`](/llms-pages/typescript/models/structures/offer-1.md) | Optional | Recommendations only. Bought at the retailer. |
 | `howToBuy` | `string` | Required | - |
 | `mcpServer` | `string \| undefined` | Optional | The MCP server to order through (`getAgentProduct` only). |

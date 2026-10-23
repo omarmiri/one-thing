@@ -14,6 +14,7 @@ Source: /#/typescript/x-redirect/JTI0bSUyRlZhcmlhbnQ
 |  --- | --- | --- | --- |
 | `choice` | `Record<string, string>` | Required | The buyer's pick, one value per option, keyed by option name. |
 | `availability` | `string` | Required | - |
+| `orderUrl` | `string \| undefined` | Optional | `orderByLink` for this pick. Left out when it's sold out. |
 
 
 # Example
@@ -27,6 +28,7 @@ const variant: Variant = {
     'Color': 'Black'
   },
   availability: 'availability4',
+  orderUrl: 'order_url0',
 };
 ```
 

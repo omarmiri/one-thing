@@ -22,9 +22,9 @@ before unlocking. Raptor Rush on miriogames.com is a live example.
 
 **Agent-ready.** Every live shop is also published for AI shopping agents: an MCP server at
 `/api/mcp` with `search_shops`, `get_product`, `create_order` and `get_order`, and the same
-reads as plain GETs for agents that can only fetch URLs (`listAgentShops`, `getAgentProduct`,
-`getAgentOrder`). An agent can find and order, but the buyer still approves every payment at
-PayPal.
+four as plain GETs for assistants that can only fetch URLs (`listAgentShops`,
+`getAgentProduct`, `orderByLink`, `getAgentOrder`), with `/llms.txt` as the starting point.
+An agent can find and order, but the buyer still approves every payment at PayPal.
 
 All money moves through PayPal (sandbox in this deployment). OneThing never holds card data.
 
@@ -1646,6 +1646,74 @@ The gallery's live shops, newest first, filtered by keywords (every word must ap
 
 
 
+## Api Agent Shops Order By Slug [/api/agent/shops/{slug}/order{?Size}]
+
++ Parameters
+    + slug (string, required)
+
+        The shop's link name (current or former).
+
+        + Sample: raptorrush
+
+### orderByLink [GET]
+Orders one unit with a GET: the MCP `create_order` tool for AI assistants that can only
+fetch URLs, such as free-tier ChatGPT or Grok. Nothing is charged. The reply has `pay_url`,
+where the buyer pays at PayPal, and `status_url` (`getAgentOrder`), which says when they
+have and what they got.
+
+For a product with options, pass the buyer's pick as query parameters named after the
+options (`?Size=9`, or `?Color=Ice+Blue&Size=L`); names and values are matched without
+regard to case. You rarely build this URL yourself: `getAgentProduct` and `/llms.txt`
+write it out in full (`order_url`, or `variants[].order_url`), because some assistants
+only open URLs they have been shown.
+
+Every request makes a new order, so open it once, after the buyer says to buy. A link
+previewer opening it leaves an unpaid order at most: stock is only taken when a payment
+is captured. Replies are `no-store` and `X-Robots-Tag: noindex, nofollow`.
++ Parameters
+    + Size (string, optional)
+
+        An example option. The real parameter names are the product's option names from `getAgentProduct` (`options[].name`), one per option.
+
+        + Sample: 9
+
++ Response 200 (application/json)
+
+        The order, waiting for the buyer to pay.
+
+    + Attributes (AgentCreatedOrder)
+
+
+    + Body
+
+            {"order_id":"pX4kR9tVb2nQ7sLe","status":"awaiting_buyer_approval","total":"$255.00","options":{"Size":"9"},"pay_url":"https://one-thing-ash0.onrender.com/o/pX4kR9tVb2nQ7sLe","status_url":"https://one-thing-ash0.onrender.com/api/agent/orders/pX4kR9tVb2nQ7sLe","next_step":"Show pay_url to the buyer as a link. It opens PayPal, where they pay (and enter a shipping address for physical items). When they say they've paid, call get_order with order_id (or open status_url): it returns the access code, download link or shipping details."}
+
+
++ Response 400 (application/json)
+
+        A missing or unknown option value, or sold out. `error` names the valid values.
+
+    + Attributes (Error)
+
+
+    + Body
+
+            {"error":"Unknown Size \"12\". Size: one of 7, 8, 9."}
+
+
++ Response 404 (application/json)
+
+        No live shop with that link name.
+
+    + Attributes (Error)
+
+
+    + Body
+
+            {"error":"No live shop called \"skatez\". Try search_shops."}
+
+
+
 ## Api Agent Orders By OrderId [/api/agent/orders/{orderId}]
 
 + Parameters
@@ -1700,7 +1768,7 @@ Everything an AI shopping agent needs to describe the product and decide to buy 
 
     + Body
 
-            {"shop":"vintageskates","url":"https://one-thing-ash0.onrender.com/vintageskates","name":"Vintage Cream and Red Roller Skates","kind":"physical","headline":"Classic quad skates crafted with walnut burl heels","description":"A vintage pair of skates featuring cream leather, bold red trim, and durable quad wheels.","highlights":["Handmade cream leather upper with rich red trim","Sculpted walnut burl heel structure for stability"],"details":[{"label":"Materials","value":"Leather upper, walnut burl heel, rubber wheels"}],"faq":[{"q":"What is the return policy?","a":"Unworn skates in original condition can be returned within 30 days of delivery."}],"images":["https://one-thing-ash0.onrender.com/api/blobs/LFRvGuTU3D8i334X","https://one-thing-ash0.onrender.com/api/blobs/zrySajNyao6_j11x"],"price":{"amount":240,"currency":"USD","label":"$240.00"},"shipping":{"amount":15,"currency":"USD","ships_to":["US"]},"total":{"amount":255,"currency":"USD"},"delivery":"Shipped. PayPal collects the buyer's address at checkout.","options":[{"name":"Size","values":["7","8","9"]}],"variants":[{"choice":{"Size":"7"},"availability":"in_stock (3 left)"},{"choice":{"Size":"8"},"availability":"sold_out"},{"choice":{"Size":"9"},"availability":"in_stock (6 left)"}],"availability":"in_stock","how_to_buy":"Call create_order on the OneThing MCP server with shop and options, then give the buyer its pay_url to pay at PayPal.","mcp_server":"https://one-thing-ash0.onrender.com/api/mcp"}
+            {"shop":"vintageskates","url":"https://one-thing-ash0.onrender.com/vintageskates","name":"Vintage Cream and Red Roller Skates","kind":"physical","headline":"Classic quad skates crafted with walnut burl heels","description":"A vintage pair of skates featuring cream leather, bold red trim, and durable quad wheels.","highlights":["Handmade cream leather upper with rich red trim","Sculpted walnut burl heel structure for stability"],"details":[{"label":"Materials","value":"Leather upper, walnut burl heel, rubber wheels"}],"faq":[{"q":"What is the return policy?","a":"Unworn skates in original condition can be returned within 30 days of delivery."}],"images":["https://one-thing-ash0.onrender.com/api/blobs/LFRvGuTU3D8i334X","https://one-thing-ash0.onrender.com/api/blobs/zrySajNyao6_j11x"],"price":{"amount":240,"currency":"USD","label":"$240.00"},"shipping":{"amount":15,"currency":"USD","ships_to":["US"]},"total":{"amount":255,"currency":"USD"},"delivery":"Shipped. PayPal collects the buyer's address at checkout.","options":[{"name":"Size","values":["7","8","9"]}],"variants":[{"choice":{"Size":"7"},"availability":"in_stock (3 left)","order_url":"https://one-thing-ash0.onrender.com/api/agent/shops/vintageskates/order?Size=7"},{"choice":{"Size":"8"},"availability":"sold_out"},{"choice":{"Size":"9"},"availability":"in_stock (6 left)","order_url":"https://one-thing-ash0.onrender.com/api/agent/shops/vintageskates/order?Size=9"}],"availability":"in_stock","how_to_buy":"Open the order_url of the buyer's variant (or call create_order on the OneThing MCP server with shop and options). Either returns a pay_url: give it to the buyer to pay at PayPal.","mcp_server":"https://one-thing-ash0.onrender.com/api/mcp"}
 
 
 + Response 404 (application/json)
@@ -2056,6 +2124,7 @@ A live shop as an AI agent sees it. Recommendations have `offers`; everything el
 + `availability`: `in_stock` (string, optional) 
 + `options` (array[Option1], optional) - Pass one value per option to `create_order`.
 + `variants` (array[Variant], optional) 
++ `order_url` (string, optional) - Products without options: `orderByLink`, which orders one unit with a GET. Left out when sold out. With options, each variant has its own.
 + `offers` (array[Offer1], optional) - Recommendations only. Bought at the retailer.
 + `how_to_buy` (string, required) 
 + `mcp_server` (string, optional) - The MCP server to order through (`getAgentProduct` only).
@@ -2074,6 +2143,19 @@ A live shop as an AI agent sees it. Recommendations have `offers`; everything el
 + `headline` (string, required) 
 + `price` (string, required, nullable) - The price label, e.g. `$2.99`; null for recommendations.
 + `url` (string, required) - The shop page.
+
+
+## AgentCreatedOrder (object)
+A new order, as `create_order` and `orderByLink` return it.
+
+### Properties
++ `order_id` (string, required) 
++ `status`: `awaiting_buyer_approval` (string, required) 
++ `total` (string, required) - The total with shipping, as a label.
++ `options`: `{"Size":"M","Color":"Black"}` (string, optional) - The buyer's pick, one value per option, keyed by option name.
++ `pay_url` (string, required) - Where the buyer pays (redirects to PayPal). Safe to show in chat.
++ `status_url` (string, required) - `getAgentOrder` for this order.
++ `next_step` (string, required) 
 
 
 ## AgentOrder (object)
@@ -2682,4 +2764,5 @@ A recommended Channel3 product. Buy links are Channel3-tracked, credited to this
 ### Properties
 + `choice`: `{"Size":"M","Color":"Black"}` (string, required) - The buyer's pick, one value per option, keyed by option name.
 + `availability` (string, required) 
++ `order_url` (string, optional) - `orderByLink` for this pick. Left out when it's sold out.
 

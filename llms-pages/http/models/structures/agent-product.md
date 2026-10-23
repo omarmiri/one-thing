@@ -26,6 +26,7 @@ A live shop as an AI agent sees it. Recommendations have `offers`; everything el
 | `availability` | `String` | Optional | - |
 | `options` | [`array<Option 1>`](/llms-pages/http/models/structures/option-1.md) | Optional | Pass one value per option to `create_order`. |
 | `variants` | [`array<Variant>`](/llms-pages/http/models/structures/variant.md) | Optional | - |
+| `order_url` | `String` | Optional | Products without options: `orderByLink`, which orders one unit with a GET. Left out when sold out. With options, each variant has its own. |
 | `offers` | [`array<Offer 1>`](/llms-pages/http/models/structures/offer-1.md) | Optional | Recommendations only. Bought at the retailer. |
 | `how_to_buy` | `String` | Required | - |
 | `mcp_server` | `String` | Optional | The MCP server to order through (`getAgentProduct` only). |

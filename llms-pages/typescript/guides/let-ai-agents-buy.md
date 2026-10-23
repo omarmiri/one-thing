@@ -10,7 +10,7 @@ There are two ways in, depending on what the agent can do:
 | The agent can… | Use | Find | Read | Order | Check the order |
 |---|---|---|---|---|---|
 | Call MCP tools (Claude, ChatGPT Developer Mode, Grok, agent SDKs) | The MCP server | `search_shops` | `get_product` | `create_order` | `get_order` |
-| Only fetch URLs (browse tools, plain HTTP) | Plain GETs | `listAgentShops` | `getAgentProduct` | the shop page | `getAgentOrder` |
+| Only fetch URLs (free-tier ChatGPT, Grok, Gemini; plain HTTP) | Plain GETs | `listAgentShops` | `getAgentProduct` | `orderByLink` | `getAgentOrder` |
 
 Both return the same JSON. Every live shop page also carries its facts as schema.org `Product`
 JSON-LD and links to its product JSON (`<link rel="alternate" type="application/json">`), so
@@ -28,9 +28,9 @@ own. Give it one URL:
 curl https://one-thing-ash0.onrender.com/llms.txt
 ```
 
-It's plain text, written for models: the gallery's shops with their prices and product JSON
-links, how to search and read with the GETs below, how to buy (the shop page, or `create_order`
-for MCP clients), and how to check an order. Every page on the site links to it, and the home page
+It's plain text, written for models: the gallery's shops with their prices, product JSON links
+and order links, then how to buy in three steps (open the order link, show the buyer `pay_url`,
+open `status_url` once they've paid) and how to search, read and check orders. Every page on the site links to it, and the home page
 and gallery show the link as text too.
 
 
@@ -89,6 +89,33 @@ the buyer picks a size or colour, `options` and `variants` with stock for each.)
 
 `total` already includes shipping, so an agent can quote the real price.
 
+## Order with a link
+
+An assistant that can only fetch URLs can't send the POST that `create_order` is, so each product
+also has an order link: a GET that places the order. The product JSON spells it out
+(`order_url`, or `variants[].order_url` per size or colour), and so does `/llms.txt`, because
+some assistants only open URLs they've been shown.
+
+```bash
+curl "https://one-thing-ash0.onrender.com/api/agent/shops/vintageskates/order?Size=9"
+```
+
+```json
+{
+  "order_id": "pX4kR9tVb2nQ7sLe",
+  "status": "awaiting_buyer_approval",
+  "total": "$255.00",
+  "options": { "Size": "9" },
+  "pay_url": "https://one-thing-ash0.onrender.com/o/pX4kR9tVb2nQ7sLe",
+  "status_url": "https://one-thing-ash0.onrender.com/api/agent/orders/pX4kR9tVb2nQ7sLe",
+  "next_step": "Show pay_url to the buyer as a link. …"
+}
+```
+
+Nothing is charged: the assistant shows the buyer `pay_url`, and they pay at PayPal. Every
+request makes a new order, so open the link once, after the buyer says to buy. Option names and
+values aren't case-sensitive; a missing or unknown one gets a 400 that lists the valid values.
+
 ## Check an order
 
 ```bash
@@ -112,9 +139,8 @@ curl https://one-thing-ash0.onrender.com/api/agent/orders/pX4kR9tVb2nQ7sLe
 }
 ```
 
-The order id comes from `create_order`, or from the `?order=` in a thank-you page link the buyer
-pastes back. An agent that only fetches URLs can't create orders (that's a POST), so it sends the
-buyer to the shop's `url` to pay, and checks the order once the buyer shares the thank-you link.
+This is the `status_url` an order link or `create_order` returns. An order the buyer placed on
+the shop page can be checked too, from the `?order=` in their thank-you page link.
 
 
 # The MCP server

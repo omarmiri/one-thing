@@ -98,7 +98,8 @@ print(result)
       "choice": {
         "Size": "7"
       },
-      "availability": "in_stock (3 left)"
+      "availability": "in_stock (3 left)",
+      "order_url": "https://one-thing-ash0.onrender.com/api/agent/shops/vintageskates/order?Size=7"
     },
     {
       "choice": {
@@ -110,11 +111,12 @@ print(result)
       "choice": {
         "Size": "9"
       },
-      "availability": "in_stock (6 left)"
+      "availability": "in_stock (6 left)",
+      "order_url": "https://one-thing-ash0.onrender.com/api/agent/shops/vintageskates/order?Size=9"
     }
   ],
   "availability": "in_stock",
-  "how_to_buy": "Call create_order on the OneThing MCP server with shop and options, then give the buyer its pay_url to pay at PayPal.",
+  "how_to_buy": "Open the order_url of the buyer's variant (or call create_order on the OneThing MCP server with shop and options). Either returns a pay_url: give it to the buyer to pay at PayPal.",
   "mcp_server": "https://one-thing-ash0.onrender.com/api/mcp"
 }
 ```

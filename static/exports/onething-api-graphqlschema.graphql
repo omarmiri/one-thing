@@ -1,6 +1,6 @@
 # API Name: "OneThing API"
 # Host: https://one-thing-ash0.onrender.com
-# OneThing turns a photo, a link or a picked product into a live one-product shop that takes\nPayPal payments, or a recommendation page that earns referral commissions through Channel3.\n\n**How a shop is made**\n1. `createShop`: start from a photo, a link, or a Channel3 product. Gemini guesses what it\n   is, how it's delivered, the price, a short link and the page design. You get back the\n   shop's link name and an **admin token**.\n2. `updateShop`: correct anything the AI guessed, then set `status: live`.\n3. Buyers pay on `https://<host>/<slug>` with PayPal. Sellers read orders and ship them.\n\n**Auth.** Seller endpoints take the shop's admin token in the `x-admin-token` header, or a\n**platform API key** (`Authorization: Bearer ot_sk_…`) for marketplaces that make shops for\ntheir own sellers. Buyer endpoints (checkout, access-code verification, downloads) are public.\n\n**Access codes.** A digital product can unlock an app or game instead of shipping a file.\nEach paid order gets a code such as `K7QF-M2XP-9HTD`; your app calls `verifyAccessCode`\nbefore unlocking. Raptor Rush on miriogames.com is a live example.\n\n**Agent-ready.** Every live shop is also published for AI shopping agents: an MCP server at\n`/api/mcp` with `search_shops`, `get_product`, `create_order` and `get_order`, and the same\nreads as plain GETs for agents that can only fetch URLs (`listAgentShops`, `getAgentProduct`,\n`getAgentOrder`). An agent can find and order, but the buyer still approves every payment at\nPayPal.\n\nAll money moves through PayPal (sandbox in this deployment). OneThing never holds card data.
+# OneThing turns a photo, a link or a picked product into a live one-product shop that takes\nPayPal payments, or a recommendation page that earns referral commissions through Channel3.\n\n**How a shop is made**\n1. `createShop`: start from a photo, a link, or a Channel3 product. Gemini guesses what it\n   is, how it's delivered, the price, a short link and the page design. You get back the\n   shop's link name and an **admin token**.\n2. `updateShop`: correct anything the AI guessed, then set `status: live`.\n3. Buyers pay on `https://<host>/<slug>` with PayPal. Sellers read orders and ship them.\n\n**Auth.** Seller endpoints take the shop's admin token in the `x-admin-token` header, or a\n**platform API key** (`Authorization: Bearer ot_sk_…`) for marketplaces that make shops for\ntheir own sellers. Buyer endpoints (checkout, access-code verification, downloads) are public.\n\n**Access codes.** A digital product can unlock an app or game instead of shipping a file.\nEach paid order gets a code such as `K7QF-M2XP-9HTD`; your app calls `verifyAccessCode`\nbefore unlocking. Raptor Rush on miriogames.com is a live example.\n\n**Agent-ready.** Every live shop is also published for AI shopping agents: an MCP server at\n`/api/mcp` with `search_shops`, `get_product`, `create_order` and `get_order`, and the same\nfour as plain GETs for assistants that can only fetch URLs (`listAgentShops`,\n`getAgentProduct`, `orderByLink`, `getAgentOrder`), with `/llms.txt` as the starting point.\nAn agent can find and order, but the buyer still approves every payment at PayPal.\n\nAll money moves through PayPal (sandbox in this deployment). OneThing never holds card data.
 
 enum AiSource {
     FALLBACK
@@ -322,6 +322,8 @@ type AgentProduct {
     "Pass one value per option to `create_order`."
     options: [Option1!]
     variants: [Variant!]
+    "Products without options: `orderByLink`, which orders one unit with a GET. Left out when sold out. With options, each variant has its own."
+    orderUrl: String!
     "Recommendations only. Bought at the retailer."
     offers: [Offer1!]
     howToBuy: String!
@@ -339,6 +341,21 @@ type AgentShopSummary {
     price: String
     "The shop page."
     url: String!
+}
+
+"A new order, as `create_order` and `orderByLink` return it."
+type AgentCreatedOrder {
+    orderId: String!
+    status: String!
+    "The total with shipping, as a label."
+    total: String!
+    "The buyer's pick, one value per option, keyed by option name."
+    options: String!
+    "Where the buyer pays (redirects to PayPal). Safe to show in chat."
+    payUrl: String!
+    "`getAgentOrder` for this order."
+    statusUrl: String!
+    nextStep: String!
 }
 
 "An order as `get_order` and `getAgentOrder` report it."
@@ -775,6 +792,8 @@ type Variant {
     "The buyer's pick, one value per option, keyed by option name."
     choice: String!
     availability: String!
+    "`orderByLink` for this pick. Left out when it's sold out."
+    orderUrl: String!
 }
 
 input ApiAccountSigninRequestInput {
@@ -1093,6 +1112,14 @@ input ListAgentShopsInput {
     xAdminToken: String!
 }
 
+input GetOrderbylinkInput {
+    "The shop's link name (current or former)."
+    slug: String!
+    "An example option. The real parameter names are the product's option names from `getAgentProduct` (`options[].name`), one per option."
+    size: String!
+    xAdminToken: String!
+}
+
 input GetAgentOrderInput {
     "The `order_id` from the MCP `create_order` tool, or from a thank-you page link (`?order=`)."
     orderId: String!
@@ -1142,6 +1169,8 @@ type Query {
     getOpenpaylink(input: GetOpenpaylinkInput!): String
     "The gallery's live shops, newest first, filtered by keywords (every word must appear in the name or headline). The GET twin of the MCP `search_shops` tool, for agents that can only fetch URLs. Public. Read a shop with `getAgentProduct`; buy through the MCP server in `mcp_server`, or send the buyer to the shop's `url`."
     listAgentShops(input: ListAgentShopsInput!): ApiAgentShopsResponse!
+    "Orders one unit with a GET: the MCP `create_order` tool for AI assistants that can only\nfetch URLs, such as free-tier ChatGPT or Grok. Nothing is charged. The reply has `pay_url`,\nwhere the buyer pays at PayPal, and `status_url` (`getAgentOrder`), which says when they\nhave and what they got.\n\nFor a product with options, pass the buyer's pick as query parameters named after the\noptions (`?Size=9`, or `?Color=Ice+Blue&Size=L`); names and values are matched without\nregard to case. You rarely build this URL yourself: `getAgentProduct` and `/llms.txt`\nwrite it out in full (`order_url`, or `variants[].order_url`), because some assistants\nonly open URLs they have been shown.\n\nEvery request makes a new order, so open it once, after the buyer says to buy. A link\npreviewer opening it leaves an unpaid order at most: stock is only taken when a payment\nis captured. Replies are `no-store` and `X-Robots-Tag: noindex, nofollow`."
+    getOrderbylink(input: GetOrderbylinkInput!): AgentCreatedOrder!
     "Where an order stands and, once paid, what the buyer got: the access code, the download link, or the shipping address and tracking. The GET twin of the MCP `get_order` tool (and the `status_url` that `create_order` returns), for agents that can only fetch URLs. Public: anyone with the order id can already open its thank-you page. If the buyer has approved at PayPal but nothing has captured the payment yet, this captures it."
     getAgentOrder(input: GetAgentOrderInput!): AgentOrder!
     "Everything an AI shopping agent needs to describe the product and decide to buy it: price, shipping, delivery, availability, options, images and FAQ. Public. Buying goes through the MCP server named in `mcp_server`. Shop pages also carry the same facts as schema.org `Product` JSON-LD."

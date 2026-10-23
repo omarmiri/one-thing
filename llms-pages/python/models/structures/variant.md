@@ -14,6 +14,7 @@ Source: /#/python/x-redirect/JTI0bSUyRlZhcmlhbnQ
 |  --- | --- | --- | --- |
 | `choice` | `Dict[str, str]` | Required | The buyer's pick, one value per option, keyed by option name. |
 | `availability` | `str` | Required | - |
+| `order_url` | `str` | Optional | `orderByLink` for this pick. Left out when it's sold out. |
 
 
 # Example
@@ -26,7 +27,8 @@ variant = Variant(
         'Size': 'M',
         'Color': 'Black'
     },
-    availability='availability4'
+    availability='availability4',
+    order_url='order_url0'
 )
 ```
 

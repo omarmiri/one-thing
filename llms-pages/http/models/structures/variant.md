@@ -9,6 +9,7 @@ Source: /#/http/x-redirect/JTI0bSUyRlZhcmlhbnQ
 |  --- | --- | --- | --- |
 | `choice` | `map<String>` | Required | The buyer's pick, one value per option, keyed by option name. |
 | `availability` | `String` | Required | - |
+| `order_url` | `String` | Optional | `orderByLink` for this pick. Left out when it's sold out. |
 
 
 # Example (as JSON)
@@ -19,7 +20,8 @@ Source: /#/http/x-redirect/JTI0bSUyRlZhcmlhbnQ
     "Size": "M",
     "Color": "Black"
   },
-  "availability": "availability0"
+  "availability": "availability0",
+  "order_url": "order_url6"
 }
 ```
 

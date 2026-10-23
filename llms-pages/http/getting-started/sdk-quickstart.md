@@ -26,9 +26,9 @@ before unlocking. Raptor Rush on miriogames.com is a live example.
 
 **Agent-ready.** Every live shop is also published for AI shopping agents: an MCP server at
 `/api/mcp` with `search_shops`, `get_product`, `create_order` and `get_order`, and the same
-reads as plain GETs for agents that can only fetch URLs (`listAgentShops`, `getAgentProduct`,
-`getAgentOrder`). An agent can find and order, but the buyer still approves every payment at
-PayPal.
+four as plain GETs for assistants that can only fetch URLs (`listAgentShops`,
+`getAgentProduct`, `orderByLink`, `getAgentOrder`), with `/llms.txt` as the starting point.
+An agent can find and order, but the buyer still approves every payment at PayPal.
 
 All money moves through PayPal (sandbox in this deployment). OneThing never holds card data.
 

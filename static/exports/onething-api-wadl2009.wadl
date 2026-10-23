@@ -20,9 +20,9 @@ before unlocking. Raptor Rush on miriogames.com is a live example.
 
 **Agent-ready.** Every live shop is also published for AI shopping agents: an MCP server at
 `/api/mcp` with `search_shops`, `get_product`, `create_order` and `get_order`, and the same
-reads as plain GETs for agents that can only fetch URLs (`listAgentShops`, `getAgentProduct`,
-`getAgentOrder`). An agent can find and order, but the buyer still approves every payment at
-PayPal.
+four as plain GETs for assistants that can only fetch URLs (`listAgentShops`,
+`getAgentProduct`, `orderByLink`, `getAgentOrder`), with `/llms.txt` as the starting point.
+An agent can find and order, but the buyer still approves every payment at PayPal.
 
 All money moves through PayPal (sandbox in this deployment). OneThing never holds card data.
 </doc>
@@ -40,6 +40,7 @@ All money moves through PayPal (sandbox in this deployment). OneThing never hold
       <xs:element name="PayPalStatus" type="schemas:PayPalStatus" />
       <xs:element name="AgentProduct" type="schemas:AgentProduct" />
       <xs:element name="AgentShopSummary" type="schemas:AgentShopSummary" />
+      <xs:element name="AgentCreatedOrder" type="schemas:AgentCreatedOrder" />
       <xs:element name="AgentOrder" type="schemas:AgentOrder" />
       <xs:element name="AgentDeliveryAccessCode" type="schemas:AgentDeliveryAccessCode" />
       <xs:element name="AgentDeliveryDownload" type="schemas:AgentDeliveryDownload" />
@@ -233,6 +234,9 @@ All money moves through PayPal (sandbox in this deployment). OneThing never hold
         </xs:annotation>
       </xs:element>
       <xs:element name="listAgentShops200_Response0" type="schemas:listAgentShops200_Response0" />
+      <xs:element name="orderByLink200_Response0" type="schemas:orderByLink200_Response0" />
+      <xs:element name="orderByLink400_Response0" type="schemas:orderByLink400_Response0" />
+      <xs:element name="orderByLink404_Response0" type="schemas:orderByLink404_Response0" />
       <xs:element name="getAgentOrder200_Response0" type="schemas:getAgentOrder200_Response0" />
       <xs:element name="getAgentOrder404_Response0" type="schemas:getAgentOrder404_Response0" />
       <xs:element name="getAgentProduct200_Response0" type="schemas:getAgentProduct200_Response0" />
@@ -624,6 +628,11 @@ All money moves through PayPal (sandbox in this deployment). OneThing never hold
             </xs:annotation>
           </xs:element>
           <xs:element minOccurs="0" maxOccurs="unbounded" name="variants" type="schemas:Variant" />
+          <xs:element minOccurs="0" name="order_url" type="xs:string">
+            <xs:annotation>
+              <xs:documentation>Products without options: `orderByLink`, which orders one unit with a GET. Left out when sold out. With options, each variant has its own.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
           <xs:element minOccurs="0" maxOccurs="unbounded" name="offers" type="schemas:Offer1">
             <xs:annotation>
               <xs:documentation>Recommendations only. Bought at the retailer.</xs:documentation>
@@ -657,6 +666,36 @@ All money moves through PayPal (sandbox in this deployment). OneThing never hold
               <xs:documentation>The shop page.</xs:documentation>
             </xs:annotation>
           </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="AgentCreatedOrder">
+        <xs:annotation>
+          <xs:documentation>A new order, as `create_order` and `orderByLink` return it.</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+          <xs:element minOccurs="1" name="order_id" type="xs:string" />
+          <xs:element minOccurs="1" fixed="awaiting_buyer_approval" name="status" type="xs:string" />
+          <xs:element minOccurs="1" name="total" type="xs:string">
+            <xs:annotation>
+              <xs:documentation>The total with shipping, as a label.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element minOccurs="0" name="options" type="xs:string">
+            <xs:annotation>
+              <xs:documentation>The buyer's pick, one value per option, keyed by option name.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element minOccurs="1" name="pay_url" type="xs:string">
+            <xs:annotation>
+              <xs:documentation>Where the buyer pays (redirects to PayPal). Safe to show in chat.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element minOccurs="1" name="status_url" type="xs:string">
+            <xs:annotation>
+              <xs:documentation>`getAgentOrder` for this order.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element minOccurs="1" name="next_step" type="xs:string" />
         </xs:sequence>
       </xs:complexType>
       <xs:complexType name="AgentOrder">
@@ -1578,6 +1617,11 @@ All money moves through PayPal (sandbox in this deployment). OneThing never hold
             </xs:annotation>
           </xs:element>
           <xs:element minOccurs="1" name="availability" type="xs:string" />
+          <xs:element minOccurs="0" name="order_url" type="xs:string">
+            <xs:annotation>
+              <xs:documentation>`orderByLink` for this pick. Left out when it's sold out.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
         </xs:sequence>
       </xs:complexType>
       <xs:complexType name="signIn_Request">
@@ -2337,6 +2381,33 @@ All money moves through PayPal (sandbox in this deployment). OneThing never hold
           <xs:element minOccurs="1" name="response200" type="schemas:ApiAgentShopsResponse">
             <xs:annotation>
               <xs:documentation>The matching shops.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="orderByLink200_Response0">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="response200" type="schemas:AgentCreatedOrder">
+            <xs:annotation>
+              <xs:documentation>A new order, as `create_order` and `orderByLink` return it.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="orderByLink400_Response0">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="response400" type="schemas:Error">
+            <xs:annotation>
+              <xs:documentation>A missing or unknown option value, or sold out. `error` names the valid values.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="orderByLink404_Response0">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="response404" type="schemas:Error">
+            <xs:annotation>
+              <xs:documentation>No live shop with that link name.</xs:documentation>
             </xs:annotation>
           </xs:element>
         </xs:sequence>
@@ -3188,6 +3259,45 @@ link names, and codes typed loosely (lower case, spaces, no dashes).
         <response status="200">
           <doc title="200" xml:lang="en">The matching shops.</doc>
           <representation element="schemas:listAgentShops200_Response0" mediaType="application/json" />
+        </response>
+      </method>
+    </resource>
+    <resource id="_apiagentshopsslugorder" path="/api/agent/shops/{slug}/order">
+      <param name="slug" style="template" type="xsd:string" required="true">
+        <doc title="slug" xml:lang="en">The shop's link name (current or former).</doc>
+      </param>
+      <method id="orderByLink" name="GET">
+        <doc title="orderByLink" xml:lang="en">Orders one unit with a GET: the MCP `create_order` tool for AI assistants that can only
+fetch URLs, such as free-tier ChatGPT or Grok. Nothing is charged. The reply has `pay_url`,
+where the buyer pays at PayPal, and `status_url` (`getAgentOrder`), which says when they
+have and what they got.
+
+For a product with options, pass the buyer's pick as query parameters named after the
+options (`?Size=9`, or `?Color=Ice+Blue&amp;Size=L`); names and values are matched without
+regard to case. You rarely build this URL yourself: `getAgentProduct` and `/llms.txt`
+write it out in full (`order_url`, or `variants[].order_url`), because some assistants
+only open URLs they have been shown.
+
+Every request makes a new order, so open it once, after the buyer says to buy. A link
+previewer opening it leaves an unpaid order at most: stock is only taken when a payment
+is captured. Replies are `no-store` and `X-Robots-Tag: noindex, nofollow`.
+</doc>
+        <request>
+          <param name="Size" style="query" type="xsd:string">
+            <doc title="Size" xml:lang="en">An example option. The real parameter names are the product's option names from `getAgentProduct` (`options[].name`), one per option.</doc>
+          </param>
+        </request>
+        <response status="200">
+          <doc title="200" xml:lang="en">The order, waiting for the buyer to pay.</doc>
+          <representation element="schemas:orderByLink200_Response0" mediaType="application/json" />
+        </response>
+        <response status="400">
+          <doc title="400" xml:lang="en">A missing or unknown option value, or sold out. `error` names the valid values.</doc>
+          <representation element="schemas:orderByLink400_Response0" mediaType="application/json" />
+        </response>
+        <response status="404">
+          <doc title="404" xml:lang="en">No live shop with that link name.</doc>
+          <representation element="schemas:orderByLink404_Response0" mediaType="application/json" />
         </response>
       </method>
     </resource>
