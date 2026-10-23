@@ -14,7 +14,7 @@ Source: /#/python/x-redirect/JTI0bSUyRk9yZGVy
 |  --- | --- | --- | --- |
 | `id` | `str` | Required | - |
 | `paypal_order_id` | `str` | Optional | - |
-| `status` | [`Status3`](/llms-pages/python/models/enumerations/status-3.md) | Required | - |
+| `status` | [`Status4`](/llms-pages/python/models/enumerations/status-4.md) | Required | - |
 | `amount_cents` | `int` | Required | - |
 | `shipping_cents` | `int` | Optional | - |
 | `currency` | `str` | Required | - |
@@ -30,7 +30,7 @@ Source: /#/python/x-redirect/JTI0bSUyRk9yZGVy
 | `access_code` | `str` | Optional | - |
 | `code_uses` | `int` | Optional | - |
 | `channel` | [`Channel`](/llms-pages/python/models/enumerations/channel.md) | Optional | `agent` for orders an AI agent placed through the MCP server. |
-| `options` | Dict[str, Dict[str, str]] \| None | Optional | This is Dictionary of a container for one-of cases. |
+| `options` | `Dict[str, str]` | Optional | The buyer's pick, one value per option, keyed by option name (see `Choice`). |
 | `paid_at` | `datetime` | Optional | - |
 | `created_at` | `datetime` | Optional | - |
 
@@ -40,11 +40,11 @@ Source: /#/python/x-redirect/JTI0bSUyRk9yZGVy
 ```python
 from onethingapi.models.fulfillment_status import FulfillmentStatus
 from onethingapi.models.order import Order
-from onethingapi.models.status_3 import Status3
+from onethingapi.models.status_4 import Status4
 
 order = Order(
     id='id6',
-    status=Status3.CREATED,
+    status=Status4.CREATED,
     amount_cents=96,
     currency='currency6',
     fulfillment_status=FulfillmentStatus.NONE,

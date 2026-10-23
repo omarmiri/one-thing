@@ -32,8 +32,38 @@ This endpoint requires [PlatformKey](/llms-pages/python/getting-started/sdk-quic
 # Example Usage
 
 ```python
-result = platforms_api.list_my_shops()
+status = Status.LIVE
+
+result = platforms_api.list_my_shops(
+    status=status
+)
 print(result)
+```
+
+
+# Example Response *(as JSON)*
+
+```json
+{
+  "shops": [
+    {
+      "slug": "raptorrush",
+      "status": "live",
+      "name": "Raptor Rush: Browser Edition",
+      "headline": "Grow from Tiny Hatchling to Giant Apex Predator",
+      "product_type": "digital",
+      "price": {
+        "amount": 2.99,
+        "currency": "USD"
+      },
+      "url": "https://one-thing-ash0.onrender.com/raptorrush",
+      "cover": "https://one-thing-ash0.onrender.com/api/blobs/KchAi9jwZzo76SKh",
+      "paypal_connected": true,
+      "sales": 12,
+      "created_at": "2026-10-12T20:31:44Z"
+    }
+  ]
+}
 ```
 
 

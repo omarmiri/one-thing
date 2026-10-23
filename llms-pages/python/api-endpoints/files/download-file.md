@@ -29,7 +29,7 @@ def download_file(self,
 # Example Usage
 
 ```python
-token = 'token6'
+token = 'q2Vd8mLx0RkT4nYb7HcW1sPe'
 
 result = files_api.download_file(token)
 print(result)

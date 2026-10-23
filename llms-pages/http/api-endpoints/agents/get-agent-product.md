@@ -34,6 +34,90 @@ curl -X GET \
 ```
 
 
+# Example Response *(as JSON)*
+
+```json
+{
+  "shop": "vintageskates",
+  "url": "https://one-thing-ash0.onrender.com/vintageskates",
+  "name": "Vintage Cream and Red Roller Skates",
+  "kind": "physical",
+  "headline": "Classic quad skates crafted with walnut burl heels",
+  "description": "A vintage pair of skates featuring cream leather, bold red trim, and durable quad wheels.",
+  "highlights": [
+    "Handmade cream leather upper with rich red trim",
+    "Sculpted walnut burl heel structure for stability"
+  ],
+  "details": [
+    {
+      "label": "Materials",
+      "value": "Leather upper, walnut burl heel, rubber wheels"
+    }
+  ],
+  "faq": [
+    {
+      "q": "What is the return policy?",
+      "a": "Unworn skates in original condition can be returned within 30 days of delivery."
+    }
+  ],
+  "images": [
+    "https://one-thing-ash0.onrender.com/api/blobs/LFRvGuTU3D8i334X",
+    "https://one-thing-ash0.onrender.com/api/blobs/zrySajNyao6_j11x"
+  ],
+  "price": {
+    "amount": 240,
+    "currency": "USD",
+    "label": "$240.00"
+  },
+  "shipping": {
+    "amount": 15,
+    "currency": "USD",
+    "ships_to": [
+      "US"
+    ]
+  },
+  "total": {
+    "amount": 255,
+    "currency": "USD"
+  },
+  "delivery": "Shipped. PayPal collects the buyer's address at checkout.",
+  "options": [
+    {
+      "name": "Size",
+      "values": [
+        "7",
+        "8",
+        "9"
+      ]
+    }
+  ],
+  "variants": [
+    {
+      "choice": {
+        "Size": "7"
+      },
+      "availability": "in_stock (3 left)"
+    },
+    {
+      "choice": {
+        "Size": "8"
+      },
+      "availability": "sold_out"
+    },
+    {
+      "choice": {
+        "Size": "9"
+      },
+      "availability": "in_stock (6 left)"
+    }
+  ],
+  "availability": "in_stock",
+  "how_to_buy": "Call create_order on the OneThing MCP server with shop and options, then give the buyer its pay_url to pay at PayPal.",
+  "mcp_server": "https://one-thing-ash0.onrender.com/api/mcp"
+}
+```
+
+
 # Errors
 
 | HTTP Status Code | Error Description | Exception Class |

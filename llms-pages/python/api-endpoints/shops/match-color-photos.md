@@ -39,8 +39,12 @@ slug = 'raptorrush'
 body = ApiShopsMatchPhotosRequest(
     colors=[
         Color(
-            label='Forest green',
-            hex='#14171a'
+            label='Cream',
+            hex='#f3e9d2'
+        ),
+        Color(
+            label='Red',
+            hex='#b3261e'
         )
     ]
 )
@@ -50,6 +54,18 @@ result = shops_api.match_color_photos(
     body
 )
 print(result)
+```
+
+
+# Example Response *(as JSON)*
+
+```json
+{
+  "matches": {
+    "Cream": "LFRvGuTU3D8i334X",
+    "Red": "SuqcgNv64HWN8H6e"
+  }
+}
 ```
 
 

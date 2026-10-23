@@ -41,8 +41,8 @@ const slug = 'raptorrush';
 
 const body: ApiShopsColorPhotosRequest = {
   photos: {
-    'key0': 'photos8',
-    'key1': 'photos9'
+    'Cream': 'LFRvGuTU3D8i334X',
+    'Red': 'photos9'
   },
 };
 
@@ -73,6 +73,18 @@ try {
       console.log(error.result);
     }
   }
+}
+```
+
+
+# Example Response *(as JSON)*
+
+```json
+{
+  "saved": [
+    "Cream",
+    "Red"
+  ]
 }
 ```
 

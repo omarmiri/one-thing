@@ -26,4 +26,13 @@ print(result)
 ```
 
 
+# Example Response *(as JSON)*
+
+```json
+{
+  "ok": true
+}
+```
+
+
 

@@ -41,11 +41,27 @@ curl -X POST \
   --data-raw '{
   "colors": [
     {
-      "label": "Forest green",
-      "hex": "#14171a"
+      "label": "Cream",
+      "hex": "#f3e9d2"
+    },
+    {
+      "label": "Red",
+      "hex": "#b3261e"
     }
   ]
 }'
+```
+
+
+# Example Response *(as JSON)*
+
+```json
+{
+  "matches": {
+    "Cream": "LFRvGuTU3D8i334X",
+    "Red": "SuqcgNv64HWN8H6e"
+  }
+}
 ```
 
 

@@ -31,7 +31,17 @@ GET /api/slugs/check
 curl -X GET -G \
   --url 'https://one-thing-ash0.onrender.com/api/slugs/check'  \
   -H 'Accept: application/json' \
-  -d 'name=name0'
+  -d 'name=Raptor+Rush'
+```
+
+
+# Example Response *(as JSON)*
+
+```json
+{
+  "slug": "raptor-rush",
+  "available": true
+}
 ```
 
 

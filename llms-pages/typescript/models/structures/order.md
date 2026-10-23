@@ -14,7 +14,7 @@ Source: /#/typescript/x-redirect/JTI0bSUyRk9yZGVy
 |  --- | --- | --- | --- |
 | `id` | `string` | Required | - |
 | `paypalOrderId` | `string \| null \| undefined` | Optional | - |
-| `status` | [`Status3`](/llms-pages/typescript/models/enumerations/status-3.md) | Required | - |
+| `status` | [`Status4`](/llms-pages/typescript/models/enumerations/status-4.md) | Required | - |
 | `amountCents` | `number` | Required | - |
 | `shippingCents` | `number \| undefined` | Optional | - |
 | `currency` | `string` | Required | - |
@@ -30,7 +30,7 @@ Source: /#/typescript/x-redirect/JTI0bSUyRk9yZGVy
 | `accessCode` | `string \| null \| undefined` | Optional | - |
 | `codeUses` | `number \| undefined` | Optional | - |
 | `channel` | [`Channel \| undefined`](/llms-pages/typescript/models/enumerations/channel.md) | Optional | `agent` for orders an AI agent placed through the MCP server. |
-| `options` | [`Record<string, OrderOptions> \| null \| undefined`](/llms-pages/typescript/models/oneof-anyof-definitions/order-options.md) | Optional | This is Map of a container for one-of cases. |
+| `options` | `Record<string, string> \| null \| undefined` | Optional | The buyer's pick, one value per option, keyed by option name (see `Choice`). |
 | `paidAt` | `string \| null \| undefined` | Optional | - |
 | `createdAt` | `string \| undefined` | Optional | - |
 
@@ -38,11 +38,11 @@ Source: /#/typescript/x-redirect/JTI0bSUyRk9yZGVy
 # Example
 
 ```ts
-import { FulfillmentStatus, Order, Status3 } from 'one-thing-sdk';
+import { FulfillmentStatus, Order, Status4 } from 'one-thing-sdk';
 
 const order: Order = {
   id: 'id6',
-  status: Status3.Created,
+  status: Status4.Created,
   amountCents: 96,
   currency: 'currency6',
   fulfillmentStatus: FulfillmentStatus.None,

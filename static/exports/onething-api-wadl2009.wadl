@@ -18,10 +18,11 @@ their own sellers. Buyer endpoints (checkout, access-code verification, download
 Each paid order gets a code such as `K7QF-M2XP-9HTD`; your app calls `verifyAccessCode`
 before unlocking. Raptor Rush on miriogames.com is a live example.
 
-**Agent-ready.** Every live shop is also published for AI shopping agents: product JSON at
-`getAgentProduct`, and an MCP server at `/api/mcp` with `search_shops`, `get_product`,
-`create_order` and `get_order`. An agent can find and order, but the buyer still approves
-every payment at PayPal.
+**Agent-ready.** Every live shop is also published for AI shopping agents: an MCP server at
+`/api/mcp` with `search_shops`, `get_product`, `create_order` and `get_order`, and the same
+reads as plain GETs for agents that can only fetch URLs (`listAgentShops`, `getAgentProduct`,
+`getAgentOrder`). An agent can find and order, but the buyer still approves every payment at
+PayPal.
 
 All money moves through PayPal (sandbox in this deployment). OneThing never holds card data.
 </doc>
@@ -38,6 +39,11 @@ All money moves through PayPal (sandbox in this deployment). OneThing never hold
       <xs:element name="Suggestions" type="schemas:Suggestions" />
       <xs:element name="PayPalStatus" type="schemas:PayPalStatus" />
       <xs:element name="AgentProduct" type="schemas:AgentProduct" />
+      <xs:element name="AgentShopSummary" type="schemas:AgentShopSummary" />
+      <xs:element name="AgentOrder" type="schemas:AgentOrder" />
+      <xs:element name="AgentDeliveryAccessCode" type="schemas:AgentDeliveryAccessCode" />
+      <xs:element name="AgentDeliveryDownload" type="schemas:AgentDeliveryDownload" />
+      <xs:element name="AgentDeliveryShipping" type="schemas:AgentDeliveryShipping" />
       <xs:element name="PlatformShop" type="schemas:PlatformShop" />
       <xs:element name="AgentMoney" type="schemas:AgentMoney" />
       <xs:element name="JsonRpcRequest" type="schemas:JsonRpcRequest" />
@@ -48,10 +54,12 @@ All money moves through PayPal (sandbox in this deployment). OneThing never hold
       <xs:element name="WebhookEvent" type="schemas:WebhookEvent" />
       <xs:element name="OrderEvent" type="schemas:OrderEvent" />
       <xs:element name="AiSource" type="schemas:AiSource" />
+      <xs:element name="Amount" type="schemas:Amount" />
       <xs:element name="ApiAccessVerifyRequest" type="schemas:ApiAccessVerifyRequest" />
       <xs:element name="ApiAccessVerifyResponse" type="schemas:ApiAccessVerifyResponse" />
       <xs:element name="ApiAccountSigninRequest" type="schemas:ApiAccountSigninRequest" />
       <xs:element name="ApiAccountSigninResponse" type="schemas:ApiAccountSigninResponse" />
+      <xs:element name="ApiAgentShopsResponse" type="schemas:ApiAgentShopsResponse" />
       <xs:element name="ApiChannel3SearchResponse" type="schemas:ApiChannel3SearchResponse" />
       <xs:element name="ApiOrdersCapture409Error1" type="schemas:ApiOrdersCapture409Error1" />
       <xs:element name="ApiOrdersCaptureResponse" type="schemas:ApiOrdersCaptureResponse" />
@@ -85,6 +93,7 @@ All money moves through PayPal (sandbox in this deployment). OneThing never hold
       <xs:element name="Fact" type="schemas:Fact" />
       <xs:element name="Faq" type="schemas:Faq" />
       <xs:element name="Fonts" type="schemas:Fonts" />
+      <xs:element name="Fulfillment" type="schemas:Fulfillment" />
       <xs:element name="FulfillmentStatus" type="schemas:FulfillmentStatus" />
       <xs:element name="HeroStatus" type="schemas:HeroStatus" />
       <xs:element name="Kind" type="schemas:Kind" />
@@ -104,12 +113,15 @@ All money moves through PayPal (sandbox in this deployment). OneThing never hold
       <xs:element name="ProductType1" type="schemas:ProductType1" />
       <xs:element name="ProductType2" type="schemas:ProductType2" />
       <xs:element name="Shipping" type="schemas:Shipping" />
+      <xs:element name="ShipTo" type="schemas:ShipTo" />
       <xs:element name="Shop1" type="schemas:Shop1" />
       <xs:element name="ShopPhotos" type="schemas:ShopPhotos" />
       <xs:element name="Source" type="schemas:Source" />
       <xs:element name="Status" type="schemas:Status" />
-      <xs:element name="Status3" type="schemas:Status3" />
-      <xs:element name="Status5" type="schemas:Status5" />
+      <xs:element name="Status2" type="schemas:Status2" />
+      <xs:element name="Status4" type="schemas:Status4" />
+      <xs:element name="Status6" type="schemas:Status6" />
+      <xs:element name="Tracking" type="schemas:Tracking" />
       <xs:element name="Type" type="schemas:Type" />
       <xs:element name="Variant" type="schemas:Variant" />
       <xs:element name="signIn_Request" type="schemas:signIn_Request" />
@@ -215,6 +227,14 @@ All money moves through PayPal (sandbox in this deployment). OneThing never hold
           <xs:documentation>The image.</xs:documentation>
         </xs:annotation>
       </xs:element>
+      <xs:element name="response404" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>No order with that id.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="listAgentShops200_Response0" type="schemas:listAgentShops200_Response0" />
+      <xs:element name="getAgentOrder200_Response0" type="schemas:getAgentOrder200_Response0" />
+      <xs:element name="getAgentOrder404_Response0" type="schemas:getAgentOrder404_Response0" />
       <xs:element name="getAgentProduct200_Response0" type="schemas:getAgentProduct200_Response0" />
       <xs:element name="getAgentProduct404_Response0" type="schemas:getAgentProduct404_Response0" />
       <xs:element name="body" type="xs:anyType" />
@@ -617,6 +637,109 @@ All money moves through PayPal (sandbox in this deployment). OneThing never hold
           </xs:element>
         </xs:sequence>
       </xs:complexType>
+      <xs:complexType name="AgentShopSummary">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="shop" type="xs:string">
+            <xs:annotation>
+              <xs:documentation>The link name, for `getAgentProduct` and the MCP tools.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element minOccurs="1" name="name" type="xs:string" />
+          <xs:element minOccurs="1" name="kind" type="schemas:Kind1" />
+          <xs:element minOccurs="1" name="headline" type="xs:string" />
+          <xs:element minOccurs="1" name="price" nillable="true" type="xs:string">
+            <xs:annotation>
+              <xs:documentation>The price label, e.g. `$2.99`; null for recommendations.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element minOccurs="1" name="url" type="xs:string">
+            <xs:annotation>
+              <xs:documentation>The shop page.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="AgentOrder">
+        <xs:annotation>
+          <xs:documentation>An order as `get_order` and `getAgentOrder` report it.</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+          <xs:element minOccurs="1" name="order_id" type="xs:string" />
+          <xs:element minOccurs="1" name="status" type="schemas:Status2">
+            <xs:annotation>
+              <xs:documentation>`declined`: PayPal declined it, nothing charged, the buyer can open `pay_url` again. `sold_out`: it sold out before the payment was captured. `expired`: the PayPal checkout expired; create a new order. `failed`: PayPal couldn't be reached; ask again.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element minOccurs="1" name="product" type="xs:string" />
+          <xs:element minOccurs="0" name="options" type="xs:string">
+            <xs:annotation>
+              <xs:documentation>The buyer's pick, one value per option, keyed by option name.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element minOccurs="1" name="amount" type="schemas:Amount" />
+          <xs:element minOccurs="1" name="total" type="xs:string">
+            <xs:annotation>
+              <xs:documentation>The total as a label, e.g. `$255.00`.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element minOccurs="0" name="pay_url" type="xs:string">
+            <xs:annotation>
+              <xs:documentation>Unpaid orders (waiting or declined). The buyer pays here; safe to show in chat.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element minOccurs="0" name="next_step" type="xs:string">
+            <xs:annotation>
+              <xs:documentation>Unpaid orders. What the agent should do next, in plain words.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element minOccurs="0" name="paid_at" type="xs:dateTime" />
+          <xs:element minOccurs="0" name="receipt_url" type="xs:string">
+            <xs:annotation>
+              <xs:documentation>Paid orders. The buyer's thank-you page.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element minOccurs="0" name="delivery" type="xs:anyType">
+            <xs:annotation>
+              <xs:documentation>Paid orders. What the buyer got.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="AgentDeliveryAccessCode">
+        <xs:annotation>
+          <xs:documentation>A digital product unlocked with an access code.</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+          <xs:element minOccurs="1" fixed="access_code" name="type" type="xs:string" />
+          <xs:element minOccurs="1" name="access_code" type="xs:string" />
+          <xs:element minOccurs="0" name="start_url" type="xs:string">
+            <xs:annotation>
+              <xs:documentation>The seller's app with the code filled in.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="AgentDeliveryDownload">
+        <xs:annotation>
+          <xs:documentation>A digital file to download.</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+          <xs:element minOccurs="1" fixed="download" name="type" type="xs:string" />
+          <xs:element minOccurs="1" name="download_url" type="xs:string" />
+          <xs:element minOccurs="0" name="note" type="xs:string" />
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="AgentDeliveryShipping">
+        <xs:annotation>
+          <xs:documentation>A physical product shipped to the buyer.</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+          <xs:element minOccurs="1" fixed="shipping" name="type" type="xs:string" />
+          <xs:element minOccurs="0" name="ship_to" nillable="true" type="schemas:ShipTo" />
+          <xs:element minOccurs="1" name="fulfillment" type="schemas:Fulfillment" />
+          <xs:element minOccurs="0" name="tracking" nillable="true" type="schemas:Tracking" />
+        </xs:sequence>
+      </xs:complexType>
       <xs:complexType name="PlatformShop">
         <xs:sequence>
           <xs:element minOccurs="1" name="slug" type="xs:string" />
@@ -730,7 +853,7 @@ All money moves through PayPal (sandbox in this deployment). OneThing never hold
         <xs:sequence>
           <xs:element minOccurs="1" name="id" type="xs:string" />
           <xs:element minOccurs="0" name="paypal_order_id" nillable="true" type="xs:string" />
-          <xs:element minOccurs="1" name="status" type="schemas:Status3" />
+          <xs:element minOccurs="1" name="status" type="schemas:Status4" />
           <xs:element minOccurs="1" name="amount_cents" type="xs:integer" />
           <xs:element minOccurs="0" name="shipping_cents" type="xs:integer" />
           <xs:element minOccurs="1" name="currency" type="xs:string" />
@@ -750,7 +873,11 @@ All money moves through PayPal (sandbox in this deployment). OneThing never hold
               <xs:documentation>`agent` for orders an AI agent placed through the MCP server.</xs:documentation>
             </xs:annotation>
           </xs:element>
-          <xs:element minOccurs="0" name="options" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="options" nillable="true" type="xs:string">
+            <xs:annotation>
+              <xs:documentation>The buyer's pick, one value per option, keyed by option name (see `Choice`).</xs:documentation>
+            </xs:annotation>
+          </xs:element>
           <xs:element minOccurs="0" name="paid_at" nillable="true" type="xs:dateTime" />
           <xs:element minOccurs="0" name="created_at" type="xs:dateTime" />
         </xs:sequence>
@@ -787,6 +914,14 @@ All money moves through PayPal (sandbox in this deployment). OneThing never hold
           <xs:enumeration value="fallback" />
         </xs:restriction>
       </xs:simpleType>
+      <xs:complexType name="Amount">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="item" type="xs:double" />
+          <xs:element minOccurs="1" name="shipping" type="xs:double" />
+          <xs:element minOccurs="1" name="total" type="xs:double" />
+          <xs:element minOccurs="1" name="currency" type="xs:string" />
+        </xs:sequence>
+      </xs:complexType>
       <xs:complexType name="ApiAccessVerifyRequest">
         <xs:sequence>
           <xs:element minOccurs="1" name="shop" type="xs:string">
@@ -831,6 +966,16 @@ All money moves through PayPal (sandbox in this deployment). OneThing never hold
           </xs:element>
         </xs:sequence>
       </xs:complexType>
+      <xs:complexType name="ApiAgentShopsResponse">
+        <xs:sequence>
+          <xs:element minOccurs="1" maxOccurs="unbounded" name="shops" type="schemas:AgentShopSummary" />
+          <xs:element minOccurs="1" name="mcp_server" type="xs:string">
+            <xs:annotation>
+              <xs:documentation>The MCP server to order through.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
       <xs:complexType name="ApiChannel3SearchResponse">
         <xs:sequence>
           <xs:element minOccurs="1" maxOccurs="unbounded" name="products" type="schemas:ProductCard" />
@@ -838,7 +983,7 @@ All money moves through PayPal (sandbox in this deployment). OneThing never hold
       </xs:complexType>
       <xs:complexType name="ApiOrdersCapture409Error1">
         <xs:sequence>
-          <xs:element minOccurs="0" name="status" type="schemas:Status5" />
+          <xs:element minOccurs="0" name="status" type="schemas:Status6" />
         </xs:sequence>
       </xs:complexType>
       <xs:complexType name="ApiOrdersCaptureResponse">
@@ -1127,6 +1272,12 @@ All money moves through PayPal (sandbox in this deployment). OneThing never hold
           <xs:element minOccurs="1" name="body" type="xs:string" />
         </xs:sequence>
       </xs:complexType>
+      <xs:simpleType name="Fulfillment">
+        <xs:restriction base="xs:string">
+          <xs:enumeration value="to_ship" />
+          <xs:enumeration value="shipped" />
+        </xs:restriction>
+      </xs:simpleType>
       <xs:simpleType name="FulfillmentStatus">
         <xs:restriction base="xs:string">
           <xs:enumeration value="none" />
@@ -1350,6 +1501,12 @@ All money moves through PayPal (sandbox in this deployment). OneThing never hold
           </xs:element>
         </xs:sequence>
       </xs:complexType>
+      <xs:complexType name="ShipTo">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="name" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="address" type="xs:string" />
+        </xs:sequence>
+      </xs:complexType>
       <xs:complexType name="Shop1">
         <xs:sequence>
           <xs:element minOccurs="0" name="slug" type="xs:string" />
@@ -1375,18 +1532,37 @@ All money moves through PayPal (sandbox in this deployment). OneThing never hold
           <xs:enumeration value="live" />
         </xs:restriction>
       </xs:simpleType>
-      <xs:simpleType name="Status3">
+      <xs:simpleType name="Status2">
+        <xs:annotation>
+          <xs:documentation>`declined`: PayPal declined it, nothing charged, the buyer can open `pay_url` again. `sold_out`: it sold out before the payment was captured. `expired`: the PayPal checkout expired; create a new order. `failed`: PayPal couldn't be reached; ask again.</xs:documentation>
+        </xs:annotation>
+        <xs:restriction base="xs:string">
+          <xs:enumeration value="awaiting_buyer_approval" />
+          <xs:enumeration value="paid" />
+          <xs:enumeration value="declined" />
+          <xs:enumeration value="sold_out" />
+          <xs:enumeration value="expired" />
+          <xs:enumeration value="failed" />
+        </xs:restriction>
+      </xs:simpleType>
+      <xs:simpleType name="Status4">
         <xs:restriction base="xs:string">
           <xs:enumeration value="created" />
           <xs:enumeration value="paid" />
           <xs:enumeration value="failed" />
         </xs:restriction>
       </xs:simpleType>
-      <xs:simpleType name="Status5">
+      <xs:simpleType name="Status6">
         <xs:restriction base="xs:string">
           <xs:enumeration value="pending" />
         </xs:restriction>
       </xs:simpleType>
+      <xs:complexType name="Tracking">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="carrier" type="xs:string" />
+          <xs:element minOccurs="0" name="number" type="xs:string" />
+        </xs:sequence>
+      </xs:complexType>
       <xs:simpleType name="Type">
         <xs:restriction base="xs:string">
           <xs:enumeration value="auto" />
@@ -2051,7 +2227,7 @@ All money moves through PayPal (sandbox in this deployment). OneThing never hold
         <xs:sequence>
           <xs:element minOccurs="1" name="response410" type="schemas:Error">
             <xs:annotation>
-              <xs:documentation>The last unit (or the last of the buyer's combination) sold while they were paying. The payment isn't captured, so the buyer isn't charged.</xs:documentation>
+              <xs:documentation>The last unit (or the last of the buyer's combination) sold while they were paying, or the PayPal checkout expired before they paid. The payment isn't captured, so the buyer isn't charged.</xs:documentation>
             </xs:annotation>
           </xs:element>
         </xs:sequence>
@@ -2152,6 +2328,33 @@ All money moves through PayPal (sandbox in this deployment). OneThing never hold
           <xs:element minOccurs="1" name="response404" type="schemas:Error">
             <xs:annotation>
               <xs:documentation>No such shop, or the admin token or API key doesn't match it.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="listAgentShops200_Response0">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="response200" type="schemas:ApiAgentShopsResponse">
+            <xs:annotation>
+              <xs:documentation>The matching shops.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="getAgentOrder200_Response0">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="response200" type="schemas:AgentOrder">
+            <xs:annotation>
+              <xs:documentation>An order as `get_order` and `getAgentOrder` report it.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="getAgentOrder404_Response0">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="response404" type="schemas:Error">
+            <xs:annotation>
+              <xs:documentation>No order with that id.</xs:documentation>
             </xs:annotation>
           </xs:element>
         </xs:sequence>
@@ -2828,7 +3031,7 @@ Safe to call repeatedly: before approval it answers 409, so a page can poll it w
           <representation element="schemas:captureCheckoutOrder409_Response0" mediaType="application/json" />
         </response>
         <response status="410">
-          <doc title="410" xml:lang="en">The last unit (or the last of the buyer's combination) sold while they were paying. The payment isn't captured, so the buyer isn't charged.</doc>
+          <doc title="410" xml:lang="en">The last unit (or the last of the buyer's combination) sold while they were paying, or the PayPal checkout expired before they paid. The payment isn't captured, so the buyer isn't charged.</doc>
           <representation element="schemas:captureCheckoutOrder410_Response0" mediaType="application/json" />
         </response>
         <response status="422">
@@ -2955,6 +3158,56 @@ link names, and codes typed loosely (lower case, spaces, no dashes).
         </response>
       </method>
     </resource>
+    <resource id="_oorderId" path="/o/{orderId}">
+      <param name="orderId" style="template" type="xsd:string" required="true">
+        <doc title="orderId" xml:lang="en">The `order_id` from the MCP `create_order` tool.</doc>
+      </param>
+      <method id="openPayLink" name="GET">
+        <doc title="openPayLink" xml:lang="en">The `pay_url` an agent gives the buyer. It redirects to PayPal's payment page for the order, so PayPal's checkout token never passes through the agent (agent platforms hide such tokens as secrets). A paid order redirects to its thank-you page; an expired checkout goes back to the shop page.</doc>
+        <request />
+        <response status="303">
+          <doc title="303" xml:lang="en">Redirect to PayPal, the thank-you page or the shop page.</doc>
+        </response>
+        <response status="404">
+          <doc title="404" xml:lang="en">No order with that id.</doc>
+          <representation element="schemas:response404" mediaType="text/plain" />
+        </response>
+      </method>
+    </resource>
+    <resource id="_apiagentshops" path="/api/agent/shops">
+      <method id="listAgentShops" name="GET">
+        <doc title="listAgentShops" xml:lang="en">The gallery's live shops, newest first, filtered by keywords (every word must appear in the name or headline). The GET twin of the MCP `search_shops` tool, for agents that can only fetch URLs. Public. Read a shop with `getAgentProduct`; buy through the MCP server in `mcp_server`, or send the buyer to the shop's `url`.</doc>
+        <request>
+          <param name="q" style="query" type="xsd:string">
+            <doc title="q" xml:lang="en">Keywords. Leave out to list the newest shops.</doc>
+          </param>
+          <param name="limit" style="query" type="xsd:integer" default="10">
+            <doc title="limit" xml:lang="en">How many shops, 1–25.</doc>
+          </param>
+        </request>
+        <response status="200">
+          <doc title="200" xml:lang="en">The matching shops.</doc>
+          <representation element="schemas:listAgentShops200_Response0" mediaType="application/json" />
+        </response>
+      </method>
+    </resource>
+    <resource id="_apiagentordersorderId" path="/api/agent/orders/{orderId}">
+      <param name="orderId" style="template" type="xsd:string" required="true">
+        <doc title="orderId" xml:lang="en">The `order_id` from the MCP `create_order` tool, or from a thank-you page link (`?order=`).</doc>
+      </param>
+      <method id="getAgentOrder" name="GET">
+        <doc title="getAgentOrder" xml:lang="en">Where an order stands and, once paid, what the buyer got: the access code, the download link, or the shipping address and tracking. The GET twin of the MCP `get_order` tool (and the `status_url` that `create_order` returns), for agents that can only fetch URLs. Public: anyone with the order id can already open its thank-you page. If the buyer has approved at PayPal but nothing has captured the payment yet, this captures it.</doc>
+        <request />
+        <response status="200">
+          <doc title="200" xml:lang="en">The order.</doc>
+          <representation element="schemas:getAgentOrder200_Response0" mediaType="application/json" />
+        </response>
+        <response status="404">
+          <doc title="404" xml:lang="en">No order with that id.</doc>
+          <representation element="schemas:getAgentOrder404_Response0" mediaType="application/json" />
+        </response>
+      </method>
+    </resource>
     <resource id="_apiagentshopsslug" path="/api/agent/shops/{slug}">
       <param name="slug" style="template" type="xsd:string" required="true">
         <doc title="slug" xml:lang="en">The shop's link name (current or former).</doc>
@@ -2985,12 +3238,21 @@ Methods: `initialize`, `ping`, `tools/list`, `tools/call`. Tools:
 |---|---|---|
 | `search_shops` | `query?`, `limit?` (1–25) | Live gallery shops whose name or headline has every word |
 | `get_product` | `shop` | The same object as `getAgentProduct` |
-| `create_order` | `shop`, `options?` | One unit on order; returns `order_id` and `approve_url` |
-| `get_order` | `order_id` | `awaiting_buyer_approval` or `paid`, with the receipt link once paid |
+| `create_order` | `shop`, `options?` | One unit on order; returns `order_id` and `pay_url` |
+| `get_order` | `order_id` | Status and `next_step`; once paid, the receipt and `delivery` |
 
-**The buyer always approves.** `create_order` charges nothing: the agent gives the buyer
-`approve_url`, they pay at PayPal, and the agent polls `get_order`. Orders made this way
-show `channel: agent` in `listOrders`.
+**The buyer always approves.** `create_order` charges nothing: the agent shows the buyer
+`pay_url` (`/o/&lt;order_id&gt;`, see `openPayLink`), which opens PayPal. It's a plain link on this
+site, so agent platforms that hide PayPal's checkout tokens can still show it. When the buyer
+says they've paid, the agent calls `get_order`.
+
+`get_order` status is one of `awaiting_buyer_approval`, `paid`, `declined` (nothing charged;
+the buyer can open `pay_url` again), `sold_out`, `expired` (call `create_order` again) or
+`failed` (PayPal couldn't be reached; try again), with a `next_step` the agent can follow.
+A paid order carries `delivery`: `{type: access_code, access_code, start_url?}`,
+`{type: download, download_url}` or `{type: shipping, ship_to, fulfillment, tracking}`, plus
+`amount` with item, shipping and total. Orders made this way show `channel: agent` in
+`listOrders`.
 
 Tool errors (an unknown shop, a sold-out size) come back as results with `isError: true`,
 so the model can read them and try something else.

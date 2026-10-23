@@ -38,11 +38,11 @@ This endpoint requires [AdminToken](/llms-pages/python/getting-started/sdk-quick
 ```python
 slug = 'raptorrush'
 
-order_id = 'orderId2'
+order_id = 'pX4kR9tVb2nQ7sLe'
 
 body = ApiShopsOrdersShipRequest(
-    carrier=Carrier.DHL,
-    tracking_number='trackingNumber4'
+    carrier=Carrier.USPS,
+    tracking_number='9400111899223817362315'
 )
 
 result = orders_api.mark_order_shipped(
@@ -51,6 +51,16 @@ result = orders_api.mark_order_shipped(
     body
 )
 print(result)
+```
+
+
+# Example Response *(as JSON)*
+
+```json
+{
+  "ok": true,
+  "synced": true
+}
 ```
 
 

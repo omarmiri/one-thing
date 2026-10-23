@@ -38,6 +38,17 @@ print(result)
 ```
 
 
+# Example Response *(as JSON)*
+
+```json
+{
+  "id": "Vq3nN8cT0bLx2YwE",
+  "email": "maker@example.com",
+  "phone": null
+}
+```
+
+
 # Errors
 
 | HTTP Status Code | Error Description | Exception Class |

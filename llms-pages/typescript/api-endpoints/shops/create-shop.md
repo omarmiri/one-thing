@@ -84,17 +84,34 @@ This method returns an [`ApiResponse`](/llms-pages/typescript/sdk-infrastructure
 ```ts
 const source = Source.Photo;
 
-const type = Type.Auto;
+const description = 'Vintage cream and red quad roller skates with walnut burl heels.';
+
+const type = Type.Physical;
+
+const price = 240;
+
+const shipping = 15;
+
+const shipCountries = 'US';
+
+const paypalEmail = 'seller@example.com';
 
 try {
   const response = await shopsApi.createShop(
     source,
     undefined,
+    description,
     undefined,
     undefined,
     undefined,
+    type,
     undefined,
-    type
+    undefined,
+    price,
+    shipping,
+    undefined,
+    shipCountries,
+    paypalEmail
   );
 
   // Extracting fully parsed response body.
@@ -118,6 +135,17 @@ try {
       console.log(error.result);
     }
   }
+}
+```
+
+
+# Example Response *(as JSON)*
+
+```json
+{
+  "slug": "vintageskates",
+  "token": "3fJ9xQm2LwP8vR1tZk7cN4bY6dHs0aEu",
+  "manageUrl": "/manage/vintageskates?token=3fJ9xQm2LwP8vR1tZk7cN4bY6dHs0aEu"
 }
 ```
 

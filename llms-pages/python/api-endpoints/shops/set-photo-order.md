@@ -38,8 +38,9 @@ slug = 'raptorrush'
 
 body = ApiShopsPhotosRequest(
     photos=[
-        'photos8',
-        'photos9'
+        'zrySajNyao6_j11x',
+        'LFRvGuTU3D8i334X',
+        'SuqcgNv64HWN8H6e'
     ]
 )
 
@@ -48,6 +49,24 @@ result = shops_api.set_photo_order(
     body
 )
 print(result)
+```
+
+
+# Example Response *(as JSON)*
+
+```json
+{
+  "photos": [
+    {
+      "id": "LFRvGuTU3D8i334X",
+      "url": "/api/blobs/LFRvGuTU3D8i334X"
+    },
+    {
+      "id": "zrySajNyao6_j11x",
+      "url": "/api/blobs/zrySajNyao6_j11x"
+    }
+  ]
+}
 ```
 
 

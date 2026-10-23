@@ -65,6 +65,15 @@ try {
 ```
 
 
+# Example Response *(as JSON)*
+
+```json
+{
+  "ok": true
+}
+```
+
+
 # Errors
 
 | HTTP Status Code | Error Description | Exception Class |

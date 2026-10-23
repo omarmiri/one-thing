@@ -41,11 +41,18 @@ curl -X PATCH \
   -H 'x-admin-token: x-admin-token' \
   -H 'Authorization: Bearer AccessToken' \
   --data-raw '{
-  "option_stock": {
-    "M / Black": 4,
-    "L / Black": 0
-  }
+  "status": "live"
 }'
+```
+
+
+# Example Response *(as JSON)*
+
+```json
+{
+  "ok": true,
+  "slug": "vintageskates"
+}
 ```
 
 

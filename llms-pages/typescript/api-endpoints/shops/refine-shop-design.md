@@ -74,6 +74,55 @@ try {
 ```
 
 
+# Example Response *(as JSON)*
+
+```json
+{
+  "spec": {
+    "productType": "physical",
+    "productName": "Vintage Cream and Red Roller Skates",
+    "layout": "editorial",
+    "palette": {
+      "background": "#f6efe4",
+      "surface": "#fffaf2",
+      "text": "#2b1d14",
+      "muted": "#7a6455",
+      "accent": "#b3261e",
+      "accentText": "#ffffff"
+    },
+    "fonts": {
+      "heading": "Playfair Display",
+      "body": "Inter"
+    },
+    "eyebrow": "One pair, restored",
+    "headline": "Classic quad skates crafted with walnut burl heels",
+    "subheadline": "A vintage pair of skates featuring cream leather, bold red trim, and durable quad wheels.",
+    "story": "Each pair combines soft cream leather with distinct red accents and a sculpted walnut burl heel base.",
+    "bullets": [
+      "Handmade cream leather upper with rich red trim",
+      "Sculpted walnut burl heel structure for stability"
+    ],
+    "details": [
+      {
+        "label": "Materials",
+        "value": "Leather upper, walnut burl heel, rubber wheels"
+      }
+    ],
+    "faq": [
+      {
+        "q": "Are these suitable for outdoor skating?",
+        "a": "Yes, on indoor rink floors and paved outdoor paths."
+      }
+    ],
+    "ctaLabel": "Buy the skates",
+    "suggestedPriceUsd": 240,
+    "suggestedShippingUsd": 15,
+    "imageAlt": "Cream leather quad roller skates with red trim"
+  }
+}
+```
+
+
 # Errors
 
 | HTTP Status Code | Error Description | Exception Class |

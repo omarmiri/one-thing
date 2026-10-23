@@ -83,6 +83,15 @@ try {
 ```
 
 
+# Example Response *(as JSON)*
+
+```json
+{
+  "url": "https://www.sandbox.paypal.com/bizsignup/partner/entry?referralToken=EXAMPLE"
+}
+```
+
+
 # Errors
 
 | HTTP Status Code | Error Description | Exception Class |

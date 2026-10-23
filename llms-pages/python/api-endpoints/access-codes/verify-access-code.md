@@ -41,4 +41,14 @@ print(result)
 ```
 
 
+# Example Response *(as JSON)*
+
+```json
+{
+  "valid": true,
+  "product": "Raptor Rush: Browser Edition"
+}
+```
+
+
 

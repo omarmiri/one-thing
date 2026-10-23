@@ -44,6 +44,40 @@ curl -X POST \
 ```
 
 
+# Example Response *(as JSON)*
+
+```json
+{
+  "oneOfAKind": false,
+  "options": [
+    {
+      "name": "Size",
+      "kind": "size",
+      "values": [
+        {
+          "label": "7"
+        },
+        {
+          "label": "8"
+        },
+        {
+          "label": "9"
+        }
+      ],
+      "fromSeller": false
+    }
+  ],
+  "missingFacts": [
+    {
+      "label": "Wheel size",
+      "question": "How big are the wheels?",
+      "placeholder": "57 mm"
+    }
+  ]
+}
+```
+
+
 # Errors
 
 | HTTP Status Code | Error Description | Exception Class |

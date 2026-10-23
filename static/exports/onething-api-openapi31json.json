@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "OneThing API",
-    "description": "OneThing turns a photo, a link or a picked product into a live one-product shop that takes\nPayPal payments, or a recommendation page that earns referral commissions through Channel3.\n\n**How a shop is made**\n1. `createShop`: start from a photo, a link, or a Channel3 product. Gemini guesses what it\n   is, how it's delivered, the price, a short link and the page design. You get back the\n   shop's link name and an **admin token**.\n2. `updateShop`: correct anything the AI guessed, then set `status: live`.\n3. Buyers pay on `https://<host>/<slug>` with PayPal. Sellers read orders and ship them.\n\n**Auth.** Seller endpoints take the shop's admin token in the `x-admin-token` header, or a\n**platform API key** (`Authorization: Bearer ot_sk_…`) for marketplaces that make shops for\ntheir own sellers. Buyer endpoints (checkout, access-code verification, downloads) are public.\n\n**Access codes.** A digital product can unlock an app or game instead of shipping a file.\nEach paid order gets a code such as `K7QF-M2XP-9HTD`; your app calls `verifyAccessCode`\nbefore unlocking. Raptor Rush on miriogames.com is a live example.\n\n**Agent-ready.** Every live shop is also published for AI shopping agents: product JSON at\n`getAgentProduct`, and an MCP server at `/api/mcp` with `search_shops`, `get_product`,\n`create_order` and `get_order`. An agent can find and order, but the buyer still approves\nevery payment at PayPal.\n\nAll money moves through PayPal (sandbox in this deployment). OneThing never holds card data.\n",
+    "description": "OneThing turns a photo, a link or a picked product into a live one-product shop that takes\nPayPal payments, or a recommendation page that earns referral commissions through Channel3.\n\n**How a shop is made**\n1. `createShop`: start from a photo, a link, or a Channel3 product. Gemini guesses what it\n   is, how it's delivered, the price, a short link and the page design. You get back the\n   shop's link name and an **admin token**.\n2. `updateShop`: correct anything the AI guessed, then set `status: live`.\n3. Buyers pay on `https://<host>/<slug>` with PayPal. Sellers read orders and ship them.\n\n**Auth.** Seller endpoints take the shop's admin token in the `x-admin-token` header, or a\n**platform API key** (`Authorization: Bearer ot_sk_…`) for marketplaces that make shops for\ntheir own sellers. Buyer endpoints (checkout, access-code verification, downloads) are public.\n\n**Access codes.** A digital product can unlock an app or game instead of shipping a file.\nEach paid order gets a code such as `K7QF-M2XP-9HTD`; your app calls `verifyAccessCode`\nbefore unlocking. Raptor Rush on miriogames.com is a live example.\n\n**Agent-ready.** Every live shop is also published for AI shopping agents: an MCP server at\n`/api/mcp` with `search_shops`, `get_product`, `create_order` and `get_order`, and the same\nreads as plain GETs for agents that can only fetch URLs (`listAgentShops`, `getAgentProduct`,\n`getAgentOrder`). An agent can find and order, but the buyer still approves every payment at\nPayPal.\n\nAll money moves through PayPal (sandbox in this deployment). OneThing never holds card data.\n",
     "contact": {
       "name": "OneThing",
       "url": "https://github.com/omarmiri/one-thing"
@@ -37,7 +37,32 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ApiAccountSigninRequest"
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/ApiAccountSigninRequest"
+                  },
+                  {
+                    "examples": [
+                      "{\"identifier\":\"maker@example.com\"}",
+                      "{\"identifier\":\"+1 555 123 4567\"}"
+                    ]
+                  }
+                ],
+                "contentMediaType": "application/json"
+              },
+              "examples": {
+                "email": {
+                  "summary": "With an email",
+                  "value": {
+                    "identifier": "maker@example.com"
+                  }
+                },
+                "phone": {
+                  "summary": "With a phone number",
+                  "value": {
+                    "identifier": "+1 555 123 4567"
+                  }
+                }
               }
             }
           },
@@ -54,8 +79,12 @@
                     "schema": {
                       "type": "string",
                       "description": "The session cookie: `ot_session=<token>`, HttpOnly, for a year.",
+                      "examples": [
+                        "ot_session=Rk2v9QxN4tLm8pWz0cYb7HsE; Path=/; HttpOnly; SameSite=lax; Max-Age=31536000"
+                      ],
                       "contentMediaType": "text/plain"
-                    }
+                    },
+                    "example": "ot_session=Rk2v9QxN4tLm8pWz0cYb7HsE; Path=/; HttpOnly; SameSite=lax; Max-Age=31536000"
                   }
                 }
               }
@@ -63,7 +92,26 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiAccountSigninResponse"
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiAccountSigninResponse"
+                    },
+                    {
+                      "examples": [
+                        {
+                          "id": "Vq3nN8cT0bLx2YwE",
+                          "email": "maker@example.com",
+                          "phone": null
+                        }
+                      ]
+                    }
+                  ],
+                  "contentMediaType": "application/json"
+                },
+                "example": {
+                  "id": "Vq3nN8cT0bLx2YwE",
+                  "email": "maker@example.com",
+                  "phone": null
                 }
               }
             }
@@ -74,7 +122,22 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Error"
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Error"
+                    },
+                    {
+                      "examples": [
+                        {
+                          "error": "Choose a photo."
+                        }
+                      ]
+                    }
+                  ],
+                  "contentMediaType": "application/json"
+                },
+                "example": {
+                  "error": "Choose a photo."
                 }
               }
             }
@@ -100,7 +163,22 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Ok"
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Ok"
+                    },
+                    {
+                      "examples": [
+                        {
+                          "ok": true
+                        }
+                      ]
+                    }
+                  ],
+                  "contentMediaType": "application/json"
+                },
+                "example": {
+                  "ok": true
                 }
               }
             }
@@ -180,7 +258,18 @@
                 "type": "object",
                 "properties": {
                   "source": {
-                    "$ref": "#/components/schemas/Source"
+                    "allOf": [
+                      {
+                        "$ref": "#/components/schemas/Source"
+                      },
+                      {
+                        "examples": [
+                          "photo",
+                          "link",
+                          "channel3"
+                        ]
+                      }
+                    ]
                   },
                   "photo": {
                     "type": "string",
@@ -189,23 +278,45 @@
                   },
                   "description": {
                     "type": "string",
-                    "description": "`source=photo`: a sentence or two about the product. Required if there is no photo."
+                    "description": "`source=photo`: a sentence or two about the product. Required if there is no photo.",
+                    "examples": [
+                      "Vintage cream and red quad roller skates with walnut burl heels."
+                    ]
                   },
                   "url": {
                     "type": "string",
                     "description": "`source=link`: a product page, or your own app or game page.",
-                    "contentEncoding": "uri"
+                    "contentEncoding": "uri",
+                    "examples": [
+                      "https://www.miriogames.com/raptor-rush/"
+                    ]
                   },
                   "productId": {
                     "type": "string",
-                    "description": "`source=channel3`: a product id from `searchProducts`."
+                    "description": "`source=channel3`: a product id from `searchProducts`.",
+                    "examples": [
+                      "ch3_7f2a9c1e"
+                    ]
                   },
                   "slug": {
                     "type": "string",
-                    "description": "The link name you want. If omitted, the AI suggests one."
+                    "description": "The link name you want. If omitted, the AI suggests one.",
+                    "examples": [
+                      "raptorrush"
+                    ]
                   },
                   "type": {
-                    "$ref": "#/components/schemas/Type"
+                    "allOf": [
+                      {
+                        "$ref": "#/components/schemas/Type"
+                      },
+                      {
+                        "examples": [
+                          "physical",
+                          "digital"
+                        ]
+                      }
+                    ]
                   },
                   "delivery": {
                     "allOf": [
@@ -213,34 +324,53 @@
                         "$ref": "#/components/schemas/Delivery"
                       },
                       {
-                        "description": "For digital products. If omitted, the AI guesses."
+                        "description": "For digital products. If omitted, the AI guesses.",
+                        "examples": [
+                          "access_code"
+                        ]
                       }
                     ]
                   },
                   "access_url": {
                     "type": "string",
                     "description": "Where buyers use an access code.",
-                    "contentEncoding": "uri"
+                    "contentEncoding": "uri",
+                    "examples": [
+                      "https://www.miriogames.com/raptor-rush/play/"
+                    ]
                   },
                   "price": {
                     "type": "number",
                     "description": "USD. If omitted, the AI suggests a price.",
-                    "contentEncoding": "double"
+                    "contentEncoding": "double",
+                    "examples": [
+                      "240",
+                      "2.99"
+                    ]
                   },
                   "shipping": {
                     "type": "number",
-                    "contentEncoding": "double"
+                    "contentEncoding": "double",
+                    "examples": [
+                      "15"
+                    ]
                   },
                   "stock": {
                     "type": "integer",
                     "contentEncoding": "int32"
                   },
                   "ship_countries": {
-                    "type": "string"
+                    "type": "string",
+                    "examples": [
+                      "US"
+                    ]
                   },
                   "paypal_email": {
                     "type": "string",
-                    "contentEncoding": "email"
+                    "contentEncoding": "email",
+                    "examples": [
+                      "seller@example.com"
+                    ]
                   },
                   "seller_email": {
                     "type": "string",
@@ -264,7 +394,26 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CreatedShop"
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/CreatedShop"
+                    },
+                    {
+                      "examples": [
+                        {
+                          "slug": "vintageskates",
+                          "token": "3fJ9xQm2LwP8vR1tZk7cN4bY6dHs0aEu",
+                          "manageUrl": "/manage/vintageskates?token=3fJ9xQm2LwP8vR1tZk7cN4bY6dHs0aEu"
+                        }
+                      ]
+                    }
+                  ],
+                  "contentMediaType": "application/json"
+                },
+                "example": {
+                  "slug": "vintageskates",
+                  "token": "3fJ9xQm2LwP8vR1tZk7cN4bY6dHs0aEu",
+                  "manageUrl": "/manage/vintageskates?token=3fJ9xQm2LwP8vR1tZk7cN4bY6dHs0aEu"
                 }
               }
             }
@@ -275,7 +424,22 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Error"
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Error"
+                    },
+                    {
+                      "examples": [
+                        {
+                          "error": "Choose a photo."
+                        }
+                      ]
+                    }
+                  ],
+                  "contentMediaType": "application/json"
+                },
+                "example": {
+                  "error": "Choose a photo."
                 }
               }
             }
@@ -286,7 +450,22 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Error"
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Error"
+                    },
+                    {
+                      "examples": [
+                        {
+                          "error": "Sold out."
+                        }
+                      ]
+                    }
+                  ],
+                  "contentMediaType": "application/json"
+                },
+                "example": {
+                  "error": "Sold out."
                 }
               }
             }
@@ -297,7 +476,22 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Error"
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Error"
+                    },
+                    {
+                      "examples": [
+                        {
+                          "error": "PayPal isn't configured on this server."
+                        }
+                      ]
+                    }
+                  ],
+                  "contentMediaType": "application/json"
+                },
+                "example": {
+                  "error": "PayPal isn't configured on this server."
                 }
               }
             }
@@ -342,7 +536,216 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Shop"
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Shop"
+                    },
+                    {
+                      "examples": [
+                        {
+                          "id": "Hn2c8QvL0xTzR4pW",
+                          "slug": "vintageskates",
+                          "status": "live",
+                          "product_type": "physical",
+                          "price_cents": 24000,
+                          "currency": "USD",
+                          "shipping_cents": 1500,
+                          "ship_countries": "US",
+                          "stock": null,
+                          "delivery": "file",
+                          "access_url": null,
+                          "paypal_email": "seller@example.com",
+                          "seller_email": "seller@example.com",
+                          "paypal_merchant_id": "7MZJ4QXN8K2LA",
+                          "paypal_status": {
+                            "receivable": true,
+                            "emailConfirmed": true,
+                            "checkedAt": "2026-10-21T18:04:11Z"
+                          },
+                          "zapier_hook_url": null,
+                          "in_gallery": true,
+                          "account_id": "Vq3nN8cT0bLx2YwE",
+                          "options": [
+                            {
+                              "name": "Size",
+                              "kind": "size",
+                              "values": [
+                                {
+                                  "label": "7"
+                                },
+                                {
+                                  "label": "8"
+                                },
+                                {
+                                  "label": "9"
+                                }
+                              ]
+                            }
+                          ],
+                          "option_stock": {
+                            "7": 3,
+                            "8": 0,
+                            "9": 6
+                          },
+                          "suggestions": null,
+                          "photo_blob": "LFRvGuTU3D8i334X",
+                          "gallery_blobs": [
+                            "zrySajNyao6_j11x",
+                            "SuqcgNv64HWN8H6e"
+                          ],
+                          "hero_blob": null,
+                          "hero_status": "none",
+                          "hero_error": null,
+                          "ai_source": "gemini",
+                          "source_url": null,
+                          "referral": null,
+                          "spec": {
+                            "productType": "physical",
+                            "productName": "Vintage Cream and Red Roller Skates",
+                            "layout": "editorial",
+                            "palette": {
+                              "background": "#f6efe4",
+                              "surface": "#fffaf2",
+                              "text": "#2b1d14",
+                              "muted": "#7a6455",
+                              "accent": "#b3261e",
+                              "accentText": "#ffffff"
+                            },
+                            "fonts": {
+                              "heading": "Playfair Display",
+                              "body": "Inter"
+                            },
+                            "eyebrow": "One pair, restored",
+                            "headline": "Classic quad skates crafted with walnut burl heels",
+                            "subheadline": "A vintage pair of skates featuring cream leather, bold red trim, and durable quad wheels.",
+                            "story": "Each pair combines soft cream leather with distinct red accents and a sculpted walnut burl heel base.",
+                            "bullets": [
+                              "Handmade cream leather upper with rich red trim",
+                              "Sculpted walnut burl heel structure for stability"
+                            ],
+                            "details": [
+                              {
+                                "label": "Materials",
+                                "value": "Leather upper, walnut burl heel, rubber wheels"
+                              }
+                            ],
+                            "faq": [
+                              {
+                                "q": "Are these suitable for outdoor skating?",
+                                "a": "Yes, on indoor rink floors and paved outdoor paths."
+                              }
+                            ],
+                            "ctaLabel": "Buy the skates",
+                            "suggestedPriceUsd": 240,
+                            "suggestedShippingUsd": 15,
+                            "imageAlt": "Cream leather quad roller skates with red trim"
+                          },
+                          "created_at": "2026-10-19T15:22:08Z"
+                        }
+                      ]
+                    }
+                  ],
+                  "contentMediaType": "application/json"
+                },
+                "example": {
+                  "id": "Hn2c8QvL0xTzR4pW",
+                  "slug": "vintageskates",
+                  "status": "live",
+                  "product_type": "physical",
+                  "price_cents": 24000,
+                  "currency": "USD",
+                  "shipping_cents": 1500,
+                  "ship_countries": "US",
+                  "stock": null,
+                  "delivery": "file",
+                  "access_url": null,
+                  "paypal_email": "seller@example.com",
+                  "seller_email": "seller@example.com",
+                  "paypal_merchant_id": "7MZJ4QXN8K2LA",
+                  "paypal_status": {
+                    "receivable": true,
+                    "emailConfirmed": true,
+                    "checkedAt": "2026-10-21T18:04:11Z"
+                  },
+                  "zapier_hook_url": null,
+                  "in_gallery": true,
+                  "account_id": "Vq3nN8cT0bLx2YwE",
+                  "options": [
+                    {
+                      "name": "Size",
+                      "kind": "size",
+                      "values": [
+                        {
+                          "label": "7"
+                        },
+                        {
+                          "label": "8"
+                        },
+                        {
+                          "label": "9"
+                        }
+                      ]
+                    }
+                  ],
+                  "option_stock": {
+                    "7": 3,
+                    "8": 0,
+                    "9": 6
+                  },
+                  "suggestions": null,
+                  "photo_blob": "LFRvGuTU3D8i334X",
+                  "gallery_blobs": [
+                    "zrySajNyao6_j11x",
+                    "SuqcgNv64HWN8H6e"
+                  ],
+                  "hero_blob": null,
+                  "hero_status": "none",
+                  "hero_error": null,
+                  "ai_source": "gemini",
+                  "source_url": null,
+                  "referral": null,
+                  "spec": {
+                    "productType": "physical",
+                    "productName": "Vintage Cream and Red Roller Skates",
+                    "layout": "editorial",
+                    "palette": {
+                      "background": "#f6efe4",
+                      "surface": "#fffaf2",
+                      "text": "#2b1d14",
+                      "muted": "#7a6455",
+                      "accent": "#b3261e",
+                      "accentText": "#ffffff"
+                    },
+                    "fonts": {
+                      "heading": "Playfair Display",
+                      "body": "Inter"
+                    },
+                    "eyebrow": "One pair, restored",
+                    "headline": "Classic quad skates crafted with walnut burl heels",
+                    "subheadline": "A vintage pair of skates featuring cream leather, bold red trim, and durable quad wheels.",
+                    "story": "Each pair combines soft cream leather with distinct red accents and a sculpted walnut burl heel base.",
+                    "bullets": [
+                      "Handmade cream leather upper with rich red trim",
+                      "Sculpted walnut burl heel structure for stability"
+                    ],
+                    "details": [
+                      {
+                        "label": "Materials",
+                        "value": "Leather upper, walnut burl heel, rubber wheels"
+                      }
+                    ],
+                    "faq": [
+                      {
+                        "q": "Are these suitable for outdoor skating?",
+                        "a": "Yes, on indoor rink floors and paved outdoor paths."
+                      }
+                    ],
+                    "ctaLabel": "Buy the skates",
+                    "suggestedPriceUsd": 240,
+                    "suggestedShippingUsd": 15,
+                    "imageAlt": "Cream leather quad roller skates with red trim"
+                  },
+                  "created_at": "2026-10-19T15:22:08Z"
                 }
               }
             }
@@ -353,7 +756,22 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Error"
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Error"
+                    },
+                    {
+                      "examples": [
+                        {
+                          "error": "Shop not found."
+                        }
+                      ]
+                    }
+                  ],
+                  "contentMediaType": "application/json"
+                },
+                "example": {
+                  "error": "Shop not found."
                 }
               }
             }
@@ -395,7 +813,75 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ShopUpdate"
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/ShopUpdate"
+                  },
+                  {
+                    "examples": [
+                      "{\"status\":\"live\"}",
+                      "{\"price\":240,\"shipping\":15,\"ship_countries\":\"US,CA\",\"in_gallery\":true}",
+                      "{\"options\":[{\"name\":\"Size\",\"kind\":\"size\",\"values\":[{\"label\":\"7\"},{\"label\":\"8\"},{\"label\":\"9\"}]}],\"option_stock\":{\"7\":3,\"8\":0,\"9\":6}}",
+                      "{\"facts\":[{\"label\":\"Wheel size\",\"value\":\"57 mm\"}]}"
+                    ]
+                  }
+                ],
+                "contentMediaType": "application/json"
+              },
+              "examples": {
+                "golive": {
+                  "summary": "Go live",
+                  "value": {
+                    "status": "live"
+                  }
+                },
+                "edit": {
+                  "summary": "Fix the AI's guesses",
+                  "value": {
+                    "price": 240,
+                    "shipping": 15,
+                    "ship_countries": "US,CA",
+                    "in_gallery": true
+                  }
+                },
+                "sizes": {
+                  "summary": "Sizes with stock per size",
+                  "value": {
+                    "options": [
+                      {
+                        "name": "Size",
+                        "kind": "size",
+                        "values": [
+                          {
+                            "label": "7"
+                          },
+                          {
+                            "label": "8"
+                          },
+                          {
+                            "label": "9"
+                          }
+                        ]
+                      }
+                    ],
+                    "option_stock": {
+                      "7": 3,
+                      "8": 0,
+                      "9": 6
+                    }
+                  }
+                },
+                "facts": {
+                  "summary": "Answer what buyers will ask",
+                  "value": {
+                    "facts": [
+                      {
+                        "label": "Wheel size",
+                        "value": "57 mm"
+                      }
+                    ]
+                  }
+                }
               }
             }
           },
@@ -408,7 +894,24 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiShopsResponse"
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiShopsResponse"
+                    },
+                    {
+                      "examples": [
+                        {
+                          "ok": true,
+                          "slug": "vintageskates"
+                        }
+                      ]
+                    }
+                  ],
+                  "contentMediaType": "application/json"
+                },
+                "example": {
+                  "ok": true,
+                  "slug": "vintageskates"
                 }
               }
             }
@@ -419,7 +922,22 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Error"
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Error"
+                    },
+                    {
+                      "examples": [
+                        {
+                          "error": "Choose a photo."
+                        }
+                      ]
+                    }
+                  ],
+                  "contentMediaType": "application/json"
+                },
+                "example": {
+                  "error": "Choose a photo."
                 }
               }
             }
@@ -430,7 +948,22 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Error"
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Error"
+                    },
+                    {
+                      "examples": [
+                        {
+                          "error": "Shop not found."
+                        }
+                      ]
+                    }
+                  ],
+                  "contentMediaType": "application/json"
+                },
+                "example": {
+                  "error": "Shop not found."
                 }
               }
             }
@@ -475,7 +1008,22 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ApiShopsRefineRequest"
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/ApiShopsRefineRequest"
+                  },
+                  {
+                    "examples": [
+                      {
+                        "instruction": "Make it feel more premium"
+                      }
+                    ]
+                  }
+                ],
+                "contentMediaType": "application/json"
+              },
+              "example": {
+                "instruction": "Make it feel more premium"
               }
             }
           },
@@ -488,7 +1036,102 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiShopsRefineResponse"
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiShopsRefineResponse"
+                    },
+                    {
+                      "examples": [
+                        {
+                          "spec": {
+                            "productType": "physical",
+                            "productName": "Vintage Cream and Red Roller Skates",
+                            "layout": "editorial",
+                            "palette": {
+                              "background": "#f6efe4",
+                              "surface": "#fffaf2",
+                              "text": "#2b1d14",
+                              "muted": "#7a6455",
+                              "accent": "#b3261e",
+                              "accentText": "#ffffff"
+                            },
+                            "fonts": {
+                              "heading": "Playfair Display",
+                              "body": "Inter"
+                            },
+                            "eyebrow": "One pair, restored",
+                            "headline": "Classic quad skates crafted with walnut burl heels",
+                            "subheadline": "A vintage pair of skates featuring cream leather, bold red trim, and durable quad wheels.",
+                            "story": "Each pair combines soft cream leather with distinct red accents and a sculpted walnut burl heel base.",
+                            "bullets": [
+                              "Handmade cream leather upper with rich red trim",
+                              "Sculpted walnut burl heel structure for stability"
+                            ],
+                            "details": [
+                              {
+                                "label": "Materials",
+                                "value": "Leather upper, walnut burl heel, rubber wheels"
+                              }
+                            ],
+                            "faq": [
+                              {
+                                "q": "Are these suitable for outdoor skating?",
+                                "a": "Yes, on indoor rink floors and paved outdoor paths."
+                              }
+                            ],
+                            "ctaLabel": "Buy the skates",
+                            "suggestedPriceUsd": 240,
+                            "suggestedShippingUsd": 15,
+                            "imageAlt": "Cream leather quad roller skates with red trim"
+                          }
+                        }
+                      ]
+                    }
+                  ],
+                  "contentMediaType": "application/json"
+                },
+                "example": {
+                  "spec": {
+                    "productType": "physical",
+                    "productName": "Vintage Cream and Red Roller Skates",
+                    "layout": "editorial",
+                    "palette": {
+                      "background": "#f6efe4",
+                      "surface": "#fffaf2",
+                      "text": "#2b1d14",
+                      "muted": "#7a6455",
+                      "accent": "#b3261e",
+                      "accentText": "#ffffff"
+                    },
+                    "fonts": {
+                      "heading": "Playfair Display",
+                      "body": "Inter"
+                    },
+                    "eyebrow": "One pair, restored",
+                    "headline": "Classic quad skates crafted with walnut burl heels",
+                    "subheadline": "A vintage pair of skates featuring cream leather, bold red trim, and durable quad wheels.",
+                    "story": "Each pair combines soft cream leather with distinct red accents and a sculpted walnut burl heel base.",
+                    "bullets": [
+                      "Handmade cream leather upper with rich red trim",
+                      "Sculpted walnut burl heel structure for stability"
+                    ],
+                    "details": [
+                      {
+                        "label": "Materials",
+                        "value": "Leather upper, walnut burl heel, rubber wheels"
+                      }
+                    ],
+                    "faq": [
+                      {
+                        "q": "Are these suitable for outdoor skating?",
+                        "a": "Yes, on indoor rink floors and paved outdoor paths."
+                      }
+                    ],
+                    "ctaLabel": "Buy the skates",
+                    "suggestedPriceUsd": 240,
+                    "suggestedShippingUsd": 15,
+                    "imageAlt": "Cream leather quad roller skates with red trim"
+                  }
                 }
               }
             }
@@ -499,7 +1142,22 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Error"
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Error"
+                    },
+                    {
+                      "examples": [
+                        {
+                          "error": "Choose a photo."
+                        }
+                      ]
+                    }
+                  ],
+                  "contentMediaType": "application/json"
+                },
+                "example": {
+                  "error": "Choose a photo."
                 }
               }
             }
@@ -510,7 +1168,22 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Error"
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Error"
+                    },
+                    {
+                      "examples": [
+                        {
+                          "error": "Shop not found."
+                        }
+                      ]
+                    }
+                  ],
+                  "contentMediaType": "application/json"
+                },
+                "example": {
+                  "error": "Shop not found."
                 }
               }
             }
@@ -521,7 +1194,22 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Error"
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Error"
+                    },
+                    {
+                      "examples": [
+                        {
+                          "error": "PayPal isn't configured on this server."
+                        }
+                      ]
+                    }
+                  ],
+                  "contentMediaType": "application/json"
+                },
+                "example": {
+                  "error": "PayPal isn't configured on this server."
                 }
               }
             }
@@ -568,7 +1256,22 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Ok"
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Ok"
+                    },
+                    {
+                      "examples": [
+                        {
+                          "ok": true
+                        }
+                      ]
+                    }
+                  ],
+                  "contentMediaType": "application/json"
+                },
+                "example": {
+                  "ok": true
                 }
               }
             }
@@ -579,7 +1282,22 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Error"
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Error"
+                    },
+                    {
+                      "examples": [
+                        {
+                          "error": "Choose a photo."
+                        }
+                      ]
+                    }
+                  ],
+                  "contentMediaType": "application/json"
+                },
+                "example": {
+                  "error": "Choose a photo."
                 }
               }
             }
@@ -590,7 +1308,22 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Error"
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Error"
+                    },
+                    {
+                      "examples": [
+                        {
+                          "error": "Shop not found."
+                        }
+                      ]
+                    }
+                  ],
+                  "contentMediaType": "application/json"
+                },
+                "example": {
+                  "error": "Shop not found."
                 }
               }
             }
@@ -659,7 +1392,24 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiShopsFileResponse"
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiShopsFileResponse"
+                    },
+                    {
+                      "examples": [
+                        {
+                          "ok": true,
+                          "filename": "raptor-rush-soundtrack.zip"
+                        }
+                      ]
+                    }
+                  ],
+                  "contentMediaType": "application/json"
+                },
+                "example": {
+                  "ok": true,
+                  "filename": "raptor-rush-soundtrack.zip"
                 }
               }
             }
@@ -670,7 +1420,22 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Error"
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Error"
+                    },
+                    {
+                      "examples": [
+                        {
+                          "error": "Choose a photo."
+                        }
+                      ]
+                    }
+                  ],
+                  "contentMediaType": "application/json"
+                },
+                "example": {
+                  "error": "Choose a photo."
                 }
               }
             }
@@ -681,7 +1446,22 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Error"
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Error"
+                    },
+                    {
+                      "examples": [
+                        {
+                          "error": "Shop not found."
+                        }
+                      ]
+                    }
+                  ],
+                  "contentMediaType": "application/json"
+                },
+                "example": {
+                  "error": "Shop not found."
                 }
               }
             }
@@ -750,7 +1530,40 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ShopPhotos"
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ShopPhotos"
+                    },
+                    {
+                      "examples": [
+                        {
+                          "photos": [
+                            {
+                              "id": "LFRvGuTU3D8i334X",
+                              "url": "/api/blobs/LFRvGuTU3D8i334X"
+                            },
+                            {
+                              "id": "zrySajNyao6_j11x",
+                              "url": "/api/blobs/zrySajNyao6_j11x"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ],
+                  "contentMediaType": "application/json"
+                },
+                "example": {
+                  "photos": [
+                    {
+                      "id": "LFRvGuTU3D8i334X",
+                      "url": "/api/blobs/LFRvGuTU3D8i334X"
+                    },
+                    {
+                      "id": "zrySajNyao6_j11x",
+                      "url": "/api/blobs/zrySajNyao6_j11x"
+                    }
+                  ]
                 }
               }
             }
@@ -761,7 +1574,22 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Error"
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Error"
+                    },
+                    {
+                      "examples": [
+                        {
+                          "error": "Choose a photo."
+                        }
+                      ]
+                    }
+                  ],
+                  "contentMediaType": "application/json"
+                },
+                "example": {
+                  "error": "Choose a photo."
                 }
               }
             }
@@ -772,7 +1600,22 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Error"
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Error"
+                    },
+                    {
+                      "examples": [
+                        {
+                          "error": "Shop not found."
+                        }
+                      ]
+                    }
+                  ],
+                  "contentMediaType": "application/json"
+                },
+                "example": {
+                  "error": "Shop not found."
                 }
               }
             }
@@ -814,7 +1657,30 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ApiShopsPhotosRequest"
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/ApiShopsPhotosRequest"
+                  },
+                  {
+                    "examples": [
+                      {
+                        "photos": [
+                          "zrySajNyao6_j11x",
+                          "LFRvGuTU3D8i334X",
+                          "SuqcgNv64HWN8H6e"
+                        ]
+                      }
+                    ]
+                  }
+                ],
+                "contentMediaType": "application/json"
+              },
+              "example": {
+                "photos": [
+                  "zrySajNyao6_j11x",
+                  "LFRvGuTU3D8i334X",
+                  "SuqcgNv64HWN8H6e"
+                ]
               }
             }
           },
@@ -827,7 +1693,40 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ShopPhotos"
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ShopPhotos"
+                    },
+                    {
+                      "examples": [
+                        {
+                          "photos": [
+                            {
+                              "id": "LFRvGuTU3D8i334X",
+                              "url": "/api/blobs/LFRvGuTU3D8i334X"
+                            },
+                            {
+                              "id": "zrySajNyao6_j11x",
+                              "url": "/api/blobs/zrySajNyao6_j11x"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ],
+                  "contentMediaType": "application/json"
+                },
+                "example": {
+                  "photos": [
+                    {
+                      "id": "LFRvGuTU3D8i334X",
+                      "url": "/api/blobs/LFRvGuTU3D8i334X"
+                    },
+                    {
+                      "id": "zrySajNyao6_j11x",
+                      "url": "/api/blobs/zrySajNyao6_j11x"
+                    }
+                  ]
                 }
               }
             }
@@ -838,7 +1737,22 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Error"
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Error"
+                    },
+                    {
+                      "examples": [
+                        {
+                          "error": "Choose a photo."
+                        }
+                      ]
+                    }
+                  ],
+                  "contentMediaType": "application/json"
+                },
+                "example": {
+                  "error": "Choose a photo."
                 }
               }
             }
@@ -849,7 +1763,22 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Error"
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Error"
+                    },
+                    {
+                      "examples": [
+                        {
+                          "error": "Shop not found."
+                        }
+                      ]
+                    }
+                  ],
+                  "contentMediaType": "application/json"
+                },
+                "example": {
+                  "error": "Shop not found."
                 }
               }
             }
@@ -901,10 +1830,68 @@
                       "$ref": "#/components/schemas/Suggestions"
                     },
                     {
-                      "description": "What Gemini thinks buyers will want to choose or ask. The seller confirms; nothing is applied on its own."
+                      "description": "What Gemini thinks buyers will want to choose or ask. The seller confirms; nothing is applied on its own.",
+                      "examples": [
+                        {
+                          "oneOfAKind": false,
+                          "options": [
+                            {
+                              "name": "Size",
+                              "kind": "size",
+                              "values": [
+                                {
+                                  "label": "7"
+                                },
+                                {
+                                  "label": "8"
+                                },
+                                {
+                                  "label": "9"
+                                }
+                              ],
+                              "fromSeller": false
+                            }
+                          ],
+                          "missingFacts": [
+                            {
+                              "label": "Wheel size",
+                              "question": "How big are the wheels?",
+                              "placeholder": "57 mm"
+                            }
+                          ]
+                        }
+                      ]
                     }
                   ],
                   "contentMediaType": "application/json"
+                },
+                "example": {
+                  "oneOfAKind": false,
+                  "options": [
+                    {
+                      "name": "Size",
+                      "kind": "size",
+                      "values": [
+                        {
+                          "label": "7"
+                        },
+                        {
+                          "label": "8"
+                        },
+                        {
+                          "label": "9"
+                        }
+                      ],
+                      "fromSeller": false
+                    }
+                  ],
+                  "missingFacts": [
+                    {
+                      "label": "Wheel size",
+                      "question": "How big are the wheels?",
+                      "placeholder": "57 mm"
+                    }
+                  ]
                 }
               }
             }
@@ -915,7 +1902,22 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Error"
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Error"
+                    },
+                    {
+                      "examples": [
+                        {
+                          "error": "Choose a photo."
+                        }
+                      ]
+                    }
+                  ],
+                  "contentMediaType": "application/json"
+                },
+                "example": {
+                  "error": "Choose a photo."
                 }
               }
             }
@@ -926,7 +1928,22 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Error"
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Error"
+                    },
+                    {
+                      "examples": [
+                        {
+                          "error": "Shop not found."
+                        }
+                      ]
+                    }
+                  ],
+                  "contentMediaType": "application/json"
+                },
+                "example": {
+                  "error": "Shop not found."
                 }
               }
             }
@@ -937,7 +1954,22 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Error"
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Error"
+                    },
+                    {
+                      "examples": [
+                        {
+                          "error": "PayPal isn't configured on this server."
+                        }
+                      ]
+                    }
+                  ],
+                  "contentMediaType": "application/json"
+                },
+                "example": {
+                  "error": "PayPal isn't configured on this server."
                 }
               }
             }
@@ -982,7 +2014,40 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ApiShopsMatchPhotosRequest"
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/ApiShopsMatchPhotosRequest"
+                  },
+                  {
+                    "examples": [
+                      {
+                        "colors": [
+                          {
+                            "label": "Cream",
+                            "hex": "#f3e9d2"
+                          },
+                          {
+                            "label": "Red",
+                            "hex": "#b3261e"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ],
+                "contentMediaType": "application/json"
+              },
+              "example": {
+                "colors": [
+                  {
+                    "label": "Cream",
+                    "hex": "#f3e9d2"
+                  },
+                  {
+                    "label": "Red",
+                    "hex": "#b3261e"
+                  }
+                ]
               }
             }
           },
@@ -995,7 +2060,28 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiShopsMatchPhotosResponse"
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiShopsMatchPhotosResponse"
+                    },
+                    {
+                      "examples": [
+                        {
+                          "matches": {
+                            "Cream": "LFRvGuTU3D8i334X",
+                            "Red": "SuqcgNv64HWN8H6e"
+                          }
+                        }
+                      ]
+                    }
+                  ],
+                  "contentMediaType": "application/json"
+                },
+                "example": {
+                  "matches": {
+                    "Cream": "LFRvGuTU3D8i334X",
+                    "Red": "SuqcgNv64HWN8H6e"
+                  }
                 }
               }
             }
@@ -1006,7 +2092,22 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Error"
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Error"
+                    },
+                    {
+                      "examples": [
+                        {
+                          "error": "Choose a photo."
+                        }
+                      ]
+                    }
+                  ],
+                  "contentMediaType": "application/json"
+                },
+                "example": {
+                  "error": "Choose a photo."
                 }
               }
             }
@@ -1017,7 +2118,22 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Error"
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Error"
+                    },
+                    {
+                      "examples": [
+                        {
+                          "error": "Shop not found."
+                        }
+                      ]
+                    }
+                  ],
+                  "contentMediaType": "application/json"
+                },
+                "example": {
+                  "error": "Shop not found."
                 }
               }
             }
@@ -1028,7 +2144,22 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Error"
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Error"
+                    },
+                    {
+                      "examples": [
+                        {
+                          "error": "PayPal isn't configured on this server."
+                        }
+                      ]
+                    }
+                  ],
+                  "contentMediaType": "application/json"
+                },
+                "example": {
+                  "error": "PayPal isn't configured on this server."
                 }
               }
             }
@@ -1073,7 +2204,28 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ApiShopsColorPhotosRequest"
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/ApiShopsColorPhotosRequest"
+                  },
+                  {
+                    "examples": [
+                      {
+                        "photos": {
+                          "Cream": "LFRvGuTU3D8i334X",
+                          "Red": null
+                        }
+                      }
+                    ]
+                  }
+                ],
+                "contentMediaType": "application/json"
+              },
+              "example": {
+                "photos": {
+                  "Cream": "LFRvGuTU3D8i334X",
+                  "Red": null
+                }
               }
             }
           },
@@ -1086,7 +2238,28 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiShopsColorPhotosResponse"
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiShopsColorPhotosResponse"
+                    },
+                    {
+                      "examples": [
+                        {
+                          "saved": [
+                            "Cream",
+                            "Red"
+                          ]
+                        }
+                      ]
+                    }
+                  ],
+                  "contentMediaType": "application/json"
+                },
+                "example": {
+                  "saved": [
+                    "Cream",
+                    "Red"
+                  ]
                 }
               }
             }
@@ -1097,7 +2270,22 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Error"
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Error"
+                    },
+                    {
+                      "examples": [
+                        {
+                          "error": "Choose a photo."
+                        }
+                      ]
+                    }
+                  ],
+                  "contentMediaType": "application/json"
+                },
+                "example": {
+                  "error": "Choose a photo."
                 }
               }
             }
@@ -1108,7 +2296,22 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Error"
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Error"
+                    },
+                    {
+                      "examples": [
+                        {
+                          "error": "Shop not found."
+                        }
+                      ]
+                    }
+                  ],
+                  "contentMediaType": "application/json"
+                },
+                "example": {
+                  "error": "Shop not found."
                 }
               }
             }
@@ -1153,7 +2356,22 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ApiShopsPaypalRequest"
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/ApiShopsPaypalRequest"
+                  },
+                  {
+                    "examples": [
+                      {
+                        "returnUrl": "https://www.miriogames.com/market/manage/?g=7Hq2"
+                      }
+                    ]
+                  }
+                ],
+                "contentMediaType": "application/json"
+              },
+              "example": {
+                "returnUrl": "https://www.miriogames.com/market/manage/?g=7Hq2"
               }
             }
           },
@@ -1166,7 +2384,22 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiShopsPaypalResponse"
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiShopsPaypalResponse"
+                    },
+                    {
+                      "examples": [
+                        {
+                          "url": "https://www.sandbox.paypal.com/bizsignup/partner/entry?referralToken=EXAMPLE"
+                        }
+                      ]
+                    }
+                  ],
+                  "contentMediaType": "application/json"
+                },
+                "example": {
+                  "url": "https://www.sandbox.paypal.com/bizsignup/partner/entry?referralToken=EXAMPLE"
                 }
               }
             }
@@ -1177,7 +2410,22 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Error"
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Error"
+                    },
+                    {
+                      "examples": [
+                        {
+                          "error": "Shop not found."
+                        }
+                      ]
+                    }
+                  ],
+                  "contentMediaType": "application/json"
+                },
+                "example": {
+                  "error": "Shop not found."
                 }
               }
             }
@@ -1188,7 +2436,22 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Error"
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Error"
+                    },
+                    {
+                      "examples": [
+                        {
+                          "error": "PayPal isn't configured on this server."
+                        }
+                      ]
+                    }
+                  ],
+                  "contentMediaType": "application/json"
+                },
+                "example": {
+                  "error": "PayPal isn't configured on this server."
                 }
               }
             }
@@ -1199,7 +2462,22 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Error"
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Error"
+                    },
+                    {
+                      "examples": [
+                        {
+                          "error": "PayPal isn't configured on this server."
+                        }
+                      ]
+                    }
+                  ],
+                  "contentMediaType": "application/json"
+                },
+                "example": {
+                  "error": "PayPal isn't configured on this server."
                 }
               }
             }
@@ -1243,7 +2521,32 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiShopsPaypalResponse1"
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiShopsPaypalResponse1"
+                    },
+                    {
+                      "examples": [
+                        {
+                          "merchantId": "7MZJ4QXN8K2LA",
+                          "status": {
+                            "receivable": true,
+                            "emailConfirmed": true,
+                            "checkedAt": "2026-10-21T18:04:11Z"
+                          }
+                        }
+                      ]
+                    }
+                  ],
+                  "contentMediaType": "application/json"
+                },
+                "example": {
+                  "merchantId": "7MZJ4QXN8K2LA",
+                  "status": {
+                    "receivable": true,
+                    "emailConfirmed": true,
+                    "checkedAt": "2026-10-21T18:04:11Z"
+                  }
                 }
               }
             }
@@ -1254,7 +2557,22 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Error"
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Error"
+                    },
+                    {
+                      "examples": [
+                        {
+                          "error": "Shop not found."
+                        }
+                      ]
+                    }
+                  ],
+                  "contentMediaType": "application/json"
+                },
+                "example": {
+                  "error": "Shop not found."
                 }
               }
             }
@@ -1265,7 +2583,22 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Error"
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Error"
+                    },
+                    {
+                      "examples": [
+                        {
+                          "error": "PayPal isn't configured on this server."
+                        }
+                      ]
+                    }
+                  ],
+                  "contentMediaType": "application/json"
+                },
+                "example": {
+                  "error": "PayPal isn't configured on this server."
                 }
               }
             }
@@ -1276,7 +2609,22 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Error"
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Error"
+                    },
+                    {
+                      "examples": [
+                        {
+                          "error": "PayPal isn't configured on this server."
+                        }
+                      ]
+                    }
+                  ],
+                  "contentMediaType": "application/json"
+                },
+                "example": {
+                  "error": "PayPal isn't configured on this server."
                 }
               }
             }
@@ -1320,7 +2668,22 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Ok"
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Ok"
+                    },
+                    {
+                      "examples": [
+                        {
+                          "ok": true
+                        }
+                      ]
+                    }
+                  ],
+                  "contentMediaType": "application/json"
+                },
+                "example": {
+                  "ok": true
                 }
               }
             }
@@ -1331,7 +2694,22 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Error"
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Error"
+                    },
+                    {
+                      "examples": [
+                        {
+                          "error": "Shop not found."
+                        }
+                      ]
+                    }
+                  ],
+                  "contentMediaType": "application/json"
+                },
+                "example": {
+                  "error": "Shop not found."
                 }
               }
             }
@@ -1366,7 +2744,10 @@
             "style": "form",
             "explode": true,
             "schema": {
-              "type": "string"
+              "type": "string",
+              "examples": [
+                "Raptor Rush"
+              ]
             }
           }
         ],
@@ -1377,7 +2758,35 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiSlugsCheckResponse"
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiSlugsCheckResponse"
+                    },
+                    {
+                      "examples": [
+                        "{\"slug\":\"raptor-rush\",\"available\":true}",
+                        "{\"slug\":\"raptorrush\",\"available\":false,\"problem\":\"Taken. Try another name.\"}"
+                      ]
+                    }
+                  ],
+                  "contentMediaType": "application/json"
+                },
+                "examples": {
+                  "free": {
+                    "summary": "Available",
+                    "value": {
+                      "slug": "raptor-rush",
+                      "available": true
+                    }
+                  },
+                  "taken": {
+                    "summary": "Taken",
+                    "value": {
+                      "slug": "raptorrush",
+                      "available": false,
+                      "problem": "Taken. Try another name."
+                    }
+                  }
                 }
               }
             }
@@ -1419,7 +2828,46 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiChannel3SearchResponse"
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiChannel3SearchResponse"
+                    },
+                    {
+                      "examples": [
+                        {
+                          "products": [
+                            {
+                              "id": "ch3_7f2a9c1e",
+                              "title": "Trail Running Vest 5L",
+                              "brand": "Salomon",
+                              "image": "https://images.example.com/vest.jpg",
+                              "price": 59.99,
+                              "currency": "USD",
+                              "retailer": "rei.com",
+                              "retailers": 4,
+                              "commission": 0.08
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ],
+                  "contentMediaType": "application/json"
+                },
+                "example": {
+                  "products": [
+                    {
+                      "id": "ch3_7f2a9c1e",
+                      "title": "Trail Running Vest 5L",
+                      "brand": "Salomon",
+                      "image": "https://images.example.com/vest.jpg",
+                      "price": 59.99,
+                      "currency": "USD",
+                      "retailer": "rei.com",
+                      "retailers": 4,
+                      "commission": 0.08
+                    }
+                  ]
                 }
               }
             }
@@ -1430,7 +2878,22 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Error"
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Error"
+                    },
+                    {
+                      "examples": [
+                        {
+                          "error": "PayPal isn't configured on this server."
+                        }
+                      ]
+                    }
+                  ],
+                  "contentMediaType": "application/json"
+                },
+                "example": {
+                  "error": "PayPal isn't configured on this server."
                 }
               }
             }
@@ -1441,7 +2904,22 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Error"
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Error"
+                    },
+                    {
+                      "examples": [
+                        {
+                          "error": "PayPal isn't configured on this server."
+                        }
+                      ]
+                    }
+                  ],
+                  "contentMediaType": "application/json"
+                },
+                "example": {
+                  "error": "PayPal isn't configured on this server."
                 }
               }
             }
@@ -1467,7 +2945,22 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiPaypalClientTokenResponse"
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiPaypalClientTokenResponse"
+                    },
+                    {
+                      "examples": [
+                        {
+                          "clientToken": "eyJraWQiOiJFWEFNUExFIn0.example.client-token"
+                        }
+                      ]
+                    }
+                  ],
+                  "contentMediaType": "application/json"
+                },
+                "example": {
+                  "clientToken": "eyJraWQiOiJFWEFNUExFIn0.example.client-token"
                 }
               }
             }
@@ -1478,7 +2971,22 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Error"
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Error"
+                    },
+                    {
+                      "examples": [
+                        {
+                          "error": "PayPal isn't configured on this server."
+                        }
+                      ]
+                    }
+                  ],
+                  "contentMediaType": "application/json"
+                },
+                "example": {
+                  "error": "PayPal isn't configured on this server."
                 }
               }
             }
@@ -1489,7 +2997,22 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Error"
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Error"
+                    },
+                    {
+                      "examples": [
+                        {
+                          "error": "PayPal isn't configured on this server."
+                        }
+                      ]
+                    }
+                  ],
+                  "contentMediaType": "application/json"
+                },
+                "example": {
+                  "error": "PayPal isn't configured on this server."
                 }
               }
             }
@@ -1513,7 +3036,35 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ApiOrdersRequest"
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/ApiOrdersRequest"
+                  },
+                  {
+                    "examples": [
+                      "{\"slug\":\"raptorrush\"}",
+                      "{\"slug\":\"vintageskates\",\"options\":{\"Size\":\"9\"}}"
+                    ]
+                  }
+                ],
+                "contentMediaType": "application/json"
+              },
+              "examples": {
+                "plain": {
+                  "summary": "A product without options",
+                  "value": {
+                    "slug": "raptorrush"
+                  }
+                },
+                "options": {
+                  "summary": "With the buyer's size",
+                  "value": {
+                    "slug": "vintageskates",
+                    "options": {
+                      "Size": "9"
+                    }
+                  }
+                }
               }
             }
           },
@@ -1526,7 +3077,22 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiOrdersResponse"
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiOrdersResponse"
+                    },
+                    {
+                      "examples": [
+                        {
+                          "id": "5O190127TN364715T"
+                        }
+                      ]
+                    }
+                  ],
+                  "contentMediaType": "application/json"
+                },
+                "example": {
+                  "id": "5O190127TN364715T"
                 }
               }
             }
@@ -1537,7 +3103,22 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Error"
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Error"
+                    },
+                    {
+                      "examples": [
+                        {
+                          "error": "Choose a photo."
+                        }
+                      ]
+                    }
+                  ],
+                  "contentMediaType": "application/json"
+                },
+                "example": {
+                  "error": "Choose a photo."
                 }
               }
             }
@@ -1548,7 +3129,22 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Error"
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Error"
+                    },
+                    {
+                      "examples": [
+                        {
+                          "error": "Shop not found."
+                        }
+                      ]
+                    }
+                  ],
+                  "contentMediaType": "application/json"
+                },
+                "example": {
+                  "error": "Shop not found."
                 }
               }
             }
@@ -1559,7 +3155,22 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Error"
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Error"
+                    },
+                    {
+                      "examples": [
+                        {
+                          "error": "Sold out."
+                        }
+                      ]
+                    }
+                  ],
+                  "contentMediaType": "application/json"
+                },
+                "example": {
+                  "error": "Sold out."
                 }
               }
             }
@@ -1570,7 +3181,22 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Error"
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Error"
+                    },
+                    {
+                      "examples": [
+                        {
+                          "error": "PayPal isn't configured on this server."
+                        }
+                      ]
+                    }
+                  ],
+                  "contentMediaType": "application/json"
+                },
+                "example": {
+                  "error": "PayPal isn't configured on this server."
                 }
               }
             }
@@ -1581,7 +3207,22 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Error"
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Error"
+                    },
+                    {
+                      "examples": [
+                        {
+                          "error": "PayPal isn't configured on this server."
+                        }
+                      ]
+                    }
+                  ],
+                  "contentMediaType": "application/json"
+                },
+                "example": {
+                  "error": "PayPal isn't configured on this server."
                 }
               }
             }
@@ -1606,7 +3247,10 @@
             "description": "The PayPal order id that `createCheckoutOrder` returned.",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "string",
+              "examples": [
+                "5O190127TN364715T"
+              ]
             }
           }
         ],
@@ -1617,7 +3261,24 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiOrdersCaptureResponse"
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiOrdersCaptureResponse"
+                    },
+                    {
+                      "examples": [
+                        {
+                          "orderId": "pX4kR9tVb2nQ7sLe",
+                          "status": "paid"
+                        }
+                      ]
+                    }
+                  ],
+                  "contentMediaType": "application/json"
+                },
+                "example": {
+                  "orderId": "pX4kR9tVb2nQ7sLe",
+                  "status": "paid"
                 }
               }
             }
@@ -1628,7 +3289,22 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Error"
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Error"
+                    },
+                    {
+                      "examples": [
+                        {
+                          "error": "Choose a photo."
+                        }
+                      ]
+                    }
+                  ],
+                  "contentMediaType": "application/json"
+                },
+                "example": {
+                  "error": "Choose a photo."
                 }
               }
             }
@@ -1639,7 +3315,22 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Error"
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Error"
+                    },
+                    {
+                      "examples": [
+                        {
+                          "error": "Shop not found."
+                        }
+                      ]
+                    }
+                  ],
+                  "contentMediaType": "application/json"
+                },
+                "example": {
+                  "error": "Shop not found."
                 }
               }
             }
@@ -1656,7 +3347,7 @@
             }
           },
           "410": {
-            "description": "The last unit (or the last of the buyer's combination) sold while they were paying. The payment isn't captured, so the buyer isn't charged.",
+            "description": "The last unit (or the last of the buyer's combination) sold while they were paying, or the PayPal checkout expired before they paid. The payment isn't captured, so the buyer isn't charged.",
             "headers": {},
             "content": {
               "application/json": {
@@ -1683,7 +3374,22 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Error"
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Error"
+                    },
+                    {
+                      "examples": [
+                        {
+                          "error": "PayPal isn't configured on this server."
+                        }
+                      ]
+                    }
+                  ],
+                  "contentMediaType": "application/json"
+                },
+                "example": {
+                  "error": "PayPal isn't configured on this server."
                 }
               }
             }
@@ -1707,7 +3413,24 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ApiAccessVerifyRequest"
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/ApiAccessVerifyRequest"
+                  },
+                  {
+                    "examples": [
+                      {
+                        "shop": "raptorrush",
+                        "code": "K7QF-M2XP-9HTD"
+                      }
+                    ]
+                  }
+                ],
+                "contentMediaType": "application/json"
+              },
+              "example": {
+                "shop": "raptorrush",
+                "code": "K7QF-M2XP-9HTD"
               }
             }
           },
@@ -1720,7 +3443,33 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiAccessVerifyResponse"
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiAccessVerifyResponse"
+                    },
+                    {
+                      "examples": [
+                        "{\"valid\":true,\"product\":\"Raptor Rush: Browser Edition\"}",
+                        "{\"valid\":false}"
+                      ]
+                    }
+                  ],
+                  "contentMediaType": "application/json"
+                },
+                "examples": {
+                  "valid": {
+                    "summary": "A valid code",
+                    "value": {
+                      "valid": true,
+                      "product": "Raptor Rush: Browser Edition"
+                    }
+                  },
+                  "invalid": {
+                    "summary": "A wrong code",
+                    "value": {
+                      "valid": false
+                    }
+                  }
                 }
               }
             }
@@ -1764,8 +3513,76 @@
                     "$ref": "#/components/schemas/Order"
                   },
                   "description": "",
+                  "examples": [
+                    [
+                      {
+                        "id": "pX4kR9tVb2nQ7sLe",
+                        "paypal_order_id": "5O190127TN364715T",
+                        "status": "paid",
+                        "amount_cents": 25500,
+                        "shipping_cents": 1500,
+                        "currency": "USD",
+                        "buyer_email": "buyer@example.com",
+                        "buyer_name": "Sam Rivera",
+                        "shipping_address": {
+                          "address_line_1": "1 Main St",
+                          "admin_area_2": "Springfield",
+                          "admin_area_1": "IL",
+                          "postal_code": "62701",
+                          "country_code": "US"
+                        },
+                        "capture_id": "3C679366HH908993F",
+                        "fulfillment_status": "to_ship",
+                        "carrier": null,
+                        "tracking_number": null,
+                        "tracking_synced": false,
+                        "downloads": 0,
+                        "access_code": null,
+                        "code_uses": 0,
+                        "channel": "agent",
+                        "options": {
+                          "Size": "8"
+                        },
+                        "paid_at": "2026-10-22T02:41:37Z",
+                        "created_at": "2026-10-22T02:38:05Z"
+                      }
+                    ]
+                  ],
                   "contentMediaType": "application/json"
-                }
+                },
+                "example": [
+                  {
+                    "id": "pX4kR9tVb2nQ7sLe",
+                    "paypal_order_id": "5O190127TN364715T",
+                    "status": "paid",
+                    "amount_cents": 25500,
+                    "shipping_cents": 1500,
+                    "currency": "USD",
+                    "buyer_email": "buyer@example.com",
+                    "buyer_name": "Sam Rivera",
+                    "shipping_address": {
+                      "address_line_1": "1 Main St",
+                      "admin_area_2": "Springfield",
+                      "admin_area_1": "IL",
+                      "postal_code": "62701",
+                      "country_code": "US"
+                    },
+                    "capture_id": "3C679366HH908993F",
+                    "fulfillment_status": "to_ship",
+                    "carrier": null,
+                    "tracking_number": null,
+                    "tracking_synced": false,
+                    "downloads": 0,
+                    "access_code": null,
+                    "code_uses": 0,
+                    "channel": "agent",
+                    "options": {
+                      "Size": "8"
+                    },
+                    "paid_at": "2026-10-22T02:41:37Z",
+                    "created_at": "2026-10-22T02:38:05Z"
+                  }
+                ]
               }
             }
           },
@@ -1775,7 +3592,22 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Error"
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Error"
+                    },
+                    {
+                      "examples": [
+                        {
+                          "error": "Shop not found."
+                        }
+                      ]
+                    }
+                  ],
+                  "contentMediaType": "application/json"
+                },
+                "example": {
+                  "error": "Shop not found."
                 }
               }
             }
@@ -1820,7 +3652,10 @@
             "description": "OneThing's order id (`Order.id`).",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "string",
+              "examples": [
+                "pX4kR9tVb2nQ7sLe"
+              ]
             }
           }
         ],
@@ -1829,7 +3664,35 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ApiShopsOrdersShipRequest"
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/ApiShopsOrdersShipRequest"
+                  },
+                  {
+                    "examples": [
+                      "{\"carrier\":\"USPS\",\"trackingNumber\":\"9400111899223817362315\"}",
+                      "{\"carrier\":\"OTHER\",\"carrierName\":\"Canada Post\",\"trackingNumber\":\"7023210039414604\"}"
+                    ]
+                  }
+                ],
+                "contentMediaType": "application/json"
+              },
+              "examples": {
+                "usps": {
+                  "summary": "A listed carrier",
+                  "value": {
+                    "carrier": "USPS",
+                    "trackingNumber": "9400111899223817362315"
+                  }
+                },
+                "other": {
+                  "summary": "Another carrier",
+                  "value": {
+                    "carrier": "OTHER",
+                    "carrierName": "Canada Post",
+                    "trackingNumber": "7023210039414604"
+                  }
+                }
               }
             }
           },
@@ -1842,7 +3705,24 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiShopsOrdersShipResponse"
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiShopsOrdersShipResponse"
+                    },
+                    {
+                      "examples": [
+                        {
+                          "ok": true,
+                          "synced": true
+                        }
+                      ]
+                    }
+                  ],
+                  "contentMediaType": "application/json"
+                },
+                "example": {
+                  "ok": true,
+                  "synced": true
                 }
               }
             }
@@ -1853,7 +3733,22 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Error"
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Error"
+                    },
+                    {
+                      "examples": [
+                        {
+                          "error": "Choose a photo."
+                        }
+                      ]
+                    }
+                  ],
+                  "contentMediaType": "application/json"
+                },
+                "example": {
+                  "error": "Choose a photo."
                 }
               }
             }
@@ -1864,7 +3759,22 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Error"
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Error"
+                    },
+                    {
+                      "examples": [
+                        {
+                          "error": "Shop not found."
+                        }
+                      ]
+                    }
+                  ],
+                  "contentMediaType": "application/json"
+                },
+                "example": {
+                  "error": "Shop not found."
                 }
               }
             }
@@ -1916,8 +3826,32 @@
                     "$ref": "#/components/schemas/WebhookEvent"
                   },
                   "description": "",
+                  "examples": [
+                    [
+                      {
+                        "id": "WH-2WR32451HC0233532-67976317FL4543714",
+                        "event_type": "PAYMENT.CAPTURE.COMPLETED",
+                        "paypal_order_id": "5O190127TN364715T",
+                        "summary": "255.00 USD",
+                        "verified": true,
+                        "outcome": "Confirmed: order already paid",
+                        "received_at": "2026-10-22T02:41:40Z"
+                      }
+                    ]
+                  ],
                   "contentMediaType": "application/json"
-                }
+                },
+                "example": [
+                  {
+                    "id": "WH-2WR32451HC0233532-67976317FL4543714",
+                    "event_type": "PAYMENT.CAPTURE.COMPLETED",
+                    "paypal_order_id": "5O190127TN364715T",
+                    "summary": "255.00 USD",
+                    "verified": true,
+                    "outcome": "Confirmed: order already paid",
+                    "received_at": "2026-10-22T02:41:40Z"
+                  }
+                ]
               }
             }
           },
@@ -1927,7 +3861,22 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Error"
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Error"
+                    },
+                    {
+                      "examples": [
+                        {
+                          "error": "Shop not found."
+                        }
+                      ]
+                    }
+                  ],
+                  "contentMediaType": "application/json"
+                },
+                "example": {
+                  "error": "Shop not found."
                 }
               }
             }
@@ -1960,7 +3909,10 @@
             "description": "The download token from a paid order's thank-you page.",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "string",
+              "examples": [
+                "q2Vd8mLx0RkT4nYb7HcW1sPe"
+              ]
             }
           }
         ],
@@ -2010,7 +3962,10 @@
             "description": "A shop's `photo_blob` or `hero_blob`.",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "string",
+              "examples": [
+                "LFRvGuTU3D8i334X"
+              ]
             }
           }
         ],
@@ -2030,6 +3985,316 @@
             "description": "Not a public shop image.",
             "headers": {},
             "content": {}
+          }
+        },
+        "deprecated": false
+      },
+      "parameters": []
+    },
+    "/o/{orderId}": {
+      "get": {
+        "tags": [
+          "Agents"
+        ],
+        "summary": "openPayLink",
+        "description": "The `pay_url` an agent gives the buyer. It redirects to PayPal's payment page for the order, so PayPal's checkout token never passes through the agent (agent platforms hide such tokens as secrets). A paid order redirects to its thank-you page; an expired checkout goes back to the shop page.",
+        "operationId": "openPayLink",
+        "parameters": [
+          {
+            "name": "orderId",
+            "in": "path",
+            "description": "The `order_id` from the MCP `create_order` tool.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "examples": [
+                "pX4kR9tVb2nQ7sLe"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "303": {
+            "description": "Redirect to PayPal, the thank-you page or the shop page.",
+            "headers": {},
+            "content": {}
+          },
+          "404": {
+            "description": "No order with that id.",
+            "headers": {},
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "contentMediaType": "text/plain"
+                }
+              }
+            }
+          }
+        },
+        "deprecated": false
+      },
+      "parameters": []
+    },
+    "/api/agent/shops": {
+      "get": {
+        "tags": [
+          "Agents"
+        ],
+        "summary": "listAgentShops",
+        "description": "The gallery's live shops, newest first, filtered by keywords (every word must appear in the name or headline). The GET twin of the MCP `search_shops` tool, for agents that can only fetch URLs. Public. Read a shop with `getAgentProduct`; buy through the MCP server in `mcp_server`, or send the buyer to the shop's `url`.",
+        "operationId": "listAgentShops",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "description": "Keywords. Leave out to list the newest shops.",
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "maxLength": 200,
+              "type": "string",
+              "examples": [
+                "skates"
+              ]
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "How many shops, 1–25.",
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "maximum": 25.0,
+              "minimum": 1.0,
+              "type": "integer",
+              "contentEncoding": "int32",
+              "default": 10,
+              "examples": [
+                10
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The matching shops.",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiAgentShopsResponse"
+                    },
+                    {
+                      "examples": [
+                        {
+                          "shops": [
+                            {
+                              "shop": "vintageskates",
+                              "name": "Vintage Cream and Red Roller Skates",
+                              "kind": "physical",
+                              "headline": "Classic quad skates crafted with walnut burl heels",
+                              "price": "$240.00",
+                              "url": "https://one-thing-ash0.onrender.com/vintageskates"
+                            },
+                            {
+                              "shop": "raptorrush",
+                              "name": "Raptor Rush: Browser Edition",
+                              "kind": "digital",
+                              "headline": "Grow from Tiny Hatchling to Giant Apex Predator",
+                              "price": "$2.99",
+                              "url": "https://one-thing-ash0.onrender.com/raptorrush"
+                            }
+                          ],
+                          "mcp_server": "https://one-thing-ash0.onrender.com/api/mcp"
+                        }
+                      ]
+                    }
+                  ],
+                  "contentMediaType": "application/json"
+                },
+                "example": {
+                  "shops": [
+                    {
+                      "shop": "vintageskates",
+                      "name": "Vintage Cream and Red Roller Skates",
+                      "kind": "physical",
+                      "headline": "Classic quad skates crafted with walnut burl heels",
+                      "price": "$240.00",
+                      "url": "https://one-thing-ash0.onrender.com/vintageskates"
+                    },
+                    {
+                      "shop": "raptorrush",
+                      "name": "Raptor Rush: Browser Edition",
+                      "kind": "digital",
+                      "headline": "Grow from Tiny Hatchling to Giant Apex Predator",
+                      "price": "$2.99",
+                      "url": "https://one-thing-ash0.onrender.com/raptorrush"
+                    }
+                  ],
+                  "mcp_server": "https://one-thing-ash0.onrender.com/api/mcp"
+                }
+              }
+            }
+          }
+        },
+        "deprecated": false
+      },
+      "parameters": []
+    },
+    "/api/agent/orders/{orderId}": {
+      "get": {
+        "tags": [
+          "Agents"
+        ],
+        "summary": "getAgentOrder",
+        "description": "Where an order stands and, once paid, what the buyer got: the access code, the download link, or the shipping address and tracking. The GET twin of the MCP `get_order` tool (and the `status_url` that `create_order` returns), for agents that can only fetch URLs. Public: anyone with the order id can already open its thank-you page. If the buyer has approved at PayPal but nothing has captured the payment yet, this captures it.",
+        "operationId": "getAgentOrder",
+        "parameters": [
+          {
+            "name": "orderId",
+            "in": "path",
+            "description": "The `order_id` from the MCP `create_order` tool, or from a thank-you page link (`?order=`).",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "examples": [
+                "pX4kR9tVb2nQ7sLe"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The order.",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/AgentOrder"
+                    },
+                    {
+                      "description": "An order as `get_order` and `getAgentOrder` report it.",
+                      "examples": [
+                        "{\"order_id\":\"pX4kR9tVb2nQ7sLe\",\"status\":\"awaiting_buyer_approval\",\"product\":\"Vintage Cream and Red Roller Skates\",\"options\":{\"Size\":\"9\"},\"amount\":{\"item\":240,\"shipping\":15,\"total\":255,\"currency\":\"USD\"},\"total\":\"$255.00\",\"pay_url\":\"https://one-thing-ash0.onrender.com/o/pX4kR9tVb2nQ7sLe\",\"next_step\":\"The buyer hasn't paid yet. Give them pay_url; when they say they've paid, call get_order again.\"}",
+                        "{\"order_id\":\"a9KQqS7zAY5dWv89\",\"status\":\"paid\",\"product\":\"Raptor Rush: Browser Edition\",\"amount\":{\"item\":2.99,\"shipping\":0,\"total\":2.99,\"currency\":\"USD\"},\"total\":\"$2.99\",\"paid_at\":\"2026-10-22T03:12:50Z\",\"receipt_url\":\"https://one-thing-ash0.onrender.com/raptorrush/thanks?order=a9KQqS7zAY5dWv89\",\"delivery\":{\"type\":\"access_code\",\"access_code\":\"K7QF-M2XP-9HTD\",\"start_url\":\"https://www.miriogames.com/raptor-rush/play/?code=K7QF-M2XP-9HTD\"}}",
+                        "{\"order_id\":\"pX4kR9tVb2nQ7sLe\",\"status\":\"paid\",\"product\":\"Vintage Cream and Red Roller Skates\",\"options\":{\"Size\":\"9\"},\"amount\":{\"item\":240,\"shipping\":15,\"total\":255,\"currency\":\"USD\"},\"total\":\"$255.00\",\"paid_at\":\"2026-10-22T02:41:37Z\",\"receipt_url\":\"https://one-thing-ash0.onrender.com/vintageskates/thanks?order=pX4kR9tVb2nQ7sLe\",\"delivery\":{\"type\":\"shipping\",\"ship_to\":{\"name\":\"Sam Rivera\",\"address\":\"1 Main St, Springfield, IL, 62701, US\"},\"fulfillment\":\"to_ship\",\"tracking\":null}}",
+                        "{\"order_id\":\"pX4kR9tVb2nQ7sLe\",\"status\":\"expired\",\"product\":\"Vintage Cream and Red Roller Skates\",\"options\":{\"Size\":\"9\"},\"amount\":{\"item\":240,\"shipping\":15,\"total\":255,\"currency\":\"USD\"},\"total\":\"$255.00\",\"next_step\":\"This checkout expired at PayPal. Nothing was charged. Call create_order for a new one.\"}"
+                      ]
+                    }
+                  ],
+                  "contentMediaType": "application/json"
+                },
+                "examples": {
+                  "waiting": {
+                    "summary": "Waiting for the buyer",
+                    "value": {
+                      "order_id": "pX4kR9tVb2nQ7sLe",
+                      "status": "awaiting_buyer_approval",
+                      "product": "Vintage Cream and Red Roller Skates",
+                      "options": {
+                        "Size": "9"
+                      },
+                      "amount": {
+                        "item": 240,
+                        "shipping": 15,
+                        "total": 255,
+                        "currency": "USD"
+                      },
+                      "total": "$255.00",
+                      "pay_url": "https://one-thing-ash0.onrender.com/o/pX4kR9tVb2nQ7sLe",
+                      "next_step": "The buyer hasn't paid yet. Give them pay_url; when they say they've paid, call get_order again."
+                    }
+                  },
+                  "code": {
+                    "summary": "Paid: an access code",
+                    "value": {
+                      "order_id": "a9KQqS7zAY5dWv89",
+                      "status": "paid",
+                      "product": "Raptor Rush: Browser Edition",
+                      "amount": {
+                        "item": 2.99,
+                        "shipping": 0,
+                        "total": 2.99,
+                        "currency": "USD"
+                      },
+                      "total": "$2.99",
+                      "paid_at": "2026-10-22T03:12:50Z",
+                      "receipt_url": "https://one-thing-ash0.onrender.com/raptorrush/thanks?order=a9KQqS7zAY5dWv89",
+                      "delivery": {
+                        "type": "access_code",
+                        "access_code": "K7QF-M2XP-9HTD",
+                        "start_url": "https://www.miriogames.com/raptor-rush/play/?code=K7QF-M2XP-9HTD"
+                      }
+                    }
+                  },
+                  "shipping": {
+                    "summary": "Paid: shipped to the buyer",
+                    "value": {
+                      "order_id": "pX4kR9tVb2nQ7sLe",
+                      "status": "paid",
+                      "product": "Vintage Cream and Red Roller Skates",
+                      "options": {
+                        "Size": "9"
+                      },
+                      "amount": {
+                        "item": 240,
+                        "shipping": 15,
+                        "total": 255,
+                        "currency": "USD"
+                      },
+                      "total": "$255.00",
+                      "paid_at": "2026-10-22T02:41:37Z",
+                      "receipt_url": "https://one-thing-ash0.onrender.com/vintageskates/thanks?order=pX4kR9tVb2nQ7sLe",
+                      "delivery": {
+                        "type": "shipping",
+                        "ship_to": {
+                          "name": "Sam Rivera",
+                          "address": "1 Main St, Springfield, IL, 62701, US"
+                        },
+                        "fulfillment": "to_ship",
+                        "tracking": null
+                      }
+                    }
+                  },
+                  "expired": {
+                    "summary": "Expired before payment",
+                    "value": {
+                      "order_id": "pX4kR9tVb2nQ7sLe",
+                      "status": "expired",
+                      "product": "Vintage Cream and Red Roller Skates",
+                      "options": {
+                        "Size": "9"
+                      },
+                      "amount": {
+                        "item": 240,
+                        "shipping": 15,
+                        "total": 255,
+                        "currency": "USD"
+                      },
+                      "total": "$255.00",
+                      "next_step": "This checkout expired at PayPal. Nothing was charged. Call create_order for a new one."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No order with that id.",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
           }
         },
         "deprecated": false
@@ -2070,10 +4335,168 @@
                       "$ref": "#/components/schemas/AgentProduct"
                     },
                     {
-                      "description": "A live shop as an AI agent sees it. Recommendations have `offers`; everything else has `price` and is bought with `create_order`."
+                      "description": "A live shop as an AI agent sees it. Recommendations have `offers`; everything else has `price` and is bought with `create_order`.",
+                      "examples": [
+                        {
+                          "shop": "vintageskates",
+                          "url": "https://one-thing-ash0.onrender.com/vintageskates",
+                          "name": "Vintage Cream and Red Roller Skates",
+                          "kind": "physical",
+                          "headline": "Classic quad skates crafted with walnut burl heels",
+                          "description": "A vintage pair of skates featuring cream leather, bold red trim, and durable quad wheels.",
+                          "highlights": [
+                            "Handmade cream leather upper with rich red trim",
+                            "Sculpted walnut burl heel structure for stability"
+                          ],
+                          "details": [
+                            {
+                              "label": "Materials",
+                              "value": "Leather upper, walnut burl heel, rubber wheels"
+                            }
+                          ],
+                          "faq": [
+                            {
+                              "q": "What is the return policy?",
+                              "a": "Unworn skates in original condition can be returned within 30 days of delivery."
+                            }
+                          ],
+                          "images": [
+                            "https://one-thing-ash0.onrender.com/api/blobs/LFRvGuTU3D8i334X",
+                            "https://one-thing-ash0.onrender.com/api/blobs/zrySajNyao6_j11x"
+                          ],
+                          "price": {
+                            "amount": 240,
+                            "currency": "USD",
+                            "label": "$240.00"
+                          },
+                          "shipping": {
+                            "amount": 15,
+                            "currency": "USD",
+                            "ships_to": [
+                              "US"
+                            ]
+                          },
+                          "total": {
+                            "amount": 255,
+                            "currency": "USD"
+                          },
+                          "delivery": "Shipped. PayPal collects the buyer's address at checkout.",
+                          "options": [
+                            {
+                              "name": "Size",
+                              "values": [
+                                "7",
+                                "8",
+                                "9"
+                              ]
+                            }
+                          ],
+                          "variants": [
+                            {
+                              "choice": {
+                                "Size": "7"
+                              },
+                              "availability": "in_stock (3 left)"
+                            },
+                            {
+                              "choice": {
+                                "Size": "8"
+                              },
+                              "availability": "sold_out"
+                            },
+                            {
+                              "choice": {
+                                "Size": "9"
+                              },
+                              "availability": "in_stock (6 left)"
+                            }
+                          ],
+                          "availability": "in_stock",
+                          "how_to_buy": "Call create_order on the OneThing MCP server with shop and options, then give the buyer its pay_url to pay at PayPal.",
+                          "mcp_server": "https://one-thing-ash0.onrender.com/api/mcp"
+                        }
+                      ]
                     }
                   ],
                   "contentMediaType": "application/json"
+                },
+                "example": {
+                  "shop": "vintageskates",
+                  "url": "https://one-thing-ash0.onrender.com/vintageskates",
+                  "name": "Vintage Cream and Red Roller Skates",
+                  "kind": "physical",
+                  "headline": "Classic quad skates crafted with walnut burl heels",
+                  "description": "A vintage pair of skates featuring cream leather, bold red trim, and durable quad wheels.",
+                  "highlights": [
+                    "Handmade cream leather upper with rich red trim",
+                    "Sculpted walnut burl heel structure for stability"
+                  ],
+                  "details": [
+                    {
+                      "label": "Materials",
+                      "value": "Leather upper, walnut burl heel, rubber wheels"
+                    }
+                  ],
+                  "faq": [
+                    {
+                      "q": "What is the return policy?",
+                      "a": "Unworn skates in original condition can be returned within 30 days of delivery."
+                    }
+                  ],
+                  "images": [
+                    "https://one-thing-ash0.onrender.com/api/blobs/LFRvGuTU3D8i334X",
+                    "https://one-thing-ash0.onrender.com/api/blobs/zrySajNyao6_j11x"
+                  ],
+                  "price": {
+                    "amount": 240,
+                    "currency": "USD",
+                    "label": "$240.00"
+                  },
+                  "shipping": {
+                    "amount": 15,
+                    "currency": "USD",
+                    "ships_to": [
+                      "US"
+                    ]
+                  },
+                  "total": {
+                    "amount": 255,
+                    "currency": "USD"
+                  },
+                  "delivery": "Shipped. PayPal collects the buyer's address at checkout.",
+                  "options": [
+                    {
+                      "name": "Size",
+                      "values": [
+                        "7",
+                        "8",
+                        "9"
+                      ]
+                    }
+                  ],
+                  "variants": [
+                    {
+                      "choice": {
+                        "Size": "7"
+                      },
+                      "availability": "in_stock (3 left)"
+                    },
+                    {
+                      "choice": {
+                        "Size": "8"
+                      },
+                      "availability": "sold_out"
+                    },
+                    {
+                      "choice": {
+                        "Size": "9"
+                      },
+                      "availability": "in_stock (6 left)"
+                    }
+                  ],
+                  "availability": "in_stock",
+                  "how_to_buy": "Call create_order on the OneThing MCP server with shop and options, then give the buyer its pay_url to pay at PayPal.",
+                  "mcp_server": "https://one-thing-ash0.onrender.com/api/mcp"
                 }
               }
             }
@@ -2100,7 +4523,7 @@
           "Agents"
         ],
         "summary": "callMcp",
-        "description": "A [Model Context Protocol](https://modelcontextprotocol.io) server, so agents such as\nClaude can shop here. Add `https://<host>/api/mcp` to an MCP client as a Streamable HTTP\nserver. It's stateless: each POST carries one JSON-RPC 2.0 message (or a batch) and gets a\nplain JSON reply, with no session and no event stream.\n\nMethods: `initialize`, `ping`, `tools/list`, `tools/call`. Tools:\n\n| Tool | Arguments | What it does |\n|---|---|---|\n| `search_shops` | `query?`, `limit?` (1–25) | Live gallery shops whose name or headline has every word |\n| `get_product` | `shop` | The same object as `getAgentProduct` |\n| `create_order` | `shop`, `options?` | One unit on order; returns `order_id` and `approve_url` |\n| `get_order` | `order_id` | `awaiting_buyer_approval` or `paid`, with the receipt link once paid |\n\n**The buyer always approves.** `create_order` charges nothing: the agent gives the buyer\n`approve_url`, they pay at PayPal, and the agent polls `get_order`. Orders made this way\nshow `channel: agent` in `listOrders`.\n\nTool errors (an unknown shop, a sold-out size) come back as results with `isError: true`,\nso the model can read them and try something else.\n",
+        "description": "A [Model Context Protocol](https://modelcontextprotocol.io) server, so agents such as\nClaude can shop here. Add `https://<host>/api/mcp` to an MCP client as a Streamable HTTP\nserver. It's stateless: each POST carries one JSON-RPC 2.0 message (or a batch) and gets a\nplain JSON reply, with no session and no event stream.\n\nMethods: `initialize`, `ping`, `tools/list`, `tools/call`. Tools:\n\n| Tool | Arguments | What it does |\n|---|---|---|\n| `search_shops` | `query?`, `limit?` (1–25) | Live gallery shops whose name or headline has every word |\n| `get_product` | `shop` | The same object as `getAgentProduct` |\n| `create_order` | `shop`, `options?` | One unit on order; returns `order_id` and `pay_url` |\n| `get_order` | `order_id` | Status and `next_step`; once paid, the receipt and `delivery` |\n\n**The buyer always approves.** `create_order` charges nothing: the agent shows the buyer\n`pay_url` (`/o/<order_id>`, see `openPayLink`), which opens PayPal. It's a plain link on this\nsite, so agent platforms that hide PayPal's checkout tokens can still show it. When the buyer\nsays they've paid, the agent calls `get_order`.\n\n`get_order` status is one of `awaiting_buyer_approval`, `paid`, `declined` (nothing charged;\nthe buyer can open `pay_url` again), `sold_out`, `expired` (call `create_order` again) or\n`failed` (PayPal couldn't be reached; try again), with a `next_step` the agent can follow.\nA paid order carries `delivery`: `{type: access_code, access_code, start_url?}`,\n`{type: download, download_url}` or `{type: shipping, ship_to, fulfillment, tracking}`, plus\n`amount` with item, shipping and total. Orders made this way show `channel: agent` in\n`listOrders`.\n\nTool errors (an unknown shop, a sold-out size) come back as results with `isError: true`,\nso the model can read them and try something else.\n",
         "operationId": "callMcp",
         "parameters": [],
         "requestBody": {
@@ -2121,7 +4544,11 @@
                 ],
                 "examples": [
                   "{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"tools/call\",\"params\":{\"name\":\"search_shops\",\"arguments\":{\"query\":\"game\"}}}",
-                  "{\"jsonrpc\":\"2.0\",\"id\":2,\"method\":\"tools/call\",\"params\":{\"name\":\"create_order\",\"arguments\":{\"shop\":\"trailtee\",\"options\":{\"Size\":\"M\",\"Color\":\"Black\"}}}}"
+                  "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"initialize\",\"params\":{\"protocolVersion\":\"2025-06-18\",\"capabilities\":{},\"clientInfo\":{\"name\":\"my-agent\",\"version\":\"1.0\"}}}",
+                  "{\"jsonrpc\":\"2.0\",\"id\":3,\"method\":\"tools/list\"}",
+                  "{\"jsonrpc\":\"2.0\",\"id\":4,\"method\":\"tools/call\",\"params\":{\"name\":\"get_product\",\"arguments\":{\"shop\":\"vintageskates\"}}}",
+                  "{\"jsonrpc\":\"2.0\",\"id\":2,\"method\":\"tools/call\",\"params\":{\"name\":\"create_order\",\"arguments\":{\"shop\":\"trailtee\",\"options\":{\"Size\":\"M\",\"Color\":\"Black\"}}}}",
+                  "{\"jsonrpc\":\"2.0\",\"id\":5,\"method\":\"tools/call\",\"params\":{\"name\":\"get_order\",\"arguments\":{\"order_id\":\"pX4kR9tVb2nQ7sLe\"}}}"
                 ],
                 "contentMediaType": "application/json"
               },
@@ -2140,6 +4567,44 @@
                     }
                   }
                 },
+                "initialize": {
+                  "summary": "Start (handshake)",
+                  "value": {
+                    "jsonrpc": "2.0",
+                    "id": 0,
+                    "method": "initialize",
+                    "params": {
+                      "protocolVersion": "2025-06-18",
+                      "capabilities": {},
+                      "clientInfo": {
+                        "name": "my-agent",
+                        "version": "1.0"
+                      }
+                    }
+                  }
+                },
+                "list": {
+                  "summary": "List the tools",
+                  "value": {
+                    "jsonrpc": "2.0",
+                    "id": 3,
+                    "method": "tools/list"
+                  }
+                },
+                "product": {
+                  "summary": "Read one product",
+                  "value": {
+                    "jsonrpc": "2.0",
+                    "id": 4,
+                    "method": "tools/call",
+                    "params": {
+                      "name": "get_product",
+                      "arguments": {
+                        "shop": "vintageskates"
+                      }
+                    }
+                  }
+                },
                 "order": {
                   "summary": "Order a size and colour",
                   "value": {
@@ -2154,6 +4619,20 @@
                           "Size": "M",
                           "Color": "Black"
                         }
+                      }
+                    }
+                  }
+                },
+                "status": {
+                  "summary": "Check an order",
+                  "value": {
+                    "jsonrpc": "2.0",
+                    "id": 5,
+                    "method": "tools/call",
+                    "params": {
+                      "name": "get_order",
+                      "arguments": {
+                        "order_id": "pX4kR9tVb2nQ7sLe"
                       }
                     }
                   }
@@ -2181,7 +4660,136 @@
                       }
                     }
                   ],
+                  "examples": [
+                    "{\"jsonrpc\":\"2.0\",\"id\":1,\"result\":{\"content\":[{\"type\":\"text\",\"text\":\"{\\n  \\\"shops\\\": [\\n    {\\n      \\\"shop\\\": \\\"vintageskates\\\",\\n      \\\"name\\\": \\\"Vintage Cream and Red Roller Skates\\\",\\n      \\\"kind\\\": \\\"physical\\\",\\n      \\\"headline\\\": \\\"Classic quad skates crafted with walnut burl heels\\\",\\n      \\\"price\\\": \\\"$240.00\\\",\\n      \\\"url\\\": \\\"https://one-thing-ash0.onrender.com/vintageskates\\\"\\n    },\\n    {\\n      \\\"shop\\\": \\\"raptorrush\\\",\\n      \\\"name\\\": \\\"Raptor Rush: Browser Edition\\\",\\n      \\\"kind\\\": \\\"digital\\\",\\n      \\\"headline\\\": \\\"Grow from Tiny Hatchling to Giant Apex Predator\\\",\\n      \\\"price\\\": \\\"$2.99\\\",\\n      \\\"url\\\": \\\"https://one-thing-ash0.onrender.com/raptorrush\\\"\\n    }\\n  ]\\n}\"}],\"structuredContent\":{\"shops\":[{\"shop\":\"vintageskates\",\"name\":\"Vintage Cream and Red Roller Skates\",\"kind\":\"physical\",\"headline\":\"Classic quad skates crafted with walnut burl heels\",\"price\":\"$240.00\",\"url\":\"https://one-thing-ash0.onrender.com/vintageskates\"},{\"shop\":\"raptorrush\",\"name\":\"Raptor Rush: Browser Edition\",\"kind\":\"digital\",\"headline\":\"Grow from Tiny Hatchling to Giant Apex Predator\",\"price\":\"$2.99\",\"url\":\"https://one-thing-ash0.onrender.com/raptorrush\"}]},\"isError\":false}}",
+                    "{\"jsonrpc\":\"2.0\",\"id\":2,\"result\":{\"content\":[{\"type\":\"text\",\"text\":\"{\\n  \\\"order_id\\\": \\\"pX4kR9tVb2nQ7sLe\\\",\\n  \\\"status\\\": \\\"awaiting_buyer_approval\\\",\\n  \\\"total\\\": \\\"$255.00\\\",\\n  \\\"options\\\": {\\n    \\\"Size\\\": \\\"9\\\"\\n  },\\n  \\\"pay_url\\\": \\\"https://one-thing-ash0.onrender.com/o/pX4kR9tVb2nQ7sLe\\\",\\n  \\\"status_url\\\": \\\"https://one-thing-ash0.onrender.com/api/agent/orders/pX4kR9tVb2nQ7sLe\\\",\\n  \\\"next_step\\\": \\\"Show pay_url to the buyer as a link. It opens PayPal, where they pay (and enter a shipping address for physical items). When they say they've paid, call get_order with order_id: it returns the access code, download link or shipping details.\\\"\\n}\"}],\"structuredContent\":{\"order_id\":\"pX4kR9tVb2nQ7sLe\",\"status\":\"awaiting_buyer_approval\",\"total\":\"$255.00\",\"options\":{\"Size\":\"9\"},\"pay_url\":\"https://one-thing-ash0.onrender.com/o/pX4kR9tVb2nQ7sLe\",\"status_url\":\"https://one-thing-ash0.onrender.com/api/agent/orders/pX4kR9tVb2nQ7sLe\",\"next_step\":\"Show pay_url to the buyer as a link. It opens PayPal, where they pay (and enter a shipping address for physical items). When they say they've paid, call get_order with order_id: it returns the access code, download link or shipping details.\"},\"isError\":false}}",
+                    "{\"jsonrpc\":\"2.0\",\"id\":5,\"result\":{\"content\":[{\"type\":\"text\",\"text\":\"{\\n  \\\"order_id\\\": \\\"pX4kR9tVb2nQ7sLe\\\",\\n  \\\"status\\\": \\\"paid\\\",\\n  \\\"product\\\": \\\"Vintage Cream and Red Roller Skates\\\",\\n  \\\"options\\\": {\\n    \\\"Size\\\": \\\"9\\\"\\n  },\\n  \\\"amount\\\": {\\n    \\\"item\\\": 240,\\n    \\\"shipping\\\": 15,\\n    \\\"total\\\": 255,\\n    \\\"currency\\\": \\\"USD\\\"\\n  },\\n  \\\"total\\\": \\\"$255.00\\\",\\n  \\\"paid_at\\\": \\\"2026-10-22T02:41:37Z\\\",\\n  \\\"receipt_url\\\": \\\"https://one-thing-ash0.onrender.com/vintageskates/thanks?order=pX4kR9tVb2nQ7sLe\\\",\\n  \\\"delivery\\\": {\\n    \\\"type\\\": \\\"shipping\\\",\\n    \\\"ship_to\\\": {\\n      \\\"name\\\": \\\"Sam Rivera\\\",\\n      \\\"address\\\": \\\"1 Main St, Springfield, IL, 62701, US\\\"\\n    },\\n    \\\"fulfillment\\\": \\\"to_ship\\\",\\n    \\\"tracking\\\": null\\n  }\\n}\"}],\"structuredContent\":{\"order_id\":\"pX4kR9tVb2nQ7sLe\",\"status\":\"paid\",\"product\":\"Vintage Cream and Red Roller Skates\",\"options\":{\"Size\":\"9\"},\"amount\":{\"item\":240,\"shipping\":15,\"total\":255,\"currency\":\"USD\"},\"total\":\"$255.00\",\"paid_at\":\"2026-10-22T02:41:37Z\",\"receipt_url\":\"https://one-thing-ash0.onrender.com/vintageskates/thanks?order=pX4kR9tVb2nQ7sLe\",\"delivery\":{\"type\":\"shipping\",\"ship_to\":{\"name\":\"Sam Rivera\",\"address\":\"1 Main St, Springfield, IL, 62701, US\"},\"fulfillment\":\"to_ship\",\"tracking\":null}},\"isError\":false}}",
+                    "{\"jsonrpc\":\"2.0\",\"id\":2,\"result\":{\"content\":[{\"type\":\"text\",\"text\":\"{\\n  \\\"error\\\": \\\"9 / Black is sold out.\\\"\\n}\"}],\"isError\":true}}"
+                  ],
                   "contentMediaType": "application/json"
+                },
+                "examples": {
+                  "search": {
+                    "summary": "search_shops",
+                    "value": {
+                      "jsonrpc": "2.0",
+                      "id": 1,
+                      "result": {
+                        "content": [
+                          {
+                            "type": "text",
+                            "text": "{\n  \"shops\": [\n    {\n      \"shop\": \"vintageskates\",\n      \"name\": \"Vintage Cream and Red Roller Skates\",\n      \"kind\": \"physical\",\n      \"headline\": \"Classic quad skates crafted with walnut burl heels\",\n      \"price\": \"$240.00\",\n      \"url\": \"https://one-thing-ash0.onrender.com/vintageskates\"\n    },\n    {\n      \"shop\": \"raptorrush\",\n      \"name\": \"Raptor Rush: Browser Edition\",\n      \"kind\": \"digital\",\n      \"headline\": \"Grow from Tiny Hatchling to Giant Apex Predator\",\n      \"price\": \"$2.99\",\n      \"url\": \"https://one-thing-ash0.onrender.com/raptorrush\"\n    }\n  ]\n}"
+                          }
+                        ],
+                        "structuredContent": {
+                          "shops": [
+                            {
+                              "shop": "vintageskates",
+                              "name": "Vintage Cream and Red Roller Skates",
+                              "kind": "physical",
+                              "headline": "Classic quad skates crafted with walnut burl heels",
+                              "price": "$240.00",
+                              "url": "https://one-thing-ash0.onrender.com/vintageskates"
+                            },
+                            {
+                              "shop": "raptorrush",
+                              "name": "Raptor Rush: Browser Edition",
+                              "kind": "digital",
+                              "headline": "Grow from Tiny Hatchling to Giant Apex Predator",
+                              "price": "$2.99",
+                              "url": "https://one-thing-ash0.onrender.com/raptorrush"
+                            }
+                          ]
+                        },
+                        "isError": false
+                      }
+                    }
+                  },
+                  "order": {
+                    "summary": "create_order",
+                    "value": {
+                      "jsonrpc": "2.0",
+                      "id": 2,
+                      "result": {
+                        "content": [
+                          {
+                            "type": "text",
+                            "text": "{\n  \"order_id\": \"pX4kR9tVb2nQ7sLe\",\n  \"status\": \"awaiting_buyer_approval\",\n  \"total\": \"$255.00\",\n  \"options\": {\n    \"Size\": \"9\"\n  },\n  \"pay_url\": \"https://one-thing-ash0.onrender.com/o/pX4kR9tVb2nQ7sLe\",\n  \"status_url\": \"https://one-thing-ash0.onrender.com/api/agent/orders/pX4kR9tVb2nQ7sLe\",\n  \"next_step\": \"Show pay_url to the buyer as a link. It opens PayPal, where they pay (and enter a shipping address for physical items). When they say they've paid, call get_order with order_id: it returns the access code, download link or shipping details.\"\n}"
+                          }
+                        ],
+                        "structuredContent": {
+                          "order_id": "pX4kR9tVb2nQ7sLe",
+                          "status": "awaiting_buyer_approval",
+                          "total": "$255.00",
+                          "options": {
+                            "Size": "9"
+                          },
+                          "pay_url": "https://one-thing-ash0.onrender.com/o/pX4kR9tVb2nQ7sLe",
+                          "status_url": "https://one-thing-ash0.onrender.com/api/agent/orders/pX4kR9tVb2nQ7sLe",
+                          "next_step": "Show pay_url to the buyer as a link. It opens PayPal, where they pay (and enter a shipping address for physical items). When they say they've paid, call get_order with order_id: it returns the access code, download link or shipping details."
+                        },
+                        "isError": false
+                      }
+                    }
+                  },
+                  "status": {
+                    "summary": "get_order, paid",
+                    "value": {
+                      "jsonrpc": "2.0",
+                      "id": 5,
+                      "result": {
+                        "content": [
+                          {
+                            "type": "text",
+                            "text": "{\n  \"order_id\": \"pX4kR9tVb2nQ7sLe\",\n  \"status\": \"paid\",\n  \"product\": \"Vintage Cream and Red Roller Skates\",\n  \"options\": {\n    \"Size\": \"9\"\n  },\n  \"amount\": {\n    \"item\": 240,\n    \"shipping\": 15,\n    \"total\": 255,\n    \"currency\": \"USD\"\n  },\n  \"total\": \"$255.00\",\n  \"paid_at\": \"2026-10-22T02:41:37Z\",\n  \"receipt_url\": \"https://one-thing-ash0.onrender.com/vintageskates/thanks?order=pX4kR9tVb2nQ7sLe\",\n  \"delivery\": {\n    \"type\": \"shipping\",\n    \"ship_to\": {\n      \"name\": \"Sam Rivera\",\n      \"address\": \"1 Main St, Springfield, IL, 62701, US\"\n    },\n    \"fulfillment\": \"to_ship\",\n    \"tracking\": null\n  }\n}"
+                          }
+                        ],
+                        "structuredContent": {
+                          "order_id": "pX4kR9tVb2nQ7sLe",
+                          "status": "paid",
+                          "product": "Vintage Cream and Red Roller Skates",
+                          "options": {
+                            "Size": "9"
+                          },
+                          "amount": {
+                            "item": 240,
+                            "shipping": 15,
+                            "total": 255,
+                            "currency": "USD"
+                          },
+                          "total": "$255.00",
+                          "paid_at": "2026-10-22T02:41:37Z",
+                          "receipt_url": "https://one-thing-ash0.onrender.com/vintageskates/thanks?order=pX4kR9tVb2nQ7sLe",
+                          "delivery": {
+                            "type": "shipping",
+                            "ship_to": {
+                              "name": "Sam Rivera",
+                              "address": "1 Main St, Springfield, IL, 62701, US"
+                            },
+                            "fulfillment": "to_ship",
+                            "tracking": null
+                          }
+                        },
+                        "isError": false
+                      }
+                    }
+                  },
+                  "toolError": {
+                    "summary": "A tool error the model can read",
+                    "value": {
+                      "jsonrpc": "2.0",
+                      "id": 2,
+                      "result": {
+                        "content": [
+                          {
+                            "type": "text",
+                            "text": "{\n  \"error\": \"9 / Black is sold out.\"\n}"
+                          }
+                        ],
+                        "isError": true
+                      }
+                    }
+                  }
                 }
               }
             }
@@ -2228,7 +4836,10 @@
                   "$ref": "#/components/schemas/Status"
                 },
                 {
-                  "description": "Only shops with this status, e.g. `live` for a public catalog."
+                  "description": "Only shops with this status, e.g. `live` for a public catalog.",
+                  "examples": [
+                    "live"
+                  ]
                 }
               ]
             }
@@ -2241,7 +4852,56 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiPlatformShopsResponse"
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ApiPlatformShopsResponse"
+                    },
+                    {
+                      "examples": [
+                        {
+                          "shops": [
+                            {
+                              "slug": "raptorrush",
+                              "status": "live",
+                              "name": "Raptor Rush: Browser Edition",
+                              "headline": "Grow from Tiny Hatchling to Giant Apex Predator",
+                              "product_type": "digital",
+                              "price": {
+                                "amount": 2.99,
+                                "currency": "USD"
+                              },
+                              "url": "https://one-thing-ash0.onrender.com/raptorrush",
+                              "cover": "https://one-thing-ash0.onrender.com/api/blobs/KchAi9jwZzo76SKh",
+                              "paypal_connected": true,
+                              "sales": 12,
+                              "created_at": "2026-10-12T20:31:44Z"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ],
+                  "contentMediaType": "application/json"
+                },
+                "example": {
+                  "shops": [
+                    {
+                      "slug": "raptorrush",
+                      "status": "live",
+                      "name": "Raptor Rush: Browser Edition",
+                      "headline": "Grow from Tiny Hatchling to Giant Apex Predator",
+                      "product_type": "digital",
+                      "price": {
+                        "amount": 2.99,
+                        "currency": "USD"
+                      },
+                      "url": "https://one-thing-ash0.onrender.com/raptorrush",
+                      "cover": "https://one-thing-ash0.onrender.com/api/blobs/KchAi9jwZzo76SKh",
+                      "paypal_connected": true,
+                      "sales": 12,
+                      "created_at": "2026-10-12T20:31:44Z"
+                    }
+                  ]
                 }
               }
             }
@@ -3032,6 +5692,211 @@
         },
         "description": "A live shop as an AI agent sees it. Recommendations have `offers`; everything else has `price` and is bought with `create_order`."
       },
+      "AgentShopSummary": {
+        "title": "AgentShopSummary",
+        "required": [
+          "shop",
+          "name",
+          "kind",
+          "headline",
+          "price",
+          "url"
+        ],
+        "type": "object",
+        "properties": {
+          "shop": {
+            "type": "string",
+            "description": "The link name, for `getAgentProduct` and the MCP tools."
+          },
+          "name": {
+            "type": "string"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/Kind1"
+          },
+          "headline": {
+            "type": "string"
+          },
+          "price": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "The price label, e.g. `$2.99`; null for recommendations."
+          },
+          "url": {
+            "type": "string",
+            "description": "The shop page."
+          }
+        }
+      },
+      "AgentOrder": {
+        "title": "AgentOrder",
+        "required": [
+          "order_id",
+          "status",
+          "product",
+          "amount",
+          "total"
+        ],
+        "type": "object",
+        "properties": {
+          "order_id": {
+            "type": "string"
+          },
+          "status": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Status2"
+              },
+              {
+                "description": "`declined`: PayPal declined it, nothing charged, the buyer can open `pay_url` again. `sold_out`: it sold out before the payment was captured. `expired`: the PayPal checkout expired; create a new order. `failed`: PayPal couldn't be reached; ask again."
+              }
+            ]
+          },
+          "product": {
+            "type": "string"
+          },
+          "options": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "description": "The buyer's pick, one value per option, keyed by option name.",
+            "examples": [
+              {
+                "Size": "M",
+                "Color": "Black"
+              }
+            ]
+          },
+          "amount": {
+            "$ref": "#/components/schemas/Amount"
+          },
+          "total": {
+            "type": "string",
+            "description": "The total as a label, e.g. `$255.00`."
+          },
+          "pay_url": {
+            "type": "string",
+            "description": "Unpaid orders (waiting or declined). The buyer pays here; safe to show in chat."
+          },
+          "next_step": {
+            "type": "string",
+            "description": "Unpaid orders. What the agent should do next, in plain words."
+          },
+          "paid_at": {
+            "type": "string",
+            "contentEncoding": "date-time"
+          },
+          "receipt_url": {
+            "type": "string",
+            "description": "Paid orders. The buyer's thank-you page."
+          },
+          "delivery": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/AgentDeliveryAccessCode"
+              },
+              {
+                "$ref": "#/components/schemas/AgentDeliveryDownload"
+              },
+              {
+                "$ref": "#/components/schemas/AgentDeliveryShipping"
+              }
+            ],
+            "description": "Paid orders. What the buyer got."
+          }
+        },
+        "description": "An order as `get_order` and `getAgentOrder` report it."
+      },
+      "AgentDeliveryAccessCode": {
+        "title": "AgentDeliveryAccessCode",
+        "required": [
+          "type",
+          "access_code"
+        ],
+        "type": "object",
+        "properties": {
+          "type": {
+            "const": "access_code",
+            "type": "string"
+          },
+          "access_code": {
+            "type": "string"
+          },
+          "start_url": {
+            "type": "string",
+            "description": "The seller's app with the code filled in."
+          }
+        },
+        "description": "A digital product unlocked with an access code."
+      },
+      "AgentDeliveryDownload": {
+        "title": "AgentDeliveryDownload",
+        "required": [
+          "type",
+          "download_url"
+        ],
+        "type": "object",
+        "properties": {
+          "type": {
+            "const": "download",
+            "type": "string"
+          },
+          "download_url": {
+            "type": "string"
+          },
+          "note": {
+            "type": "string"
+          }
+        },
+        "description": "A digital file to download."
+      },
+      "AgentDeliveryShipping": {
+        "title": "AgentDeliveryShipping",
+        "required": [
+          "type",
+          "fulfillment"
+        ],
+        "type": "object",
+        "properties": {
+          "type": {
+            "const": "shipping",
+            "type": "string"
+          },
+          "ship_to": {
+            "allOf": [
+              {
+                "oneOf": [
+                  {},
+                  {
+                    "$ref": "#/components/schemas/ShipTo"
+                  }
+                ]
+              },
+              {}
+            ]
+          },
+          "fulfillment": {
+            "$ref": "#/components/schemas/Fulfillment"
+          },
+          "tracking": {
+            "allOf": [
+              {
+                "oneOf": [
+                  {},
+                  {
+                    "$ref": "#/components/schemas/Tracking"
+                  }
+                ]
+              },
+              {}
+            ]
+          }
+        },
+        "description": "A physical product shipped to the buyer."
+      },
       "PlatformShop": {
         "title": "PlatformShop",
         "required": [
@@ -3293,7 +6158,7 @@
             ]
           },
           "status": {
-            "$ref": "#/components/schemas/Status3"
+            "$ref": "#/components/schemas/Status4"
           },
           "amount_cents": {
             "type": "integer",
@@ -3381,22 +6246,9 @@
               "null"
             ],
             "additionalProperties": {
-              "oneOf": [
-                {
-                  "type": "object",
-                  "additionalProperties": {
-                    "type": "string"
-                  },
-                  "example": {
-                    "Size": "M",
-                    "Color": "Black"
-                  }
-                },
-                {
-                  "nullable": true
-                }
-              ]
-            }
+              "type": "string"
+            },
+            "description": "The buyer's pick, one value per option, keyed by option name (see `Choice`)."
           },
           "paid_at": {
             "type": [
@@ -3491,6 +6343,30 @@
         ],
         "type": "string"
       },
+      "Amount": {
+        "title": "Amount",
+        "required": [
+          "item",
+          "shipping",
+          "total",
+          "currency"
+        ],
+        "type": "object",
+        "properties": {
+          "item": {
+            "type": "number"
+          },
+          "shipping": {
+            "type": "number"
+          },
+          "total": {
+            "type": "number"
+          },
+          "currency": {
+            "type": "string"
+          }
+        }
+      },
       "ApiAccessVerifyRequest": {
         "title": "ApiAccessVerifyRequest",
         "required": [
@@ -3575,6 +6451,27 @@
           }
         }
       },
+      "ApiAgentShopsResponse": {
+        "title": "ApiAgentShopsResponse",
+        "required": [
+          "shops",
+          "mcp_server"
+        ],
+        "type": "object",
+        "properties": {
+          "shops": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AgentShopSummary"
+            },
+            "description": ""
+          },
+          "mcp_server": {
+            "type": "string",
+            "description": "The MCP server to order through."
+          }
+        }
+      },
       "ApiChannel3SearchResponse": {
         "title": "ApiChannel3SearchResponse",
         "required": [
@@ -3596,7 +6493,7 @@
         "type": "object",
         "properties": {
           "status": {
-            "$ref": "#/components/schemas/Status5"
+            "$ref": "#/components/schemas/Status6"
           }
         }
       },
@@ -4114,6 +7011,14 @@
           }
         }
       },
+      "Fulfillment": {
+        "title": "Fulfillment",
+        "enum": [
+          "to_ship",
+          "shipped"
+        ],
+        "type": "string"
+      },
       "FulfillmentStatus": {
         "title": "FulfillmentStatus",
         "enum": [
@@ -4518,6 +7423,21 @@
           }
         }
       },
+      "ShipTo": {
+        "title": "ShipTo",
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "address": {
+            "type": "string"
+          }
+        }
+      },
       "Shop1": {
         "title": "Shop1",
         "type": "object",
@@ -4566,8 +7486,21 @@
         ],
         "type": "string"
       },
-      "Status3": {
-        "title": "Status3",
+      "Status2": {
+        "title": "Status2",
+        "enum": [
+          "awaiting_buyer_approval",
+          "paid",
+          "declined",
+          "sold_out",
+          "expired",
+          "failed"
+        ],
+        "type": "string",
+        "description": "`declined`: PayPal declined it, nothing charged, the buyer can open `pay_url` again. `sold_out`: it sold out before the payment was captured. `expired`: the PayPal checkout expired; create a new order. `failed`: PayPal couldn't be reached; ask again."
+      },
+      "Status4": {
+        "title": "Status4",
         "enum": [
           "created",
           "paid",
@@ -4575,10 +7508,22 @@
         ],
         "type": "string"
       },
-      "Status5": {
-        "title": "Status5",
+      "Status6": {
+        "title": "Status6",
         "const": "pending",
         "type": "string"
+      },
+      "Tracking": {
+        "title": "Tracking",
+        "type": "object",
+        "properties": {
+          "carrier": {
+            "type": "string"
+          },
+          "number": {
+            "type": "string"
+          }
+        }
       },
       "Type": {
         "title": "Type",

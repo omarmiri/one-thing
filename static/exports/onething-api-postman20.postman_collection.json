@@ -1,8 +1,8 @@
 {
   "info": {
     "name": "OneThing API",
-    "_postman_id": "82595c67-caaf-406d-8352-1f508b8eddd4",
-    "description": "OneThing turns a photo, a link or a picked product into a live one-product shop that takes\nPayPal payments, or a recommendation page that earns referral commissions through Channel3.\n\n**How a shop is made**\n1. `createShop`: start from a photo, a link, or a Channel3 product. Gemini guesses what it\n   is, how it's delivered, the price, a short link and the page design. You get back the\n   shop's link name and an **admin token**.\n2. `updateShop`: correct anything the AI guessed, then set `status: live`.\n3. Buyers pay on `https://<host>/<slug>` with PayPal. Sellers read orders and ship them.\n\n**Auth.** Seller endpoints take the shop's admin token in the `x-admin-token` header, or a\n**platform API key** (`Authorization: Bearer ot_sk_…`) for marketplaces that make shops for\ntheir own sellers. Buyer endpoints (checkout, access-code verification, downloads) are public.\n\n**Access codes.** A digital product can unlock an app or game instead of shipping a file.\nEach paid order gets a code such as `K7QF-M2XP-9HTD`; your app calls `verifyAccessCode`\nbefore unlocking. Raptor Rush on miriogames.com is a live example.\n\n**Agent-ready.** Every live shop is also published for AI shopping agents: product JSON at\n`getAgentProduct`, and an MCP server at `/api/mcp` with `search_shops`, `get_product`,\n`create_order` and `get_order`. An agent can find and order, but the buyer still approves\nevery payment at PayPal.\n\nAll money moves through PayPal (sandbox in this deployment). OneThing never holds card data.\n",
+    "_postman_id": "ae545fa2-9317-47a7-b300-df725357d8e5",
+    "description": "OneThing turns a photo, a link or a picked product into a live one-product shop that takes\nPayPal payments, or a recommendation page that earns referral commissions through Channel3.\n\n**How a shop is made**\n1. `createShop`: start from a photo, a link, or a Channel3 product. Gemini guesses what it\n   is, how it's delivered, the price, a short link and the page design. You get back the\n   shop's link name and an **admin token**.\n2. `updateShop`: correct anything the AI guessed, then set `status: live`.\n3. Buyers pay on `https://<host>/<slug>` with PayPal. Sellers read orders and ship them.\n\n**Auth.** Seller endpoints take the shop's admin token in the `x-admin-token` header, or a\n**platform API key** (`Authorization: Bearer ot_sk_…`) for marketplaces that make shops for\ntheir own sellers. Buyer endpoints (checkout, access-code verification, downloads) are public.\n\n**Access codes.** A digital product can unlock an app or game instead of shipping a file.\nEach paid order gets a code such as `K7QF-M2XP-9HTD`; your app calls `verifyAccessCode`\nbefore unlocking. Raptor Rush on miriogames.com is a live example.\n\n**Agent-ready.** Every live shop is also published for AI shopping agents: an MCP server at\n`/api/mcp` with `search_shops`, `get_product`, `create_order` and `get_order`, and the same\nreads as plain GETs for agents that can only fetch URLs (`listAgentShops`, `getAgentProduct`,\n`getAgentOrder`). An agent can find and order, but the buyer still approves every payment at\nPayPal.\n\nAll money moves through PayPal (sandbox in this deployment). OneThing never holds card data.\n",
     "schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
   },
   "item": [
@@ -11,7 +11,7 @@
       "description": "Sign in as a seller with an email or a phone number. Shops made while signed in belong to the account.",
       "item": [
         {
-          "id": "9bd2ead6-45f1-413e-8b4c-c6f729a78030",
+          "id": "c85c7815-c37d-4abe-a9d2-5a5a71a0f1c5",
           "name": "signIn",
           "request": {
             "url": {
@@ -36,7 +36,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"identifier\": \"maker@example.com\"\n}",
+              "raw": "{\"identifier\":\"maker@example.com\"}",
               "disabled": false
             },
             "description": "Signs in with an email address or a phone number, creating the account the first time. There's no password and no verification (sandbox). The response sets the `ot_session` cookie; shops created with it belong to the account and are listed on `/account`. Signing in with an email also claims older shops whose seller email matches. In a browser, sellers can instead use Log in with PayPal (`/api/account/paypal`), which also records the PayPal account their sales are paid into."
@@ -55,11 +55,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"id\": \"id79\",\n  \"email\": \"email36\",\n  \"phone\": \"phone5\"\n}",
+              "body": "{\n  \"id\": \"Vq3nN8cT0bLx2YwE\",\n  \"email\": \"maker@example.com\",\n  \"phone\": null\n}",
               "status": "Signed in. The `ot_session` cookie is set.",
               "code": 200,
               "name": "Response_200",
-              "id": "72cc4431-c54f-474f-b8b5-2940e18ce6d9"
+              "id": "821947b3-9cb6-4b7d-8726-ec7c4373eefc"
             },
             {
               "header": [
@@ -69,16 +69,16 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"error\": \"error98\",\n  \"field\": \"field34\",\n  \"detail\": \"detail46\"\n}",
+              "body": "{\n  \"error\": \"Choose a photo.\"\n}",
               "status": "Something in the request needs fixing; `error` says what.",
               "code": 400,
               "name": "Response_400",
-              "id": "165a710c-ae78-4a67-a641-e4a45c41de06"
+              "id": "818608ff-eec6-4371-99c9-18eebf18d1fc"
             }
           ]
         },
         {
-          "id": "72d6f2fa-8c4a-4e63-8169-e55812edeb10",
+          "id": "aa18efcd-c14d-4c3b-a0b8-ca7155aff2e8",
           "name": "signOut",
           "request": {
             "url": {
@@ -110,16 +110,16 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"ok\": false\n}",
+              "body": "{\n  \"ok\": true\n}",
               "status": "Done.",
               "code": 200,
               "name": "Response_200",
-              "id": "0cc85a8a-2786-4215-9ff2-a9b21358e3c3"
+              "id": "d851f46b-623b-41fb-8c47-0c29d2630550"
             }
           ]
         },
         {
-          "id": "95c8544c-8a72-411e-9d84-f6cba11ea366",
+          "id": "2852f7c6-b973-4eff-99c9-0cffa82ed799",
           "name": "logInWithPayPal",
           "request": {
             "url": {
@@ -156,7 +156,7 @@
               "status": "To PayPal's sign-in page.",
               "code": 302,
               "name": "Response_302",
-              "id": "a03b571d-3831-4001-a929-497c4f267dc4"
+              "id": "061270ad-350f-4d72-b988-b39e8e4ba827"
             },
             {
               "header": [
@@ -166,11 +166,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"error\": \"error98\",\n  \"field\": \"field34\",\n  \"detail\": \"detail46\"\n}",
+              "body": "{\n  \"error\": \"error87\",\n  \"field\": \"field53\",\n  \"detail\": \"detail88\"\n}",
               "status": "Log in with PayPal isn't switched on for this server.",
               "code": 503,
               "name": "Response_503",
-              "id": "d4609bf2-bdac-4317-b6b0-8c5fcf179f48"
+              "id": "4a5d275a-7701-4a85-b273-8f77f37537c4"
             }
           ]
         }
@@ -181,7 +181,7 @@
       "description": "Create a shop and manage it as its seller.",
       "item": [
         {
-          "id": "7817c6a7-ae46-4bd4-a136-6a06be8dc596",
+          "id": "1ab06e0c-6c97-4c44-bbf3-b83c522663f0",
           "name": "createShop",
           "request": {
             "url": {
@@ -206,7 +206,7 @@
               "formdata": [
                 {
                   "key": "source",
-                  "value": "link",
+                  "value": "photo",
                   "disabled": false,
                   "type": "text"
                 },
@@ -218,28 +218,28 @@
                 },
                 {
                   "key": "description",
-                  "value": "description14",
+                  "value": "Vintage cream and red quad roller skates with walnut burl heels.",
                   "disabled": false,
                   "type": "text",
                   "description": "`source=photo`: a sentence or two about the product. Required if there is no photo."
                 },
                 {
                   "key": "url",
-                  "value": "url19",
+                  "value": "https://www.miriogames.com/raptor-rush/",
                   "disabled": false,
                   "type": "text",
                   "description": "`source=link`: a product page, or your own app or game page."
                 },
                 {
                   "key": "productId",
-                  "value": "productId45",
+                  "value": "ch3_7f2a9c1e",
                   "disabled": false,
                   "type": "text",
                   "description": "`source=channel3`: a product id from `searchProducts`."
                 },
                 {
                   "key": "slug",
-                  "value": "slug22",
+                  "value": "raptorrush",
                   "disabled": false,
                   "type": "text",
                   "description": "The link name you want. If omitted, the AI suggests one."
@@ -252,55 +252,55 @@
                 },
                 {
                   "key": "delivery",
-                  "value": "file",
+                  "value": "access_code",
                   "disabled": false,
                   "type": "text"
                 },
                 {
                   "key": "access_url",
-                  "value": "access_url94",
+                  "value": "https://www.miriogames.com/raptor-rush/play/",
                   "disabled": false,
                   "type": "text",
                   "description": "Where buyers use an access code."
                 },
                 {
                   "key": "price",
-                  "value": "88.11415199351882",
+                  "value": "240",
                   "disabled": false,
                   "type": "text",
                   "description": "USD. If omitted, the AI suggests a price."
                 },
                 {
                   "key": "shipping",
-                  "value": "143.06932923606206",
+                  "value": "15",
                   "disabled": false,
                   "type": "text",
                   "description": ""
                 },
                 {
                   "key": "stock",
-                  "value": "21",
+                  "value": "254",
                   "disabled": false,
                   "type": "text",
                   "description": ""
                 },
                 {
                   "key": "ship_countries",
-                  "value": "ship_countries29",
+                  "value": "US",
                   "disabled": false,
                   "type": "text",
                   "description": ""
                 },
                 {
                   "key": "paypal_email",
-                  "value": "paypal_email95",
+                  "value": "seller@example.com",
                   "disabled": false,
                   "type": "text",
                   "description": ""
                 },
                 {
                   "key": "seller_email",
-                  "value": "seller_email73",
+                  "value": "seller_email21",
                   "disabled": false,
                   "type": "text",
                   "description": ""
@@ -325,11 +325,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"slug\": \"dragonflight\",\n  \"token\": \"token3\",\n  \"manageUrl\": \"manageUrl80\"\n}",
+              "body": "{\n  \"slug\": \"vintageskates\",\n  \"token\": \"3fJ9xQm2LwP8vR1tZk7cN4bY6dHs0aEu\",\n  \"manageUrl\": \"/manage/vintageskates?token=3fJ9xQm2LwP8vR1tZk7cN4bY6dHs0aEu\"\n}",
               "status": "Draft created.",
               "code": 200,
               "name": "Response_200",
-              "id": "b3d58e0a-9dfb-41bf-a8f0-1eaef01aeff3"
+              "id": "3cab2325-c778-4dd0-817d-d49c61f1bae9"
             },
             {
               "header": [
@@ -339,11 +339,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"error\": \"error98\",\n  \"field\": \"field34\",\n  \"detail\": \"detail46\"\n}",
+              "body": "{\n  \"error\": \"Choose a photo.\"\n}",
               "status": "Something in the request needs fixing; `error` says what.",
               "code": 400,
               "name": "Response_400",
-              "id": "ddaee287-66f5-419b-a787-d9b8cb74ef04"
+              "id": "c0d7fac5-c88d-4f11-8e6b-2a9540e531e8"
             },
             {
               "header": [
@@ -353,11 +353,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"error\": \"error98\",\n  \"field\": \"field34\",\n  \"detail\": \"detail46\"\n}",
+              "body": "{\n  \"error\": \"Sold out.\"\n}",
               "status": "Taken or unavailable (a link name, or a sold-out product).",
               "code": 409,
               "name": "Response_409",
-              "id": "eaa6be52-faef-4f59-91ca-46d919029d32"
+              "id": "760b4e4e-18ce-4254-bf2a-36151a71fc56"
             },
             {
               "header": [
@@ -367,16 +367,16 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"error\": \"error98\",\n  \"field\": \"field34\",\n  \"detail\": \"detail46\"\n}",
+              "body": "{\n  \"error\": \"PayPal isn't configured on this server.\"\n}",
               "status": "Gemini, PayPal or Channel3 failed or isn't configured.",
               "code": 502,
               "name": "Response_502",
-              "id": "ceb9e21e-6c83-498d-aa21-5add78bf4ac2"
+              "id": "a76fa4e9-f870-421b-9214-28ad826d8257"
             }
           ]
         },
         {
-          "id": "ad56ef08-c967-4e71-81a8-24038fb51859",
+          "id": "a4c71685-df72-4fa8-a3e9-07d9f147cacb",
           "name": "getShop",
           "request": {
             "url": {
@@ -398,7 +398,7 @@
               "type": "apikey",
               "apikey": {
                 "key": "x-admin-token",
-                "value": "x-admin-token46",
+                "value": "x-admin-token94",
                 "in": "header"
               }
             },
@@ -425,11 +425,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"id\": \"id73\",\n  \"slug\": \"slug17\",\n  \"status\": \"draft\",\n  \"product_type\": \"digital\",\n  \"price_cents\": 124,\n  \"currency\": \"USD\",\n  \"spec\": {\n    \"productType\": \"digital\",\n    \"productName\": \"productName74\",\n    \"layout\": \"minimal\",\n    \"palette\": {\n      \"background\": \"#14171a\",\n      \"surface\": \"#14171a\",\n      \"text\": \"#14171a\",\n      \"muted\": \"#14171a\",\n      \"accent\": \"#14171a\",\n      \"accentText\": \"#14171a\"\n    },\n    \"fonts\": {\n      \"heading\": \"heading51\",\n      \"body\": \"body24\"\n    },\n    \"headline\": \"headline27\",\n    \"bullets\": [\n      \"bullets22\"\n    ],\n    \"faq\": [\n      {\n        \"q\": \"q48\",\n        \"a\": \"a94\"\n      }\n    ],\n    \"ctaLabel\": \"ctaLabel39\",\n    \"eyebrow\": \"eyebrow59\",\n    \"subheadline\": \"subheadline6\",\n    \"story\": \"story53\",\n    \"details\": [\n      {\n        \"label\": \"label57\",\n        \"value\": \"value63\"\n      }\n    ],\n    \"suggestedPriceUsd\": 172.96703179948403,\n    \"suggestedShippingUsd\": 32.96805776811902,\n    \"imageAlt\": \"imageAlt89\",\n    \"heroPrompt\": \"heroPrompt79\"\n  },\n  \"shipping_cents\": 198,\n  \"ship_countries\": \"ship_countries89\",\n  \"stock\": 244,\n  \"delivery\": \"file\",\n  \"access_url\": \"access_url85\",\n  \"paypal_email\": \"paypal_email25\",\n  \"seller_email\": \"seller_email26\",\n  \"paypal_merchant_id\": \"paypal_merchant_id93\",\n  \"paypal_status\": {\n    \"receivable\": false,\n    \"emailConfirmed\": true,\n    \"checkedAt\": \"2026-11-09T02:19:23.9614825Z\"\n  },\n  \"zapier_hook_url\": \"zapier_hook_url50\",\n  \"in_gallery\": false,\n  \"account_id\": \"account_id56\",\n  \"options\": [\n    {\n      \"name\": \"Size\",\n      \"kind\": \"size\",\n      \"values\": [\n        {\n          \"label\": \"M\",\n          \"hex\": \"#14171a\",\n          \"photo\": \"photo75\"\n        }\n      ]\n    }\n  ],\n  \"option_stock\": {\n    \"M / Black\": 4,\n    \"L / Black\": 0\n  },\n  \"suggestions\": {\n    \"oneOfAKind\": true,\n    \"options\": [\n      {\n        \"name\": \"Size\",\n        \"kind\": \"size\",\n        \"values\": [\n          {\n            \"label\": \"M\",\n            \"hex\": \"#14171a\",\n            \"photo\": \"photo75\"\n          }\n        ],\n        \"fromSeller\": false\n      }\n    ],\n    \"missingFacts\": [\n      {\n        \"label\": \"Size\",\n        \"question\": \"What size are the skates?\",\n        \"placeholder\": \"US women's 8\"\n      }\n    ]\n  },\n  \"photo_blob\": \"photo_blob3\",\n  \"gallery_blobs\": [\n    \"gallery_blobs39\"\n  ],\n  \"hero_blob\": \"hero_blob56\",\n  \"hero_status\": \"pending\",\n  \"hero_error\": \"hero_error10\",\n  \"ai_source\": \"gemini\",\n  \"source_url\": \"source_url28\",\n  \"referral\": {\n    \"productId\": \"productId41\",\n    \"title\": \"title63\",\n    \"offers\": [\n      {\n        \"domain\": \"domain94\",\n        \"url\": \"url39\",\n        \"price\": 62.809689605535794,\n        \"currency\": \"currency34\",\n        \"inStock\": true,\n        \"commission\": 45.711878911543515\n      }\n    ],\n    \"brand\": \"brand81\",\n    \"image\": \"image62\"\n  },\n  \"created_at\": \"2026-11-12T02:19:23.9810768Z\"\n}",
+              "body": "{\n  \"id\": \"Hn2c8QvL0xTzR4pW\",\n  \"slug\": \"vintageskates\",\n  \"status\": \"live\",\n  \"product_type\": \"physical\",\n  \"price_cents\": 24000,\n  \"currency\": \"USD\",\n  \"shipping_cents\": 1500,\n  \"ship_countries\": \"US\",\n  \"stock\": null,\n  \"delivery\": \"file\",\n  \"access_url\": null,\n  \"paypal_email\": \"seller@example.com\",\n  \"seller_email\": \"seller@example.com\",\n  \"paypal_merchant_id\": \"7MZJ4QXN8K2LA\",\n  \"paypal_status\": {\n    \"receivable\": true,\n    \"emailConfirmed\": true,\n    \"checkedAt\": \"2026-10-21T18:04:11Z\"\n  },\n  \"zapier_hook_url\": null,\n  \"in_gallery\": true,\n  \"account_id\": \"Vq3nN8cT0bLx2YwE\",\n  \"options\": [\n    {\n      \"name\": \"Size\",\n      \"kind\": \"size\",\n      \"values\": [\n        {\n          \"label\": \"7\"\n        },\n        {\n          \"label\": \"8\"\n        },\n        {\n          \"label\": \"9\"\n        }\n      ]\n    }\n  ],\n  \"option_stock\": {\n    \"7\": 3,\n    \"8\": 0,\n    \"9\": 6\n  },\n  \"suggestions\": null,\n  \"photo_blob\": \"LFRvGuTU3D8i334X\",\n  \"gallery_blobs\": [\n    \"zrySajNyao6_j11x\",\n    \"SuqcgNv64HWN8H6e\"\n  ],\n  \"hero_blob\": null,\n  \"hero_status\": \"none\",\n  \"hero_error\": null,\n  \"ai_source\": \"gemini\",\n  \"source_url\": null,\n  \"referral\": null,\n  \"spec\": {\n    \"productType\": \"physical\",\n    \"productName\": \"Vintage Cream and Red Roller Skates\",\n    \"layout\": \"editorial\",\n    \"palette\": {\n      \"background\": \"#f6efe4\",\n      \"surface\": \"#fffaf2\",\n      \"text\": \"#2b1d14\",\n      \"muted\": \"#7a6455\",\n      \"accent\": \"#b3261e\",\n      \"accentText\": \"#ffffff\"\n    },\n    \"fonts\": {\n      \"heading\": \"Playfair Display\",\n      \"body\": \"Inter\"\n    },\n    \"eyebrow\": \"One pair, restored\",\n    \"headline\": \"Classic quad skates crafted with walnut burl heels\",\n    \"subheadline\": \"A vintage pair of skates featuring cream leather, bold red trim, and durable quad wheels.\",\n    \"story\": \"Each pair combines soft cream leather with distinct red accents and a sculpted walnut burl heel base.\",\n    \"bullets\": [\n      \"Handmade cream leather upper with rich red trim\",\n      \"Sculpted walnut burl heel structure for stability\"\n    ],\n    \"details\": [\n      {\n        \"label\": \"Materials\",\n        \"value\": \"Leather upper, walnut burl heel, rubber wheels\"\n      }\n    ],\n    \"faq\": [\n      {\n        \"q\": \"Are these suitable for outdoor skating?\",\n        \"a\": \"Yes, on indoor rink floors and paved outdoor paths.\"\n      }\n    ],\n    \"ctaLabel\": \"Buy the skates\",\n    \"suggestedPriceUsd\": 240,\n    \"suggestedShippingUsd\": 15,\n    \"imageAlt\": \"Cream leather quad roller skates with red trim\"\n  },\n  \"created_at\": \"2026-10-19T15:22:08Z\"\n}",
               "status": "The shop.",
               "code": 200,
               "name": "Response_200",
-              "id": "d8430cd2-4760-4d67-b119-fbcbb2336a6e"
+              "id": "e4ca9de4-21ef-4c19-b134-d82245fe203e"
             },
             {
               "header": [
@@ -439,16 +439,16 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"error\": \"error98\",\n  \"field\": \"field34\",\n  \"detail\": \"detail46\"\n}",
+              "body": "{\n  \"error\": \"Shop not found.\"\n}",
               "status": "No such shop, or the admin token or API key doesn't match it.",
               "code": 404,
               "name": "Response_404",
-              "id": "54f7199c-d830-49aa-9e3c-2f8bcae1d679"
+              "id": "47c9d23d-745e-4d57-bb01-7dc6c242051b"
             }
           ]
         },
         {
-          "id": "8a2c8f9c-370c-43cd-ad75-a4333922a6f3",
+          "id": "8a303206-7808-4aea-a1a9-54c768ae1cca",
           "name": "updateShop",
           "request": {
             "url": {
@@ -470,7 +470,7 @@
               "type": "apikey",
               "apikey": {
                 "key": "x-admin-token",
-                "value": "x-admin-token62",
+                "value": "x-admin-token39",
                 "in": "header"
               }
             },
@@ -490,7 +490,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"slug\": \"slug50\",\n  \"status\": \"draft\",\n  \"product_type\": \"physical\",\n  \"price\": 7974.674088923835,\n  \"shipping\": 341.02376998293175,\n  \"stock\": 93,\n  \"ship_countries\": \"ship_countries34\",\n  \"delivery\": \"file\",\n  \"access_url\": \"access_url1\",\n  \"paypal_email\": \"paypal_email60\",\n  \"seller_email\": \"seller_email95\",\n  \"zapier_hook_url\": \"zapier_hook_url13\",\n  \"in_gallery\": false,\n  \"options\": [\n    {\n      \"name\": \"Size\",\n      \"kind\": \"color\",\n      \"values\": [\n        {\n          \"label\": \"M\",\n          \"hex\": \"#14171a\",\n          \"photo\": \"photo2\"\n        }\n      ]\n    }\n  ],\n  \"option_stock\": {\n    \"M / Black\": 4,\n    \"L / Black\": 0\n  },\n  \"facts\": [\n    {\n      \"label\": \"Size\",\n      \"value\": \"US women's 8\"\n    }\n  ]\n}",
+              "raw": "{\"status\":\"live\"}",
               "disabled": false
             },
             "description": "Changes only the fields you send. Renaming `slug` keeps the old link working (it\nredirects). Set `status: live` to publish; a digital product needs its file (or, for\naccess codes, `access_url`) first.\n"
@@ -504,11 +504,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"ok\": true,\n  \"slug\": \"slug50\"\n}",
+              "body": "{\n  \"ok\": true,\n  \"slug\": \"vintageskates\"\n}",
               "status": "Saved.",
               "code": 200,
               "name": "Response_200",
-              "id": "7b7ace08-6134-48c6-817b-ff39b9c69943"
+              "id": "49625159-a7ef-444e-95da-01a800f16b13"
             },
             {
               "header": [
@@ -518,11 +518,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"error\": \"error98\",\n  \"field\": \"field34\",\n  \"detail\": \"detail46\"\n}",
+              "body": "{\n  \"error\": \"Choose a photo.\"\n}",
               "status": "Something in the request needs fixing; `error` says what.",
               "code": 400,
               "name": "Response_400",
-              "id": "29c11efc-919c-4e71-a62b-6afaf5350b6c"
+              "id": "aea2b26a-777e-46c1-8565-673482299dfe"
             },
             {
               "header": [
@@ -532,16 +532,16 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"error\": \"error98\",\n  \"field\": \"field34\",\n  \"detail\": \"detail46\"\n}",
+              "body": "{\n  \"error\": \"Shop not found.\"\n}",
               "status": "No such shop, or the admin token or API key doesn't match it.",
               "code": 404,
               "name": "Response_404",
-              "id": "0b4249c8-7700-426e-b1bc-53555b41f0cb"
+              "id": "28d969b8-4093-4133-ab92-49035e8da2d3"
             }
           ]
         },
         {
-          "id": "4680f833-a302-4e05-9806-174084fc336f",
+          "id": "f9012469-288a-4cce-8f96-1997e807b187",
           "name": "refineShopDesign",
           "request": {
             "url": {
@@ -563,7 +563,7 @@
               "type": "apikey",
               "apikey": {
                 "key": "x-admin-token",
-                "value": "x-admin-token88",
+                "value": "x-admin-token78",
                 "in": "header"
               }
             },
@@ -583,7 +583,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"instruction\": \"Make it feel more premium\"\n}",
+              "raw": "{\"instruction\":\"Make it feel more premium\"}",
               "disabled": false
             },
             "description": "\"Make it warmer\", \"shorter copy\", \"more premium\". Gemini edits the design spec."
@@ -597,11 +597,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"spec\": {\n    \"productType\": \"digital\",\n    \"productName\": \"productName74\",\n    \"layout\": \"minimal\",\n    \"palette\": {\n      \"background\": \"#14171a\",\n      \"surface\": \"#14171a\",\n      \"text\": \"#14171a\",\n      \"muted\": \"#14171a\",\n      \"accent\": \"#14171a\",\n      \"accentText\": \"#14171a\"\n    },\n    \"fonts\": {\n      \"heading\": \"heading51\",\n      \"body\": \"body24\"\n    },\n    \"headline\": \"headline27\",\n    \"bullets\": [\n      \"bullets22\"\n    ],\n    \"faq\": [\n      {\n        \"q\": \"q48\",\n        \"a\": \"a94\"\n      }\n    ],\n    \"ctaLabel\": \"ctaLabel39\",\n    \"eyebrow\": \"eyebrow59\",\n    \"subheadline\": \"subheadline6\",\n    \"story\": \"story53\",\n    \"details\": [\n      {\n        \"label\": \"label57\",\n        \"value\": \"value63\"\n      }\n    ],\n    \"suggestedPriceUsd\": 172.96703179948403,\n    \"suggestedShippingUsd\": 32.96805776811902,\n    \"imageAlt\": \"imageAlt89\",\n    \"heroPrompt\": \"heroPrompt79\"\n  }\n}",
+              "body": "{\n  \"spec\": {\n    \"productType\": \"physical\",\n    \"productName\": \"Vintage Cream and Red Roller Skates\",\n    \"layout\": \"editorial\",\n    \"palette\": {\n      \"background\": \"#f6efe4\",\n      \"surface\": \"#fffaf2\",\n      \"text\": \"#2b1d14\",\n      \"muted\": \"#7a6455\",\n      \"accent\": \"#b3261e\",\n      \"accentText\": \"#ffffff\"\n    },\n    \"fonts\": {\n      \"heading\": \"Playfair Display\",\n      \"body\": \"Inter\"\n    },\n    \"eyebrow\": \"One pair, restored\",\n    \"headline\": \"Classic quad skates crafted with walnut burl heels\",\n    \"subheadline\": \"A vintage pair of skates featuring cream leather, bold red trim, and durable quad wheels.\",\n    \"story\": \"Each pair combines soft cream leather with distinct red accents and a sculpted walnut burl heel base.\",\n    \"bullets\": [\n      \"Handmade cream leather upper with rich red trim\",\n      \"Sculpted walnut burl heel structure for stability\"\n    ],\n    \"details\": [\n      {\n        \"label\": \"Materials\",\n        \"value\": \"Leather upper, walnut burl heel, rubber wheels\"\n      }\n    ],\n    \"faq\": [\n      {\n        \"q\": \"Are these suitable for outdoor skating?\",\n        \"a\": \"Yes, on indoor rink floors and paved outdoor paths.\"\n      }\n    ],\n    \"ctaLabel\": \"Buy the skates\",\n    \"suggestedPriceUsd\": 240,\n    \"suggestedShippingUsd\": 15,\n    \"imageAlt\": \"Cream leather quad roller skates with red trim\"\n  }\n}",
               "status": "The new design.",
               "code": 200,
               "name": "Response_200",
-              "id": "7d56f0dd-6746-4b34-a8b9-12050fa3f727"
+              "id": "c6cbc1aa-d0b2-4334-9ab5-1651c8211ad2"
             },
             {
               "header": [
@@ -611,11 +611,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"error\": \"error98\",\n  \"field\": \"field34\",\n  \"detail\": \"detail46\"\n}",
+              "body": "{\n  \"error\": \"Choose a photo.\"\n}",
               "status": "Something in the request needs fixing; `error` says what.",
               "code": 400,
               "name": "Response_400",
-              "id": "58a08244-1bd0-4fa8-a72d-4f1ceeb3a159"
+              "id": "86733e72-288e-4b3c-9a84-715afe5fb07f"
             },
             {
               "header": [
@@ -625,11 +625,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"error\": \"error98\",\n  \"field\": \"field34\",\n  \"detail\": \"detail46\"\n}",
+              "body": "{\n  \"error\": \"Shop not found.\"\n}",
               "status": "No such shop, or the admin token or API key doesn't match it.",
               "code": 404,
               "name": "Response_404",
-              "id": "d553c40e-2d80-4c7e-a597-d43527c8fcfd"
+              "id": "a5d8cc6f-ffe7-4c96-8573-5ef66f9b719a"
             },
             {
               "header": [
@@ -639,16 +639,16 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"error\": \"error98\",\n  \"field\": \"field34\",\n  \"detail\": \"detail46\"\n}",
+              "body": "{\n  \"error\": \"PayPal isn't configured on this server.\"\n}",
               "status": "Gemini, PayPal or Channel3 failed or isn't configured.",
               "code": 502,
               "name": "Response_502",
-              "id": "a0374753-2da1-41b6-aed0-dd1b0d48d265"
+              "id": "c65841f8-4904-4981-9a73-e355a648a2b7"
             }
           ]
         },
         {
-          "id": "b40823d9-56e1-4f3e-aa12-112b7514def3",
+          "id": "dd784fd8-7814-43ba-b5ab-9ccc0a9c0137",
           "name": "regenerateHeroArt",
           "request": {
             "url": {
@@ -670,7 +670,7 @@
               "type": "apikey",
               "apikey": {
                 "key": "x-admin-token",
-                "value": "x-admin-token18",
+                "value": "x-admin-token33",
                 "in": "header"
               }
             },
@@ -697,11 +697,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"ok\": false\n}",
+              "body": "{\n  \"ok\": true\n}",
               "status": "Done.",
               "code": 200,
               "name": "Response_200",
-              "id": "9ca58a83-4844-47f8-bcb9-9875fb458c0c"
+              "id": "7eb63b2d-0f5c-4847-9c08-b6f30c83e6c5"
             },
             {
               "header": [
@@ -711,11 +711,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"error\": \"error98\",\n  \"field\": \"field34\",\n  \"detail\": \"detail46\"\n}",
+              "body": "{\n  \"error\": \"Choose a photo.\"\n}",
               "status": "Something in the request needs fixing; `error` says what.",
               "code": 400,
               "name": "Response_400",
-              "id": "7d20199f-13c4-4a95-a83f-2fa54cd986d6"
+              "id": "971c42ad-8499-498c-8dca-bbfc5ecc9418"
             },
             {
               "header": [
@@ -725,16 +725,16 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"error\": \"error98\",\n  \"field\": \"field34\",\n  \"detail\": \"detail46\"\n}",
+              "body": "{\n  \"error\": \"Shop not found.\"\n}",
               "status": "No such shop, or the admin token or API key doesn't match it.",
               "code": 404,
               "name": "Response_404",
-              "id": "413e6867-d162-474b-80ab-3a602283f8b6"
+              "id": "6cd50ff1-166e-4323-90d0-52b7bf301ecb"
             }
           ]
         },
         {
-          "id": "8e1497b9-5c7b-4fd3-b881-de90fa65a9c8",
+          "id": "adfdea55-f681-4681-8b6d-f67d00c2d915",
           "name": "uploadDigitalFile",
           "request": {
             "url": {
@@ -756,7 +756,7 @@
               "type": "apikey",
               "apikey": {
                 "key": "x-admin-token",
-                "value": "x-admin-token83",
+                "value": "x-admin-token28",
                 "in": "header"
               }
             },
@@ -791,11 +791,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"ok\": false,\n  \"filename\": \"filename1\"\n}",
+              "body": "{\n  \"ok\": true,\n  \"filename\": \"raptor-rush-soundtrack.zip\"\n}",
               "status": "Uploaded.",
               "code": 200,
               "name": "Response_200",
-              "id": "824a26a0-0590-4548-b3cf-26e536ee9fef"
+              "id": "13524b7a-c413-4564-8cea-2f1ee58ab719"
             },
             {
               "header": [
@@ -805,11 +805,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"error\": \"error98\",\n  \"field\": \"field34\",\n  \"detail\": \"detail46\"\n}",
+              "body": "{\n  \"error\": \"Choose a photo.\"\n}",
               "status": "Something in the request needs fixing; `error` says what.",
               "code": 400,
               "name": "Response_400",
-              "id": "fdc6e65f-7e35-414d-9795-84a30a43c7ff"
+              "id": "a344bd6e-dd7b-4d49-aa5a-805f4396d16d"
             },
             {
               "header": [
@@ -819,16 +819,16 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"error\": \"error98\",\n  \"field\": \"field34\",\n  \"detail\": \"detail46\"\n}",
+              "body": "{\n  \"error\": \"Shop not found.\"\n}",
               "status": "No such shop, or the admin token or API key doesn't match it.",
               "code": 404,
               "name": "Response_404",
-              "id": "178ae76d-e692-4ea7-b8a7-b30157b0e271"
+              "id": "28965d7a-3394-42f4-8426-083d7c20d5af"
             }
           ]
         },
         {
-          "id": "538d672a-aac0-4b43-ab3f-1165183aa1d7",
+          "id": "38814522-5061-4eaf-859c-786aa5111e73",
           "name": "addPhotos",
           "request": {
             "url": {
@@ -850,7 +850,7 @@
               "type": "apikey",
               "apikey": {
                 "key": "x-admin-token",
-                "value": "x-admin-token53",
+                "value": "x-admin-token50",
                 "in": "header"
               }
             },
@@ -885,11 +885,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"photos\": [\n    {\n      \"id\": \"id80\",\n      \"url\": \"url58\"\n    }\n  ]\n}",
+              "body": "{\n  \"photos\": [\n    {\n      \"id\": \"LFRvGuTU3D8i334X\",\n      \"url\": \"/api/blobs/LFRvGuTU3D8i334X\"\n    },\n    {\n      \"id\": \"zrySajNyao6_j11x\",\n      \"url\": \"/api/blobs/zrySajNyao6_j11x\"\n    }\n  ]\n}",
               "status": "The shop's photos, cover first.",
               "code": 200,
               "name": "Response_200",
-              "id": "d544c2b4-ddc4-4a09-830b-19d07ad92016"
+              "id": "7d037740-f549-4e9b-b0d8-45d5c581b31e"
             },
             {
               "header": [
@@ -899,11 +899,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"error\": \"error98\",\n  \"field\": \"field34\",\n  \"detail\": \"detail46\"\n}",
+              "body": "{\n  \"error\": \"Choose a photo.\"\n}",
               "status": "Something in the request needs fixing; `error` says what.",
               "code": 400,
               "name": "Response_400",
-              "id": "99bf316a-e832-436d-bc0a-167f43efa0da"
+              "id": "07c14542-8a09-42ae-a792-e433dfb5ef39"
             },
             {
               "header": [
@@ -913,16 +913,16 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"error\": \"error98\",\n  \"field\": \"field34\",\n  \"detail\": \"detail46\"\n}",
+              "body": "{\n  \"error\": \"Shop not found.\"\n}",
               "status": "No such shop, or the admin token or API key doesn't match it.",
               "code": 404,
               "name": "Response_404",
-              "id": "3bef71f7-df0a-4660-ac3f-73947c463f85"
+              "id": "c89b73cc-b4ec-4eee-b319-e12648847b0c"
             }
           ]
         },
         {
-          "id": "d7f3db49-18f4-47e6-a232-3cc86789b75e",
+          "id": "217f96c2-b3a6-4180-90ce-4e26f2dccbbf",
           "name": "setPhotoOrder",
           "request": {
             "url": {
@@ -944,7 +944,7 @@
               "type": "apikey",
               "apikey": {
                 "key": "x-admin-token",
-                "value": "x-admin-token88",
+                "value": "x-admin-token17",
                 "in": "header"
               }
             },
@@ -964,7 +964,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"photos\": [\n    \"photos10\"\n  ]\n}",
+              "raw": "{\"photos\":[\"zrySajNyao6_j11x\",\"LFRvGuTU3D8i334X\",\"SuqcgNv64HWN8H6e\"]}",
               "disabled": false
             },
             "description": "Sets the photo order; the first becomes the cover. Leaving a photo out removes it."
@@ -978,11 +978,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"photos\": [\n    {\n      \"id\": \"id80\",\n      \"url\": \"url58\"\n    }\n  ]\n}",
+              "body": "{\n  \"photos\": [\n    {\n      \"id\": \"LFRvGuTU3D8i334X\",\n      \"url\": \"/api/blobs/LFRvGuTU3D8i334X\"\n    },\n    {\n      \"id\": \"zrySajNyao6_j11x\",\n      \"url\": \"/api/blobs/zrySajNyao6_j11x\"\n    }\n  ]\n}",
               "status": "The shop's photos, cover first.",
               "code": 200,
               "name": "Response_200",
-              "id": "0d660704-4936-46b3-8220-031baa7413bd"
+              "id": "48607480-35be-49a0-9158-47bbcebb40de"
             },
             {
               "header": [
@@ -992,11 +992,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"error\": \"error98\",\n  \"field\": \"field34\",\n  \"detail\": \"detail46\"\n}",
+              "body": "{\n  \"error\": \"Choose a photo.\"\n}",
               "status": "Something in the request needs fixing; `error` says what.",
               "code": 400,
               "name": "Response_400",
-              "id": "a9d36a3b-280e-4ca2-8be0-6eafd08a2aaa"
+              "id": "465e9985-4ae2-49fd-ab50-3fc8715db16a"
             },
             {
               "header": [
@@ -1006,16 +1006,16 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"error\": \"error98\",\n  \"field\": \"field34\",\n  \"detail\": \"detail46\"\n}",
+              "body": "{\n  \"error\": \"Shop not found.\"\n}",
               "status": "No such shop, or the admin token or API key doesn't match it.",
               "code": 404,
               "name": "Response_404",
-              "id": "7eb905ad-9db7-43ef-a66c-a480b6848d7f"
+              "id": "f5080440-fd4b-4fe9-a8c0-6569e3ef3cfd"
             }
           ]
         },
         {
-          "id": "63b4b7aa-0277-41b8-bebb-59443dc44947",
+          "id": "1c653aeb-e727-47ac-ade2-5b1d101ea8c7",
           "name": "checkMissingDetails",
           "request": {
             "url": {
@@ -1037,7 +1037,7 @@
               "type": "apikey",
               "apikey": {
                 "key": "x-admin-token",
-                "value": "x-admin-token95",
+                "value": "x-admin-token4",
                 "in": "header"
               }
             },
@@ -1064,11 +1064,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"oneOfAKind\": true,\n  \"options\": [\n    {\n      \"name\": \"Size\",\n      \"kind\": \"size\",\n      \"values\": [\n        {\n          \"label\": \"M\",\n          \"hex\": \"#14171a\",\n          \"photo\": \"photo75\"\n        }\n      ],\n      \"fromSeller\": false\n    }\n  ],\n  \"missingFacts\": [\n    {\n      \"label\": \"Size\",\n      \"question\": \"What size are the skates?\",\n      \"placeholder\": \"US women's 8\"\n    }\n  ]\n}",
+              "body": "{\n  \"oneOfAKind\": false,\n  \"options\": [\n    {\n      \"name\": \"Size\",\n      \"kind\": \"size\",\n      \"values\": [\n        {\n          \"label\": \"7\"\n        },\n        {\n          \"label\": \"8\"\n        },\n        {\n          \"label\": \"9\"\n        }\n      ],\n      \"fromSeller\": false\n    }\n  ],\n  \"missingFacts\": [\n    {\n      \"label\": \"Wheel size\",\n      \"question\": \"How big are the wheels?\",\n      \"placeholder\": \"57 mm\"\n    }\n  ]\n}",
               "status": "The suggestions.",
               "code": 200,
               "name": "Response_200",
-              "id": "7e0f3b74-a479-4919-b2d3-f404eff32ac6"
+              "id": "5d07f4fb-d850-4a58-89dc-350450b7e384"
             },
             {
               "header": [
@@ -1078,11 +1078,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"error\": \"error98\",\n  \"field\": \"field34\",\n  \"detail\": \"detail46\"\n}",
+              "body": "{\n  \"error\": \"Choose a photo.\"\n}",
               "status": "Something in the request needs fixing; `error` says what.",
               "code": 400,
               "name": "Response_400",
-              "id": "6a9eaa5e-ee32-482a-b2b3-1cca33a5267a"
+              "id": "675d93eb-9a02-4fca-a1c6-372482339196"
             },
             {
               "header": [
@@ -1092,11 +1092,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"error\": \"error98\",\n  \"field\": \"field34\",\n  \"detail\": \"detail46\"\n}",
+              "body": "{\n  \"error\": \"Shop not found.\"\n}",
               "status": "No such shop, or the admin token or API key doesn't match it.",
               "code": 404,
               "name": "Response_404",
-              "id": "4112d167-f856-4bd6-b2f1-0cc1d16f315e"
+              "id": "5fa3ac2f-7a22-4e04-b4e4-fa515d74e551"
             },
             {
               "header": [
@@ -1106,16 +1106,16 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"error\": \"error98\",\n  \"field\": \"field34\",\n  \"detail\": \"detail46\"\n}",
+              "body": "{\n  \"error\": \"PayPal isn't configured on this server.\"\n}",
               "status": "Gemini, PayPal or Channel3 failed or isn't configured.",
               "code": 502,
               "name": "Response_502",
-              "id": "db404e7b-2af2-4a6b-9b55-160d8183c846"
+              "id": "052017ef-497f-4a1d-900c-1ff1a3dcd65f"
             }
           ]
         },
         {
-          "id": "f6e63eb5-7bb0-47fb-83d3-549b57931783",
+          "id": "b170a893-d85a-4c95-8ef5-570814e524df",
           "name": "matchColorPhotos",
           "request": {
             "url": {
@@ -1137,7 +1137,7 @@
               "type": "apikey",
               "apikey": {
                 "key": "x-admin-token",
-                "value": "x-admin-token68",
+                "value": "x-admin-token81",
                 "in": "header"
               }
             },
@@ -1157,7 +1157,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"colors\": [\n    {\n      \"label\": \"Forest green\",\n      \"hex\": \"#14171a\"\n    }\n  ]\n}",
+              "raw": "{\"colors\":[{\"label\":\"Cream\",\"hex\":\"#f3e9d2\"},{\"label\":\"Red\",\"hex\":\"#b3261e\"}]}",
               "disabled": false
             },
             "description": "Gemini looks at the shop's photos and says which one shows each colour, so buyers who pick a colour see it. Suggests only; save the matches with `setColorPhotos`. Needs at least two photos."
@@ -1171,11 +1171,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"matches\": {\n    \"Black\": \"b_8f2k1\",\n    \"Forest green\": \"b_q93md\"\n  }\n}",
+              "body": "{\n  \"matches\": {\n    \"Cream\": \"LFRvGuTU3D8i334X\",\n    \"Red\": \"SuqcgNv64HWN8H6e\"\n  }\n}",
               "status": "A photo id for each colour Gemini could match. Colours it couldn't place are left out.",
               "code": 200,
               "name": "Response_200",
-              "id": "09bb560f-1902-4165-a5ee-55449c178cf5"
+              "id": "c5e0e811-8a22-4c4a-a6eb-33768a26b216"
             },
             {
               "header": [
@@ -1185,11 +1185,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"error\": \"error98\",\n  \"field\": \"field34\",\n  \"detail\": \"detail46\"\n}",
+              "body": "{\n  \"error\": \"Choose a photo.\"\n}",
               "status": "Something in the request needs fixing; `error` says what.",
               "code": 400,
               "name": "Response_400",
-              "id": "a001a65b-21e9-41af-80b7-69589e7c4fb6"
+              "id": "d49e3c9c-7583-423a-98e7-f8b032f9e6c1"
             },
             {
               "header": [
@@ -1199,11 +1199,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"error\": \"error98\",\n  \"field\": \"field34\",\n  \"detail\": \"detail46\"\n}",
+              "body": "{\n  \"error\": \"Shop not found.\"\n}",
               "status": "No such shop, or the admin token or API key doesn't match it.",
               "code": 404,
               "name": "Response_404",
-              "id": "87ebfcfe-9cef-415d-bf42-0204af932cec"
+              "id": "aa6d2810-315d-4f58-b114-b2d681a00a09"
             },
             {
               "header": [
@@ -1213,16 +1213,16 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"error\": \"error98\",\n  \"field\": \"field34\",\n  \"detail\": \"detail46\"\n}",
+              "body": "{\n  \"error\": \"PayPal isn't configured on this server.\"\n}",
               "status": "Gemini, PayPal or Channel3 failed or isn't configured.",
               "code": 502,
               "name": "Response_502",
-              "id": "7c927c71-a671-48a3-a6ef-58dc1e6aa775"
+              "id": "a1aa83e2-d657-4288-8d29-b16b791cab50"
             }
           ]
         },
         {
-          "id": "1329f653-eff9-4c6c-946a-c6013109a846",
+          "id": "34efa00f-e79f-428b-882a-de4cd5d7daa6",
           "name": "setColorPhotos",
           "request": {
             "url": {
@@ -1244,7 +1244,7 @@
               "type": "apikey",
               "apikey": {
                 "key": "x-admin-token",
-                "value": "x-admin-token85",
+                "value": "x-admin-token35",
                 "in": "header"
               }
             },
@@ -1264,7 +1264,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"photos\": {\n    \"key1\": \"photos96\"\n  }\n}",
+              "raw": "{\"photos\":{\"Cream\":\"LFRvGuTU3D8i334X\",\"Red\":null}}",
               "disabled": false
             },
             "description": "Saves which photo shows each colour, and nothing else about the shop. Only colours already saved in the shop's options change; `null` clears a colour's photo. A photo id that isn't one of the shop's photos is ignored."
@@ -1278,11 +1278,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"saved\": [\n    \"saved63\"\n  ]\n}",
+              "body": "{\n  \"saved\": [\n    \"Cream\",\n    \"Red\"\n  ]\n}",
               "status": "The colours that were changed.",
               "code": 200,
               "name": "Response_200",
-              "id": "35667c96-1d70-48b0-a6d3-193efa2c846a"
+              "id": "834ca845-50c7-4c78-b128-fedf0335c0eb"
             },
             {
               "header": [
@@ -1292,11 +1292,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"error\": \"error98\",\n  \"field\": \"field34\",\n  \"detail\": \"detail46\"\n}",
+              "body": "{\n  \"error\": \"Choose a photo.\"\n}",
               "status": "Something in the request needs fixing; `error` says what.",
               "code": 400,
               "name": "Response_400",
-              "id": "b4b7bb5f-dbc7-40a9-8e59-710aed4c0aa2"
+              "id": "8cae93cc-5252-41f7-8303-365707e7c753"
             },
             {
               "header": [
@@ -1306,16 +1306,16 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"error\": \"error98\",\n  \"field\": \"field34\",\n  \"detail\": \"detail46\"\n}",
+              "body": "{\n  \"error\": \"Shop not found.\"\n}",
               "status": "No such shop, or the admin token or API key doesn't match it.",
               "code": 404,
               "name": "Response_404",
-              "id": "e7c7fb23-07ad-4a04-9a28-f7b30294da4b"
+              "id": "97b6a36c-3754-430a-8bce-2ed1318116e9"
             }
           ]
         },
         {
-          "id": "34275aaf-26ec-4bcc-8084-dc5057da9c8f",
+          "id": "870c6d8e-0642-48db-b801-1c59ba499107",
           "name": "connectPayPal",
           "request": {
             "url": {
@@ -1337,7 +1337,7 @@
               "type": "apikey",
               "apikey": {
                 "key": "x-admin-token",
-                "value": "x-admin-token57",
+                "value": "x-admin-token88",
                 "in": "header"
               }
             },
@@ -1357,7 +1357,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"returnUrl\": \"https://www.miriogames.com/market/manage/?g=7Hq2\"\n}",
+              "raw": "{\"returnUrl\":\"https://www.miriogames.com/market/manage/?g=7Hq2\"}",
               "disabled": false
             },
             "description": "Starts PayPal's seller onboarding (Partner Referrals). Send the seller's browser to the\nreturned `url`; they sign in to PayPal (or create a business account) and grant OneThing\npermission. PayPal brings them back to `/api/shops/<slug>/paypal/return`, which saves the\nconnection and opens the manage page. From then on, sales are paid to that account.\n\nWithout a connection, a shop can still go live with a typed `paypal_email`.\n\n**Platforms:** call it with your API key and a `returnUrl`, and PayPal's flow ends on your own\npage instead, as `returnUrl?paypal=connected|incomplete|cancelled|failed&shop=<slug>`. The\nURL's origin must be one registered on the key.\n"
@@ -1371,11 +1371,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"url\": \"url2\"\n}",
+              "body": "{\n  \"url\": \"https://www.sandbox.paypal.com/bizsignup/partner/entry?referralToken=EXAMPLE\"\n}",
               "status": "Where to send the seller.",
               "code": 200,
               "name": "Response_200",
-              "id": "59ad0dde-6d01-45ff-8935-cf93e5304cd2"
+              "id": "a8e63c45-020c-498e-9f23-1b73de665b4e"
             },
             {
               "header": [
@@ -1385,11 +1385,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"error\": \"error98\",\n  \"field\": \"field34\",\n  \"detail\": \"detail46\"\n}",
+              "body": "{\n  \"error\": \"Shop not found.\"\n}",
               "status": "No such shop, or the admin token or API key doesn't match it.",
               "code": 404,
               "name": "Response_404",
-              "id": "7c350198-9e03-44e1-b1fe-40781da69cb8"
+              "id": "806cb13a-7bf8-4f95-a802-140f8d72e9d3"
             },
             {
               "header": [
@@ -1399,11 +1399,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"error\": \"error98\",\n  \"field\": \"field34\",\n  \"detail\": \"detail46\"\n}",
+              "body": "{\n  \"error\": \"PayPal isn't configured on this server.\"\n}",
               "status": "Gemini, PayPal or Channel3 failed or isn't configured.",
               "code": 502,
               "name": "Response_502",
-              "id": "9283b3f9-5888-4780-b7e6-85db77c9d6ff"
+              "id": "0b54da6c-6174-4e47-926a-bcde581942fa"
             },
             {
               "header": [
@@ -1413,16 +1413,16 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"error\": \"error98\",\n  \"field\": \"field34\",\n  \"detail\": \"detail46\"\n}",
+              "body": "{\n  \"error\": \"PayPal isn't configured on this server.\"\n}",
               "status": "Gemini, PayPal or Channel3 failed or isn't configured.",
               "code": 503,
               "name": "Response_503",
-              "id": "173df448-1a91-4715-8b5e-f7bae8b9d283"
+              "id": "65ee86fe-ff3e-4520-a652-e62508bd3db1"
             }
           ]
         },
         {
-          "id": "bb342bc5-0de6-4446-a45b-ccac4c82e99c",
+          "id": "db104df3-9398-4569-8848-c3fad26915c0",
           "name": "getPayPalConnection",
           "request": {
             "url": {
@@ -1444,7 +1444,7 @@
               "type": "apikey",
               "apikey": {
                 "key": "x-admin-token",
-                "value": "x-admin-token35",
+                "value": "x-admin-token54",
                 "in": "header"
               }
             },
@@ -1471,11 +1471,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"merchantId\": \"merchantId56\",\n  \"status\": {\n    \"receivable\": false,\n    \"emailConfirmed\": true,\n    \"checkedAt\": \"2026-11-09T02:19:23.9614825Z\"\n  }\n}",
+              "body": "{\n  \"merchantId\": \"7MZJ4QXN8K2LA\",\n  \"status\": {\n    \"receivable\": true,\n    \"emailConfirmed\": true,\n    \"checkedAt\": \"2026-10-21T18:04:11Z\"\n  }\n}",
               "status": "The connection, or nulls if there is none yet.",
               "code": 200,
               "name": "Response_200",
-              "id": "26d2ed4e-ac02-4fe6-8d6f-d6ce13b53f73"
+              "id": "0f611407-0502-4415-8434-80df5ba7bae3"
             },
             {
               "header": [
@@ -1485,11 +1485,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"error\": \"error98\",\n  \"field\": \"field34\",\n  \"detail\": \"detail46\"\n}",
+              "body": "{\n  \"error\": \"Shop not found.\"\n}",
               "status": "No such shop, or the admin token or API key doesn't match it.",
               "code": 404,
               "name": "Response_404",
-              "id": "99879ffe-c6e1-4360-b184-da8c8f0d874b"
+              "id": "c7e10155-ac25-40b1-863f-9a90a660b2f1"
             },
             {
               "header": [
@@ -1499,11 +1499,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"error\": \"error98\",\n  \"field\": \"field34\",\n  \"detail\": \"detail46\"\n}",
+              "body": "{\n  \"error\": \"PayPal isn't configured on this server.\"\n}",
               "status": "Gemini, PayPal or Channel3 failed or isn't configured.",
               "code": 502,
               "name": "Response_502",
-              "id": "cd5ddb7f-d801-480e-b1bf-a11a5a741689"
+              "id": "23b5cf67-c3ab-4c03-972f-6981d2a1cff3"
             },
             {
               "header": [
@@ -1513,16 +1513,16 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"error\": \"error98\",\n  \"field\": \"field34\",\n  \"detail\": \"detail46\"\n}",
+              "body": "{\n  \"error\": \"PayPal isn't configured on this server.\"\n}",
               "status": "Gemini, PayPal or Channel3 failed or isn't configured.",
               "code": 503,
               "name": "Response_503",
-              "id": "e8621eff-f7f2-4345-9b60-731807ba850b"
+              "id": "d8a47e19-0392-474f-9dd7-0dc313b898ae"
             }
           ]
         },
         {
-          "id": "77c69bee-418a-4a7d-8a34-550c5b8863df",
+          "id": "473a9751-63ee-433b-8700-4c45da288db4",
           "name": "disconnectPayPal",
           "request": {
             "url": {
@@ -1544,7 +1544,7 @@
               "type": "apikey",
               "apikey": {
                 "key": "x-admin-token",
-                "value": "x-admin-token71",
+                "value": "x-admin-token58",
                 "in": "header"
               }
             },
@@ -1571,11 +1571,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"ok\": false\n}",
+              "body": "{\n  \"ok\": true\n}",
               "status": "Done.",
               "code": 200,
               "name": "Response_200",
-              "id": "9753349e-4b07-4b0f-a30a-32198bdfd047"
+              "id": "02be8c83-1bdf-46d6-8487-9bbf8ae31230"
             },
             {
               "header": [
@@ -1585,11 +1585,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"error\": \"error98\",\n  \"field\": \"field34\",\n  \"detail\": \"detail46\"\n}",
+              "body": "{\n  \"error\": \"Shop not found.\"\n}",
               "status": "No such shop, or the admin token or API key doesn't match it.",
               "code": 404,
               "name": "Response_404",
-              "id": "e0121107-7ea9-43b8-9c9f-1292e97344fb"
+              "id": "73a05a7f-6426-4348-bcf0-58dac880be30"
             }
           ]
         }
@@ -1600,7 +1600,7 @@
       "description": "Short shop links (`/<slug>`).",
       "item": [
         {
-          "id": "8fc42323-6de3-43da-aa21-b7b4a1ce5780",
+          "id": "927840a4-9bbb-45bb-a50e-0bda4c6cccde",
           "name": "checkLinkName",
           "request": {
             "url": {
@@ -1611,7 +1611,7 @@
               "query": [
                 {
                   "key": "name",
-                  "value": "name53",
+                  "value": "Raptor%20Rush",
                   "description": "Anything; it is normalised (`Raptor Rush` becomes `raptor-rush`).",
                   "disabled": false
                 }
@@ -1640,11 +1640,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"slug\": \"slug68\",\n  \"available\": false,\n  \"problem\": \"problem48\"\n}",
+              "body": "{\n  \"slug\": \"raptor-rush\",\n  \"available\": true\n}",
               "status": "The normalised name and whether it can be used.",
               "code": 200,
               "name": "Response_200",
-              "id": "13a08c92-f29c-4658-96e7-9ec6fe581efe"
+              "id": "446e7292-95f7-4f9a-b844-9cd589aa2f90"
             }
           ]
         }
@@ -1655,7 +1655,7 @@
       "description": "Find products to recommend (Channel3 catalog).",
       "item": [
         {
-          "id": "3855db68-92b9-4a13-bd6b-85cc1a73bad4",
+          "id": "7ce5da20-7edc-493f-9668-27583706b4ea",
           "name": "searchProducts",
           "request": {
             "url": {
@@ -1695,11 +1695,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"products\": [\n    {\n      \"id\": \"id38\",\n      \"title\": \"title16\",\n      \"image\": \"image56\",\n      \"price\": 112.40695229759469,\n      \"currency\": \"currency58\",\n      \"retailer\": \"retailer17\",\n      \"retailers\": 107,\n      \"commission\": 51.5851839187838,\n      \"brand\": \"brand91\"\n    }\n  ]\n}",
+              "body": "{\n  \"products\": [\n    {\n      \"id\": \"ch3_7f2a9c1e\",\n      \"title\": \"Trail Running Vest 5L\",\n      \"brand\": \"Salomon\",\n      \"image\": \"https://images.example.com/vest.jpg\",\n      \"price\": 59.99,\n      \"currency\": \"USD\",\n      \"retailer\": \"rei.com\",\n      \"retailers\": 4,\n      \"commission\": 0.08\n    }\n  ]\n}",
               "status": "Up to 12 products.",
               "code": 200,
               "name": "Response_200",
-              "id": "157aabf0-b38a-4c5c-8d5e-2802ab2e04f8"
+              "id": "4f20aaaf-dda0-4188-81fc-84b657be2610"
             },
             {
               "header": [
@@ -1709,11 +1709,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"error\": \"error98\",\n  \"field\": \"field34\",\n  \"detail\": \"detail46\"\n}",
+              "body": "{\n  \"error\": \"PayPal isn't configured on this server.\"\n}",
               "status": "Gemini, PayPal or Channel3 failed or isn't configured.",
               "code": 502,
               "name": "Response_502",
-              "id": "1339fbd3-6ac0-48b6-9050-f6606e2f02b2"
+              "id": "82ecded1-c0e0-4363-93b6-e518b81ff8d0"
             },
             {
               "header": [
@@ -1723,11 +1723,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"error\": \"error98\",\n  \"field\": \"field34\",\n  \"detail\": \"detail46\"\n}",
+              "body": "{\n  \"error\": \"PayPal isn't configured on this server.\"\n}",
               "status": "Gemini, PayPal or Channel3 failed or isn't configured.",
               "code": 503,
               "name": "Response_503",
-              "id": "18437487-fb51-4f83-8f95-616fa4b91960"
+              "id": "583a848c-282c-4ec4-9e83-f26eac5efbd6"
             }
           ]
         }
@@ -1738,7 +1738,7 @@
       "description": "Buyer-side PayPal checkout.",
       "item": [
         {
-          "id": "29660a57-8994-4a0e-9464-55636b6459b3",
+          "id": "0d7a3bf7-fde9-44d1-8d20-2d1e5be15576",
           "name": "getPayPalClientToken",
           "request": {
             "url": {
@@ -1770,11 +1770,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"clientToken\": \"clientToken96\"\n}",
+              "body": "{\n  \"clientToken\": \"eyJraWQiOiJFWEFNUExFIn0.example.client-token\"\n}",
               "status": "A token for this site's domain.",
               "code": 200,
               "name": "Response_200",
-              "id": "a766ec99-1838-4a90-99f6-467062ad3c1c"
+              "id": "b7520588-7b0b-4598-a665-c34a0fb704ee"
             },
             {
               "header": [
@@ -1784,11 +1784,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"error\": \"error98\",\n  \"field\": \"field34\",\n  \"detail\": \"detail46\"\n}",
+              "body": "{\n  \"error\": \"PayPal isn't configured on this server.\"\n}",
               "status": "Gemini, PayPal or Channel3 failed or isn't configured.",
               "code": 502,
               "name": "Response_502",
-              "id": "00254a14-13d9-4b1c-ad62-5d498e4b6b0c"
+              "id": "cf61c86f-8683-4db9-af45-54724fb604f8"
             },
             {
               "header": [
@@ -1798,16 +1798,16 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"error\": \"error98\",\n  \"field\": \"field34\",\n  \"detail\": \"detail46\"\n}",
+              "body": "{\n  \"error\": \"PayPal isn't configured on this server.\"\n}",
               "status": "Gemini, PayPal or Channel3 failed or isn't configured.",
               "code": 503,
               "name": "Response_503",
-              "id": "ca9ba0fb-aa7c-4b3b-aa00-853e18fd5106"
+              "id": "3c8f7446-b331-42a3-83d9-7197b2b60765"
             }
           ]
         },
         {
-          "id": "2da3272c-457d-4b57-aaea-aaa6e2b08591",
+          "id": "d24aef0d-5eac-4e42-9f7d-0c4b98ac74ce",
           "name": "createCheckoutOrder",
           "request": {
             "url": {
@@ -1832,7 +1832,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"slug\": \"slug11\",\n  \"options\": {\n    \"Size\": \"M\",\n    \"Color\": \"Black\"\n  }\n}",
+              "raw": "{\"slug\":\"raptorrush\"}",
               "disabled": false
             },
             "description": "Creates the PayPal order for one unit of a live shop's product. The amount always comes\nfrom the shop, never from the caller. Pass the returned `id` to the PayPal JS SDK.\n\nIf the shop has buyer `options`, send one value for each. A sold-out combination answers 409.\n"
@@ -1846,11 +1846,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"id\": \"id94\"\n}",
+              "body": "{\n  \"id\": \"5O190127TN364715T\"\n}",
               "status": "PayPal order created.",
               "code": 200,
               "name": "Response_200",
-              "id": "5db429fc-4ace-4d3a-ad0a-782db2aa863f"
+              "id": "e8e9ba59-a48f-4115-94bc-175951b4b04d"
             },
             {
               "header": [
@@ -1860,11 +1860,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"error\": \"error98\",\n  \"field\": \"field34\",\n  \"detail\": \"detail46\"\n}",
+              "body": "{\n  \"error\": \"Choose a photo.\"\n}",
               "status": "Something in the request needs fixing; `error` says what.",
               "code": 400,
               "name": "Response_400",
-              "id": "a6cfbef8-707c-428e-99a1-76ba9945641d"
+              "id": "2866c0a0-4181-4f5b-a41e-d09c3ba6eab2"
             },
             {
               "header": [
@@ -1874,11 +1874,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"error\": \"error98\",\n  \"field\": \"field34\",\n  \"detail\": \"detail46\"\n}",
+              "body": "{\n  \"error\": \"Shop not found.\"\n}",
               "status": "No such shop, or the admin token or API key doesn't match it.",
               "code": 404,
               "name": "Response_404",
-              "id": "b698579b-e493-4171-affc-26769dc51850"
+              "id": "81e57774-d9c4-49cb-9caf-473a0b8a4da1"
             },
             {
               "header": [
@@ -1888,11 +1888,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"error\": \"error98\",\n  \"field\": \"field34\",\n  \"detail\": \"detail46\"\n}",
+              "body": "{\n  \"error\": \"Sold out.\"\n}",
               "status": "Taken or unavailable (a link name, or a sold-out product).",
               "code": 409,
               "name": "Response_409",
-              "id": "b531de94-c88a-463b-ac67-404d23f43868"
+              "id": "8c60421c-3dda-46b9-801a-2e606c26af4e"
             },
             {
               "header": [
@@ -1902,11 +1902,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"error\": \"error98\",\n  \"field\": \"field34\",\n  \"detail\": \"detail46\"\n}",
+              "body": "{\n  \"error\": \"PayPal isn't configured on this server.\"\n}",
               "status": "Gemini, PayPal or Channel3 failed or isn't configured.",
               "code": 502,
               "name": "Response_502",
-              "id": "54574ad4-fcd6-430e-85ad-762768523cb3"
+              "id": "ae883d6c-e7b8-474d-9b82-1a0045917d79"
             },
             {
               "header": [
@@ -1916,16 +1916,16 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"error\": \"error98\",\n  \"field\": \"field34\",\n  \"detail\": \"detail46\"\n}",
+              "body": "{\n  \"error\": \"PayPal isn't configured on this server.\"\n}",
               "status": "Gemini, PayPal or Channel3 failed or isn't configured.",
               "code": 503,
               "name": "Response_503",
-              "id": "b0c17538-0d84-4814-8ef5-4ba436220ccd"
+              "id": "6c310ef2-94b9-4dd9-b755-09713ee7d401"
             }
           ]
         },
         {
-          "id": "bd3cc557-e2f3-412b-8f45-98f05457063a",
+          "id": "8179bbf0-5c2f-4b80-927e-cab688fc747c",
           "name": "captureCheckoutOrder",
           "request": {
             "url": {
@@ -1937,7 +1937,7 @@
                 {
                   "id": "paypalOrderId",
                   "key": "paypalOrderId",
-                  "value": "paypalOrderId84",
+                  "value": "5O190127TN364715T",
                   "type": "string",
                   "description": "The PayPal order id that `createCheckoutOrder` returned."
                 }
@@ -1966,11 +1966,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"orderId\": \"orderId43\",\n  \"status\": \"paid\"\n}",
+              "body": "{\n  \"orderId\": \"pX4kR9tVb2nQ7sLe\",\n  \"status\": \"paid\"\n}",
               "status": "Paid.",
               "code": 200,
               "name": "Response_200",
-              "id": "a9a04f21-6ef8-4579-959a-b723b7be7898"
+              "id": "541b3a80-17de-4b6f-89d1-dd938ee64cdf"
             },
             {
               "header": [
@@ -1980,11 +1980,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"error\": \"error98\",\n  \"field\": \"field34\",\n  \"detail\": \"detail46\"\n}",
+              "body": "{\n  \"error\": \"Choose a photo.\"\n}",
               "status": "Something in the request needs fixing; `error` says what.",
               "code": 402,
               "name": "Response_402",
-              "id": "3eaba3f4-ca5b-4f2d-aae9-dc81032d1722"
+              "id": "97138f21-8015-45fd-b9fb-cdf6e1844312"
             },
             {
               "header": [
@@ -1994,11 +1994,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"error\": \"error98\",\n  \"field\": \"field34\",\n  \"detail\": \"detail46\"\n}",
+              "body": "{\n  \"error\": \"Shop not found.\"\n}",
               "status": "No such shop, or the admin token or API key doesn't match it.",
               "code": 404,
               "name": "Response_404",
-              "id": "8b2806ed-714d-447b-9b00-cfc1a6ef7c56"
+              "id": "e9fafadd-3c97-4ad4-b0ea-8b6dab85b628"
             },
             {
               "header": [
@@ -2012,7 +2012,7 @@
               "status": "The buyer hasn't approved the order yet.",
               "code": 409,
               "name": "Response_409",
-              "id": "df95f87d-16cf-4d9f-a43c-28f1375d3e57"
+              "id": "01dc1df1-e20f-44af-8c74-96542c08ae2f"
             },
             {
               "header": [
@@ -2022,11 +2022,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"error\": \"error98\",\n  \"field\": \"field34\",\n  \"detail\": \"detail46\"\n}",
-              "status": "The last unit (or the last of the buyer's combination) sold while they were paying. The payment isn't captured, so the buyer isn't charged.",
+              "body": "{\n  \"error\": \"error87\",\n  \"field\": \"field53\",\n  \"detail\": \"detail88\"\n}",
+              "status": "The last unit (or the last of the buyer's combination) sold while they were paying, or the PayPal checkout expired before they paid. The payment isn't captured, so the buyer isn't charged.",
               "code": 410,
               "name": "Response_410",
-              "id": "f51aadcd-9f94-4a76-9663-7344bab06aea"
+              "id": "e3bd92b4-5264-4e40-a70c-cbb3e8f04a09"
             },
             {
               "header": [
@@ -2036,11 +2036,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"error\": \"error98\",\n  \"field\": \"field34\",\n  \"detail\": \"detail46\"\n}",
+              "body": "{\n  \"error\": \"error87\",\n  \"field\": \"field53\",\n  \"detail\": \"detail88\"\n}",
               "status": "The buyer's funding source was declined (`INSTRUMENT_DECLINED`); they can try another.",
               "code": 422,
               "name": "Response_422",
-              "id": "146f60a5-1557-4ddb-bf08-824f09a3cce1"
+              "id": "dc9c0d4d-840e-4d05-a742-30af02f69d21"
             },
             {
               "header": [
@@ -2050,11 +2050,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"error\": \"error98\",\n  \"field\": \"field34\",\n  \"detail\": \"detail46\"\n}",
+              "body": "{\n  \"error\": \"PayPal isn't configured on this server.\"\n}",
               "status": "Gemini, PayPal or Channel3 failed or isn't configured.",
               "code": 502,
               "name": "Response_502",
-              "id": "eb5ed23d-ab29-4aff-b6de-8ff2fef92419"
+              "id": "af03b2a4-a700-4f6e-b870-7dd37ccf39d9"
             }
           ]
         }
@@ -2065,7 +2065,7 @@
       "description": "Unlock a paid app or game with a buyer's code.",
       "item": [
         {
-          "id": "bf69c3ba-400c-44d3-98c0-51a412bb6881",
+          "id": "a72e2845-b6f9-4321-a187-574e4b8b740a",
           "name": "verifyAccessCode",
           "request": {
             "url": {
@@ -2090,7 +2090,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"shop\": \"raptorrush\",\n  \"code\": \"K7QF-M2XP-9HTD\"\n}",
+              "raw": "{\"shop\":\"raptorrush\",\"code\":\"K7QF-M2XP-9HTD\"}",
               "disabled": false
             },
             "description": "For apps and games sold with access codes. Callable from any origin (CORS `*`): it only\nanswers valid or not for one shop, and counts uses. Accepts the shop's current or former\nlink names, and codes typed loosely (lower case, spaces, no dashes).\n"
@@ -2104,11 +2104,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"valid\": true,\n  \"product\": \"product82\"\n}",
+              "body": "{\n  \"valid\": true,\n  \"product\": \"Raptor Rush: Browser Edition\"\n}",
               "status": "The answer. Invalid codes are also a 200.",
               "code": 200,
               "name": "Response_200",
-              "id": "5b161d49-3ccb-462b-8647-5356a8428cd0"
+              "id": "4d66ce8c-5cab-4d8b-a08b-fb1274bdbd95"
             }
           ]
         }
@@ -2119,7 +2119,7 @@
       "description": "The seller's orders, fulfilment and PayPal webhook log.",
       "item": [
         {
-          "id": "ae5be2ee-578e-4a25-966c-d2d2a752fadf",
+          "id": "7f5ae556-a281-4d95-ad54-e18fdb3011e4",
           "name": "listOrders",
           "request": {
             "url": {
@@ -2141,7 +2141,7 @@
               "type": "apikey",
               "apikey": {
                 "key": "x-admin-token",
-                "value": "x-admin-token65",
+                "value": "x-admin-token89",
                 "in": "header"
               }
             },
@@ -2168,11 +2168,11 @@
                   "disabled": false
                 }
               ],
-              "body": "[\n  {\n    \"id\": \"id70\",\n    \"status\": \"created\",\n    \"amount_cents\": 89,\n    \"currency\": \"currency89\",\n    \"fulfillment_status\": \"none\",\n    \"paypal_order_id\": \"paypal_order_id33\",\n    \"shipping_cents\": 138,\n    \"buyer_email\": \"buyer_email48\",\n    \"buyer_name\": \"buyer_name56\",\n    \"shipping_address\": {\n      \"key1\": \"shipping_address85\"\n    },\n    \"capture_id\": \"capture_id51\",\n    \"carrier\": \"carrier10\",\n    \"tracking_number\": \"tracking_number34\",\n    \"tracking_synced\": false,\n    \"downloads\": 99,\n    \"access_code\": \"access_code26\",\n    \"code_uses\": 240,\n    \"channel\": \"web\",\n    \"options\": {\n      \"key1\": {\n        \"key1\": \"75\"\n      }\n    },\n    \"paid_at\": \"2026-12-17T02:19:24.0692369Z\",\n    \"created_at\": \"2027-01-24T02:19:24.0692502Z\"\n  }\n]",
+              "body": "[\n  {\n    \"id\": \"pX4kR9tVb2nQ7sLe\",\n    \"paypal_order_id\": \"5O190127TN364715T\",\n    \"status\": \"paid\",\n    \"amount_cents\": 25500,\n    \"shipping_cents\": 1500,\n    \"currency\": \"USD\",\n    \"buyer_email\": \"buyer@example.com\",\n    \"buyer_name\": \"Sam Rivera\",\n    \"shipping_address\": {\n      \"address_line_1\": \"1 Main St\",\n      \"admin_area_2\": \"Springfield\",\n      \"admin_area_1\": \"IL\",\n      \"postal_code\": \"62701\",\n      \"country_code\": \"US\"\n    },\n    \"capture_id\": \"3C679366HH908993F\",\n    \"fulfillment_status\": \"to_ship\",\n    \"carrier\": null,\n    \"tracking_number\": null,\n    \"tracking_synced\": false,\n    \"downloads\": 0,\n    \"access_code\": null,\n    \"code_uses\": 0,\n    \"channel\": \"agent\",\n    \"options\": {\n      \"Size\": \"8\"\n    },\n    \"paid_at\": \"2026-10-22T02:41:37Z\",\n    \"created_at\": \"2026-10-22T02:38:05Z\"\n  }\n]",
               "status": "Orders.",
               "code": 200,
               "name": "Response_200",
-              "id": "f083024e-7063-4000-8f3c-612ef8ab64c0"
+              "id": "5ce5e0d2-d7fd-4caf-b4b1-cb9fdc01c640"
             },
             {
               "header": [
@@ -2182,16 +2182,16 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"error\": \"error98\",\n  \"field\": \"field34\",\n  \"detail\": \"detail46\"\n}",
+              "body": "{\n  \"error\": \"Shop not found.\"\n}",
               "status": "No such shop, or the admin token or API key doesn't match it.",
               "code": 404,
               "name": "Response_404",
-              "id": "01792f27-fdae-4a29-9256-1ce60e0b6fcd"
+              "id": "a9491c79-f45f-4c9e-b367-2cd1c9bea945"
             }
           ]
         },
         {
-          "id": "79aab4a5-d510-4fb1-b0a2-a56cd180130d",
+          "id": "64b05639-e288-481e-825f-b2555c0d09fc",
           "name": "markOrderShipped",
           "request": {
             "url": {
@@ -2210,7 +2210,7 @@
                 {
                   "id": "orderId",
                   "key": "orderId",
-                  "value": "orderId47",
+                  "value": "pX4kR9tVb2nQ7sLe",
                   "type": "string",
                   "description": "OneThing's order id (`Order.id`)."
                 }
@@ -2220,7 +2220,7 @@
               "type": "apikey",
               "apikey": {
                 "key": "x-admin-token",
-                "value": "x-admin-token84",
+                "value": "x-admin-token9",
                 "in": "header"
               }
             },
@@ -2240,7 +2240,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"carrier\": \"UPS\",\n  \"trackingNumber\": \"trackingNumber90\",\n  \"carrierName\": \"carrierName82\"\n}",
+              "raw": "{\"carrier\":\"USPS\",\"trackingNumber\":\"9400111899223817362315\"}",
               "disabled": false
             },
             "description": "Saves the tracking number and pushes it to PayPal, so the buyer sees it in PayPal."
@@ -2254,11 +2254,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"ok\": false,\n  \"synced\": false\n}",
+              "body": "{\n  \"ok\": true,\n  \"synced\": true\n}",
               "status": "Shipped.",
               "code": 200,
               "name": "Response_200",
-              "id": "9bfbff1f-94f6-4e03-af9a-42893b76a17b"
+              "id": "da7f76a9-ee0f-4955-9ad5-d0e673c60a1c"
             },
             {
               "header": [
@@ -2268,11 +2268,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"error\": \"error98\",\n  \"field\": \"field34\",\n  \"detail\": \"detail46\"\n}",
+              "body": "{\n  \"error\": \"Choose a photo.\"\n}",
               "status": "Something in the request needs fixing; `error` says what.",
               "code": 400,
               "name": "Response_400",
-              "id": "d81c85a4-9d16-48b0-9328-f702b611c6fd"
+              "id": "10495a2e-4e57-4f02-a491-78290bb01feb"
             },
             {
               "header": [
@@ -2282,16 +2282,16 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"error\": \"error98\",\n  \"field\": \"field34\",\n  \"detail\": \"detail46\"\n}",
+              "body": "{\n  \"error\": \"Shop not found.\"\n}",
               "status": "No such shop, or the admin token or API key doesn't match it.",
               "code": 404,
               "name": "Response_404",
-              "id": "8aebe6ed-cd55-4591-b9de-286359d8938e"
+              "id": "9319ab0d-c8f8-48a0-a5e7-0054671a80a9"
             }
           ]
         },
         {
-          "id": "6ac50455-5176-4853-aeab-65cc29da8d7d",
+          "id": "46b7de03-6c55-42ed-9e7f-5dceb5dafc99",
           "name": "listWebhookEvents",
           "request": {
             "url": {
@@ -2313,7 +2313,7 @@
               "type": "apikey",
               "apikey": {
                 "key": "x-admin-token",
-                "value": "x-admin-token81",
+                "value": "x-admin-token28",
                 "in": "header"
               }
             },
@@ -2340,11 +2340,11 @@
                   "disabled": false
                 }
               ],
-              "body": "[\n  {\n    \"id\": \"id57\",\n    \"event_type\": \"PAYMENT.CAPTURE.COMPLETED\",\n    \"verified\": true,\n    \"outcome\": \"Confirmed: order already paid\",\n    \"received_at\": \"2027-01-01T02:19:24.0768726Z\",\n    \"paypal_order_id\": \"paypal_order_id21\",\n    \"summary\": \"2.99 USD\"\n  }\n]",
+              "body": "[\n  {\n    \"id\": \"WH-2WR32451HC0233532-67976317FL4543714\",\n    \"event_type\": \"PAYMENT.CAPTURE.COMPLETED\",\n    \"paypal_order_id\": \"5O190127TN364715T\",\n    \"summary\": \"255.00 USD\",\n    \"verified\": true,\n    \"outcome\": \"Confirmed: order already paid\",\n    \"received_at\": \"2026-10-22T02:41:40Z\"\n  }\n]",
               "status": "Events, newest first.",
               "code": 200,
               "name": "Response_200",
-              "id": "079c3de9-97f8-4dda-a671-f2b3df7cfc3d"
+              "id": "54ffb87a-2c99-4a22-9563-2bb532a5ba4d"
             },
             {
               "header": [
@@ -2354,11 +2354,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"error\": \"error98\",\n  \"field\": \"field34\",\n  \"detail\": \"detail46\"\n}",
+              "body": "{\n  \"error\": \"Shop not found.\"\n}",
               "status": "No such shop, or the admin token or API key doesn't match it.",
               "code": 404,
               "name": "Response_404",
-              "id": "1ddd377c-3631-45b7-a84e-b26c0263ed3b"
+              "id": "bf93ba75-d5bf-4599-800a-7b495cf9edd3"
             }
           ]
         }
@@ -2369,7 +2369,7 @@
       "description": "Digital downloads and shop images.",
       "item": [
         {
-          "id": "4874ae51-ce3d-413e-baa8-8677ce522e76",
+          "id": "52e84ab6-c4e0-47b0-ba72-4fef9d4346d8",
           "name": "downloadFile",
           "request": {
             "url": {
@@ -2381,7 +2381,7 @@
                 {
                   "id": "token",
                   "key": "token",
-                  "value": "token34",
+                  "value": "q2Vd8mLx0RkT4nYb7HcW1sPe",
                   "type": "string",
                   "description": "The download token from a paid order's thank-you page."
                 }
@@ -2408,7 +2408,7 @@
               "status": "The file.",
               "code": 200,
               "name": "Response_200",
-              "id": "04a02e62-23e8-462c-8b7a-a5429bf79f5e"
+              "id": "33098315-8c1a-423a-ac30-f700da57d023"
             },
             {
               "header": [
@@ -2418,16 +2418,16 @@
                   "disabled": false
                 }
               ],
-              "body": "response 41096",
+              "body": "response 41058",
               "status": "Expired or used up.",
               "code": 410,
               "name": "Response_410",
-              "id": "c7fd37a4-ae30-438b-9a8e-fc88d553825a"
+              "id": "ddec6796-f77f-4253-a4b1-5c273d6e4674"
             }
           ]
         },
         {
-          "id": "11764db5-eb9f-412d-9c85-8d5cca7e22e5",
+          "id": "3b72d7c3-a680-47ff-9816-57c336589016",
           "name": "getImage",
           "request": {
             "url": {
@@ -2439,7 +2439,7 @@
                 {
                   "id": "id",
                   "key": "id",
-                  "value": "id79",
+                  "value": "LFRvGuTU3D8i334X",
                   "type": "string",
                   "description": "A shop's `photo_blob` or `hero_blob`."
                 }
@@ -2472,14 +2472,14 @@
               "status": "The image.",
               "code": 200,
               "name": "Response_200",
-              "id": "5d8a8ec8-1e19-466a-9391-1e5f1b56b0c5"
+              "id": "2d5c1a9b-9c3b-4457-ab9d-3b744dc71435"
             },
             {
               "header": [],
               "status": "Not a public shop image.",
               "code": 404,
               "name": "Response_404",
-              "id": "b78cc19a-87db-4ad4-a0da-9854b0de2183"
+              "id": "c2700682-8012-43b7-a70c-e37a424c7adb"
             }
           ]
         }
@@ -2490,7 +2490,183 @@
       "description": "Machine-readable shops and the MCP server AI shopping agents buy through.",
       "item": [
         {
-          "id": "47c3e9d0-e2b1-4ddf-b1e8-7286930b4b73",
+          "id": "3ca37805-b222-49dc-bfe2-7738f59893c4",
+          "name": "openPayLink",
+          "request": {
+            "url": {
+              "host": "{{default}}",
+              "path": [
+                "o/:orderId"
+              ],
+              "variable": [
+                {
+                  "id": "orderId",
+                  "key": "orderId",
+                  "value": "pX4kR9tVb2nQ7sLe",
+                  "type": "string",
+                  "description": "The `order_id` from the MCP `create_order` tool."
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "text/plain",
+                "disabled": false
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "disabled": false
+            },
+            "description": "The `pay_url` an agent gives the buyer. It redirects to PayPal's payment page for the order, so PayPal's checkout token never passes through the agent (agent platforms hide such tokens as secrets). A paid order redirects to its thank-you page; an expired checkout goes back to the shop page."
+          },
+          "response": [
+            {
+              "header": [],
+              "status": "Redirect to PayPal, the thank-you page or the shop page.",
+              "code": 303,
+              "name": "Response_303",
+              "id": "c8633b36-c344-433c-b3aa-ca8a221f71a1"
+            },
+            {
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain",
+                  "disabled": false
+                }
+              ],
+              "body": "response 40496",
+              "status": "No order with that id.",
+              "code": 404,
+              "name": "Response_404",
+              "id": "a2497d34-ae2d-4dff-aec8-d6445688351b"
+            }
+          ]
+        },
+        {
+          "id": "3e9f45c7-bc1e-4cf9-9e20-2a5a746a8465",
+          "name": "listAgentShops",
+          "request": {
+            "url": {
+              "host": "{{default}}",
+              "path": [
+                "api/agent/shops"
+              ],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "skates",
+                  "description": "Keywords. Leave out to list the newest shops.",
+                  "disabled": false
+                },
+                {
+                  "key": "limit",
+                  "value": "10",
+                  "description": "How many shops, 1–25.",
+                  "disabled": false
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "disabled": false
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "disabled": false
+            },
+            "description": "The gallery's live shops, newest first, filtered by keywords (every word must appear in the name or headline). The GET twin of the MCP `search_shops` tool, for agents that can only fetch URLs. Public. Read a shop with `getAgentProduct`; buy through the MCP server in `mcp_server`, or send the buyer to the shop's `url`."
+          },
+          "response": [
+            {
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "disabled": false
+                }
+              ],
+              "body": "{\n  \"shops\": [\n    {\n      \"shop\": \"vintageskates\",\n      \"name\": \"Vintage Cream and Red Roller Skates\",\n      \"kind\": \"physical\",\n      \"headline\": \"Classic quad skates crafted with walnut burl heels\",\n      \"price\": \"$240.00\",\n      \"url\": \"https://one-thing-ash0.onrender.com/vintageskates\"\n    },\n    {\n      \"shop\": \"raptorrush\",\n      \"name\": \"Raptor Rush: Browser Edition\",\n      \"kind\": \"digital\",\n      \"headline\": \"Grow from Tiny Hatchling to Giant Apex Predator\",\n      \"price\": \"$2.99\",\n      \"url\": \"https://one-thing-ash0.onrender.com/raptorrush\"\n    }\n  ],\n  \"mcp_server\": \"https://one-thing-ash0.onrender.com/api/mcp\"\n}",
+              "status": "The matching shops.",
+              "code": 200,
+              "name": "Response_200",
+              "id": "fd8d3002-5c76-4ec0-993c-11651e411ff5"
+            }
+          ]
+        },
+        {
+          "id": "c70742f7-36db-4517-9671-eeba12d93284",
+          "name": "getAgentOrder",
+          "request": {
+            "url": {
+              "host": "{{default}}",
+              "path": [
+                "api/agent/orders/:orderId"
+              ],
+              "variable": [
+                {
+                  "id": "orderId",
+                  "key": "orderId",
+                  "value": "pX4kR9tVb2nQ7sLe",
+                  "type": "string",
+                  "description": "The `order_id` from the MCP `create_order` tool, or from a thank-you page link (`?order=`)."
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "disabled": false
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "disabled": false
+            },
+            "description": "Where an order stands and, once paid, what the buyer got: the access code, the download link, or the shipping address and tracking. The GET twin of the MCP `get_order` tool (and the `status_url` that `create_order` returns), for agents that can only fetch URLs. Public: anyone with the order id can already open its thank-you page. If the buyer has approved at PayPal but nothing has captured the payment yet, this captures it."
+          },
+          "response": [
+            {
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "disabled": false
+                }
+              ],
+              "body": "{\n  \"order_id\": \"pX4kR9tVb2nQ7sLe\",\n  \"status\": \"awaiting_buyer_approval\",\n  \"product\": \"Vintage Cream and Red Roller Skates\",\n  \"options\": {\n    \"Size\": \"9\"\n  },\n  \"amount\": {\n    \"item\": 240,\n    \"shipping\": 15,\n    \"total\": 255,\n    \"currency\": \"USD\"\n  },\n  \"total\": \"$255.00\",\n  \"pay_url\": \"https://one-thing-ash0.onrender.com/o/pX4kR9tVb2nQ7sLe\",\n  \"next_step\": \"The buyer hasn't paid yet. Give them pay_url; when they say they've paid, call get_order again.\"\n}",
+              "status": "The order.",
+              "code": 200,
+              "name": "Response_200",
+              "id": "d5443730-9057-4a28-bcbe-6ab30a7c0cb8"
+            },
+            {
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "disabled": false
+                }
+              ],
+              "body": "{\n  \"error\": \"error87\",\n  \"field\": \"field53\",\n  \"detail\": \"detail88\"\n}",
+              "status": "No order with that id.",
+              "code": 404,
+              "name": "Response_404",
+              "id": "e4bb46b5-aa7f-46e2-b201-5d27c70b7a44"
+            }
+          ]
+        },
+        {
+          "id": "4facb1b2-164f-4dd0-bba0-eb026f1784c5",
           "name": "getAgentProduct",
           "request": {
             "url": {
@@ -2531,11 +2707,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"shop\": \"shop98\",\n  \"url\": \"url63\",\n  \"name\": \"name48\",\n  \"kind\": \"digital\",\n  \"headline\": \"headline37\",\n  \"description\": \"description52\",\n  \"highlights\": [\n    \"highlights96\"\n  ],\n  \"details\": [\n    {\n      \"label\": \"label57\",\n      \"value\": \"value63\"\n    }\n  ],\n  \"faq\": [\n    {\n      \"q\": \"q48\",\n      \"a\": \"a94\"\n    }\n  ],\n  \"images\": [\n    \"images46\"\n  ],\n  \"how_to_buy\": \"how_to_buy58\",\n  \"price\": {\n    \"amount\": 48.5,\n    \"currency\": \"USD\",\n    \"label\": \"$48.50\"\n  },\n  \"shipping\": {\n    \"amount\": 181.20292616833777,\n    \"currency\": \"currency43\",\n    \"ships_to\": [\n      \"ships_to22\"\n    ]\n  },\n  \"total\": {\n    \"amount\": 48.5,\n    \"currency\": \"USD\",\n    \"label\": \"$48.50\"\n  },\n  \"delivery\": \"Shipped. PayPal collects the buyer's address at checkout.\",\n  \"availability\": \"in_stock\",\n  \"options\": [\n    {\n      \"name\": \"name54\",\n      \"values\": [\n        \"values20\"\n      ]\n    }\n  ],\n  \"variants\": [\n    {\n      \"choice\": {\n        \"Size\": \"M\",\n        \"Color\": \"Black\"\n      },\n      \"availability\": \"availability85\"\n    }\n  ],\n  \"offers\": [\n    {\n      \"retailer\": \"retailer73\",\n      \"price\": 11.08145484448391,\n      \"currency\": \"currency23\",\n      \"in_stock\": true,\n      \"url\": \"url10\"\n    }\n  ],\n  \"mcp_server\": \"mcp_server2\"\n}",
+              "body": "{\n  \"shop\": \"vintageskates\",\n  \"url\": \"https://one-thing-ash0.onrender.com/vintageskates\",\n  \"name\": \"Vintage Cream and Red Roller Skates\",\n  \"kind\": \"physical\",\n  \"headline\": \"Classic quad skates crafted with walnut burl heels\",\n  \"description\": \"A vintage pair of skates featuring cream leather, bold red trim, and durable quad wheels.\",\n  \"highlights\": [\n    \"Handmade cream leather upper with rich red trim\",\n    \"Sculpted walnut burl heel structure for stability\"\n  ],\n  \"details\": [\n    {\n      \"label\": \"Materials\",\n      \"value\": \"Leather upper, walnut burl heel, rubber wheels\"\n    }\n  ],\n  \"faq\": [\n    {\n      \"q\": \"What is the return policy?\",\n      \"a\": \"Unworn skates in original condition can be returned within 30 days of delivery.\"\n    }\n  ],\n  \"images\": [\n    \"https://one-thing-ash0.onrender.com/api/blobs/LFRvGuTU3D8i334X\",\n    \"https://one-thing-ash0.onrender.com/api/blobs/zrySajNyao6_j11x\"\n  ],\n  \"price\": {\n    \"amount\": 240,\n    \"currency\": \"USD\",\n    \"label\": \"$240.00\"\n  },\n  \"shipping\": {\n    \"amount\": 15,\n    \"currency\": \"USD\",\n    \"ships_to\": [\n      \"US\"\n    ]\n  },\n  \"total\": {\n    \"amount\": 255,\n    \"currency\": \"USD\"\n  },\n  \"delivery\": \"Shipped. PayPal collects the buyer's address at checkout.\",\n  \"options\": [\n    {\n      \"name\": \"Size\",\n      \"values\": [\n        \"7\",\n        \"8\",\n        \"9\"\n      ]\n    }\n  ],\n  \"variants\": [\n    {\n      \"choice\": {\n        \"Size\": \"7\"\n      },\n      \"availability\": \"in_stock (3 left)\"\n    },\n    {\n      \"choice\": {\n        \"Size\": \"8\"\n      },\n      \"availability\": \"sold_out\"\n    },\n    {\n      \"choice\": {\n        \"Size\": \"9\"\n      },\n      \"availability\": \"in_stock (6 left)\"\n    }\n  ],\n  \"availability\": \"in_stock\",\n  \"how_to_buy\": \"Call create_order on the OneThing MCP server with shop and options, then give the buyer its pay_url to pay at PayPal.\",\n  \"mcp_server\": \"https://one-thing-ash0.onrender.com/api/mcp\"\n}",
               "status": "The product.",
               "code": 200,
               "name": "Response_200",
-              "id": "ccdc5da6-5c55-4042-b213-be36601a9c38"
+              "id": "531a28fe-06e2-4807-8d96-f1c29a631453"
             },
             {
               "header": [
@@ -2545,16 +2721,16 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"error\": \"error98\",\n  \"field\": \"field34\",\n  \"detail\": \"detail46\"\n}",
+              "body": "{\n  \"error\": \"error87\",\n  \"field\": \"field53\",\n  \"detail\": \"detail88\"\n}",
               "status": "No live shop with that link name.",
               "code": 404,
               "name": "Response_404",
-              "id": "b82715ba-04f2-444b-8f56-0af6f65dc3ec"
+              "id": "b5165ab4-8d69-4031-bd04-2e9de6a3fca3"
             }
           ]
         },
         {
-          "id": "d8d8569a-0980-4f45-84a9-91cb30a11537",
+          "id": "6ca8da2f-3081-4837-a928-1f5bfcdf826e",
           "name": "callMcp",
           "request": {
             "url": {
@@ -2582,7 +2758,7 @@
               "raw": "{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"tools/call\",\"params\":{\"name\":\"search_shops\",\"arguments\":{\"query\":\"game\"}}}",
               "disabled": false
             },
-            "description": "A [Model Context Protocol](https://modelcontextprotocol.io) server, so agents such as\nClaude can shop here. Add `https://<host>/api/mcp` to an MCP client as a Streamable HTTP\nserver. It's stateless: each POST carries one JSON-RPC 2.0 message (or a batch) and gets a\nplain JSON reply, with no session and no event stream.\n\nMethods: `initialize`, `ping`, `tools/list`, `tools/call`. Tools:\n\n| Tool | Arguments | What it does |\n|---|---|---|\n| `search_shops` | `query?`, `limit?` (1–25) | Live gallery shops whose name or headline has every word |\n| `get_product` | `shop` | The same object as `getAgentProduct` |\n| `create_order` | `shop`, `options?` | One unit on order; returns `order_id` and `approve_url` |\n| `get_order` | `order_id` | `awaiting_buyer_approval` or `paid`, with the receipt link once paid |\n\n**The buyer always approves.** `create_order` charges nothing: the agent gives the buyer\n`approve_url`, they pay at PayPal, and the agent polls `get_order`. Orders made this way\nshow `channel: agent` in `listOrders`.\n\nTool errors (an unknown shop, a sold-out size) come back as results with `isError: true`,\nso the model can read them and try something else.\n"
+            "description": "A [Model Context Protocol](https://modelcontextprotocol.io) server, so agents such as\nClaude can shop here. Add `https://<host>/api/mcp` to an MCP client as a Streamable HTTP\nserver. It's stateless: each POST carries one JSON-RPC 2.0 message (or a batch) and gets a\nplain JSON reply, with no session and no event stream.\n\nMethods: `initialize`, `ping`, `tools/list`, `tools/call`. Tools:\n\n| Tool | Arguments | What it does |\n|---|---|---|\n| `search_shops` | `query?`, `limit?` (1–25) | Live gallery shops whose name or headline has every word |\n| `get_product` | `shop` | The same object as `getAgentProduct` |\n| `create_order` | `shop`, `options?` | One unit on order; returns `order_id` and `pay_url` |\n| `get_order` | `order_id` | Status and `next_step`; once paid, the receipt and `delivery` |\n\n**The buyer always approves.** `create_order` charges nothing: the agent shows the buyer\n`pay_url` (`/o/<order_id>`, see `openPayLink`), which opens PayPal. It's a plain link on this\nsite, so agent platforms that hide PayPal's checkout tokens can still show it. When the buyer\nsays they've paid, the agent calls `get_order`.\n\n`get_order` status is one of `awaiting_buyer_approval`, `paid`, `declined` (nothing charged;\nthe buyer can open `pay_url` again), `sold_out`, `expired` (call `create_order` again) or\n`failed` (PayPal couldn't be reached; try again), with a `next_step` the agent can follow.\nA paid order carries `delivery`: `{type: access_code, access_code, start_url?}`,\n`{type: download, download_url}` or `{type: shipping, ship_to, fulfillment, tracking}`, plus\n`amount` with item, shipping and total. Orders made this way show `channel: agent` in\n`listOrders`.\n\nTool errors (an unknown shop, a sold-out size) come back as results with `isError: true`,\nso the model can read them and try something else.\n"
           },
           "response": [
             {
@@ -2593,18 +2769,18 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"jsonrpc\": \"2.0\",\n  \"id\": 92,\n  \"result\": {},\n  \"error\": {\n    \"code\": -32601,\n    \"message\": \"message37\"\n  }\n}",
+              "body": "{\n  \"jsonrpc\": \"2.0\",\n  \"id\": 1,\n  \"result\": {\n    \"content\": [\n      {\n        \"type\": \"text\",\n        \"text\": \"{\\n  \\\"shops\\\": [\\n    {\\n      \\\"shop\\\": \\\"vintageskates\\\",\\n      \\\"name\\\": \\\"Vintage Cream and Red Roller Skates\\\",\\n      \\\"kind\\\": \\\"physical\\\",\\n      \\\"headline\\\": \\\"Classic quad skates crafted with walnut burl heels\\\",\\n      \\\"price\\\": \\\"$240.00\\\",\\n      \\\"url\\\": \\\"https://one-thing-ash0.onrender.com/vintageskates\\\"\\n    },\\n    {\\n      \\\"shop\\\": \\\"raptorrush\\\",\\n      \\\"name\\\": \\\"Raptor Rush: Browser Edition\\\",\\n      \\\"kind\\\": \\\"digital\\\",\\n      \\\"headline\\\": \\\"Grow from Tiny Hatchling to Giant Apex Predator\\\",\\n      \\\"price\\\": \\\"$2.99\\\",\\n      \\\"url\\\": \\\"https://one-thing-ash0.onrender.com/raptorrush\\\"\\n    }\\n  ]\\n}\"\n      }\n    ],\n    \"structuredContent\": {\n      \"shops\": [\n        {\n          \"shop\": \"vintageskates\",\n          \"name\": \"Vintage Cream and Red Roller Skates\",\n          \"kind\": \"physical\",\n          \"headline\": \"Classic quad skates crafted with walnut burl heels\",\n          \"price\": \"$240.00\",\n          \"url\": \"https://one-thing-ash0.onrender.com/vintageskates\"\n        },\n        {\n          \"shop\": \"raptorrush\",\n          \"name\": \"Raptor Rush: Browser Edition\",\n          \"kind\": \"digital\",\n          \"headline\": \"Grow from Tiny Hatchling to Giant Apex Predator\",\n          \"price\": \"$2.99\",\n          \"url\": \"https://one-thing-ash0.onrender.com/raptorrush\"\n        }\n      ]\n    },\n    \"isError\": false\n  }\n}",
               "status": "The JSON-RPC reply (an array for a batch).",
               "code": 200,
               "name": "Response_200",
-              "id": "a6198edd-8fa7-49eb-9127-68e277642835"
+              "id": "c82fb19f-fb94-4589-8a7d-eb37de75067f"
             },
             {
               "header": [],
               "status": "Only notifications were sent; there's nothing to reply.",
               "code": 202,
               "name": "Response_202",
-              "id": "c7e6c3bc-6b68-4e01-bc7e-ab237b492f36"
+              "id": "93be8632-dc84-4f35-9985-6816a8875685"
             },
             {
               "header": [
@@ -2614,11 +2790,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"jsonrpc\": \"2.0\",\n  \"id\": 92,\n  \"result\": {},\n  \"error\": {\n    \"code\": -32601,\n    \"message\": \"message37\"\n  }\n}",
+              "body": "{\n  \"jsonrpc\": \"2.0\",\n  \"id\": 64,\n  \"result\": {\n    \"result0\": \"result78\"\n  },\n  \"error\": {\n    \"code\": -32601,\n    \"message\": \"message71\"\n  }\n}",
               "status": "Not JSON (JSON-RPC parse error `-32700`).",
               "code": 400,
               "name": "Response_400",
-              "id": "f470f9a1-c16b-4c60-b17b-4c4bbb5b7a2a"
+              "id": "12381e7e-eac3-4ed2-b693-63059d08632c"
             }
           ]
         }
@@ -2629,7 +2805,7 @@
       "description": "For marketplaces that make and run shops for their own sellers with one API key.",
       "item": [
         {
-          "id": "5e081093-2589-4965-a151-683273edee3e",
+          "id": "4ace6f07-f12d-4a63-8ea5-abd1f96be4d1",
           "name": "listMyShops",
           "request": {
             "url": {
@@ -2640,7 +2816,7 @@
               "query": [
                 {
                   "key": "status",
-                  "value": "draft",
+                  "value": "live",
                   "description": "Only shops with this status, e.g. `live` for a public catalog.",
                   "disabled": false
                 }
@@ -2676,11 +2852,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"shops\": [\n    {\n      \"slug\": \"slug89\",\n      \"status\": \"draft\",\n      \"name\": \"name2\",\n      \"product_type\": \"physical\",\n      \"price\": {\n        \"amount\": 48.5,\n        \"currency\": \"USD\",\n        \"label\": \"$48.50\"\n      },\n      \"url\": \"url89\",\n      \"paypal_connected\": true,\n      \"sales\": 189,\n      \"created_at\": \"2027-01-25T02:19:24.0787792Z\",\n      \"headline\": \"headline13\",\n      \"cover\": \"cover80\"\n    }\n  ]\n}",
+              "body": "{\n  \"shops\": [\n    {\n      \"slug\": \"raptorrush\",\n      \"status\": \"live\",\n      \"name\": \"Raptor Rush: Browser Edition\",\n      \"headline\": \"Grow from Tiny Hatchling to Giant Apex Predator\",\n      \"product_type\": \"digital\",\n      \"price\": {\n        \"amount\": 2.99,\n        \"currency\": \"USD\"\n      },\n      \"url\": \"https://one-thing-ash0.onrender.com/raptorrush\",\n      \"cover\": \"https://one-thing-ash0.onrender.com/api/blobs/KchAi9jwZzo76SKh\",\n      \"paypal_connected\": true,\n      \"sales\": 12,\n      \"created_at\": \"2026-10-12T20:31:44Z\"\n    }\n  ]\n}",
               "status": "The shops.",
               "code": 200,
               "name": "Response_200",
-              "id": "98e89570-794e-49c8-8d24-5dd4c7093ee4"
+              "id": "76ff0021-0656-403e-acde-eaa6a2c8c885"
             },
             {
               "header": [
@@ -2690,11 +2866,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"error\": \"error98\",\n  \"field\": \"field34\",\n  \"detail\": \"detail46\"\n}",
+              "body": "{\n  \"error\": \"error87\",\n  \"field\": \"field53\",\n  \"detail\": \"detail88\"\n}",
               "status": "No API key, or it's wrong or revoked.",
               "code": 401,
               "name": "Response_401",
-              "id": "a7e31bab-c5ef-4a26-ac1f-f2e5415ac1ec"
+              "id": "6a466df8-b82b-47f1-a7f9-beb411dbe6da"
             }
           ]
         }

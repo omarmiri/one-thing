@@ -26,16 +26,27 @@ This event's request payload is of type [OrderEvent](/llms-pages/python/models/s
 {
   "event": "order.paid",
   "shop": {
-    "slug": "slug4",
-    "name": "name0",
-    "url": "url4"
+    "slug": "vintageskates",
+    "name": "Vintage Cream and Red Roller Skates",
+    "url": "https://one-thing-ash0.onrender.com/vintageskates"
   },
   "order": {
-    "amount": "2.99",
-    "id": "id6",
-    "paypal_order_id": "paypal_order_id6",
-    "currency": "currency6",
-    "buyer_name": "buyer_name4"
+    "id": "pX4kR9tVb2nQ7sLe",
+    "paypal_order_id": "5O190127TN364715T",
+    "amount": "255.00",
+    "currency": "USD",
+    "buyer_name": "Sam Rivera",
+    "buyer_email": "buyer@example.com",
+    "shipping_address": {
+      "address_line_1": "1 Main St",
+      "admin_area_2": "Springfield",
+      "admin_area_1": "IL",
+      "postal_code": "62701",
+      "country_code": "US"
+    },
+    "fulfillment_status": "to_ship",
+    "tracking_number": null,
+    "carrier": null
   }
 }
 ```

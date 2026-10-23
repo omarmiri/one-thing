@@ -36,11 +36,7 @@ This method returns an [`ApiResponse`](/llms-pages/typescript/sdk-infrastructure
 
 ```ts
 const body: ApiOrdersRequest = {
-  slug: 'slug0',
-  options: {
-    'Size': 'M',
-    'Color': 'Black'
-  },
+  slug: 'raptorrush',
 };
 
 try {
@@ -67,6 +63,15 @@ try {
       console.log(error.result);
     }
   }
+}
+```
+
+
+# Example Response *(as JSON)*
+
+```json
+{
+  "id": "5O190127TN364715T"
 }
 ```
 

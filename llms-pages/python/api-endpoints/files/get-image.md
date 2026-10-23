@@ -29,7 +29,7 @@ def get_image(self,
 # Example Usage
 
 ```python
-id = 'id0'
+id = 'LFRvGuTU3D8i334X'
 
 result = files_api.get_image(id)
 print(result)

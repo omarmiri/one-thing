@@ -32,7 +32,7 @@ This method returns an [`ApiResponse`](/llms-pages/typescript/sdk-infrastructure
 # Example Usage
 
 ```ts
-const token = 'token6';
+const token = 'q2Vd8mLx0RkT4nYb7HcW1sPe';
 
 try {
   const response = await filesApi.downloadFile(token);

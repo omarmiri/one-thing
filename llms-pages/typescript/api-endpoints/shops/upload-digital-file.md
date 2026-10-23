@@ -72,6 +72,16 @@ try {
 ```
 
 
+# Example Response *(as JSON)*
+
+```json
+{
+  "ok": true,
+  "filename": "raptor-rush-soundtrack.zip"
+}
+```
+
+
 # Errors
 
 | HTTP Status Code | Error Description | Exception Class |

@@ -53,4 +53,13 @@ try {
 ```
 
 
+# Example Response *(as JSON)*
+
+```json
+{
+  "ok": true
+}
+```
+
+
 

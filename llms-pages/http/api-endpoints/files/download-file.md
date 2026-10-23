@@ -29,7 +29,7 @@ GET /api/download/{token}
 
 ```bash
 curl -X GET \
-  --url 'https://one-thing-ash0.onrender.com/api/download/token6'  \
+  --url 'https://one-thing-ash0.onrender.com/api/download/q2Vd8mLx0RkT4nYb7HcW1sPe'  \
   -H 'Accept: application/octet-stream'
 ```
 

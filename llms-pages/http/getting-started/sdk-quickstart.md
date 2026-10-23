@@ -24,10 +24,11 @@ their own sellers. Buyer endpoints (checkout, access-code verification, download
 Each paid order gets a code such as `K7QF-M2XP-9HTD`; your app calls `verifyAccessCode`
 before unlocking. Raptor Rush on miriogames.com is a live example.
 
-**Agent-ready.** Every live shop is also published for AI shopping agents: product JSON at
-`getAgentProduct`, and an MCP server at `/api/mcp` with `search_shops`, `get_product`,
-`create_order` and `get_order`. An agent can find and order, but the buyer still approves
-every payment at PayPal.
+**Agent-ready.** Every live shop is also published for AI shopping agents: an MCP server at
+`/api/mcp` with `search_shops`, `get_product`, `create_order` and `get_order`, and the same
+reads as plain GETs for agents that can only fetch URLs (`listAgentShops`, `getAgentProduct`,
+`getAgentOrder`). An agent can find and order, but the buyer still approves every payment at
+PayPal.
 
 All money moves through PayPal (sandbox in this deployment). OneThing never holds card data.
 

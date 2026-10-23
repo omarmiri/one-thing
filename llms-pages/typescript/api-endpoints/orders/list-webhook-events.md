@@ -65,6 +65,23 @@ try {
 ```
 
 
+# Example Response *(as JSON)*
+
+```json
+[
+  {
+    "id": "WH-2WR32451HC0233532-67976317FL4543714",
+    "event_type": "PAYMENT.CAPTURE.COMPLETED",
+    "paypal_order_id": "5O190127TN364715T",
+    "summary": "255.00 USD",
+    "verified": true,
+    "outcome": "Confirmed: order already paid",
+    "received_at": "2026-10-22T02:41:40Z"
+  }
+]
+```
+
+
 # Errors
 
 | HTTP Status Code | Error Description | Exception Class |

@@ -9,7 +9,7 @@ Source: /#/http/x-redirect/JTI0bSUyRk9yZGVy
 |  --- | --- | --- | --- |
 | `id` | `String` | Required | - |
 | `paypal_order_id` | `String` | Optional | - |
-| `status` | [`Status 3`](/llms-pages/http/models/enumerations/status-3.md) | Required | - |
+| `status` | [`Status 4`](/llms-pages/http/models/enumerations/status-4.md) | Required | - |
 | `amount_cents` | `Number` | Required | - |
 | `shipping_cents` | `Number` | Optional | - |
 | `currency` | `String` | Required | - |
@@ -25,7 +25,7 @@ Source: /#/http/x-redirect/JTI0bSUyRk9yZGVy
 | `access_code` | `String` | Optional | - |
 | `code_uses` | `Number` | Optional | - |
 | `channel` | [`Channel`](/llms-pages/http/models/enumerations/channel.md) | Optional | `agent` for orders an AI agent placed through the MCP server. |
-| `options` | [`map<map<String>>`](/llms-pages/http/models/oneof-anyof-definitions/order-options.md) | Optional | - |
+| `options` | `map<String>` | Optional | The buyer's pick, one value per option, keyed by option name (see `Choice`). |
 | `paid_at` | `DateTime` | Optional | - |
 | `created_at` | `DateTime` | Optional | - |
 

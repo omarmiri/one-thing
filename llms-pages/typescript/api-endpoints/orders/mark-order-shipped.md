@@ -41,11 +41,11 @@ This method returns an [`ApiResponse`](/llms-pages/typescript/sdk-infrastructure
 ```ts
 const slug = 'raptorrush';
 
-const orderId = 'orderId2';
+const orderId = 'pX4kR9tVb2nQ7sLe';
 
 const body: ApiShopsOrdersShipRequest = {
-  carrier: Carrier.Dhl,
-  trackingNumber: 'trackingNumber4',
+  carrier: Carrier.Usps,
+  trackingNumber: '9400111899223817362315',
 };
 
 try {
@@ -76,6 +76,16 @@ try {
       console.log(error.result);
     }
   }
+}
+```
+
+
+# Example Response *(as JSON)*
+
+```json
+{
+  "ok": true,
+  "synced": true
 }
 ```
 

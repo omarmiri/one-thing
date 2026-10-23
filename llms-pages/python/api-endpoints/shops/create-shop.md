@@ -81,13 +81,39 @@ This endpoint requires [PlatformKey](/llms-pages/python/getting-started/sdk-quic
 ```python
 source = Source.PHOTO
 
-mtype = Type.AUTO
+description = 'Vintage cream and red quad roller skates with walnut burl heels.'
+
+mtype = Type.PHYSICAL
+
+price = 240
+
+shipping = 15
+
+ship_countries = 'US'
+
+paypal_email = 'seller@example.com'
 
 result = shops_api.create_shop(
     source,
-    mtype=mtype
+    description=description,
+    mtype=mtype,
+    price=price,
+    shipping=shipping,
+    ship_countries=ship_countries,
+    paypal_email=paypal_email
 )
 print(result)
+```
+
+
+# Example Response *(as JSON)*
+
+```json
+{
+  "slug": "vintageskates",
+  "token": "3fJ9xQm2LwP8vR1tZk7cN4bY6dHs0aEu",
+  "manageUrl": "/manage/vintageskates?token=3fJ9xQm2LwP8vR1tZk7cN4bY6dHs0aEu"
+}
 ```
 
 

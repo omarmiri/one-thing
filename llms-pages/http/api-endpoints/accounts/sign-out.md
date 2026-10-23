@@ -27,4 +27,13 @@ curl -X POST \
 ```
 
 
+# Example Response *(as JSON)*
+
+```json
+{
+  "ok": true
+}
+```
+
+
 

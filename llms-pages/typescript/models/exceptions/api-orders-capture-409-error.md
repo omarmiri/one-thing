@@ -12,7 +12,7 @@ Source: /#/typescript/x-redirect/JTI0bSUyRkFwaSUyNTIwT3JkZXJzJTI1MjBDYXB0dXJlJTI
 
 | Name | Type | Tags | Description |
 |  --- | --- | --- | --- |
-| `status` | [`Status5 \| undefined`](/llms-pages/typescript/models/enumerations/status-5.md) | Optional | - |
+| `status` | [`Status6 \| undefined`](/llms-pages/typescript/models/enumerations/status-6.md) | Optional | - |
 
 
 # Example

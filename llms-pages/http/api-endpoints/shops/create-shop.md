@@ -68,7 +68,23 @@ curl -X POST \
   -H 'Accept: application/json' \
   -H 'Authorization: Bearer AccessToken'\
   -F 'source=photo' \
-  -F 'type=auto'
+  -F 'description=Vintage+cream+and+red+quad+roller+skates+with+walnut+burl+heels.' \
+  -F 'type=physical' \
+  -F 'price=240' \
+  -F 'shipping=15' \
+  -F 'ship_countries=US' \
+  -F 'paypal_email=seller%40example.com'
+```
+
+
+# Example Response *(as JSON)*
+
+```json
+{
+  "slug": "vintageskates",
+  "token": "3fJ9xQm2LwP8vR1tZk7cN4bY6dHs0aEu",
+  "manageUrl": "/manage/vintageskates?token=3fJ9xQm2LwP8vR1tZk7cN4bY6dHs0aEu"
+}
 ```
 
 

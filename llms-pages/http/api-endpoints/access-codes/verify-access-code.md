@@ -41,4 +41,14 @@ curl -X POST \
 ```
 
 
+# Example Response *(as JSON)*
+
+```json
+{
+  "valid": true,
+  "product": "Raptor Rush: Browser Edition"
+}
+```
+
+
 

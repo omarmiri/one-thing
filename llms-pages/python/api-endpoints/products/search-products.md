@@ -36,6 +36,27 @@ print(result)
 ```
 
 
+# Example Response *(as JSON)*
+
+```json
+{
+  "products": [
+    {
+      "id": "ch3_7f2a9c1e",
+      "title": "Trail Running Vest 5L",
+      "brand": "Salomon",
+      "image": "https://images.example.com/vest.jpg",
+      "price": 59.99,
+      "currency": "USD",
+      "retailer": "rei.com",
+      "retailers": 4,
+      "commission": 0.08
+    }
+  ]
+}
+```
+
+
 # Errors
 
 | HTTP Status Code | Error Description | Exception Class |

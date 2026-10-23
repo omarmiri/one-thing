@@ -34,15 +34,25 @@ This endpoint requires [AdminToken](/llms-pages/http/getting-started/sdk-quickst
 
 ```bash
 curl -X POST \
-  --url 'https://one-thing-ash0.onrender.com/api/shops/raptorrush/orders/orderId2/ship'  \
+  --url 'https://one-thing-ash0.onrender.com/api/shops/raptorrush/orders/pX4kR9tVb2nQ7sLe/ship'  \
   -H 'Accept: application/json' \
   -H 'Content-Type: application/json' \
   -H 'x-admin-token: x-admin-token' \
   -H 'Authorization: Bearer AccessToken' \
   --data-raw '{
-  "carrier": "DHL",
-  "trackingNumber": "trackingNumber4"
+  "carrier": "USPS",
+  "trackingNumber": "9400111899223817362315"
 }'
+```
+
+
+# Example Response *(as JSON)*
+
+```json
+{
+  "ok": true,
+  "synced": true
+}
 ```
 
 

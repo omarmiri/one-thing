@@ -32,7 +32,7 @@ This method returns an [`ApiResponse`](/llms-pages/typescript/sdk-infrastructure
 # Example Usage
 
 ```ts
-const id = 'id0';
+const id = 'LFRvGuTU3D8i334X';
 
 try {
   const response = await filesApi.getImage(id);

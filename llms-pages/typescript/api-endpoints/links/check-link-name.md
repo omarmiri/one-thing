@@ -32,7 +32,7 @@ This method returns an [`ApiResponse`](/llms-pages/typescript/sdk-infrastructure
 # Example Usage
 
 ```ts
-const name = 'name0';
+const name = 'Raptor Rush';
 
 try {
   const response = await linksApi.checkLinkName(name);
@@ -55,6 +55,16 @@ try {
     // Extracting response error body of type `string | Stream`.
     console.log(error.body);
   }
+}
+```
+
+
+# Example Response *(as JSON)*
+
+```json
+{
+  "slug": "raptor-rush",
+  "available": true
 }
 ```
 

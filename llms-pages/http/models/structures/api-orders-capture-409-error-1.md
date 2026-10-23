@@ -7,7 +7,7 @@ Source: /#/http/x-redirect/JTI0bSUyRkFwaSUyNTIwT3JkZXJzJTI1MjBDYXB0dXJlJTI1MjA0M
 
 | Name | Type | Tags | Description |
 |  --- | --- | --- | --- |
-| `status` | [`Status 5`](/llms-pages/http/models/enumerations/status-5.md) | Optional | - |
+| `status` | [`Status 6`](/llms-pages/http/models/enumerations/status-6.md) | Optional | - |
 
 
 # Example (as JSON)

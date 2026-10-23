@@ -29,10 +29,20 @@ def check_link_name(self,
 # Example Usage
 
 ```python
-name = 'name0'
+name = 'Raptor Rush'
 
 result = links_api.check_link_name(name)
 print(result)
+```
+
+
+# Example Response *(as JSON)*
+
+```json
+{
+  "slug": "raptor-rush",
+  "available": true
+}
 ```
 
 

@@ -46,6 +46,24 @@ print(result)
 ```
 
 
+# Example Response *(as JSON)*
+
+```json
+{
+  "photos": [
+    {
+      "id": "LFRvGuTU3D8i334X",
+      "url": "/api/blobs/LFRvGuTU3D8i334X"
+    },
+    {
+      "id": "zrySajNyao6_j11x",
+      "url": "/api/blobs/zrySajNyao6_j11x"
+    }
+  ]
+}
+```
+
+
 # Errors
 
 | HTTP Status Code | Error Description | Exception Class |

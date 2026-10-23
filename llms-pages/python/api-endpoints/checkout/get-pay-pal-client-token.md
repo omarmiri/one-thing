@@ -28,6 +28,15 @@ print(result)
 ```
 
 
+# Example Response *(as JSON)*
+
+```json
+{
+  "clientToken": "eyJraWQiOiJFWEFNUExFIn0.example.client-token"
+}
+```
+
+
 # Errors
 
 | HTTP Status Code | Error Description | Exception Class |

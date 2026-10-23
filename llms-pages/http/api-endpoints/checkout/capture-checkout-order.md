@@ -30,8 +30,18 @@ POST /api/orders/{paypalOrderId}/capture
 
 ```bash
 curl -X POST \
-  --url 'https://one-thing-ash0.onrender.com/api/orders/paypalOrderId6/capture'  \
+  --url 'https://one-thing-ash0.onrender.com/api/orders/5O190127TN364715T/capture'  \
   -H 'Accept: application/json'
+```
+
+
+# Example Response *(as JSON)*
+
+```json
+{
+  "orderId": "pX4kR9tVb2nQ7sLe",
+  "status": "paid"
+}
 ```
 
 
@@ -42,7 +52,7 @@ curl -X POST \
 | 402 | Something in the request needs fixing; `error` says what. | [`Error_ErrorException`](/llms-pages/http/models/exceptions/error-error.md) |
 | 404 | No such shop, or the admin token or API key doesn't match it. | [`Error_ErrorException`](/llms-pages/http/models/exceptions/error-error.md) |
 | 409 | The buyer hasn't approved the order yet. | [`Api Orders Capture 409 ErrorException`](/llms-pages/http/models/exceptions/api-orders-capture-409-error.md) |
-| 410 | The last unit (or the last of the buyer's combination) sold while they were paying. The payment isn't captured, so the buyer isn't charged. | [`Error_ErrorException`](/llms-pages/http/models/exceptions/error-error.md) |
+| 410 | The last unit (or the last of the buyer's combination) sold while they were paying, or the PayPal checkout expired before they paid. The payment isn't captured, so the buyer isn't charged. | [`Error_ErrorException`](/llms-pages/http/models/exceptions/error-error.md) |
 | 422 | The buyer's funding source was declined (`INSTRUMENT_DECLINED`); they can try another. | [`Error_ErrorException`](/llms-pages/http/models/exceptions/error-error.md) |
 | 502 | Gemini, PayPal or Channel3 failed or isn't configured. | [`Error_ErrorException`](/llms-pages/http/models/exceptions/error-error.md) |
 

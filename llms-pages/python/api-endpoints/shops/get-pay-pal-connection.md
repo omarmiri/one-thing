@@ -39,6 +39,20 @@ print(result)
 ```
 
 
+# Example Response *(as JSON)*
+
+```json
+{
+  "merchantId": "7MZJ4QXN8K2LA",
+  "status": {
+    "receivable": true,
+    "emailConfirmed": true,
+    "checkedAt": "2026-10-21T18:04:11Z"
+  }
+}
+```
+
+
 # Errors
 
 | HTTP Status Code | Error Description | Exception Class |

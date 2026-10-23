@@ -40,7 +40,7 @@ After a sale, the payment shows up in that sandbox business account at
 | Access code | `delivery: access_code` and `access_url`; check the code with `verifyAccessCode` |
 | Sizes and colours | Set `options` with `updateShop`; pass the buyer's pick to `createCheckoutOrder` |
 | Sold out | Set `stock: 1`, buy it, then try again: checkout answers 409 |
-| AI agent | Call `create_order` on the MCP server, open `approve_url`, pay as the buyer, then `get_order` |
+| AI agent | Call `create_order` on the MCP server, open `pay_url`, pay as the buyer, then `get_order` |
 
 
 # Running OneThing locally
@@ -48,7 +48,11 @@ After a sale, the payment shows up in that sandbox business account at
 The API runs on `http://localhost:3000` (the **local** environment in the SDKs). One catch:
 PayPal won't issue a client token for `localhost`, so the shop page doesn't show the PayPal
 button there. Test checkout on the hosted deployment, or locally through the MCP server's
-`create_order`, whose `approve_url` opens PayPal's own payment page.
+`create_order`, whose `pay_url` opens PayPal's own payment page.
+
+The sandbox buyer has to be a PayPal account that doesn't receive the payment. PayPal refuses the
+shop's own account, and for a shop without its own PayPal set up, the money goes to the platform
+account, so that one is refused too. Use a **personal** sandbox account.
 
 
 

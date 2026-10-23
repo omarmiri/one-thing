@@ -29,7 +29,7 @@ GET /api/blobs/{id}
 
 ```bash
 curl -X GET \
-  --url 'https://one-thing-ash0.onrender.com/api/blobs/id0'  \
+  --url 'https://one-thing-ash0.onrender.com/api/blobs/LFRvGuTU3D8i334X'  \
   -H 'Accept: image/*'
 ```
 

@@ -30,10 +30,20 @@ def capture_checkout_order(self,
 # Example Usage
 
 ```python
-paypal_order_id = 'paypalOrderId6'
+paypal_order_id = '5O190127TN364715T'
 
 result = checkout_api.capture_checkout_order(paypal_order_id)
 print(result)
+```
+
+
+# Example Response *(as JSON)*
+
+```json
+{
+  "orderId": "pX4kR9tVb2nQ7sLe",
+  "status": "paid"
+}
 ```
 
 
@@ -44,7 +54,7 @@ print(result)
 | 402 | Something in the request needs fixing; `error` says what. | [`ErrorException`](/llms-pages/python/models/exceptions/error.md) |
 | 404 | No such shop, or the admin token or API key doesn't match it. | [`ErrorException`](/llms-pages/python/models/exceptions/error.md) |
 | 409 | The buyer hasn't approved the order yet. | [`ApiOrdersCapture409ErrorException`](/llms-pages/python/models/exceptions/api-orders-capture-409-error.md) |
-| 410 | The last unit (or the last of the buyer's combination) sold while they were paying. The payment isn't captured, so the buyer isn't charged. | [`ErrorException`](/llms-pages/python/models/exceptions/error.md) |
+| 410 | The last unit (or the last of the buyer's combination) sold while they were paying, or the PayPal checkout expired before they paid. The payment isn't captured, so the buyer isn't charged. | [`ErrorException`](/llms-pages/python/models/exceptions/error.md) |
 | 422 | The buyer's funding source was declined (`INSTRUMENT_DECLINED`); they can try another. | [`ErrorException`](/llms-pages/python/models/exceptions/error.md) |
 | 502 | Gemini, PayPal or Channel3 failed or isn't configured. | [`ErrorException`](/llms-pages/python/models/exceptions/error.md) |
 

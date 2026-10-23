@@ -39,10 +39,7 @@ This endpoint requires [AdminToken](/llms-pages/python/getting-started/sdk-quick
 slug = 'raptorrush'
 
 body = ShopUpdate(
-    option_stock={
-        'M / Black': 4,
-        'L / Black': 0
-    }
+    status=Status.LIVE
 )
 
 result = shops_api.update_shop(
@@ -50,6 +47,16 @@ result = shops_api.update_shop(
     body
 )
 print(result)
+```
+
+
+# Example Response *(as JSON)*
+
+```json
+{
+  "ok": true,
+  "slug": "vintageskates"
+}
 ```
 
 

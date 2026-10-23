@@ -1188,7 +1188,7 @@
             {
               "code": 410,
               "responseModel": "Error",
-              "message": "The last unit (or the last of the buyer's combination) sold while they were paying. The payment isn't captured, so the buyer isn't charged."
+              "message": "The last unit (or the last of the buyer's combination) sold while they were paying, or the PayPal checkout expired before they paid. The payment isn't captured, so the buyer isn't charged."
             },
             {
               "code": 422,
@@ -1462,6 +1462,111 @@
       ]
     },
     {
+      "path": "/o/{orderId}",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "The `pay_url` an agent gives the buyer. It redirects to PayPal's payment page for the order, so PayPal's checkout token never passes through the agent (agent platforms hide such tokens as secrets). A paid order redirects to its thank-you page; an expired checkout goes back to the shop page.",
+          "nickname": "openPayLink",
+          "parameters": [
+            {
+              "name": "orderId",
+              "description": "The `order_id` from the MCP `create_order` tool.",
+              "paramType": "path",
+              "required": true,
+              "allowMultiple": false,
+              "uniqueItems": false,
+              "type": "string"
+            }
+          ],
+          "produces": [
+            "text/plain"
+          ],
+          "responseMessages": [
+            {
+              "code": 404,
+              "message": "No order with that id."
+            }
+          ],
+          "uniqueItems": false,
+          "type": "void"
+        }
+      ]
+    },
+    {
+      "path": "/api/agent/shops",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "The gallery's live shops, newest first, filtered by keywords (every word must appear in the name or headline). The GET twin of the MCP `search_shops` tool, for agents that can only fetch URLs. Public. Read a shop with `getAgentProduct`; buy through the MCP server in `mcp_server`, or send the buyer to the shop's `url`.",
+          "nickname": "listAgentShops",
+          "parameters": [
+            {
+              "name": "q",
+              "description": "Keywords. Leave out to list the newest shops.",
+              "paramType": "query",
+              "required": false,
+              "allowMultiple": false,
+              "uniqueItems": false,
+              "type": "string"
+            },
+            {
+              "name": "limit",
+              "description": "How many shops, 1–25.",
+              "paramType": "query",
+              "required": false,
+              "allowMultiple": false,
+              "defaultValue": "10",
+              "minimum": "1",
+              "maximum": "25",
+              "uniqueItems": false,
+              "type": "integer",
+              "format": "int32"
+            }
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "responseMessages": [],
+          "uniqueItems": false,
+          "$ref": "ApiAgentShopsResponse"
+        }
+      ]
+    },
+    {
+      "path": "/api/agent/orders/{orderId}",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "Where an order stands and, once paid, what the buyer got: the access code, the download link, or the shipping address and tracking. The GET twin of the MCP `get_order` tool (and the `status_url` that `create_order` returns), for agents that can only fetch URLs. Public: anyone with the order id can already open its thank-you page. If the buyer has approved at PayPal but nothing has captured the payment yet, this captures it.",
+          "nickname": "getAgentOrder",
+          "parameters": [
+            {
+              "name": "orderId",
+              "description": "The `order_id` from the MCP `create_order` tool, or from a thank-you page link (`?order=`).",
+              "paramType": "path",
+              "required": true,
+              "allowMultiple": false,
+              "uniqueItems": false,
+              "type": "string"
+            }
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "responseMessages": [
+            {
+              "code": 404,
+              "responseModel": "Error",
+              "message": "No order with that id."
+            }
+          ],
+          "uniqueItems": false,
+          "$ref": "AgentOrder"
+        }
+      ]
+    },
+    {
       "path": "/api/agent/shops/{slug}",
       "operations": [
         {
@@ -1499,7 +1604,7 @@
       "operations": [
         {
           "method": "POST",
-          "summary": "A [Model Context Protocol](https://modelcontextprotocol.io) server, so agents such as\nClaude can shop here. Add `https://<host>/api/mcp` to an MCP client as a Streamable HTTP\nserver. It's stateless: each POST carries one JSON-RPC 2.0 message (or a batch) and gets a\nplain JSON reply, with no session and no event stream.\n\nMethods: `initialize`, `ping`, `tools/list`, `tools/call`. Tools:\n\n| Tool | Arguments | What it does |\n|---|---|---|\n| `search_shops` | `query?`, `limit?` (1–25) | Live gallery shops whose name or headline has every word |\n| `get_product` | `shop` | The same object as `getAgentProduct` |\n| `create_order` | `shop`, `options?` | One unit on order; returns `order_id` and `approve_url` |\n| `get_order` | `order_id` | `awaiting_buyer_approval` or `paid`, with the receipt link once paid |\n\n**The buyer always approves.** `create_order` charges nothing: the agent gives the buyer\n`approve_url`, they pay at PayPal, and the agent polls `get_order`. Orders made this way\nshow `channel: agent` in `listOrders`.\n\nTool errors (an unknown shop, a sold-out size) come back as results with `isError: true`,\nso the model can read them and try something else.\n",
+          "summary": "A [Model Context Protocol](https://modelcontextprotocol.io) server, so agents such as\nClaude can shop here. Add `https://<host>/api/mcp` to an MCP client as a Streamable HTTP\nserver. It's stateless: each POST carries one JSON-RPC 2.0 message (or a batch) and gets a\nplain JSON reply, with no session and no event stream.\n\nMethods: `initialize`, `ping`, `tools/list`, `tools/call`. Tools:\n\n| Tool | Arguments | What it does |\n|---|---|---|\n| `search_shops` | `query?`, `limit?` (1–25) | Live gallery shops whose name or headline has every word |\n| `get_product` | `shop` | The same object as `getAgentProduct` |\n| `create_order` | `shop`, `options?` | One unit on order; returns `order_id` and `pay_url` |\n| `get_order` | `order_id` | Status and `next_step`; once paid, the receipt and `delivery` |\n\n**The buyer always approves.** `create_order` charges nothing: the agent shows the buyer\n`pay_url` (`/o/<order_id>`, see `openPayLink`), which opens PayPal. It's a plain link on this\nsite, so agent platforms that hide PayPal's checkout tokens can still show it. When the buyer\nsays they've paid, the agent calls `get_order`.\n\n`get_order` status is one of `awaiting_buyer_approval`, `paid`, `declined` (nothing charged;\nthe buyer can open `pay_url` again), `sold_out`, `expired` (call `create_order` again) or\n`failed` (PayPal couldn't be reached; try again), with a `next_step` the agent can follow.\nA paid order carries `delivery`: `{type: access_code, access_code, start_url?}`,\n`{type: download, download_url}` or `{type: shipping, ship_to, fulfillment, tracking}`, plus\n`amount` with item, shipping and total. Orders made this way show `channel: agent` in\n`listOrders`.\n\nTool errors (an unknown shop, a sold-out size) come back as results with `isError: true`,\nso the model can read them and try something else.\n",
           "nickname": "callMcp",
           "parameters": [
             {
@@ -2459,6 +2564,218 @@
         }
       }
     },
+    "AgentShopSummary": {
+      "id": "AgentShopSummary",
+      "required": [
+        "shop",
+        "name",
+        "kind",
+        "headline",
+        "price",
+        "url"
+      ],
+      "properties": {
+        "shop": {
+          "description": "The link name, for `getAgentProduct` and the MCP tools.",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "name": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "kind": {
+          "description": "",
+          "enum": [
+            "physical",
+            "digital",
+            "referral"
+          ],
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "headline": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "price": {
+          "description": "The price label, e.g. `$2.99`; null for recommendations.",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "url": {
+          "description": "The shop page.",
+          "uniqueItems": false,
+          "type": "string"
+        }
+      }
+    },
+    "AgentOrder": {
+      "id": "AgentOrder",
+      "description": "An order as `get_order` and `getAgentOrder` report it.",
+      "required": [
+        "order_id",
+        "status",
+        "product",
+        "amount",
+        "total"
+      ],
+      "properties": {
+        "order_id": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "status": {
+          "description": "`declined`: PayPal declined it, nothing charged, the buyer can open `pay_url` again. `sold_out`: it sold out before the payment was captured. `expired`: the PayPal checkout expired; create a new order. `failed`: PayPal couldn't be reached; ask again.",
+          "enum": [
+            "awaiting_buyer_approval",
+            "paid",
+            "declined",
+            "sold_out",
+            "expired",
+            "failed"
+          ],
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "product": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "options": {
+          "description": "The buyer's pick, one value per option, keyed by option name.",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "amount": {
+          "description": "",
+          "uniqueItems": false,
+          "$ref": "Amount"
+        },
+        "total": {
+          "description": "The total as a label, e.g. `$255.00`.",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "pay_url": {
+          "description": "Unpaid orders (waiting or declined). The buyer pays here; safe to show in chat.",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "next_step": {
+          "description": "Unpaid orders. What the agent should do next, in plain words.",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "paid_at": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string",
+          "format": "date-time"
+        },
+        "receipt_url": {
+          "description": "Paid orders. The buyer's thank-you page.",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "delivery": {
+          "description": "Paid orders. What the buyer got.",
+          "uniqueItems": false,
+          "type": "object"
+        }
+      }
+    },
+    "AgentDeliveryAccessCode": {
+      "id": "AgentDeliveryAccessCode",
+      "description": "A digital product unlocked with an access code.",
+      "required": [
+        "type",
+        "access_code"
+      ],
+      "properties": {
+        "type": {
+          "description": "",
+          "defaultValue": "access_code",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "access_code": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "start_url": {
+          "description": "The seller's app with the code filled in.",
+          "uniqueItems": false,
+          "type": "string"
+        }
+      }
+    },
+    "AgentDeliveryDownload": {
+      "id": "AgentDeliveryDownload",
+      "description": "A digital file to download.",
+      "required": [
+        "type",
+        "download_url"
+      ],
+      "properties": {
+        "type": {
+          "description": "",
+          "defaultValue": "download",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "download_url": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "note": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        }
+      }
+    },
+    "AgentDeliveryShipping": {
+      "id": "AgentDeliveryShipping",
+      "description": "A physical product shipped to the buyer.",
+      "required": [
+        "type",
+        "fulfillment"
+      ],
+      "properties": {
+        "type": {
+          "description": "",
+          "defaultValue": "shipping",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "ship_to": {
+          "description": "",
+          "uniqueItems": false,
+          "$ref": "ShipTo"
+        },
+        "fulfillment": {
+          "description": "",
+          "enum": [
+            "to_ship",
+            "shipped"
+          ],
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "tracking": {
+          "description": "",
+          "uniqueItems": false,
+          "$ref": "Tracking"
+        }
+      }
+    },
     "PlatformShop": {
       "id": "PlatformShop",
       "required": [
@@ -2873,7 +3190,7 @@
           "type": "string"
         },
         "options": {
-          "description": "",
+          "description": "The buyer's pick, one value per option, keyed by option name (see `Choice`).",
           "uniqueItems": false,
           "type": "string"
         },
@@ -2968,6 +3285,46 @@
         }
       }
     },
+    "Amount": {
+      "id": "Amount",
+      "required": [
+        "item",
+        "shipping",
+        "total",
+        "currency"
+      ],
+      "properties": {
+        "item": {
+          "description": "",
+          "minimum": "",
+          "maximum": "",
+          "uniqueItems": false,
+          "type": "number",
+          "format": "double"
+        },
+        "shipping": {
+          "description": "",
+          "minimum": "",
+          "maximum": "",
+          "uniqueItems": false,
+          "type": "number",
+          "format": "double"
+        },
+        "total": {
+          "description": "",
+          "minimum": "",
+          "maximum": "",
+          "uniqueItems": false,
+          "type": "number",
+          "format": "double"
+        },
+        "currency": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        }
+      }
+    },
     "ApiAccessVerifyRequest": {
       "id": "ApiAccessVerifyRequest",
       "required": [
@@ -3038,6 +3395,28 @@
         },
         "phone": {
           "description": "Digits, with a leading + if one was given.",
+          "uniqueItems": false,
+          "type": "string"
+        }
+      }
+    },
+    "ApiAgentShopsResponse": {
+      "id": "ApiAgentShopsResponse",
+      "required": [
+        "shops",
+        "mcp_server"
+      ],
+      "properties": {
+        "shops": {
+          "description": "",
+          "items": {
+            "$ref": "AgentShopSummary"
+          },
+          "uniqueItems": false,
+          "type": "array"
+        },
+        "mcp_server": {
+          "description": "The MCP server to order through.",
           "uniqueItems": false,
           "type": "string"
         }
@@ -3860,6 +4239,22 @@
         }
       }
     },
+    "ShipTo": {
+      "id": "ShipTo",
+      "required": [],
+      "properties": {
+        "name": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "address": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        }
+      }
+    },
     "Shop1": {
       "id": "Shop1",
       "required": [],
@@ -3894,6 +4289,22 @@
           },
           "uniqueItems": false,
           "type": "array"
+        }
+      }
+    },
+    "Tracking": {
+      "id": "Tracking",
+      "required": [],
+      "properties": {
+        "carrier": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "number": {
+          "description": "",
+          "uniqueItems": false,
+          "type": "string"
         }
       }
     },

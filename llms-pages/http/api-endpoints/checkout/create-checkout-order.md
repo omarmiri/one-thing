@@ -36,12 +36,17 @@ curl -X POST \
   -H 'Accept: application/json' \
   -H 'Content-Type: application/json' \
   --data-raw '{
-  "slug": "slug0",
-  "options": {
-    "Size": "M",
-    "Color": "Black"
-  }
+  "slug": "raptorrush"
 }'
+```
+
+
+# Example Response *(as JSON)*
+
+```json
+{
+  "id": "5O190127TN364715T"
+}
 ```
 
 

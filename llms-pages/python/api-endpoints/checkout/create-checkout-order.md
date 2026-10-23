@@ -33,15 +33,20 @@ def create_checkout_order(self,
 
 ```python
 body = ApiOrdersRequest(
-    slug='slug0',
-    options={
-        'Size': 'M',
-        'Color': 'Black'
-    }
+    slug='raptorrush'
 )
 
 result = checkout_api.create_checkout_order(body)
 print(result)
+```
+
+
+# Example Response *(as JSON)*
+
+```json
+{
+  "id": "5O190127TN364715T"
+}
 ```
 
 
