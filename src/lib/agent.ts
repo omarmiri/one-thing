@@ -107,6 +107,8 @@ export async function agentCreateOrder(slug: string, choice?: Record<string, str
       total: money(o.amountCents, shop.currency),
       ...(o.choice && { options: o.choice }),
       pay_url: payUrl(o.localId),
+      // The same answer as get_order, for clients that can only fetch URLs.
+      status_url: `${appUrl()}/api/agent/orders/${o.localId}`,
       next_step:
         "Show pay_url to the buyer as a link. It opens PayPal, where they pay (and enter a shipping address for physical items). " +
         "When they say they've paid, call get_order with order_id: it returns the access code, download link or shipping details.",

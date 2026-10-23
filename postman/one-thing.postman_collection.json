@@ -401,10 +401,26 @@
       "description": "What an AI shopping agent sees and calls. The buyer approves every payment at PayPal.",
       "item": [
         {
+          "name": "Find shops for agents (GET)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/agent/shops?q=&limit=10",
+            "header": []
+          }
+        },
+        {
           "name": "Product JSON for agents",
           "request": {
             "method": "GET",
             "url": "{{baseUrl}}/api/agent/shops/{{slug}}",
+            "header": []
+          }
+        },
+        {
+          "name": "Order status for agents (GET)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/agent/orders/{{agentOrderId}}",
             "header": []
           }
         },

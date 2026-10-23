@@ -31,3 +31,9 @@ of that folder to `gh-pages`. Its "Try it" calls work because `src/proxy.ts` all
 
 When you change an API route in `src/app/api/`, update `src/spec/openapi.yaml` in the same
 commit, then run `npx @redocly/cli@1 lint apimatic/src/spec/openapi.yaml`.
+
+Every operation carries a sample request body (`example`, or named `examples` for several cases)
+and a sample 2xx reply, and every path or query parameter has an `example`. The portal builds its
+code samples from them, so a new endpoint needs both. The samples share one made-up world: the
+`vintageskates` and `raptorrush` shops, order `pX4kR9tVb2nQ7sLe`, PayPal order `5O190127TN364715T`.
+`apimatic api validate` flags an example that doesn't match its schema.

@@ -180,6 +180,11 @@ Every live shop is agent-ready:
   token that agent platforms hide from chat as a secret, so agents couldn't show it; this link they
   can. A failed payment comes back from `get_order` as `declined`, `sold_out`, `expired` or
   `failed`, with a `next_step` the agent can follow.
+- **Plain GETs** for agents that can only fetch URLs, not call MCP tools:
+  `/api/agent/shops?q=<keywords>` (the gallery, like `search_shops`) and
+  `/api/agent/orders/<order_id>` (status and delivery, like `get_order`; `create_order` also
+  returns it as `status_url`). Ordering itself stays a POST, so such an agent sends the buyer to
+  the shop page to pay.
 - **Product JSON** at `/api/agent/shops/<slug>`: price, shipping, delivery, availability, images
   and FAQ, plus where the MCP server is. Shop pages link to it (`<link rel="alternate">`).
 - **schema.org `Product` JSON-LD** on every live shop page, which shopping agents and search
@@ -195,7 +200,8 @@ valid. The image below recreates that session ([source](docs/muse-checkout-demo.
 ### Developers
 
 - **A documented REST API** for everything the app does: [OpenAPI 3.1 spec](apimatic/src/spec/openapi.yaml),
-  served live at `/openapi.yaml`.
+  served live at `/openapi.yaml`. Every endpoint has a sample request and reply, which the docs
+  portal shows as code in each SDK language.
 - **SDKs and a docs portal** generated with APIMatic (TypeScript and Python), published at
   [omarmiri.github.io/one-thing](https://omarmiri.github.io/one-thing/). See
   [apimatic/README.md](apimatic/README.md). It includes the agent endpoints (product JSON and the

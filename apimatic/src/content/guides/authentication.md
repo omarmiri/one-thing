@@ -62,7 +62,7 @@ No auth at all:
 | `getPayPalClientToken`, `createCheckoutOrder`, `captureCheckoutOrder` | The shop page's PayPal button |
 | `verifyAccessCode` | The seller's own app or game |
 | `downloadFile`, `getImage` | Buyers' browsers |
-| `getAgentProduct`, `callMcp` | AI shopping agents |
+| `listAgentShops`, `getAgentProduct`, `getAgentOrder`, `openPayLink`, `callMcp` | AI shopping agents |
 
 Checkout can't be abused to change a price: the amount always comes from the shop, never from
 the request.
