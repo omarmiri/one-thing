@@ -51,6 +51,8 @@ When the buyer has picked a product (and a size or colour, if it has them) and s
 
 If \`status_url\` says \`declined\`, they can open \`pay_url\` again; \`expired\` means open the Order link for a new order. The reply's \`next_step\` always says what to do.
 
+Every Order link is \`GET ${base}/api/agent/shops/<shop>/order\`, with the buyer's pick as query parameters named after the product's options, e.g. \`?Color=Ice+Blue&Size=L\` (names and values in any case). Products without options take no parameters. A missing or unknown pick gets a 400 listing the valid values. Use the links above as written when you can.
+
 ## Find and read
 
 - [Search the gallery](${base}/api/agent/shops?q=skates): \`GET ${base}/api/agent/shops?q=<words>&limit=<1-25>\`. Leave out \`q\` to list the newest shops.
