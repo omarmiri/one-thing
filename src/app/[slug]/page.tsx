@@ -16,7 +16,7 @@ export async function generateMetadata(props: PageProps<"/[slug]">): Promise<Met
     description: shop.spec.subheadline,
     openGraph: { images: shop.hero_blob || shop.photo_blob ? [`/api/blobs/${shop.hero_blob ?? shop.photo_blob}`] : [] },
     // Agent-ready: machines find the product JSON (and from it, the MCP server) from the page.
-    alternates: { types: { "application/json": `/api/agent/shops/${shop.slug}` } },
+    alternates: { types: { "application/json": `/api/agent/shops/${shop.slug}`, "text/plain": "/llms.txt" } },
   };
 }
 

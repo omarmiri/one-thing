@@ -34,6 +34,10 @@ export default async function Gallery() {
         <p className="mt-4 max-w-2xl text-lg text-muted">
           Every page here started as one photo, link or pick. Gemini designed it; PayPal takes the payments.
         </p>
+        {/* Plain text so it survives the HTML-to-text step AI browse tools run. */}
+        <p className="mt-2 text-sm text-muted">
+          AI assistant? Read <a href="/llms.txt" className="underline hover:text-foreground">/llms.txt</a> to search, read and buy from these shops.
+        </p>
       </section>
 
       <section className="mx-auto max-w-6xl px-4 pb-24 sm:px-6">

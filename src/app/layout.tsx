@@ -18,6 +18,8 @@ export const metadata: Metadata = {
   metadataBase: new URL(appUrl()),
   title: "OneThing — sell your one product",
   description: "Snap a photo, and AI builds a one-product shop that takes PayPal payments.",
+  // For AI assistants: how to find, read and buy from shops here (see src/app/llms.txt).
+  alternates: { types: { "text/plain": "/llms.txt" } },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

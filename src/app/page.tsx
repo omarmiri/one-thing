@@ -77,6 +77,10 @@ export default async function Home() {
         Built for the PayPal AI Hackathon · Gemini + PayPal ·{" "}
         <a href="https://omarmiri.github.io/one-thing/" className="underline hover:text-foreground">
           API docs
+        </a>{" "}
+        ·{" "}
+        <a href="/llms.txt" className="underline hover:text-foreground">
+          For AI assistants
         </a>
       </footer>
     </main>
