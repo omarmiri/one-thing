@@ -51,3 +51,7 @@ next-env.d.ts
 
 # private submission notes
 SUBMISSION.md
+
+# npm run compare:designers output
+/compare-designers.json
+/compare-designers.html

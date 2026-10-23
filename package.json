@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "typecheck": "next typegen && tsc --noEmit",
-    "gemini:models": "node --env-file-if-exists=.env.local scripts/gemini-models.mjs"
+    "gemini:models": "node --env-file-if-exists=.env.local scripts/gemini-models.mjs",
+    "compare:designers": "node --env-file-if-exists=.env.local scripts/run-ts.mjs scripts/compare-designers.mts"
   },
   "dependencies": {
     "@electric-sql/pglite": "^0.5.10",

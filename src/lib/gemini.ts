@@ -2,6 +2,7 @@ import "server-only";
 import { GoogleGenAI, ThinkingLevel } from "@google/genai";
 import { DesignSpec, designJsonSchema, ensureReadable, fallbackSpec, Generated, LAYOUTS, repairPalette } from "./design";
 import { ShopOption, type Suggestions } from "./options";
+import { qwenEnabled, qwenJson } from "./qwen";
 import { Direction } from "./showcase";
 
 // Model ids differ by key and change over time — `npm run gemini:models` lists yours.
@@ -21,6 +22,10 @@ const ATTEMPT_TIMEOUT_MS = 45_000;
 const IMAGE_MODEL = process.env.GEMINI_IMAGE_MODEL ?? "gemini-2.5-flash-image";
 
 export const geminiEnabled = () => Boolean(process.env.GEMINI_API_KEY);
+// Who writes shop designs: DESIGN_PROVIDER=qwen hands them to Qwen, with Gemini as its backup.
+// Read per call so scripts/compare-designers.mts can switch it between runs.
+const qwenDesigns = () => process.env.DESIGN_PROVIDER === "qwen" && qwenEnabled();
+const designerEnabled = () => geminiEnabled() || qwenDesigns();
 const client = () => new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
 
 export type Photo = { data: Uint8Array; mime: string };
@@ -147,18 +152,42 @@ async function generate(parts: object[], extra: object) {
   throw last;
 }
 
+function parseDesign(text: string): Generated {
+  let raw = JSON.parse(text);
+  // Qwen now and then wraps the spec in a one-item array.
+  if (Array.isArray(raw) && raw.length === 1) raw = raw[0];
+  const fixed = repairPalette(raw);
+  if (fixed.length) console.warn(`design: repaired palette (${fixed.join("; ")})`);
+  // Qwen leaves digitalDelivery null for physical goods, where it's unused; Gemini's enum forces a pick.
+  if (raw && typeof raw === "object" && !["file", "access_code"].includes(raw.digitalDelivery)) raw.digitalDelivery = "file";
+  return Generated.parse(raw);
+}
+
 async function generateDesign(parts: object[]): Promise<Generated> {
   const t0 = Date.now();
-  const res = await generate(parts, {
-    responseMimeType: "application/json",
-    responseJsonSchema: designJsonSchema(),
-    temperature: 0.8,
-  });
-  const raw = JSON.parse(res.text ?? "");
-  const fixed = repairPalette(raw);
-  if (fixed.length) console.warn(`gemini design: repaired palette (${fixed.join("; ")})`);
-  const out = Generated.parse(raw);
-  console.info(`gemini design: ${res.modelVersion ?? TEXT_MODEL} in ${((Date.now() - t0) / 1000).toFixed(1)}s`);
+  let out: Generated | undefined;
+  let model = TEXT_MODEL;
+  if (qwenDesigns()) {
+    try {
+      const res = await qwenJson(parts, designJsonSchema(), 0.8);
+      out = parseDesign(res.text);
+      model = res.modelVersion;
+    } catch (err) {
+      // A Qwen answer that fails or doesn't fit the spec goes to Gemini, rather than sink the shop.
+      if (!geminiEnabled()) throw err;
+      console.warn("qwen design failed, falling back to gemini:", (err as Error).message);
+    }
+  }
+  if (!out) {
+    const res = await generate(parts, {
+      responseMimeType: "application/json",
+      responseJsonSchema: designJsonSchema(),
+      temperature: 0.8,
+    });
+    out = parseDesign(res.text ?? "");
+    model = res.modelVersion ?? TEXT_MODEL;
+  }
+  console.info(`design: ${model} in ${((Date.now() - t0) / 1000).toFixed(1)}s`);
   return { ...out, ...ensureReadable(out) };
 }
 
@@ -174,7 +203,7 @@ export type DesignInput = {
 
 /** Everything the seller gave us → a full design spec plus setup guesses. */
 export async function designShop(input: DesignInput): Promise<{ spec: Generated; source: "gemini" | "fallback" }> {
-  if (!geminiEnabled()) {
+  if (!designerEnabled()) {
     const type = input.type === "digital" ? "digital" : "physical";
     // Without Gemini: name it from the seller's words, or the page/product title we found.
     const titled = input.context?.match(/^(?:Title|Product): (.+)$/m)?.[1];
@@ -348,7 +377,7 @@ export const listingText = (spec: DesignSpec, extra: string[] = []) =>
 
 /** "Make it warmer" → the same spec with that change applied. */
 export async function refineShop(spec: DesignSpec, instruction: string): Promise<DesignSpec> {
-  if (!geminiEnabled()) throw new Error("Set GEMINI_API_KEY to edit the design with AI.");
+  if (!designerEnabled()) throw new Error("Set GEMINI_API_KEY to edit the design with AI.");
   const refined = await generateDesign([
     { text: DESIGNER_BRIEF },
     { text: `Current spec:\n${JSON.stringify(spec)}` },

@@ -269,7 +269,7 @@ AI agent ──► POST /api/mcp (JSON-RPC) → create_order → buyer opens /o/
 ```
 
 - **Design spec:** [src/lib/design.ts](src/lib/design.ts) defines it; [src/lib/gemini.ts](src/lib/gemini.ts)
-  asks for it; [src/components/shop/ShopPage.tsx](src/components/shop/ShopPage.tsx) renders it.
+  asks for it (from Qwen via [src/lib/qwen.ts](src/lib/qwen.ts) when `DESIGN_PROVIDER=qwen`); [src/components/shop/ShopPage.tsx](src/components/shop/ShopPage.tsx) renders it.
 - **Checkout** ([src/components/shop/BuyButton.tsx](src/components/shop/BuyButton.tsx)): the SDK starts
   with a server-made client token. While PayPal's window is open the page polls the capture
   endpoint, which answers 409 until the buyer approves, so a stalled hand-back still completes.
@@ -318,6 +318,7 @@ full experience:
 | Key | Where | What it unlocks |
 |---|---|---|
 | `GEMINI_API_KEY` | [Google AI Studio](https://aistudio.google.com/apikey) | AI guesses, design, copy, hero art, chat edits. `npm run gemini:models` lists the models your key can use |
+| `DASHSCOPE_API_KEY`, `DESIGN_PROVIDER=qwen` | [Alibaba Cloud Model Studio](https://modelstudio.console.alibabacloud.com/) → API keys | Optional: **Qwen** (`qwen3.7-plus`, override with `QWEN_MODEL`) writes the shop design and chat edits instead of Gemini, with Gemini as its backup. Everything else stays on Gemini. `QWEN_BASE_URL` defaults to the Singapore endpoint. `npm run compare:designers` runs both on the same shops (stop `npm run dev` first) and writes a side-by-side `compare-designers.html` |
 | `PAYPAL_CLIENT_ID`, `PAYPAL_CLIENT_SECRET` | [PayPal developer dashboard](https://developer.paypal.com/dashboard/applications/sandbox) → Sandbox app | Checkout |
 | `PAYPAL_LOGIN=on` | Same app → **Log In with PayPal**: Return URL `<APP_URL>/api/account/paypal/callback`, request email, verification status and payer ID | **Log in with PayPal** (off until set, so the button never leads to a misconfigured app) |
 | `PAYPAL_PARTNER_CLIENT_ID`, `PAYPAL_PARTNER_CLIENT_SECRET`, `PAYPAL_PARTNER_MERCHANT_ID` | A second sandbox app of type **Platform** (Partner Referrals needs one), and the merchant ID of its sandbox business account | **Connect PayPal**: sellers onboard their own PayPal account; the manage page shows PayPal's checklist and Go live waits for it (a typed PayPal email still works as a fallback) |
