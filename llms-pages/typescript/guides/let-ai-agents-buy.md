@@ -17,6 +17,23 @@ JSON-LD and links to its product JSON (`<link rel="alternate" type="application/
 agents that browse find them too.
 
 
+# Start here: /llms.txt
+
+An AI assistant without MCP (free-tier ChatGPT or Gemini, for example) won't find the API on its
+own. Give it one URL:
+
+> Read https://one-thing-ash0.onrender.com/llms.txt and help me buy something from the gallery.
+
+```bash
+curl https://one-thing-ash0.onrender.com/llms.txt
+```
+
+It's plain text, written for models: the gallery's shops with their prices and product JSON
+links, how to search and read with the GETs below, how to buy (the shop page, or `create_order`
+for MCP clients), and how to check an order. Every page on the site links to it, and the home page
+and gallery show the link as text too.
+
+
 # Plain GETs
 
 No key, no session. These samples use the hosted sandbox deployment.
