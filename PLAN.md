@@ -186,7 +186,7 @@ Target 2:45. Voiceover (VO) in quotes; everything else is on screen. Cut every w
 - VO: "Buyers pay with PayPal or a card. You see the order, add tracking, and PayPal shows it to the buyer."
 
 **6. An AI assistant buys, no plugins (1:40–2:10)**
-- Grok, with no plugins or connectors (Grok, Kimi K3 and Meta's Muse all completed this whole flow on Oct 23; Kimi or Muse is the backup). One prompt, pasted:
+- Grok, with no plugins or connectors (Grok, Kimi K3 and Meta's Muse all completed this whole flow on Oct 23; Kimi is the backup. Muse went further and paid by itself, see the note under Lines). One prompt, pasted:
   "Read one-thing-ash0.onrender.com/llms.txt and find me a game under $10."
 - 2× speed: it reads the file and lists the two games with prices: Dragon Flight ($4.99) and Raptor Rush ($9.99).
 - You type "Buy Dragon Flight." It opens the order link and replies with a OneThing pay link (`/o/<order id>`). Nothing charged yet.
@@ -207,8 +207,9 @@ Target 2:45. Voiceover (VO) in quotes; everything else is on screen. Cut every w
 - VO: "One photo, one page, paid with PayPal, and ready for AI agents. OneThing."
 
 **Lines kept for the Devpost text and Q&A (too long for the video)**
-- "Card networks are building agentic payments for certified agents spending unattended. OneThing works today with the assistants people already use, no enrollment needed, because the one step that needs trust, the payment, stays with the human."
+- "Card networks are building agentic payments for certified agents spending unattended. OneThing works today with the assistants people already use, no enrollment needed, because the one step that needs trust, approving the payment, happens at PayPal, by the buyer or by an agent the buyer chose to trust."
 - "Permissionless: OneThing asks nothing of the agent. No identity, no enrollment, just a readable catalog, an order link and a person clicking pay. Whether an assistant takes part is up to its own maker: on Oct 23 Grok, Kimi K3 and Meta's Muse completed the flow, ChatGPT couldn't open /llms.txt, and Gemini declined to create a payment link by policy."
+- The two ways to pay, both tested Oct 23: Grok and Kimi hand the buyer a pay link and the buyer pays at PayPal; Muse placed the order the same way, then paid at PayPal itself, in its own browser, with a PayPal login the buyer had saved in Muse's vault. OneThing didn't change between them. "The order is the same; who clicks pay is the buyer's choice: themselves, or an agent they've trusted with their login." Either way the money is approved on PayPal's page, never inside OneThing. For Q&A: that's delegation by the buyer, not a OneThing feature, and the card networks' agent tokens (Mastercard Agent Pay, Visa's Trusted Agent Protocol) are the scoped, revocable version of the same idea.
 - "Agents fail purchases most often not at paying, but at knowing whether it worked. Every OneThing order answers that: status, receipt, and the access code or tracking as data." (from Muse's debrief)
 - "Not 'agents can buy here', but 'agents can buy here and prove what happened.'" (Muse)
 - Why PayPal: a seller gets paid by typing an email, with no onboarding at all, and the money goes straight to them; OneThing never holds it. The agent design itself works with any payment provider that has hosted checkout.
@@ -217,7 +218,7 @@ Target 2:45. Voiceover (VO) in quotes; everything else is on screen. Cut every w
 - Rename the sandbox partner business account from "Test Store" to OneThing; it shows on the Connect PayPal page.
 - Open the Render site a minute ahead, so the first page load isn't slow.
 - Have three sandbox accounts ready: the seller (sign in), a business account that has never connected (for Connect PayPal), and the buyer.
-- Dry-run step 6 off camera in Grok. Tested Oct 23: Grok, Kimi K3 and Meta's Muse completed the whole loop, and so did our own fetch-only test agent. ChatGPT couldn't read /llms.txt, and Gemini refused by policy to create the payment link, so neither goes on camera or in the caption.
+- Dry-run step 6 off camera in Grok. Tested Oct 23: Grok, Kimi K3 and Meta's Muse completed the whole loop (Muse also paid, with the vaulted login), and so did our own fetch-only test agent. ChatGPT couldn't read /llms.txt, and Gemini refused by policy to create the payment link, so neither goes on camera or in the caption.
 - Step 6 makes a new order each take (every order link opens one), so expect a few unpaid test orders; they cost nothing.
 - Pay as a **personal** sandbox buyer. PayPal refuses the seller's account and the platform account ("This PayPal account is associated with the merchant…"), which cost two of Muse's attempts.
 - After changing a shop, wait 5 minutes or the assistant may read an old `/llms.txt` (it's cached that long).
