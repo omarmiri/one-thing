@@ -172,8 +172,9 @@ the AI's guesses and clicks **Go live**. The choices behind it:
 - **Gallery** at `/gallery`: every live shop, newest first, each card in that shop's own palette, in a dense marketplace-style grid (2 columns on phones up to 6 on wide screens). The
   home page shows the newest 40 as a compact "Made with OneThing" carousel of photos, paged with arrows. Ticking "Show in the OneThing gallery" only *asks*: a shop
   appears in the gallery, on the home page and in agent search once it's approved at
-  `/admin/gallery?key=<ADMIN_KEY>`, a review page that isn't linked anywhere and needs no sign-in,
-  just the secret key. Changing an approved shop's photos, product name or headline sends it back
+  `/admin/gallery`, a review page that isn't linked anywhere. Sign in there with the Opal Games
+  usage dashboard account (the same Supabase sign-in, and only emails in its `analytics_allowlist`),
+  so the key never goes in a URL; `/admin/gallery?key=<ADMIN_KEY>` still works too. Changing an approved shop's photos, product name or headline sends it back
   to review. Shops already in the gallery when review was added stayed approved.
 - **Site stats** at `/admin/stats?key=<ADMIN_KEY>` (not linked anywhere): the same funnel for the
   whole site, people vs agents, plus a table of every shop with visits or orders.
@@ -340,7 +341,8 @@ full experience:
 | `PAYPAL_PARTNER_CLIENT_ID`, `PAYPAL_PARTNER_CLIENT_SECRET`, `PAYPAL_PARTNER_MERCHANT_ID` | A second sandbox app of type **Platform** (Partner Referrals needs one), and the merchant ID of its sandbox business account | **Connect PayPal**: sellers onboard their own PayPal account; the manage page shows PayPal's checklist and Go live waits for it (a typed PayPal email still works as a fallback) |
 | `PAYPAL_WEBHOOK_ID` | Same app → Webhooks → `<APP_URL>/api/paypal/webhook`, event `PAYMENT.CAPTURE.COMPLETED` | Confirms payments if the buyer closes the tab mid-checkout (needs a public URL) |
 | `CHANNEL3_API_KEY` | [Channel3 developers](https://trychannel3.com/developers) | "Find a product", store-link lookup and recommendation shops |
-| `ADMIN_KEY` | Any long random string (Render generates one) | **Gallery review** at `/admin/gallery?key=<ADMIN_KEY>`; without it no shop can be approved into the gallery. Also unlocks site stats at `/admin/stats?key=<ADMIN_KEY>`. It salts the visitor hashes too, so changing it splits that day's visitors in two |
+| `ADMIN_KEY` | Any long random string (Render generates one) | **Gallery review** at `/admin/gallery?key=<ADMIN_KEY>`; without it no shop can be approved into the gallery. Also unlocks site stats at `/admin/stats?key=<ADMIN_KEY>`. It salts the visitor hashes too, so changing it splits that day's visitors in two. It signs the gallery review sign-in cookie, so changing it signs that out too |
+| `ADMIN_SUPABASE_URL`, `ADMIN_SUPABASE_ANON_KEY` | The Opal Games Supabase project's URL and public anon key (the ones `market/market.js` ships) | **Sign-in for gallery review** with the usage dashboard account, allowlisted by `analytics_allowlist`; the password goes only to Supabase. Unset = key link only |
 
 ## Deploy to Render
 
