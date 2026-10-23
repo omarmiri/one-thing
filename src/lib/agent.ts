@@ -128,7 +128,7 @@ export async function agentCreateOrder(slug: string, choice?: Record<string, str
       status_url: `${appUrl()}/api/agent/orders/${o.localId}`,
       next_step:
         "Show pay_url to the buyer as a link. It opens PayPal, where they pay (and enter a shipping address for physical items). " +
-        "When they say they've paid, call get_order with order_id (or open status_url): it returns the access code, download link or shipping details.",
+        "When they say they've paid, open status_url (or with MCP, call get_order with order_id): it returns the access code, download link or shipping details.",
     };
   } catch (err) {
     if (err instanceof AgentError) throw err;
