@@ -168,12 +168,18 @@ Every live shop is agent-ready:
 
 - **An MCP server** at `/api/mcp` (Streamable HTTP, stateless JSON, no auth) with four tools:
   `search_shops` (gallery shops by keyword), `get_product` (with options and stock per
-  combination), `create_order` (takes the buyer's pick, e.g. `{"Size": "M"}`, and returns a PayPal
-  `approve_url` for the buyer) and `get_order` (captures the payment once the buyer has approved,
-  then returns the receipt link). Add it to an MCP client, e.g. Claude Code:
+  combination), `create_order` (takes the buyer's pick, e.g. `{"Size": "M"}`, and returns a
+  `pay_url` for the buyer) and `get_order` (captures the payment once the buyer has approved, then
+  returns what they bought in `delivery`: access code, download link, or shipping address and
+  tracking). Add it to an MCP client, e.g. Claude Code:
   `claude mcp add --transport http onething https://one-thing-ash0.onrender.com/api/mcp`.
   Working in this repo, you don't need to: [.mcp.json](.mcp.json) registers it, so a new Claude
   Code session here has the tools (Claude Code asks once to approve the server).
+- **A pay link** at `/o/<order_id>`: the `pay_url` agents hand the buyer. It redirects to
+  PayPal's payment page (or the receipt once paid). PayPal's own approval URL carries a checkout
+  token that agent platforms hide from chat as a secret, so agents couldn't show it; this link they
+  can. A failed payment comes back from `get_order` as `declined`, `sold_out`, `expired` or
+  `failed`, with a `next_step` the agent can follow.
 - **Product JSON** at `/api/agent/shops/<slug>`: price, shipping, delivery, availability, images
   and FAQ, plus where the MCP server is. Shop pages link to it (`<link rel="alternate">`).
 - **schema.org `Product` JSON-LD** on every live shop page, which shopping agents and search
@@ -227,7 +233,9 @@ To try **Connect PayPal** instead of typing an email: on a draft shop's manage p
 account). You come back to a checklist; Go live once it's all ticked.
 
 To try **an agent purchase**: add the MCP server to an agent (see [AI agents](#ai-agents)), ask it
-to find and buy something, open the `approve_url` it gives you and pay with the sandbox buyer.
+to find and buy something, open the `pay_url` it gives you and pay with the sandbox buyer. That
+must be an account that isn't receiving the money: not the shop's PayPal, and not the platform
+account either (shops without their own PayPal pay into it), or PayPal refuses the sign-in.
 The agent's `get_order` then reports it paid, and the seller's grid shows it **Via AI agent**.
 
 ## How it works
@@ -244,7 +252,7 @@ PayPal ──► POST /api/paypal/webhook               → signature verified �
 Seller's app ──► POST /api/access/verify          → is this buyer's code valid for my shop?
 Seller ── Connect PayPal ── POST /api/shops/:slug/paypal → Partner Referrals → PayPal onboarding
           └► GET /api/shops/:slug/paypal/return → ask PayPal (by tracking_id) → merchant id + status
-AI agent ──► POST /api/mcp (JSON-RPC) → create_order → buyer approves at PayPal → get_order captures
+AI agent ──► POST /api/mcp (JSON-RPC) → create_order → buyer opens /o/:id → PayPal → get_order captures + delivers
 ```
 
 - **Design spec:** [src/lib/design.ts](src/lib/design.ts) defines it; [src/lib/gemini.ts](src/lib/gemini.ts)

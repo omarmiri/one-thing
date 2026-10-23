@@ -156,9 +156,23 @@ export const captureOrder = (paypalOrderId: string) =>
     requestId: `capture-${paypalOrderId}-${Date.now().toString(36)}`,
   });
 
-/** Where an order stands at PayPal: CREATED, APPROVED, COMPLETED, VOIDED… */
-export const orderStatus = (paypalOrderId: string) =>
-  call<{ status: string }>("get order", `/v2/checkout/orders/${encodeURIComponent(paypalOrderId)}`, { method: "GET" }).then((o) => o.status);
+/** The order as PayPal has it. Null when PayPal no longer knows it (an old unapproved order expires). */
+export const getPayPalOrder = (paypalOrderId: string) =>
+  call<{ id: string; status: string; links?: { rel: string; href: string }[] }>(
+    "get order",
+    `/v2/checkout/orders/${encodeURIComponent(paypalOrderId)}`,
+    { method: "GET" },
+  ).catch((err) => {
+    if (err instanceof PayPalError && err.status === 404) return null;
+    throw err;
+  });
+
+/** Where an order stands at PayPal: CREATED, PAYER_ACTION_REQUIRED, APPROVED, COMPLETED, VOIDED, or EXPIRED once PayPal has dropped it. */
+export const orderStatus = (paypalOrderId: string) => getPayPalOrder(paypalOrderId).then((o) => o?.status ?? "EXPIRED");
+
+/** The PayPal page where the buyer approves the order. */
+export const approveLink = (o: { links?: { rel: string; href: string }[] }) =>
+  o.links?.find((l) => l.rel === "payer-action" || l.rel === "approve")?.href ?? null;
 
 export const CARRIERS = ["USPS", "UPS", "FEDEX", "DHL", "OTHER"] as const;
 

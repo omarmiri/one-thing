@@ -250,6 +250,13 @@ export function shopView(shop: Shop) {
 export const money =(cents: number, currency = "USD") =>
   new Intl.NumberFormat("en-US", { style: "currency", currency }).format(cents / 100);
 
+/** The seller's app link with the buyer's access code filled in, so "Start now" unlocks it. */
+export function withCode(url: string, code: string) {
+  const u = new URL(url);
+  u.searchParams.set("code", code);
+  return u.toString();
+}
+
 /** An account's shops, newest first. */
 export const listAccountShops = async (accountId: string) =>
   (await query<Shop>("SELECT * FROM shops WHERE account_id = $1 ORDER BY created_at DESC", [accountId])).map((row) => hydrate(row)!);

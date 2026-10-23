@@ -484,7 +484,7 @@
                 "exec": [
                   "const r = pm.response.json().result;",
                   "if (r && !r.isError) pm.collectionVariables.set('agentOrderId', r.structuredContent.order_id);",
-                  "// Open result.structuredContent.approve_url and approve as the sandbox buyer, then run get_order."
+                  "// Open result.structuredContent.pay_url and pay as the sandbox buyer, then run get_order."
                 ]
               }
             }

@@ -2,13 +2,16 @@ import "server-only";
 import { one } from "./db";
 import { appUrl } from "./ids";
 import { allSoldOut, comboKey, combos, stockOf } from "./options";
-import { captureIfApproved, CheckoutError, startCheckout } from "./orders";
+import { captureWithStock, CheckoutError, startCheckout } from "./orders";
 import { PayPalError, paypalEnabled } from "./paypal";
-import { blobUrl, getOrder, getShopBySlug, listLiveShops, money, shopPhotos, type Shop } from "./shops";
+import { blobUrl, getOrder, getShopBySlug, listLiveShops, money, shopPhotos, withCode, type Shop } from "./shops";
 
 // Agent-ready shops: what an AI shopping agent sees and can do, shared by the product JSON
 // (/api/agent/shops/<slug>) and the MCP server (/api/mcp). Agents find and order; the buyer
 // still approves every payment at PayPal, so no agent can spend someone's money on its own.
+
+/** The order's pay link on this site. It redirects to PayPal, so it's safe to show in chat. */
+const payUrl = (orderId: string) => `${appUrl()}/o/${orderId}`;
 
 const abs = (path: string | null) => (path ? (path.startsWith("http") ? path : `${appUrl()}${path}`) : null);
 
@@ -60,8 +63,8 @@ export function agentProduct(shop: Shop) {
               }
             : { availability: shop.stock === null ? "in_stock" : shop.stock > 0 ? `in_stock (${shop.stock} left)` : "sold_out" }),
           how_to_buy: options.length
-            ? "Call create_order on the OneThing MCP server with shop and options, then have the buyer approve at PayPal."
-            : "Call create_order on the OneThing MCP server, then have the buyer approve at PayPal.",
+            ? "Call create_order on the OneThing MCP server with shop and options, then give the buyer its pay_url to pay at PayPal."
+            : "Call create_order on the OneThing MCP server, then give the buyer its pay_url to pay at PayPal.",
         }),
   };
 }
@@ -100,12 +103,13 @@ export async function agentCreateOrder(slug: string, choice?: Record<string, str
     if (!o.approveUrl) throw new AgentError("PayPal didn't return an approval link. Try again.");
     return {
       order_id: o.localId,
+      status: "awaiting_buyer_approval",
       total: money(o.amountCents, shop.currency),
       ...(o.choice && { options: o.choice }),
-      approve_url: o.approveUrl,
+      pay_url: payUrl(o.localId),
       next_step:
-        "Give approve_url to the buyer. They pay at PayPal (and enter a shipping address for physical items). " +
-        "Then call get_order with order_id until status is paid.",
+        "Show pay_url to the buyer as a link. It opens PayPal, where they pay (and enter a shipping address for physical items). " +
+        "When they say they've paid, call get_order with order_id: it returns the access code, download link or shipping details.",
     };
   } catch (err) {
     if (err instanceof AgentError) throw err;
@@ -119,24 +123,72 @@ export async function agentCreateOrder(slug: string, choice?: Record<string, str
   }
 }
 
-/** Where an order stands. Captures it if the buyer approved but nothing has captured it yet. */
+type AgentStatus = "awaiting_buyer_approval" | "paid" | "declined" | "sold_out" | "expired" | "failed";
+
+const NEXT_STEP: Record<Exclude<AgentStatus, "paid">, string> = {
+  awaiting_buyer_approval: "The buyer hasn't paid yet. Give them pay_url; when they say they've paid, call get_order again.",
+  declined: "PayPal declined the payment. Nothing was charged. The buyer can open pay_url again and pay another way.",
+  sold_out: "It sold out before the payment went through. Nothing was charged. Offer something else.",
+  expired: "This checkout expired at PayPal. Nothing was charged. Call create_order for a new one.",
+  failed: "Couldn't reach PayPal to check this order. Call get_order again in a moment.",
+};
+
+/**
+ * Where an order stands, and once it's paid, what the buyer got: the access code, download link
+ * or shipping details, so an agent can finish without opening the thank-you page. Captures the
+ * payment if the buyer approved but nothing has captured it yet.
+ */
 export async function agentGetOrder(orderId: string) {
   let order = await getOrder(orderId);
   if (!order) throw new AgentError("No order with that id.");
-  order = await captureIfApproved(order);
-  const shop = await one<{ slug: string }>("SELECT slug FROM shops WHERE id = $1", [order.shop_id]);
-  const paid = order.status === "paid";
+  const outcome = await captureWithStock(order);
+  if (outcome === "paid") order = (await getOrder(order.id)) ?? order;
+  const shop = await one<Shop>("SELECT * FROM shops WHERE id = $1", [order.shop_id]);
+  if (!shop) throw new AgentError("No order with that id.");
+
+  const status: AgentStatus = order.status === "paid" ? "paid" : outcome === "pending" || outcome === "paid" ? "awaiting_buyer_approval" : outcome;
+  const addr = order.shipping_address;
   return {
     order_id: order.id,
-    status: paid ? "paid" : "awaiting_buyer_approval",
-    total: money(order.amount_cents, order.currency),
+    status,
+    product: shop.spec.productName,
     ...(order.options && { options: order.options }),
-    ...(paid && {
-      paid_at: order.paid_at,
-      // The buyer's receipt page: download link or access code for digital items.
-      receipt_url: shop ? `${appUrl()}/${shop.slug}/thanks?order=${order.id}` : null,
-      fulfillment: order.fulfillment_status,
-      ...(order.tracking_number && { tracking: { carrier: order.carrier, number: order.tracking_number } }),
-    }),
+    amount: {
+      item: (order.amount_cents - order.shipping_cents) / 100,
+      shipping: order.shipping_cents / 100,
+      total: order.amount_cents / 100,
+      currency: order.currency,
+    },
+    total: money(order.amount_cents, order.currency),
+    ...(status === "paid"
+      ? {
+          paid_at: order.paid_at,
+          receipt_url: `${appUrl()}/${shop.slug}/thanks?order=${order.id}`,
+          delivery: order.access_code
+            ? {
+                type: "access_code",
+                access_code: order.access_code,
+                ...(shop.access_url && { start_url: withCode(shop.access_url, order.access_code) }),
+              }
+            : order.download_token
+              ? { type: "download", download_url: `${appUrl()}/api/download/${order.download_token}`, note: "Works 5 times over 14 days." }
+              : {
+                  type: "shipping",
+                  ship_to: addr
+                    ? {
+                        name: order.buyer_name,
+                        address: [addr.address_line_1, addr.address_line_2, addr.admin_area_2, addr.admin_area_1, addr.postal_code, addr.country_code]
+                          .filter(Boolean)
+                          .join(", "),
+                      }
+                    : null,
+                  fulfillment: order.fulfillment_status,
+                  tracking: order.tracking_number ? { carrier: order.carrier, number: order.tracking_number } : null,
+                },
+        }
+      : {
+          ...((status === "awaiting_buyer_approval" || status === "declined") && { pay_url: payUrl(order.id) }),
+          next_step: NEXT_STEP[status],
+        }),
   };
 }

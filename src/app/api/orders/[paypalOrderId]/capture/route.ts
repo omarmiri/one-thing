@@ -21,6 +21,8 @@ export async function POST(_req: Request, ctx: RouteContext<"/api/orders/[paypal
     // The v6 SDK lets the buyer pick another funding source and retry.
     case "declined":
       return NextResponse.json({ error: "INSTRUMENT_DECLINED" }, { status: 422 });
+    case "expired":
+      return NextResponse.json({ error: "This checkout expired. Start again from the shop page." }, { status: 410 });
     default:
       return NextResponse.json({ error: "Couldn't complete the payment." }, { status: 502 });
   }

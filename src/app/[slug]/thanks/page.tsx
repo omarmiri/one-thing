@@ -1,14 +1,8 @@
 import { notFound } from "next/navigation";
 import { captureIfApproved } from "@/lib/orders";
-import { getOrder, getShopBySlug, money } from "@/lib/shops";
+import { getOrder, getShopBySlug, money, withCode } from "@/lib/shops";
 
 export const dynamic = "force-dynamic";
-
-function withCode(url: string, code: string) {
-  const u = new URL(url);
-  u.searchParams.set("code", code);
-  return u.toString();
-}
 
 export default async function Thanks(props: PageProps<"/[slug]/thanks">) {
   const { slug } = await props.params;

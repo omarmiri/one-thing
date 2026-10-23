@@ -13,8 +13,9 @@ const VERSIONS = ["2025-11-25", "2025-06-18", "2025-03-26", "2024-11-05"];
 
 const INSTRUCTIONS =
   "OneThing hosts one-product shops. search_shops finds them, get_product describes one. " +
-  "To buy: create_order returns approve_url; the buyer must open it and approve the payment at PayPal " +
-  "(you can't approve for them). Then poll get_order until status is paid.";
+  "To buy: create_order returns pay_url, a link on this site that's safe to show in chat. Give it to the buyer; " +
+  "it opens PayPal, where they approve the payment (you can't approve for them). When they say they've paid, " +
+  "call get_order: once status is paid it returns the access code, download link or shipping details.";
 
 const slug = z.string().min(1).max(60).describe("The shop's link name, e.g. \"bluemug\" (from search_shops or the shop URL)");
 
@@ -31,8 +32,8 @@ const TOOLS = {
   },
   create_order: {
     description:
-      "Order one unit with PayPal. Returns order_id and approve_url. The buyer approves the payment at approve_url " +
-      "(PayPal or card; PayPal asks for a shipping address for physical items). Nothing is charged until they do. " +
+      "Order one unit with PayPal. Returns order_id and pay_url. Show pay_url to the buyer as a link: it opens PayPal, " +
+      "where they pay (PayPal or card; PayPal asks for a shipping address for physical items). Nothing is charged until they do. " +
       "If get_product lists options, pass the buyer's pick for each, e.g. {\"Size\": \"M\", \"Color\": \"Black\"}.",
     input: z.object({
       shop: slug,
@@ -41,7 +42,9 @@ const TOOLS = {
     run: async (a: { shop: string; options?: Record<string, string> }) => agentCreateOrder(a.shop, a.options),
   },
   get_order: {
-    description: "Status of an order from create_order: awaiting_buyer_approval or paid, with the receipt link once paid.",
+    description:
+      "Status of an order from create_order: awaiting_buyer_approval, paid, declined, sold_out, expired or failed, with next_step. " +
+      "Once paid, delivery holds what the buyer got: an access code, a download link, or shipping details and tracking.",
     input: z.object({ order_id: z.string().min(1).max(64) }),
     run: async (a: { order_id: string }) => agentGetOrder(a.order_id),
   },

@@ -2,7 +2,7 @@ import "server-only";
 import { one, query } from "./db";
 import { accessCode, newId } from "./ids";
 import { comboKey, isCompleteChoice, stockOf, type Choice } from "./options";
-import { captureOrder, createOrder, orderStatus, PayPalError, type Capture } from "./paypal";
+import { approveLink, captureOrder, createOrder, orderStatus, PayPalError, type Capture } from "./paypal";
 import type { Order, Shop } from "./shops";
 import { notifyZapier } from "./zapier";
 
@@ -93,7 +93,7 @@ export async function startCheckout(shop: Shop, channel: "web" | "agent", choice
   return {
     localId,
     paypalOrderId: pp.id,
-    approveUrl: pp.links?.find((l) => l.rel === "payer-action" || l.rel === "approve")?.href ?? null,
+    approveUrl: approveLink(pp),
     amountCents: shop.price_cents + shipping,
     choice: picked,
   };
@@ -143,20 +143,21 @@ async function returnUnit(ref: StockRef) {
   }
 }
 
-export type CaptureOutcome = "paid" | "pending" | "declined" | "sold_out" | "failed";
+export type CaptureOutcome = "paid" | "pending" | "declined" | "sold_out" | "expired" | "failed";
 
 /**
  * The one way an order gets captured: the shop page's popup and poll, the thank-you page and the
  * agent tools all come here. Claims stock first, captures, and gives the unit back if PayPal
  * doesn't take the money. "pending" means the buyer hasn't approved yet (or another call is
- * capturing it right now).
+ * capturing it right now); "expired" means PayPal voided or dropped the order before payment.
  */
 export async function captureWithStock(order: Order): Promise<CaptureOutcome> {
   if (order.status === "paid") return "paid";
   if (!order.paypal_order_id) return "failed";
   // Only approved orders are worth claiming stock for; the poll asks every few seconds.
   const at = await orderStatus(order.paypal_order_id).catch(() => null);
-  if (at !== "APPROVED") return at === "COMPLETED" ? "pending" : at === null ? "failed" : "pending";
+  if (at === "VOIDED" || at === "EXPIRED") return "expired";
+  if (at !== "APPROVED") return at === null ? "failed" : "pending";
 
   const ref = await stockRef(order);
   if (!(await takeUnit(ref))) return "sold_out";
