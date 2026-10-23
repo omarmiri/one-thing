@@ -185,7 +185,7 @@ Target 2:45. Voiceover (VO) in quotes; everything else is on screen. Cut every w
 - Cut to the seller's orders grid: the order with the buyer's address → **Mark shipped** with a tracking number.
 - VO: "Buyers pay with PayPal or a card. You see the order, add tracking, and PayPal shows it to the buyer."
 
-**6. Any AI assistant can buy (1:40–2:10)**
+**6. An AI assistant buys, no plugins (1:40–2:10)**
 - Grok, with no plugins or connectors (Grok and Kimi K3 both completed this whole flow on Oct 23; Kimi is the backup). One prompt, pasted:
   "Read one-thing-ash0.onrender.com/llms.txt and find me a game under $10."
 - 2× speed: it reads the file and lists the two games with prices: Dragon Flight ($4.99) and Raptor Rush ($9.99).
@@ -194,7 +194,7 @@ Target 2:45. Voiceover (VO) in quotes; everything else is on screen. Cut every w
 - You type "Paid." It checks the order, sees `paid`, and hands back the access code and a Start link. Tap Start: Dragon Flight plays.
 - On screen, 2 s, as a caption: "No MCP. No plugin. No enrollment." Then a pull quote from Kimi, after its purchase: "I did the errands, you did the decision-making and the money part."
 - Small caption under it: "Also bought here: Grok, Kimi K3, Meta's Muse, Claude."
-- VO: "Shops are agent-legible. Any assistant that can read a web page reads one small text file, places the order and hands you a pay link. It runs the errands. The decision and the money stay with you, at PayPal."
+- VO: "Shops are agent-legible. With no plugins, Grok reads one small text file, places the order and hands you a pay link. It runs the errands. The decision and the money stay with you, at PayPal."
 
 **7. Create a product from the SDK (2:10–2:35)**
 - miriogames.com/market/upload: a developer fills in title, price, the game file and a cover → **Upload** → the manage page appears with its store page made → **Connect PayPal** (skip through) → **Publish**.
@@ -204,11 +204,11 @@ Target 2:45. Voiceover (VO) in quotes; everything else is on screen. Cut every w
 
 **8. Close (2:35–2:45)**
 - Back to the first shop page, the logo and the URL.
-- VO: "One photo, one page, paid with PayPal, and open to every agent. OneThing."
+- VO: "One photo, one page, paid with PayPal, and ready for AI agents. OneThing."
 
 **Lines kept for the Devpost text and Q&A (too long for the video)**
-- "Card networks are building agentic payments for certified agents spending unattended. OneThing works today for every agent, because the one step that needs trust, the payment, stays with the human."
-- "Permissionless: the same flow works for a free-tier chatbot and a Fortune 500 procurement bot. No agent identity, no enrollment, just a readable catalog, an order link and a person clicking pay."
+- "Card networks are building agentic payments for certified agents spending unattended. OneThing works today with the assistants people already use, no enrollment needed, because the one step that needs trust, the payment, stays with the human."
+- "Permissionless: OneThing asks nothing of the agent. No identity, no enrollment, just a readable catalog, an order link and a person clicking pay. Whether an assistant takes part is up to its own maker: on Oct 23 Grok and Kimi K3 completed the flow, ChatGPT couldn't open /llms.txt, and Gemini declined to create a payment link by policy."
 - "Agents fail purchases most often not at paying, but at knowing whether it worked. Every OneThing order answers that: status, receipt, and the access code or tracking as data." (from Muse's debrief)
 - "Not 'agents can buy here', but 'agents can buy here and prove what happened.'" (Muse)
 - Why PayPal: a seller gets paid by typing an email, with no onboarding at all, and the money goes straight to them; OneThing never holds it. The agent design itself works with any payment provider that has hosted checkout.
@@ -217,7 +217,7 @@ Target 2:45. Voiceover (VO) in quotes; everything else is on screen. Cut every w
 - Rename the sandbox partner business account from "Test Store" to OneThing; it shows on the Connect PayPal page.
 - Open the Render site a minute ahead, so the first page load isn't slow.
 - Have three sandbox accounts ready: the seller (sign in), a business account that has never connected (for Connect PayPal), and the buyer.
-- Dry-run step 6 off camera in Grok. Grok and Kimi K3 completed the whole loop on Oct 23, and so did our own fetch-only test agent. Free ChatGPT is untested; try it too, and add it to the caption if it works.
+- Dry-run step 6 off camera in Grok. Tested Oct 23: Grok and Kimi K3 completed the whole loop, and so did our own fetch-only test agent. ChatGPT couldn't read /llms.txt, and Gemini refused by policy to create the payment link, so neither goes on camera or in the caption.
 - Step 6 makes a new order each take (every order link opens one), so expect a few unpaid test orders; they cost nothing.
 - Pay as a **personal** sandbox buyer. PayPal refuses the seller's account and the platform account ("This PayPal account is associated with the merchant…"), which cost two of Muse's attempts.
 - After changing a shop, wait 5 minutes or the assistant may read an old `/llms.txt` (it's cached that long).
