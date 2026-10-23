@@ -417,6 +417,26 @@
           }
         },
         {
+          "name": "Order with a link (GET)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const r = pm.response.json();",
+                  "if (r.order_id) pm.collectionVariables.set('agentOrderId', r.order_id);",
+                  "// Open r.pay_url and pay as the sandbox buyer, then run Order status for agents."
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/agent/shops/{{slug}}/order",
+            "header": []
+          }
+        },
+        {
           "name": "Order status for agents (GET)",
           "request": {
             "method": "GET",

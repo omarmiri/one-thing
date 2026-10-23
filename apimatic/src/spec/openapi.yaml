@@ -24,9 +24,9 @@ info:
 
     **Agent-ready.** Every live shop is also published for AI shopping agents: an MCP server at
     `/api/mcp` with `search_shops`, `get_product`, `create_order` and `get_order`, and the same
-    reads as plain GETs for agents that can only fetch URLs (`listAgentShops`, `getAgentProduct`,
-    `getAgentOrder`). An agent can find and order, but the buyer still approves every payment at
-    PayPal.
+    four as plain GETs for assistants that can only fetch URLs (`listAgentShops`,
+    `getAgentProduct`, `orderByLink`, `getAgentOrder`), with `/llms.txt` as the starting point.
+    An agent can find and order, but the buyer still approves every payment at PayPal.
 
     All money moves through PayPal (sandbox in this deployment). OneThing never holds card data.
   contact:
@@ -1548,6 +1548,75 @@ paths:
                     type: string
                     description: The MCP server to order through.
 
+  /api/agent/shops/{slug}/order:
+    parameters:
+      - $ref: '#/components/parameters/Slug'
+    get:
+      tags: [Agents]
+      operationId: orderByLink
+      summary: Order with a link, for agents
+      description: |
+        Orders one unit with a GET: the MCP `create_order` tool for AI assistants that can only
+        fetch URLs, such as free-tier ChatGPT or Grok. Nothing is charged. The reply has `pay_url`,
+        where the buyer pays at PayPal, and `status_url` (`getAgentOrder`), which says when they
+        have and what they got.
+
+        For a product with options, pass the buyer's pick as query parameters named after the
+        options (`?Size=9`, or `?Color=Ice+Blue&Size=L`); names and values are matched without
+        regard to case. You rarely build this URL yourself: `getAgentProduct` and `/llms.txt`
+        write it out in full (`order_url`, or `variants[].order_url`), because some assistants
+        only open URLs they have been shown.
+
+        Every request makes a new order, so open it once, after the buyer says to buy. A link
+        previewer opening it leaves an unpaid order at most: stock is only taken when a payment
+        is captured. Replies are `no-store` and `X-Robots-Tag: noindex, nofollow`.
+      parameters:
+        - name: Size
+          in: query
+          required: false
+          description: >-
+            An example option. The real parameter names are the product's option names from
+            `getAgentProduct` (`options[].name`), one per option.
+          example: '9'
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The order, waiting for the buyer to pay.
+          content:
+            application/json:
+              example:
+                order_id: pX4kR9tVb2nQ7sLe
+                status: awaiting_buyer_approval
+                total: $255.00
+                options:
+                  Size: '9'
+                pay_url: https://one-thing-ash0.onrender.com/o/pX4kR9tVb2nQ7sLe
+                status_url: https://one-thing-ash0.onrender.com/api/agent/orders/pX4kR9tVb2nQ7sLe
+                next_step: >-
+                  Show pay_url to the buyer as a link. It opens PayPal, where they pay (and enter a
+                  shipping address for physical items). When they say they've paid, call get_order
+                  with order_id (or open status_url): it returns the access code, download link or
+                  shipping details.
+              schema:
+                $ref: '#/components/schemas/AgentCreatedOrder'
+        '400':
+          description: A missing or unknown option value, or sold out. `error` names the valid values.
+          content:
+            application/json:
+              example:
+                error: 'Unknown Size "12". Size: one of 7, 8, 9.'
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: No live shop with that link name.
+          content:
+            application/json:
+              example:
+                error: No live shop called "skatez". Try search_shops.
+              schema:
+                $ref: '#/components/schemas/Error'
+
   /api/agent/orders/{orderId}:
     parameters:
       - name: orderId
@@ -1581,7 +1650,7 @@ paths:
                     product: Vintage Cream and Red Roller Skates
                     options:
                       Size: '9'
-                    amount: &id001
+                    amount:
                       item: 240
                       shipping: 15
                       total: 255
@@ -1616,7 +1685,11 @@ paths:
                     product: Vintage Cream and Red Roller Skates
                     options:
                       Size: '9'
-                    amount: *id001
+                    amount:
+                      item: 240
+                      shipping: 15
+                      total: 255
+                      currency: USD
                     total: $255.00
                     paid_at: '2026-10-22T02:41:37Z'
                     receipt_url: https://one-thing-ash0.onrender.com/vintageskates/thanks?order=pX4kR9tVb2nQ7sLe
@@ -1635,7 +1708,11 @@ paths:
                     product: Vintage Cream and Red Roller Skates
                     options:
                       Size: '9'
-                    amount: *id001
+                    amount:
+                      item: 240
+                      shipping: 15
+                      total: 255
+                      currency: USD
                     total: $255.00
                     next_step: This checkout expired at PayPal. Nothing was charged. Call create_order for a new one.
               schema:
@@ -1706,15 +1783,18 @@ paths:
                 - choice:
                     Size: '7'
                   availability: in_stock (3 left)
+                  order_url: https://one-thing-ash0.onrender.com/api/agent/shops/vintageskates/order?Size=7
                 - choice:
                     Size: '8'
                   availability: sold_out
                 - choice:
                     Size: '9'
                   availability: in_stock (6 left)
+                  order_url: https://one-thing-ash0.onrender.com/api/agent/shops/vintageskates/order?Size=9
                 availability: in_stock
-                how_to_buy: Call create_order on the OneThing MCP server with shop and options, then give the buyer its
-                  pay_url to pay at PayPal.
+                how_to_buy: >-
+                  Open the order_url of the buyer's variant (or call create_order on the OneThing MCP
+                  server with shop and options). Either returns a pay_url: give it to the buyer to pay at PayPal.
                 mcp_server: https://one-thing-ash0.onrender.com/api/mcp
               schema:
                 $ref: '#/components/schemas/AgentProduct'
@@ -2608,6 +2688,14 @@ components:
                 $ref: '#/components/schemas/Choice'
               availability:
                 type: string
+              order_url:
+                type: string
+                description: '`orderByLink` for this pick. Left out when it''s sold out.'
+        order_url:
+          type: string
+          description: >-
+            Products without options: `orderByLink`, which orders one unit with a GET. Left out
+            when sold out. With options, each variant has its own.
         offers:
           type: array
           description: Recommendations only. Bought at the retailer.
@@ -2651,6 +2739,30 @@ components:
         url:
           type: string
           description: The shop page.
+
+    AgentCreatedOrder:
+      type: object
+      description: A new order, as `create_order` and `orderByLink` return it.
+      required: [order_id, status, total, pay_url, status_url, next_step]
+      properties:
+        order_id:
+          type: string
+        status:
+          type: string
+          const: awaiting_buyer_approval
+        total:
+          type: string
+          description: The total with shipping, as a label.
+        options:
+          $ref: '#/components/schemas/Choice'
+        pay_url:
+          type: string
+          description: Where the buyer pays (redirects to PayPal). Safe to show in chat.
+        status_url:
+          type: string
+          description: '`getAgentOrder` for this order.'
+        next_step:
+          type: string
 
     AgentOrder:
       type: object

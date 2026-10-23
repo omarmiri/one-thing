@@ -13,6 +13,15 @@ import { blobUrl, getOrder, getShopBySlug, listLiveShops, money, shopPhotos, wit
 /** The order's pay link on this site. It redirects to PayPal, so it's safe to show in chat. */
 const payUrl = (orderId: string) => `${appUrl()}/o/${orderId}`;
 
+/**
+ * A GET that creates an order: create_order for assistants that can only fetch URLs. Spelled out
+ * in full in the product JSON and llms.txt, because some assistants only open URLs they've seen.
+ */
+export function orderLink(slug: string, choice?: Record<string, string>) {
+  const q = choice ? `?${new URLSearchParams(choice)}` : "";
+  return `${appUrl()}/api/agent/shops/${slug}/order${q}`;
+}
+
 const abs = (path: string | null) => (path ? (path.startsWith("http") ? path : `${appUrl()}${path}`) : null);
 
 /** Everything an agent needs to describe a product and decide to buy it. */
@@ -57,14 +66,22 @@ export function agentProduct(shop: Shop) {
                 options: options.map((o) => ({ name: o.name, values: o.values.map((v) => v.label) })),
                 variants: combos(options).map((c) => {
                   const n = stockOf(shop.option_stock ?? {}, comboKey(options, c));
-                  return { choice: c, availability: n === null ? "in_stock" : n > 0 ? `in_stock (${n} left)` : "sold_out" };
+                  return {
+                    choice: c,
+                    availability: n === null ? "in_stock" : n > 0 ? `in_stock (${n} left)` : "sold_out",
+                    ...(n !== 0 && { order_url: orderLink(shop.slug, c) }),
+                  };
                 }),
                 availability: allSoldOut(options, shop.option_stock ?? {}) ? "sold_out" : "in_stock",
               }
-            : { availability: shop.stock === null ? "in_stock" : shop.stock > 0 ? `in_stock (${shop.stock} left)` : "sold_out" }),
+            : {
+                availability: shop.stock === null ? "in_stock" : shop.stock > 0 ? `in_stock (${shop.stock} left)` : "sold_out",
+                ...(shop.stock !== 0 && { order_url: orderLink(shop.slug) }),
+              }),
           how_to_buy: options.length
-            ? "Call create_order on the OneThing MCP server with shop and options, then give the buyer its pay_url to pay at PayPal."
-            : "Call create_order on the OneThing MCP server, then give the buyer its pay_url to pay at PayPal.",
+            ? "Open the order_url of the buyer's variant (or call create_order on the OneThing MCP server with shop and options). " +
+              "Either returns a pay_url: give it to the buyer to pay at PayPal."
+            : "Open order_url (or call create_order on the OneThing MCP server). Either returns a pay_url: give it to the buyer to pay at PayPal.",
         }),
   };
 }
@@ -111,7 +128,7 @@ export async function agentCreateOrder(slug: string, choice?: Record<string, str
       status_url: `${appUrl()}/api/agent/orders/${o.localId}`,
       next_step:
         "Show pay_url to the buyer as a link. It opens PayPal, where they pay (and enter a shipping address for physical items). " +
-        "When they say they've paid, call get_order with order_id: it returns the access code, download link or shipping details.",
+        "When they say they've paid, call get_order with order_id (or open status_url): it returns the access code, download link or shipping details.",
     };
   } catch (err) {
     if (err instanceof AgentError) throw err;

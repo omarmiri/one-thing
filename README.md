@@ -182,14 +182,16 @@ Every live shop is agent-ready:
   `failed`, with a `next_step` the agent can follow.
 - **`/llms.txt`**: the one URL to give an AI that can only read web pages (free-tier ChatGPT,
   Gemini and the like): "Read https://one-thing-ash0.onrender.com/llms.txt and help me buy
-  something from the gallery." It lists the gallery's shops and explains the GETs below and how to
-  buy. Every page links to it (`<link rel="alternate">`), and the home page and gallery show a
+  something from the gallery." It lists the gallery's shops with their order links and explains
+  how to buy in three steps. Every page links to it (`<link rel="alternate">`), and the home page and gallery show a
   visible link, since browse tools often drop the page `<head>`.
 - **Plain GETs** for agents that can only fetch URLs, not call MCP tools:
   `/api/agent/shops?q=<keywords>` (the gallery, like `search_shops`) and
-  `/api/agent/orders/<order_id>` (status and delivery, like `get_order`; `create_order` also
-  returns it as `status_url`). Ordering itself stays a POST, so such an agent sends the buyer to
-  the shop page to pay.
+  `/api/agent/shops/<slug>/order?Size=9` (places an order like `create_order`, and returns its
+  `pay_url` and `status_url`) and `/api/agent/orders/<order_id>` (status and delivery, like
+  `get_order`). The product JSON and `/llms.txt` write the order links out in full, one per size
+  or colour, because some assistants only open URLs they've been shown. Each request makes a new,
+  unpaid order; the buyer still pays at PayPal.
 - **Product JSON** at `/api/agent/shops/<slug>`: price, shipping, delivery, availability, images
   and FAQ, plus where the MCP server is. Shop pages link to it (`<link rel="alternate">`).
 - **schema.org `Product` JSON-LD** on every live shop page, which shopping agents and search
