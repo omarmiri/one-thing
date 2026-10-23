@@ -28,6 +28,7 @@ export function ManageApp(props: {
   geminiReady: boolean;
   paypalReady: boolean;
   linkPrefix: string;
+  ab: AbInitial | null;
 }) {
   const { token, initial } = props;
   const router = useRouter();
@@ -192,6 +193,7 @@ export function ManageApp(props: {
             onHero={() => setHeroStatus("pending")}
             onToast={setToast}
           />
+          {props.ab && <AbPanel api={api} initial={props.ab} onChanged={() => setFrameKey((k) => k + 1)} onToast={setToast} />}
         </aside>
       </div>
 
@@ -357,6 +359,83 @@ function DesignPanel(props: {
           </div>
         </>
       )}
+    </div>
+  );
+}
+
+// ---- Design A/B test: only with &ab=<ADMIN_KEY> on the manage link ----------------------------
+
+type AbVersion = { model: string | null; seconds: number | null };
+type AbInitial = { key: string; model: string | null; b: AbVersion | null; ready: Record<"gemini" | "qwen", boolean> };
+
+const modelLabel = (m: string | null) => (!m ? "an earlier model (not recorded)" : /qwen/i.test(m) ? `Qwen (${m})` : `Gemini (${m})`);
+
+function AbPanel(props: { api: Api; initial: AbInitial; onChanged(): void; onToast(t: string): void }) {
+  const [model, setModel] = useState(props.initial.model);
+  const [b, setB] = useState(props.initial.b);
+  const [busy, setBusy] = useState<string | null>(null);
+  // Make B with the model that didn't make the current design (unknown: assume Gemini did).
+  const other = model && /qwen/i.test(model) ? "gemini" : "qwen";
+
+  async function call(body: object, label: string) {
+    setBusy(label);
+    try {
+      return (await props.api("/ab", { method: "POST", body: JSON.stringify(body), headers: { "x-ab-key": props.initial.key } })) as {
+        model?: string | null;
+        b: AbVersion;
+      };
+    } catch (e) {
+      props.onToast((e as Error).message);
+      return null;
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  return (
+    <div className={`${panel} border-dashed`}>
+      <h2 className="font-semibold">A/B test</h2>
+      <p className="mt-1 text-sm text-muted">Only you see this. Version B is designed from the same words and photo; the hero art stays.</p>
+      <dl className="mt-3 space-y-1 text-sm">
+        <div><dt className="inline text-muted">Showing: </dt><dd className="inline">{modelLabel(model)}</dd></div>
+        <div>
+          <dt className="inline text-muted">Version B: </dt>
+          <dd className="inline">{b ? `${modelLabel(b.model)}${b.seconds ? `, ${b.seconds}s` : ""}` : "none yet"}</dd>
+        </div>
+      </dl>
+      <div className="mt-3 flex flex-wrap gap-2">
+        {(["gemini", "qwen"] as const).map((d) => (
+          <button
+            key={d}
+            disabled={Boolean(busy) || !props.initial.ready[d]}
+            title={props.initial.ready[d] ? undefined : `${d} isn't configured on this server`}
+            onClick={async () => {
+              const r = await call({ action: "make", designer: d }, d);
+              if (r) {
+                setB(r.b);
+                props.onToast("Version B is ready");
+              }
+            }}
+            className={`rounded-full border px-3 py-1 text-xs disabled:opacity-50 ${d === other ? "border-foreground" : "border-line"}`}
+          >
+            {busy === d ? "Designing…" : `Make B with ${d === "qwen" ? "Qwen" : "Gemini"}`}
+          </button>
+        ))}
+        <button
+          disabled={Boolean(busy) || !b}
+          onClick={async () => {
+            const r = await call({ action: "swap" }, "swap");
+            if (r) {
+              setB(r.b);
+              setModel(r.model ?? null);
+              props.onChanged();
+            }
+          }}
+          className="rounded-full bg-foreground px-3 py-1 text-xs font-semibold text-background disabled:opacity-50"
+        >
+          {busy === "swap" ? "…" : "Show version B"}
+        </button>
+      </div>
     </div>
   );
 }

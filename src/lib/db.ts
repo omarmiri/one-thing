@@ -99,6 +99,10 @@ ALTER TABLE shops  ADD COLUMN IF NOT EXISTS options jsonb NOT NULL DEFAULT '[]';
 ALTER TABLE shops  ADD COLUMN IF NOT EXISTS option_stock jsonb NOT NULL DEFAULT '{}';
 ALTER TABLE shops  ADD COLUMN IF NOT EXISTS suggestions jsonb;
 ALTER TABLE orders ADD COLUMN IF NOT EXISTS options jsonb;          -- the buyer's choice, e.g. {"Size":"M"}
+-- Design A/B test (manage page with ?ab=ADMIN_KEY): which model wrote the current spec, and the
+-- other version, {spec, model, seconds}, which "Show this version" swaps in.
+ALTER TABLE shops  ADD COLUMN IF NOT EXISTS ai_model text;          -- null: made before this was recorded
+ALTER TABLE shops  ADD COLUMN IF NOT EXISTS design_b jsonb;
 
 -- Accounts: a seller signs in with an email or a phone number; no password, no verification yet
 -- (see src/lib/accounts.ts). Each identifier is unique; an account has one or the other.

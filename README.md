@@ -161,6 +161,12 @@ the AI's guesses and clicks **Go live**. The choices behind it:
   `/admin/gallery?key=<ADMIN_KEY>`, a review page that isn't linked anywhere and needs no sign-in,
   just the secret key. Changing an approved shop's photos, product name or headline sends it back
   to review. Shops already in the gallery when review was added stayed approved.
+- **Design A/B test** (for the site's own testing): add `&ab=<ADMIN_KEY>` to a shop's manage link
+  and an "A/B test" panel appears under the design chat. It shows which model wrote the current
+  design, makes a version B with Gemini or Qwen from the seller's same words and photo (the
+  pasted link's page text isn't kept, so B doesn't see it), and "Show version B" swaps the two so
+  the preview and the live page show it. Swap again to go back. The hero art stays as it was.
+  Without the key there's no panel and the endpoint answers 404, so sellers never see it.
 
 ### AI agents
 
@@ -318,13 +324,13 @@ full experience:
 | Key | Where | What it unlocks |
 |---|---|---|
 | `GEMINI_API_KEY` | [Google AI Studio](https://aistudio.google.com/apikey) | AI guesses, design, copy, hero art, chat edits. `npm run gemini:models` lists the models your key can use |
-| `DASHSCOPE_API_KEY`, `DESIGN_PROVIDER=qwen` | [Alibaba Cloud Model Studio](https://modelstudio.console.alibabacloud.com/) → API keys | Optional: **Qwen** (`qwen3.7-plus`, override with `QWEN_MODEL`) writes the shop design and chat edits instead of Gemini, with Gemini as its backup. Everything else stays on Gemini. `QWEN_BASE_URL` defaults to the Singapore endpoint. `npm run compare:designers` runs both on the same shops (stop `npm run dev` first) and writes a side-by-side `compare-designers.html` |
+| `DASHSCOPE_API_KEY`, `DESIGN_PROVIDER=qwen` | [Alibaba Cloud Model Studio](https://modelstudio.console.alibabacloud.com/) → API keys | Optional: **Qwen** (`qwen3.7-plus`, override with `QWEN_MODEL`). With the key alone, Qwen is available in the design A/B test. Add `DESIGN_PROVIDER=qwen` and it writes every shop design and chat edit instead of Gemini, with Gemini as its backup. Everything else stays on Gemini. `QWEN_BASE_URL` defaults to the Singapore endpoint. `npm run compare:designers` runs both on the same shops (stop `npm run dev` first) and writes a side-by-side `compare-designers.html` |
 | `PAYPAL_CLIENT_ID`, `PAYPAL_CLIENT_SECRET` | [PayPal developer dashboard](https://developer.paypal.com/dashboard/applications/sandbox) → Sandbox app | Checkout |
 | `PAYPAL_LOGIN=on` | Same app → **Log In with PayPal**: Return URL `<APP_URL>/api/account/paypal/callback`, request email, verification status and payer ID | **Log in with PayPal** (off until set, so the button never leads to a misconfigured app) |
 | `PAYPAL_PARTNER_CLIENT_ID`, `PAYPAL_PARTNER_CLIENT_SECRET`, `PAYPAL_PARTNER_MERCHANT_ID` | A second sandbox app of type **Platform** (Partner Referrals needs one), and the merchant ID of its sandbox business account | **Connect PayPal**: sellers onboard their own PayPal account; the manage page shows PayPal's checklist and Go live waits for it (a typed PayPal email still works as a fallback) |
 | `PAYPAL_WEBHOOK_ID` | Same app → Webhooks → `<APP_URL>/api/paypal/webhook`, event `PAYMENT.CAPTURE.COMPLETED` | Confirms payments if the buyer closes the tab mid-checkout (needs a public URL) |
 | `CHANNEL3_API_KEY` | [Channel3 developers](https://trychannel3.com/developers) | "Find a product", store-link lookup and recommendation shops |
-| `ADMIN_KEY` | Any long random string (Render generates one) | **Gallery review** at `/admin/gallery?key=<ADMIN_KEY>`; without it no shop can be approved into the gallery |
+| `ADMIN_KEY` | Any long random string (Render generates one) | **Gallery review** at `/admin/gallery?key=<ADMIN_KEY>`; without it no shop can be approved into the gallery. Also unlocks the design A/B test (`&ab=<ADMIN_KEY>` on a manage link) |
 
 ## Deploy to Render
 

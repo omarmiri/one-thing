@@ -47,8 +47,13 @@ export type Shop = {
   gallery_blobs: string[];
   spec: DesignSpec;
   ai_source: "gemini" | "fallback";
+  ai_model: string | null;
+  design_b: DesignB | null;
   created_at: string;
 };
+
+/** The A/B test's other version of the design. */
+export type DesignB = { spec: DesignSpec; model: string | null; seconds: number | null };
 
 export type Order = {
   id: string;
@@ -104,7 +109,7 @@ export async function getOwnedShop(slug: string, token: string | null | undefine
 }
 
 // jsonb columns: written as JSON text (node-postgres would turn a JS array into a Postgres array).
-const JSONB = new Set(["spec", "paypal_status", "options", "option_stock", "suggestions"]);
+const JSONB = new Set(["spec", "paypal_status", "options", "option_stock", "suggestions", "design_b"]);
 
 // What the gallery review approved: changing any of these sends an approved shop back to review,
 // so a harmless page can't be approved and then swapped for something else.

@@ -128,7 +128,7 @@ export async function POST(req: Request) {
     const detail = String((err as Error).message ?? err).replace(/\s+/g, " ").slice(0, 300);
     return NextResponse.json({ error: "The AI designer hit a snag. Please try again.", detail }, { status: 502 });
   }
-  const { spec: generated, source: aiSource } = design;
+  const { spec: generated, source: aiSource, model: aiModel } = design;
   const { suggestedLink, digitalDelivery, ...spec } = generated;
   description ??= [spec.productName, spec.subheadline].join(". ");
 
@@ -176,8 +176,8 @@ export async function POST(req: Request) {
     `INSERT INTO shops (id, slug, admin_token, seller_email, paypal_email, description, product_type, price_cents,
        shipping_cents, ship_countries, stock, photo_blob, digital_blob, hero_status, spec, ai_source, delivery,
        access_url, referral, source_url, showcase, showcase_blobs, account_id, paypal_merchant_id, paypal_status, suggestions,
-       api_key_id)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,$27)`,
+       api_key_id, ai_model)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,$27,$28)`,
     [
       id, slug, adminToken, str(form, "seller_email") ?? account?.email ?? null, str(form, "paypal_email") ?? account?.paypal_email ?? null, description, productType, price,
       productType === "physical" ? (cents(str(form, "shipping")) ?? Math.round(spec.suggestedShippingUsd * 100)) : 0,
@@ -195,6 +195,7 @@ export async function POST(req: Request) {
       connected ? JSON.stringify(connected.paypal_status) : null,
       suggestions ? JSON.stringify(suggestions) : null,
       apiKey?.id ?? null,
+      aiModel,
     ],
   );
   await claimSlug(slug, id);

@@ -50,18 +50,14 @@ function score(spec: Generated) {
 
 type Run = { provider: string; case: string; ok: boolean; seconds: number; error?: string; spec?: Generated; issues?: string[] };
 const runs: Run[] = [];
-const geminiKey = process.env.GEMINI_API_KEY;
 
 for (let r = 0; r < rounds; r++) {
   for (const c of cases) {
     for (const provider of ["gemini", "qwen"] as const) {
-      // Qwen runs alone (no Gemini to fall back to), so a Qwen failure counts as one.
-      process.env.DESIGN_PROVIDER = provider;
-      if (provider === "qwen") delete process.env.GEMINI_API_KEY;
-      else process.env.GEMINI_API_KEY = geminiKey;
+      // A named designer runs alone (no backup), so a Qwen failure counts as one.
       const t0 = Date.now();
       try {
-        const { spec } = await designShop(c.input);
+        const { spec } = await designShop({ ...c.input, designer: provider });
         const { issues } = score(spec);
         runs.push({ provider, case: c.name, ok: true, seconds: (Date.now() - t0) / 1000, spec, issues });
       } catch (err) {

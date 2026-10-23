@@ -23,9 +23,12 @@ const IMAGE_MODEL = process.env.GEMINI_IMAGE_MODEL ?? "gemini-2.5-flash-image";
 
 export const geminiEnabled = () => Boolean(process.env.GEMINI_API_KEY);
 // Who writes shop designs: DESIGN_PROVIDER=qwen hands them to Qwen, with Gemini as its backup.
-// Read per call so scripts/compare-designers.mts can switch it between runs.
-const qwenDesigns = () => process.env.DESIGN_PROVIDER === "qwen" && qwenEnabled();
-const designerEnabled = () => geminiEnabled() || qwenDesigns();
+// A caller that names a designer (the manage page's A/B test, the comparison script) gets that
+// one only, with no backup, so a version is never quietly made by the other model.
+export type Designer = "gemini" | "qwen";
+export const designerReady = (d: Designer) => (d === "qwen" ? qwenEnabled() : geminiEnabled());
+const defaultDesigner = (): Designer => (process.env.DESIGN_PROVIDER === "qwen" && qwenEnabled() ? "qwen" : "gemini");
+const designerEnabled = () => designerReady(defaultDesigner());
 const client = () => new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
 
 export type Photo = { data: Uint8Array; mime: string };
@@ -163,18 +166,18 @@ function parseDesign(text: string): Generated {
   return Generated.parse(raw);
 }
 
-async function generateDesign(parts: object[]): Promise<Generated> {
+async function generateDesign(parts: object[], only?: Designer): Promise<{ spec: Generated; model: string }> {
   const t0 = Date.now();
   let out: Generated | undefined;
   let model = TEXT_MODEL;
-  if (qwenDesigns()) {
+  if ((only ?? defaultDesigner()) === "qwen") {
     try {
       const res = await qwenJson(parts, designJsonSchema(), 0.8);
       out = parseDesign(res.text);
       model = res.modelVersion;
     } catch (err) {
       // A Qwen answer that fails or doesn't fit the spec goes to Gemini, rather than sink the shop.
-      if (!geminiEnabled()) throw err;
+      if (only || !geminiEnabled()) throw err;
       console.warn("qwen design failed, falling back to gemini:", (err as Error).message);
     }
   }
@@ -188,7 +191,7 @@ async function generateDesign(parts: object[]): Promise<Generated> {
     model = res.modelVersion ?? TEXT_MODEL;
   }
   console.info(`design: ${model} in ${((Date.now() - t0) / 1000).toFixed(1)}s`);
-  return { ...out, ...ensureReadable(out) };
+  return { spec: { ...out, ...ensureReadable(out) }, model };
 }
 
 export type DesignInput = {
@@ -199,16 +202,21 @@ export type DesignInput = {
   context?: string | null;
   /** Recommending someone else's product (Channel3 referral) rather than selling your own. */
   referral?: boolean;
+  /** This designer only, no backup. Default: DESIGN_PROVIDER, backed up by Gemini. */
+  designer?: Designer;
 };
 
 /** Everything the seller gave us → a full design spec plus setup guesses. */
-export async function designShop(input: DesignInput): Promise<{ spec: Generated; source: "gemini" | "fallback" }> {
+export async function designShop(
+  input: DesignInput,
+): Promise<{ spec: Generated; source: "gemini" | "fallback"; model: string | null }> {
+  if (input.designer && !designerReady(input.designer)) throw new Error(`The ${input.designer} designer isn't configured.`);
   if (!designerEnabled()) {
     const type = input.type === "digital" ? "digital" : "physical";
     // Without Gemini: name it from the seller's words, or the page/product title we found.
     const titled = input.context?.match(/^(?:Title|Product): (.+)$/m)?.[1];
     const base = fallbackSpec(input.description || titled || "My product", type);
-    return { spec: { ...base, suggestedLink: "", digitalDelivery: "file" }, source: "fallback" };
+    return { spec: { ...base, suggestedLink: "", digitalDelivery: "file" }, source: "fallback", model: null };
   }
   const parts: object[] = [{ text: DESIGNER_BRIEF }];
   if (input.photo) parts.push(inline(input.photo));
@@ -226,13 +234,13 @@ export async function designShop(input: DesignInput): Promise<{ spec: Generated;
       .join("\n\n"),
   });
   try {
-    return { spec: await generateDesign(parts), source: "gemini" };
+    return { ...(await generateDesign(parts, input.designer)), source: "gemini" };
   } catch (err) {
     // A photo Gemini can't read (odd encoding, huge, animated) shouldn't sink the whole shop:
     // design from the words alone instead.
     if (!input.photo || !/image/i.test(String((err as Error).message))) throw err;
     console.warn("gemini rejected the photo; designing without it:", (err as Error).message);
-    return { spec: await generateDesign(parts.filter((p) => !("inlineData" in p))), source: "gemini" };
+    return { ...(await generateDesign(parts.filter((p) => !("inlineData" in p)), input.designer)), source: "gemini" };
   }
 }
 
@@ -378,7 +386,7 @@ export const listingText = (spec: DesignSpec, extra: string[] = []) =>
 /** "Make it warmer" → the same spec with that change applied. */
 export async function refineShop(spec: DesignSpec, instruction: string): Promise<DesignSpec> {
   if (!designerEnabled()) throw new Error("Set GEMINI_API_KEY to edit the design with AI.");
-  const refined = await generateDesign([
+  const { spec: refined } = await generateDesign([
     { text: DESIGNER_BRIEF },
     { text: `Current spec:\n${JSON.stringify(spec)}` },
     {
