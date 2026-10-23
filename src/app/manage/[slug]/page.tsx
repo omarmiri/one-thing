@@ -3,7 +3,7 @@ import { currentAccount } from "@/lib/accounts";
 import { blobUrl, getOwnedShop, getShopBySlug, listOrders, listWebhookEvents, shopPhotos, updateShop } from "@/lib/shops";
 import { designerReady, geminiEnabled } from "@/lib/gemini";
 import { paypalConnectEnabled, paypalEnabled } from "@/lib/paypal";
-import { appUrl, isAdminKey } from "@/lib/ids";
+import { appUrl } from "@/lib/ids";
 import { ManageApp } from "./ManageApp";
 
 export const dynamic = "force-dynamic";
@@ -11,7 +11,7 @@ export const metadata = { title: "Manage your shop · OneThing", robots: { index
 
 export default async function Manage(props: PageProps<"/manage/[slug]">) {
   const { slug } = await props.params;
-  const { token, paypal, ab } = await props.searchParams;
+  const { token, paypal } = await props.searchParams;
   const account = await currentAccount();
   // The private link (?token=) always works. Signed in, your own shops open without it.
   let shop = typeof token === "string" ? await getOwnedShop(slug, token) : null;
@@ -68,11 +68,10 @@ export default async function Manage(props: PageProps<"/manage/[slug]">) {
       geminiReady={geminiEnabled()}
       paypalReady={paypalEnabled()}
       linkPrefix={new URL(appUrl()).host}
-      // The design A/B test is for the site's own testing: only with &ab=<ADMIN_KEY> on the link.
+      // The design A/B test: for signed-in sellers, on shops in their account.
       ab={
-        typeof ab === "string" && isAdminKey(ab)
+        account && shop.account_id === account.id
           ? {
-              key: ab,
               model: shop.ai_model,
               b: shop.design_b && { model: shop.design_b.model, seconds: shop.design_b.seconds },
               ready: { gemini: designerReady("gemini"), qwen: designerReady("qwen") },

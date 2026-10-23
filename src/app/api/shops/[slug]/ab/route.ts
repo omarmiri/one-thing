@@ -1,13 +1,13 @@
 import { NextResponse } from "next/server";
 import { requireShop } from "@/lib/auth";
 import { designShop, designerReady, type Designer } from "@/lib/gemini";
-import { isAdminKey } from "@/lib/ids";
+import { currentAccount } from "@/lib/accounts";
 import { getBlob, updateShop, type DesignB } from "@/lib/shops";
 
 export const maxDuration = 90;
 
 /**
- * Design A/B test, for the site's own testing: open the manage page with &ab=<ADMIN_KEY>.
+ * Design A/B test, for signed-in sellers on their own shops (it spends a design call each time).
  *   {action: "make", designer}: design the shop again with that model, from the seller's same
  *     words and photo, and keep it as version B. The live design doesn't change.
  *   {action: "swap"}: version B becomes the design, and the current one becomes B.
@@ -16,7 +16,10 @@ export const maxDuration = 90;
 export async function POST(req: Request, ctx: RouteContext<"/api/shops/[slug]/ab">) {
   const r = await requireShop(req, (await ctx.params).slug);
   if ("error" in r) return r.error;
-  if (!isAdminKey(req.headers.get("x-ab-key"))) return NextResponse.json({ error: "Not found" }, { status: 404 });
+  const account = await currentAccount();
+  if (!account || r.shop.account_id !== account.id) {
+    return NextResponse.json({ error: "Sign in to try another AI designer." }, { status: 403 });
+  }
   const shop = r.shop;
   const body = (await req.json().catch(() => null)) as { action?: string; designer?: Designer } | null;
 

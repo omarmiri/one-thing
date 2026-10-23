@@ -401,10 +401,10 @@ function StatsSection({ api, live }: { api: Api; live: boolean }) {
   );
 }
 
-// ---- Design A/B test: only with &ab=<ADMIN_KEY> on the manage link ----------------------------
+// ---- Design A/B test: for signed-in sellers, on shops in their account --------------------------
 
 type AbVersion = { model: string | null; seconds: number | null };
-type AbInitial = { key: string; model: string | null; b: AbVersion | null; ready: Record<"gemini" | "qwen", boolean> };
+type AbInitial = { model: string | null; b: AbVersion | null; ready: Record<"gemini" | "qwen", boolean> };
 
 const modelLabel = (m: string | null) => (!m ? "an earlier model (not recorded)" : /qwen/i.test(m) ? `Qwen (${m})` : `Gemini (${m})`);
 
@@ -418,7 +418,7 @@ function AbPanel(props: { api: Api; initial: AbInitial; onChanged(): void; onToa
   async function call(body: object, label: string) {
     setBusy(label);
     try {
-      return (await props.api("/ab", { method: "POST", body: JSON.stringify(body), headers: { "x-ab-key": props.initial.key } })) as {
+      return (await props.api("/ab", { method: "POST", body: JSON.stringify(body) })) as {
         model?: string | null;
         b: AbVersion;
       };
@@ -433,7 +433,10 @@ function AbPanel(props: { api: Api; initial: AbInitial; onChanged(): void; onToa
   return (
     <div className={`${panel} border-dashed`}>
       <h2 className="font-semibold">A/B test</h2>
-      <p className="mt-1 text-sm text-muted">Only you see this. Version B is designed from the same words and photo; the hero art stays.</p>
+      <p className="mt-1 text-sm text-muted">
+        Have another AI model design your page from the same words and photo, then compare. Your page only changes when you
+        press Show version B, and you can swap back any time. The hero art stays.
+      </p>
       <dl className="mt-3 space-y-1 text-sm">
         <div><dt className="inline text-muted">Showing: </dt><dd className="inline">{modelLabel(model)}</dd></div>
         <div>
