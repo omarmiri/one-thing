@@ -7,7 +7,8 @@ import { recordVisit } from "@/lib/stats";
 export async function GET(req: Request, ctx: RouteContext<"/api/agent/shops/[slug]">) {
   try {
     const shop = await liveShop((await ctx.params).slug);
-    await recordVisit(shop, req.headers, "agent");
+    // ?agent=<name>: optional, an agent naming itself for the seller's stats.
+    await recordVisit(shop, req.headers, "agent", new URL(req.url).searchParams.get("agent"));
     return NextResponse.json({ ...agentProduct(shop), mcp_server: `${appUrl()}/api/mcp` });
   } catch (err) {
     if (err instanceof AgentError) return NextResponse.json({ error: err.message }, { status: 404 });

@@ -14,8 +14,9 @@ export async function GET(req: Request, ctx: RouteContext<"/api/agent/shops/[slu
   const headers = { "cache-control": "no-store", "x-robots-tag": "noindex, nofollow" };
   try {
     const shop = await liveShop((await ctx.params).slug);
-    await recordVisit(shop, req.headers, "agent");
     const params = new URL(req.url).searchParams;
+    // ?agent=<name>: optional, an agent naming itself for the seller's stats. Not an option pick.
+    await recordVisit(shop, req.headers, "agent", params.get("agent"));
     // Names and values are matched without caring about case: ?size=m works for Size "M".
     const options = shop.product_type === "physical" ? (shop.options ?? []) : [];
     const same = (a: string, b: string) => a.trim().toLowerCase() === b.trim().toLowerCase();

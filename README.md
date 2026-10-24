@@ -131,6 +131,10 @@ the AI's guesses and clicks **Go live**. The choices behind it:
   that don't run JavaScript don't count, and the seller's own preview never does. An agent visit is
   a read of the product JSON, an MCP `get_product`/`create_order`, the `llms.txt` order link, or
   an assistant fetching the page for a user (ChatGPT-User, Claude-User, Perplexity-User…).
+  Which agent it was comes from a known user agent first, then the name the agent gave itself:
+  the MCP client's `clientInfo.name` (carried in the `Mcp-Session-Id` we hand out at
+  `initialize`, since the server is otherwise stateless) or `?agent=<name>` on the GET endpoints.
+  Failing both, the user agent's first word; browser-like ones show as "Unidentified (browser-like)".
 - **Physical products:** PayPal collects the shipping address, stock counts down and shows "sold
   out" at zero, and tracking numbers are pushed to PayPal so buyers see them there.
 - **Digital products**, delivered one of two ways:

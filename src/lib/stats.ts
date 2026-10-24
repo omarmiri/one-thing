@@ -28,11 +28,19 @@ const AI_FETCHER = /ChatGPT-User|Claude-User|Perplexity-User|MistralAI-User|Duck
 const BOT = /bot|crawl|spider|slurp|preview|headless|lighthouse|pingdom|uptime/i;
 
 const ua = (h: Headers) => h.get("user-agent") ?? "";
+const known = (s: string) => AGENTS.find(([re]) => re.test(s))?.[1];
 
-/** Who an agent request came from: a known assistant, else the client's own name ("python-requests"). */
-export function agentName(h: Headers) {
+/**
+ * Who an agent request came from. A known assistant in the user agent wins, since it's the hardest
+ * to fake; then the name the agent gave itself (the MCP client's clientInfo.name, or ?agent= on
+ * the GET endpoints), mapped to a known name when it is one; then the user agent's first word
+ * ("python-requests"). Every browser's user agent starts "Mozilla", which names nobody.
+ */
+export function agentName(h: Headers, claimed?: string | null) {
   const u = ua(h);
-  return AGENTS.find(([re]) => re.test(u))?.[1] ?? (u.split(/[/\s]/)[0].slice(0, 30) || "Unknown");
+  const said = claimed?.replace(/[^\x20-\x7e]/g, "").trim().slice(0, 30);
+  const first = u.split(/[/\s]/)[0].slice(0, 30);
+  return known(u) ?? (said ? (known(said) ?? said) : undefined) ?? (first === "Mozilla" ? "Unidentified (browser-like)" : first || "Unknown");
 }
 
 /** An assistant fetching the shop page for someone: counts as an agent visit, not a web one. */
@@ -56,11 +64,12 @@ const host = (url: string | null | undefined) => {
 
 /**
  * Counts one visit to a shop, by its id or any link name it has had. Never throws: a stats hiccup
- * must not break a page or an agent call. referrer is for web visits; our own site doesn't count.
+ * must not break a page or an agent call. `from` is the referrer for a web visit (our own site
+ * doesn't count) and the name the agent gave itself for an agent visit.
  */
-export async function recordVisit(shop: { id: string } | { slug: string }, h: Headers, channel: Channel, referrer?: string | null) {
+export async function recordVisit(shop: { id: string } | { slug: string }, h: Headers, channel: Channel, from?: string | null) {
   try {
-    const ref = channel === "web" ? host(referrer) : null;
+    const ref = channel === "web" ? host(from) : null;
     const own = host(process.env.APP_URL);
     await query(
       `INSERT INTO visits (shop_id, visitor, channel, agent, referrer)
@@ -68,7 +77,7 @@ export async function recordVisit(shop: { id: string } | { slug: string }, h: He
         WHERE id = $1 OR id = (SELECT shop_id FROM shop_slugs WHERE slug = $1)
         LIMIT 1
        ON CONFLICT (shop_id, day, visitor, channel) DO UPDATE SET hits = visits.hits + 1`,
-      ["id" in shop ? shop.id : shop.slug, visitorId(h), channel, channel === "agent" ? agentName(h) : null, ref && ref !== own ? ref : null],
+      ["id" in shop ? shop.id : shop.slug, visitorId(h), channel, channel === "agent" ? agentName(h, from) : null, ref && ref !== own ? ref : null],
     );
   } catch (err) {
     console.warn("visit not recorded:", (err as Error).message);

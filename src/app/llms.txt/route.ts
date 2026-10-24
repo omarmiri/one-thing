@@ -53,6 +53,8 @@ If \`status_url\` says \`declined\`, they can open \`pay_url\` again; \`expired\
 
 Every Order link is \`GET ${base}/api/agent/shops/<shop>/order\`, with the buyer's pick as query parameters named after the product's options, e.g. \`?Color=Ice+Blue&Size=L\` (names and values in any case). Products without options take no parameters. A missing or unknown pick gets a 400 listing the valid values. Use the links above as written when you can.
 
+Optionally add \`agent=<your name>\` to any order or product link (e.g. \`&agent=ChatGPT\`, or \`?agent=ChatGPT\` when the link has no \`?\`), so the seller can see which assistant sent the buyer.
+
 ## Find and read
 
 - [Search the gallery](${base}/api/agent/shops?q=skates): \`GET ${base}/api/agent/shops?q=<words>&limit=<1-25>\`. Leave out \`q\` to list the newest shops.

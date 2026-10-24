@@ -1571,6 +1571,7 @@ paths:
         previewer opening it leaves an unpaid order at most: stock is only taken when a payment
         is captured. Replies are `no-store` and `X-Robots-Tag: noindex, nofollow`.
       parameters:
+        - $ref: '#/components/parameters/AgentName'
         - name: Size
           in: query
           required: false
@@ -1736,6 +1737,8 @@ paths:
         shipping, delivery, availability, options, images and FAQ. Public. Buying goes through the
         MCP server named in `mcp_server`. Shop pages also carry the same facts as schema.org
         `Product` JSON-LD.
+      parameters:
+        - $ref: '#/components/parameters/AgentName'
       responses:
         '200':
           description: The product.
@@ -1814,7 +1817,9 @@ paths:
         A [Model Context Protocol](https://modelcontextprotocol.io) server, so agents such as
         Claude can shop here. Add `https://<host>/api/mcp` to an MCP client as a Streamable HTTP
         server. It's stateless: each POST carries one JSON-RPC 2.0 message (or a batch) and gets a
-        plain JSON reply, with no session and no event stream.
+        plain JSON reply, with no event stream. The `initialize` reply's `Mcp-Session-Id` header
+        carries the client's `clientInfo.name`; send it back on later requests (MCP clients do)
+        so the seller's stats show which agent sent the buyer. Nothing else is kept.
 
         Methods: `initialize`, `ping`, `tools/list`, `tools/call`. Tools:
 
@@ -2093,6 +2098,17 @@ components:
       schema:
         type: string
         examples: [raptorrush]
+    AgentName:
+      name: agent
+      in: query
+      required: false
+      description: >-
+        Optional: the agent's name (`ChatGPT`, `Gemini`, `my-shopping-bot`), so the seller's stats
+        show which agent sent the buyer. Only used when the user agent doesn't already say.
+      schema:
+        type: string
+        maxLength: 30
+        examples: [ChatGPT]
 
   responses:
     ShopPhotos:
