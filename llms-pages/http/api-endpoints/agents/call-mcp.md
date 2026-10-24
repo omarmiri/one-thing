@@ -5,7 +5,9 @@ Source: /#/http/x-redirect/JTI0ZSUyRkFnZW50cyUyRmNhbGxNY3A
 A [Model Context Protocol](https://modelcontextprotocol.io) server, so agents such as
 Claude can shop here. Add `https://<host>/api/mcp` to an MCP client as a Streamable HTTP
 server. It's stateless: each POST carries one JSON-RPC 2.0 message (or a batch) and gets a
-plain JSON reply, with no session and no event stream.
+plain JSON reply, with no event stream. The `initialize` reply's `Mcp-Session-Id` header
+carries the client's `clientInfo.name`; send it back on later requests (MCP clients do)
+so the seller's stats show which agent sent the buyer. Nothing else is kept.
 
 Methods: `initialize`, `ping`, `tools/list`, `tools/call`. Tools:
 

@@ -2629,6 +2629,16 @@
               <xs:documentation>The shop's link name (current or former).</xs:documentation>
             </xs:annotation>
           </xs:element>
+          <xs:element minOccurs="0" name="agent">
+            <xs:simpleType>
+              <xs:annotation>
+                <xs:documentation>Optional: the agent's name (`ChatGPT`, `Gemini`, `my-shopping-bot`), so the seller's stats show which agent sent the buyer. Only used when the user agent doesn't already say.</xs:documentation>
+              </xs:annotation>
+              <xs:restriction base="xs:string">
+                <xs:maxLength value="30" />
+              </xs:restriction>
+            </xs:simpleType>
+          </xs:element>
           <xs:element minOccurs="0" name="Size" type="xs:string">
             <xs:annotation>
               <xs:documentation>An example option. The real parameter names are the product's option names from `getAgentProduct` (`options[].name`), one per option.</xs:documentation>
@@ -2696,6 +2706,16 @@
             <xs:annotation>
               <xs:documentation>The shop's link name (current or former).</xs:documentation>
             </xs:annotation>
+          </xs:element>
+          <xs:element minOccurs="0" name="agent">
+            <xs:simpleType>
+              <xs:annotation>
+                <xs:documentation>Optional: the agent's name (`ChatGPT`, `Gemini`, `my-shopping-bot`), so the seller's stats show which agent sent the buyer. Only used when the user agent doesn't already say.</xs:documentation>
+              </xs:annotation>
+              <xs:restriction base="xs:string">
+                <xs:maxLength value="30" />
+              </xs:restriction>
+            </xs:simpleType>
           </xs:element>
         </xs:sequence>
       </xs:complexType>
@@ -3633,7 +3653,9 @@ is captured. Replies are `no-store` and `X-Robots-Tag: noindex, nofollow`.
       <documentation>A [Model Context Protocol](https://modelcontextprotocol.io) server, so agents such as
 Claude can shop here. Add `https://&lt;host&gt;/api/mcp` to an MCP client as a Streamable HTTP
 server. It's stateless: each POST carries one JSON-RPC 2.0 message (or a batch) and gets a
-plain JSON reply, with no session and no event stream.
+plain JSON reply, with no event stream. The `initialize` reply's `Mcp-Session-Id` header
+carries the client's `clientInfo.name`; send it back on later requests (MCP clients do)
+so the seller's stats show which agent sent the buyer. Nothing else is kept.
 
 Methods: `initialize`, `ping`, `tools/list`, `tools/call`. Tools:
 

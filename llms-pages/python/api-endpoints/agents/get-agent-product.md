@@ -8,7 +8,8 @@ Everything an AI shopping agent needs to describe the product and decide to buy 
 
 ```python
 def get_agent_product(self,
-                     slug)
+                     slug,
+                     agent=None)
 ```
 
 
@@ -17,6 +18,7 @@ def get_agent_product(self,
 | Parameter | Type | Tags | Description |
 |  --- | --- | --- | --- |
 | `slug` | `str` | Template, Required | The shop's link name (current or former). |
+| `agent` | `str` | Query, Optional | Optional: the agent's name (`ChatGPT`, `Gemini`, `my-shopping-bot`), so the seller's stats show which agent sent the buyer. Only used when the user agent doesn't already say.<br><br>**Constraints**: *Maximum Length*: `30` |
 
 
 # Response Type
@@ -31,7 +33,12 @@ def get_agent_product(self,
 ```python
 slug = 'raptorrush'
 
-result = agents_api.get_agent_product(slug)
+agent = 'ChatGPT'
+
+result = agents_api.get_agent_product(
+    slug,
+    agent=agent
+)
 print(result)
 ```
 

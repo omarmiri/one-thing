@@ -9,6 +9,7 @@ Everything an AI shopping agent needs to describe the product and decide to buy 
 ```ts
 async getAgentProduct(
   slug: string,
+  agent?: string,
   requestOptions?: RequestOptions
 ): Promise<ApiResponse<AgentProduct>>
 ```
@@ -19,6 +20,7 @@ async getAgentProduct(
 | Parameter | Type | Tags | Description |
 |  --- | --- | --- | --- |
 | `slug` | `string` | Template, Required | The shop's link name (current or former). |
+| `agent` | `string \| undefined` | Query, Optional | Optional: the agent's name (`ChatGPT`, `Gemini`, `my-shopping-bot`), so the seller's stats show which agent sent the buyer. Only used when the user agent doesn't already say.<br><br>**Constraints**: *Maximum Length*: `30` |
 | `requestOptions` | `RequestOptions \| undefined` | Optional | Pass additional request options. |
 
 
@@ -34,8 +36,13 @@ This method returns an [`ApiResponse`](/llms-pages/typescript/sdk-infrastructure
 ```ts
 const slug = 'raptorrush';
 
+const agent = 'ChatGPT';
+
 try {
-  const response = await agentsApi.getAgentProduct(slug);
+  const response = await agentsApi.getAgentProduct(
+    slug,
+    agent
+  );
 
   // Extracting fully parsed response body.
   console.log(response.result);

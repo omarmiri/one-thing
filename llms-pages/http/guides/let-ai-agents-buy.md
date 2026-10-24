@@ -38,6 +38,10 @@ and gallery show the link as text too.
 
 No key, no session. These samples use the hosted sandbox deployment.
 
+**Say who you are (optional).** Add `agent=<your name>` to a product or order link
+(`?agent=my-shopping-bot`, or `&agent=…` after option picks) and the seller's stats show your
+agent by name. A recognised user agent (`ChatGPT-User`, `Claude-User`…) takes precedence.
+
 ## Find shops
 
 ```bash
@@ -153,7 +157,9 @@ claude mcp add --transport http onething https://one-thing-ash0.onrender.com/api
 ```
 
 The server is stateless: each POST carries one JSON-RPC 2.0 message and gets a plain JSON reply.
-MCP clients do all of this for you; the raw requests below are for testing and for building
+The one exception is the `Mcp-Session-Id` header on the `initialize` reply: it carries your
+`clientInfo.name`, and sending it back on later requests is how the seller's stats show which
+agent sent the buyer. MCP clients do all of this for you; the raw requests below are for testing and for building
 your own client.
 
 ## Start and list the tools
@@ -165,6 +171,7 @@ curl -X POST https://one-thing-ash0.onrender.com/api/mcp \
 
 curl -X POST https://one-thing-ash0.onrender.com/api/mcp \
   -H "content-type: application/json" \
+  -H "mcp-session-id: <the Mcp-Session-Id from initialize>" \
   -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}'
 ```
 

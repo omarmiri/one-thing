@@ -1848,6 +1848,12 @@ paths:
         required: true
         type: string
         description: The shop's link name (current or former).
+      - name: agent
+        in: query
+        required: false
+        type: string
+        maxLength: 30
+        description: "Optional: the agent's name (`ChatGPT`, `Gemini`, `my-shopping-bot`), so the seller's stats show which agent sent the buyer. Only used when the user agent doesn't already say."
       - name: Size
         in: query
         required: false
@@ -1867,7 +1873,7 @@ paths:
                 Size: '9'
               pay_url: https://one-thing-ash0.onrender.com/o/pX4kR9tVb2nQ7sLe
               status_url: https://one-thing-ash0.onrender.com/api/agent/orders/pX4kR9tVb2nQ7sLe
-              next_step: "Show pay_url to the buyer as a link. It opens PayPal, where they pay (and enter a shipping address for physical items). When they say they've paid, call get_order with order_id (or open status_url): it returns the access code, download link or shipping details."
+              next_step: "Show pay_url to the buyer as a link. It opens PayPal, where they pay (and enter a shipping address for physical items). When they say they've paid, open status_url (or with MCP, call get_order with order_id): it returns the access code, download link or shipping details."
           headers: {}
         '400':
           description: A missing or unknown option value, or sold out. `error` names the valid values.
@@ -1943,6 +1949,12 @@ paths:
         required: true
         type: string
         description: The shop's link name (current or former).
+      - name: agent
+        in: query
+        required: false
+        type: string
+        maxLength: 30
+        description: "Optional: the agent's name (`ChatGPT`, `Gemini`, `my-shopping-bot`), so the seller's stats show which agent sent the buyer. Only used when the user agent doesn't already say."
       responses:
         '200':
           description: The product.
@@ -2017,7 +2029,11 @@ paths:
 
         server. It's stateless: each POST carries one JSON-RPC 2.0 message (or a batch) and gets a
 
-        plain JSON reply, with no session and no event stream.
+        plain JSON reply, with no event stream. The `initialize` reply's `Mcp-Session-Id` header
+
+        carries the client's `clientInfo.name`; send it back on later requests (MCP clients do)
+
+        so the seller's stats show which agent sent the buyer. Nothing else is kept.
 
 
         Methods: `initialize`, `ping`, `tools/list`, `tools/call`. Tools:

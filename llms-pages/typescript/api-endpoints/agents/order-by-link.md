@@ -22,6 +22,7 @@ is captured. Replies are `no-store` and `X-Robots-Tag: noindex, nofollow`.
 ```ts
 async orderByLink(
   slug: string,
+  agent?: string,
   size?: string,
   requestOptions?: RequestOptions
 ): Promise<ApiResponse<AgentCreatedOrder>>
@@ -33,6 +34,7 @@ async orderByLink(
 | Parameter | Type | Tags | Description |
 |  --- | --- | --- | --- |
 | `slug` | `string` | Template, Required | The shop's link name (current or former). |
+| `agent` | `string \| undefined` | Query, Optional | Optional: the agent's name (`ChatGPT`, `Gemini`, `my-shopping-bot`), so the seller's stats show which agent sent the buyer. Only used when the user agent doesn't already say.<br><br>**Constraints**: *Maximum Length*: `30` |
 | `size` | `string \| undefined` | Query, Optional | An example option. The real parameter names are the product's option names from `getAgentProduct` (`options[].name`), one per option. |
 | `requestOptions` | `RequestOptions \| undefined` | Optional | Pass additional request options. |
 
@@ -49,11 +51,14 @@ This method returns an [`ApiResponse`](/llms-pages/typescript/sdk-infrastructure
 ```ts
 const slug = 'raptorrush';
 
+const agent = 'ChatGPT';
+
 const size = '9';
 
 try {
   const response = await agentsApi.orderByLink(
     slug,
+    agent,
     size
   );
 
@@ -94,7 +99,7 @@ try {
   },
   "pay_url": "https://one-thing-ash0.onrender.com/o/pX4kR9tVb2nQ7sLe",
   "status_url": "https://one-thing-ash0.onrender.com/api/agent/orders/pX4kR9tVb2nQ7sLe",
-  "next_step": "Show pay_url to the buyer as a link. It opens PayPal, where they pay (and enter a shipping address for physical items). When they say they've paid, call get_order with order_id (or open status_url): it returns the access code, download link or shipping details."
+  "next_step": "Show pay_url to the buyer as a link. It opens PayPal, where they pay (and enter a shipping address for physical items). When they say they've paid, open status_url (or with MCP, call get_order with order_id): it returns the access code, download link or shipping details."
 }
 ```
 

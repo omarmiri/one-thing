@@ -22,6 +22,7 @@ is captured. Replies are `no-store` and `X-Robots-Tag: noindex, nofollow`.
 ```python
 def order_by_link(self,
                  slug,
+                 agent=None,
                  size=None)
 ```
 
@@ -31,6 +32,7 @@ def order_by_link(self,
 | Parameter | Type | Tags | Description |
 |  --- | --- | --- | --- |
 | `slug` | `str` | Template, Required | The shop's link name (current or former). |
+| `agent` | `str` | Query, Optional | Optional: the agent's name (`ChatGPT`, `Gemini`, `my-shopping-bot`), so the seller's stats show which agent sent the buyer. Only used when the user agent doesn't already say.<br><br>**Constraints**: *Maximum Length*: `30` |
 | `size` | `str` | Query, Optional | An example option. The real parameter names are the product's option names from `getAgentProduct` (`options[].name`), one per option. |
 
 
@@ -46,10 +48,13 @@ def order_by_link(self,
 ```python
 slug = 'raptorrush'
 
+agent = 'ChatGPT'
+
 size = '9'
 
 result = agents_api.order_by_link(
     slug,
+    agent=agent,
     size=size
 )
 print(result)
@@ -68,7 +73,7 @@ print(result)
   },
   "pay_url": "https://one-thing-ash0.onrender.com/o/pX4kR9tVb2nQ7sLe",
   "status_url": "https://one-thing-ash0.onrender.com/api/agent/orders/pX4kR9tVb2nQ7sLe",
-  "next_step": "Show pay_url to the buyer as a link. It opens PayPal, where they pay (and enter a shipping address for physical items). When they say they've paid, call get_order with order_id (or open status_url): it returns the access code, download link or shipping details."
+  "next_step": "Show pay_url to the buyer as a link. It opens PayPal, where they pay (and enter a shipping address for physical items). When they say they've paid, open status_url (or with MCP, call get_order with order_id): it returns the access code, download link or shipping details."
 }
 ```
 

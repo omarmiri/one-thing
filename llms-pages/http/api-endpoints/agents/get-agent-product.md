@@ -16,6 +16,7 @@ GET /api/agent/shops/{slug}
 | Parameter | Type | Tags | Description |
 |  --- | --- | --- | --- |
 | `slug` | `String` | Template, Required | The shop's link name (current or former). |
+| `agent` | `String` | Query, Optional | Optional: the agent's name (`ChatGPT`, `Gemini`, `my-shopping-bot`), so the seller's stats show which agent sent the buyer. Only used when the user agent doesn't already say.<br><br>**Constraints**: *Maximum Length*: `30` |
 
 
 # Response Type
@@ -28,9 +29,10 @@ GET /api/agent/shops/{slug}
 # Example Usage
 
 ```bash
-curl -X GET \
+curl -X GET -G \
   --url 'https://one-thing-ash0.onrender.com/api/agent/shops/raptorrush'  \
-  -H 'Accept: application/json'
+  -H 'Accept: application/json' \
+  -d 'agent=ChatGPT'
 ```
 
 
