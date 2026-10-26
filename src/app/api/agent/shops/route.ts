@@ -10,5 +10,5 @@ export async function GET(req: Request) {
   const params = new URL(req.url).searchParams;
   const q = params.get("q")?.slice(0, 200) || undefined;
   const limit = Math.min(Math.max(Number(params.get("limit")) || 10, 1), 25);
-  return NextResponse.json({ shops: await searchShops(q, limit), mcp_server: `${appUrl()}/api/mcp` });
+  return NextResponse.json({ ...(await searchShops(q, limit)), mcp_server: `${appUrl()}/api/mcp` });
 }

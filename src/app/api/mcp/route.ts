@@ -23,8 +23,8 @@ const INSTRUCTIONS =
   "To buy: create_order returns pay_url, a link on this site that's safe to show in chat. Give it to the buyer; " +
   "it opens PayPal, where they approve the payment (you can't approve for them). When they say they've paid, " +
   "call get_order: once status is paid it returns the access code, download link or shipping details. " +
-  "Buyers have the best experience with short replies and clickable links: get_product, create_order and get_order each " +
-  "return show_buyer, a suggested Markdown reply (options to pick from, the pay link, the receipt link). Showing it as " +
+  "Buyers have the best experience with short replies and clickable links: every tool returns show_buyer, a suggested " +
+  "Markdown reply (the product photo, options to pick from, the pay link, the receipt link). Showing it as " +
   "written, with little else, is recommended.";
 
 const slug = z.string().min(1).max(60).describe("The shop's link name, e.g. \"bluemug\" (from search_shops or the shop URL)");
@@ -33,7 +33,7 @@ const TOOLS = {
   search_shops: {
     description: "Find live OneThing shops by keywords (product name, category, what it's for). Empty query lists recent shops.",
     input: z.object({ query: z.string().max(200).optional(), limit: z.number().int().min(1).max(25).optional() }),
-    run: async (a: { query?: string; limit?: number }) => ({ shops: await searchShops(a.query, a.limit) }),
+    run: async (a: { query?: string; limit?: number }) => searchShops(a.query, a.limit),
   },
   get_product: {
     description: "Everything about one shop's product: description, price, shipping, delivery, availability, images, FAQ.",

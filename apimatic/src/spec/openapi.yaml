@@ -1522,24 +1522,42 @@ paths:
           content:
             application/json:
               example:
+                show_buyer: |-
+                  ![Vintage Cream and Red Roller Skates](https://one-thing-ash0.onrender.com/api/blobs/LFRvGuTU3D8i334X)
+
+                  **Vintage Cream and Red Roller Skates**: $240.00. Classic quad skates crafted with walnut burl heels
+
+                  ![Raptor Rush: Browser Edition](https://one-thing-ash0.onrender.com/api/blobs/R9tWc3yN6bJq1zUd)
+
+                  **Raptor Rush: Browser Edition**: $2.99. Grow from Tiny Hatchling to Giant Apex Predator
+
+                  Which one?
                 shops:
                 - shop: vintageskates
                   name: Vintage Cream and Red Roller Skates
                   kind: physical
                   headline: Classic quad skates crafted with walnut burl heels
                   price: $240.00
+                  image: https://one-thing-ash0.onrender.com/api/blobs/LFRvGuTU3D8i334X
                   url: https://one-thing-ash0.onrender.com/vintageskates
                 - shop: raptorrush
                   name: 'Raptor Rush: Browser Edition'
                   kind: digital
                   headline: Grow from Tiny Hatchling to Giant Apex Predator
                   price: $2.99
+                  image: https://one-thing-ash0.onrender.com/api/blobs/R9tWc3yN6bJq1zUd
                   url: https://one-thing-ash0.onrender.com/raptorrush
                 mcp_server: https://one-thing-ash0.onrender.com/api/mcp
               schema:
                 type: object
-                required: [shops, mcp_server]
+                required: [show_buyer, shops, mcp_server]
                 properties:
+                  show_buyer:
+                    type: string
+                    description: >-
+                      A suggested reply to the buyer, in Markdown: each shop's cover photo as an
+                      image, its name, price and headline, then "Which one?". Chats that block
+                      images from other sites just leave the image lines out.
                   shops:
                     type: array
                     items:
@@ -1756,6 +1774,8 @@ paths:
             application/json:
               example:
                 show_buyer: |-
+                  ![Vintage Cream and Red Roller Skates](https://one-thing-ash0.onrender.com/api/blobs/LFRvGuTU3D8i334X)
+
                   **Vintage Cream and Red Roller Skates**: $240.00 + $15.00 shipping
                   Classic quad skates crafted with walnut burl heels
                   Size: 7 · 8 · 9
@@ -1943,27 +1963,38 @@ paths:
                     result:
                       content:
                       - type: text
-                        text: "{\n  \"shops\": [\n    {\n      \"shop\": \"vintageskates\",\n      \"name\": \"Vintage\
-                          \ Cream and Red Roller Skates\",\n      \"kind\": \"physical\",\n      \"headline\": \"Classic\
-                          \ quad skates crafted with walnut burl heels\",\n      \"price\": \"$240.00\",\n      \"url\"\
-                          : \"https://one-thing-ash0.onrender.com/vintageskates\"\n    },\n    {\n      \"shop\": \"raptorrush\"\
-                          ,\n      \"name\": \"Raptor Rush: Browser Edition\",\n      \"kind\": \"digital\",\n      \"\
-                          headline\": \"Grow from Tiny Hatchling to Giant Apex Predator\",\n      \"price\": \"$2.99\"\
-                          ,\n      \"url\": \"https://one-thing-ash0.onrender.com/raptorrush\"\n    }\n  ]\n}"
+                        text: |-
+                          {
+                            "show_buyer": "![Vintage Cream and Red Roller Skates](https://one-thing-ash0.onrender.com/api/blobs/LFRvGuTU3D8i334X)\n\n**Vintage Cream and Red Roller Skates**: $240.00. Classic quad skates crafted with walnut burl heels\n\nWant it?",
+                            "shops": [
+                              {
+                                "shop": "vintageskates",
+                                "name": "Vintage Cream and Red Roller Skates",
+                                "kind": "physical",
+                                "headline": "Classic quad skates crafted with walnut burl heels",
+                                "price": "$240.00",
+                                "image": "https://one-thing-ash0.onrender.com/api/blobs/LFRvGuTU3D8i334X",
+                                "url": "https://one-thing-ash0.onrender.com/vintageskates"
+                              }
+                            ],
+                            "agent_name": "Claude"
+                          }
                       structuredContent:
+                        show_buyer: |-
+                          ![Vintage Cream and Red Roller Skates](https://one-thing-ash0.onrender.com/api/blobs/LFRvGuTU3D8i334X)
+
+                          **Vintage Cream and Red Roller Skates**: $240.00. Classic quad skates crafted with walnut burl heels
+
+                          Want it?
                         shops:
                         - shop: vintageskates
                           name: Vintage Cream and Red Roller Skates
                           kind: physical
                           headline: Classic quad skates crafted with walnut burl heels
                           price: $240.00
+                          image: https://one-thing-ash0.onrender.com/api/blobs/LFRvGuTU3D8i334X
                           url: https://one-thing-ash0.onrender.com/vintageskates
-                        - shop: raptorrush
-                          name: 'Raptor Rush: Browser Edition'
-                          kind: digital
-                          headline: Grow from Tiny Hatchling to Giant Apex Predator
-                          price: $2.99
-                          url: https://one-thing-ash0.onrender.com/raptorrush
+                        agent_name: Claude
                       isError: false
                 order:
                   summary: create_order
@@ -2768,7 +2799,7 @@ components:
 
     AgentShopSummary:
       type: object
-      required: [shop, name, kind, headline, price, url]
+      required: [shop, name, kind, headline, price, image, url]
       properties:
         shop:
           type: string
@@ -2783,6 +2814,9 @@ components:
         price:
           type: [string, 'null']
           description: The price label, e.g. `$2.99`; null for recommendations.
+        image:
+          type: [string, 'null']
+          description: The cover photo's URL (WebP; the retailer's image for a recommendation), or null when there's none.
         url:
           type: string
           description: The shop page.

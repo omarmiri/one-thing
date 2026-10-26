@@ -38,15 +38,32 @@ const picked = (shop: Shop, choice?: Record<string, string> | null) =>
 
 const abs = (path: string | null) => (path ? (path.startsWith("http") ? path : `${appUrl()}${path}`) : null);
 
-/** The product in a few lines for the buyer: price, the options to pick from, and the question. */
+/** The cover photo's absolute URL: the retailer's image for a recommendation. */
+const coverImage = (shop: Shop) => (shop.product_type === "referral" ? shop.referral?.image || null : abs(blobUrl(shopPhotos(shop)[0] ?? null)));
+/**
+ * The cover as a Markdown image, so chats that render images from replies show the product. Many
+ * don't (they block images from other sites), and then it's just a line they leave out.
+ */
+const coverForBuyer = (shop: Shop) => {
+  const url = coverImage(shop);
+  // The blank line keeps it a paragraph of its own, not inline with the name.
+  return url ? [`![${shop.spec.productName.replace(/[[\]]/g, "")}](${url})`, ""] : [];
+};
+
+/** The product in a few lines for the buyer: the photo, price, the options to pick from, and the question. */
 function productForBuyer(shop: Shop, options: NonNullable<Shop["options"]>, soldOut: boolean) {
   const s = shop.spec;
   if (shop.product_type === "referral") {
     const offers = shop.referral?.offers ?? [];
-    return [`**${s.productName}**: ${s.headline}`, `Sold at ${offers.map((o) => link(`${o.domain} (${money(Math.round(o.price * 100), o.currency)})`, o.url)).join(" · ")}`].join("\n");
+    return [
+      ...coverForBuyer(shop),
+      `**${s.productName}**: ${s.headline}`,
+      `Sold at ${offers.map((o) => link(`${o.domain} (${money(Math.round(o.price * 100), o.currency)})`, o.url)).join(" · ")}`,
+    ].join("\n");
   }
   const shipping = shop.product_type === "physical" && shop.shipping_cents ? ` + ${money(shop.shipping_cents, shop.currency)} shipping` : "";
   return [
+    ...coverForBuyer(shop),
     `**${s.productName}**: ${money(shop.price_cents, shop.currency)}${shipping}`,
     s.headline,
     ...options.map((o) => `${o.name}: ${o.values.map((v) => v.label).join(" · ")}`),
@@ -120,20 +137,30 @@ export function agentProduct(shop: Shop, agent?: string | null) {
   };
 }
 
-/** Live shops in the public gallery matching a query (every word must appear), newest first. */
+/**
+ * Live shops in the public gallery matching a query (every word must appear), newest first, with
+ * show_buyer: each one's photo, name, price and headline, and "Which one?".
+ */
 export async function searchShops(q: string | undefined, limit = 10) {
   const words = (q ?? "").toLowerCase().split(/\s+/).filter(Boolean);
-  const shops = await listLiveShops(200);
-  return shops
+  const live = await listLiveShops(200);
+  const found = live
     .filter((shop) => {
       const text = [shop.spec.productName, shop.spec.headline, shop.spec.subheadline, shop.spec.eyebrow, shop.description].join(" ").toLowerCase();
       return words.every((w) => text.includes(w));
     })
-    .slice(0, limit)
-    .map((shop) => {
-      const p = agentProduct(shop);
-      return { shop: p.shop, name: p.name, kind: p.kind, headline: p.headline, price: "price" in p ? p.price?.label : null, url: p.url };
-    });
+    .slice(0, limit);
+  const shops = found.map((shop) => {
+    const p = agentProduct(shop);
+    return { shop: p.shop, name: p.name, kind: p.kind, headline: p.headline, price: "price" in p ? p.price?.label : null, image: coverImage(shop), url: p.url };
+  });
+  const show_buyer = shops.length
+    ? [
+        ...found.flatMap((shop, i) => [...coverForBuyer(shop), `**${shops[i].name}**${shops[i].price ? `: ${shops[i].price}` : ""}. ${shops[i].headline}`, ""]),
+        shops.length > 1 ? "Which one?" : "Want it?",
+      ].join("\n")
+    : "Nothing in the OneThing gallery matches that yet.";
+  return { show_buyer, shops };
 }
 
 export class AgentError extends Error {}

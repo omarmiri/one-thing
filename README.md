@@ -190,7 +190,7 @@ the AI's guesses and clicks **Go live**. The choices behind it:
 Every live shop is agent-ready:
 
 - **An MCP server** at `/api/mcp` (Streamable HTTP, stateless JSON, no auth) with four tools:
-  `search_shops` (gallery shops by keyword), `get_product` (with options and stock per
+  `search_shops` (gallery shops by keyword, each with its cover `image`), `get_product` (with options and stock per
   combination), `create_order` (takes the buyer's pick, e.g. `{"Size": "M"}`, and returns a
   `pay_url` for the buyer) and `get_order` (captures the payment once the buyer has approved, then
   returns what they bought in `delivery`: access code, download link, or shipping address and
@@ -198,11 +198,13 @@ Every live shop is agent-ready:
   `claude mcp add --transport http onething https://one-thing-ash0.onrender.com/api/mcp`.
   Working in this repo, you don't need to: [.mcp.json](.mcp.json) registers it, so a new Claude
   Code session here has the tools (Claude Code asks once to approve the server).
-- **A suggested reply in every answer** (`show_buyer`, in the product JSON, order and status
-  replies and the MCP tools): short Markdown with the links already written as links. The product,
-  its options and "Which size?"; then "**[Pay $96.00 with PayPal](…)**"; then what the buyer got
+- **A suggested reply in every answer** (`show_buyer`, in search results, the product JSON, order
+  and status replies and the MCP tools): short Markdown with the links already written as links.
+  The product's cover photo as a Markdown image (one per shop in search results), the product, its
+  options and "Which size?"; then "**[Pay $96.00 with PayPal](…)**"; then what the buyer got
   and "[Your receipt](…)". It's a recommendation ("buyers have the best experience when…"), not a
-  rule: agents left to phrase things themselves were wordy and often printed bare URLs. Every
+  rule: agents left to phrase things themselves were wordy and often printed bare URLs. Whether
+  the photo shows is up to the chat: many block images from other sites and leave the line out. Every
   reply also says back `agent_name`, who the request was credited to in the seller's stats, and
   links we return carry a `?agent=` name on.
 - **A pay link** at `/o/<order_id>`: the `pay_url` agents hand the buyer. It redirects to
