@@ -172,9 +172,9 @@ which a small seller can't reach.
 | 0:35–1:00 | 4. Upload a photo | Gemini drafts everything, options, "Buyers will ask" |
 | 1:00–1:10 | 5. Publish | Check the guesses, Go live |
 | 1:10–1:30 | 6. Buy direct | A person picks a colour, pays with PayPal |
-| 1:30–2:00 | 7. Buy via an agent | Claude finds the tee over MCP, hands back a PayPal link |
-| 2:00–2:25 | 8. One API underneath | MCP, plain links, OpenAPI, APIMatic docs and SDKs |
-| 2:25–2:45 | 9. Sales in manage | Orders by Via; people vs AI agents funnels |
+| 1:30–2:05 | 7. Buy via an agent | Grok buys the tee live, then Perplexity, Muse, Kimi and Claude flip by |
+| 2:05–2:25 | 8. One API underneath | MCP, plain links, OpenAPI, APIMatic docs and SDKs |
+| 2:25–2:45 | 9. Sales in manage | 1 shop-page order, 5 agent orders; people vs AI agents, by assistant |
 | 2:45–2:55 | 10. Close | One line, logo, URL |
 
 **1. The problem (0:00–0:15)**
@@ -212,19 +212,28 @@ which a small seller can't reach.
 - VO: "A buyer picks a colour and pays with PayPal or a card. The money goes straight to the
   seller. OneThing never holds it."
 
-**7. Buy via an agent (1:30–2:00)**
-- Claude with the OneThing MCP connector. Type: "Find me a dragon t-shirt, size M."
-- 2×: it calls `search_shops` and `get_product`, and replies with the tee, the colours and
-  "Which colour?". Type "Blue." It calls `create_order` and shows **Pay $… with PayPal**.
-- Tap → PayPal sandbox → approve (jump-cut). Type "Paid." `get_order` comes back paid, with the
-  shipping confirmation and the receipt link.
-- Caption, 2 s: "Also bought here with no plugins, from /llms.txt: Grok, Kimi K3, Meta's Muse."
-- VO: "Now the other kind of shopper. Ask Claude for a dragon tee: it finds this shop, reads the
-  sizes and stock, places the order and hands you a PayPal link. The agent runs the errand. You
-  still approve the payment, at PayPal."
+**7. Buy via an agent (1:30–2:05)**
+- **Live, ~25 s: Grok**, no plugins or connectors. Paste the same prompt every assistant gets:
+  "Read one-thing-ash0.onrender.com/llms.txt and find me a dragon t-shirt, size M."
+- 2×: it reads the file, finds the tee and asks "Which colour?". Type "Blue." It opens the order
+  link and replies with **Pay $… with PayPal** (a `/o/<order id>` link; nothing charged yet).
+- Tap → PayPal sandbox → approve (jump-cut). Type "Paid." It checks the order and comes back
+  paid, with the shipping confirmation and the receipt link.
+- **Flip-through, ~8 s: the other four**, each a real chat that bought the same tee: Perplexity,
+  Muse, Kimi, Claude, about 2 s each. Each frame is a crop of that chat's last turns (the pay link
+  and the paid confirmation) with the assistant's name as a caption top-left, cut on a whip or
+  page-flip so it reads as a stack of receipts. End on a 1 s card: "5 assistants. Same shop. No
+  plugins."
+- VO: "Now the other kind of shopper. With no plugins, Grok reads one small text file, finds the
+  tee, places the order and hands you a PayPal link. The agent runs the errand. You still approve
+  the payment, at PayPal. And it isn't just Grok: Perplexity, Muse, Kimi and Claude bought the
+  same tee."
+- Which one goes live is a swap: any of the five works, and the rest go in the flip-through. Grok
+  is the default because it was the most reliable in the Oct 23 runs. Muse can also pay by itself
+  with a PayPal login saved in its vault; keep that for Q&A, it muddies "you approve the payment".
 
-**8. One API underneath (2:00–2:25)**
-- Quick cuts, 4–5 s each: the MCP URL and its four tools; `/llms.txt` and the plain order links;
+**8. One API underneath (2:05–2:25)**
+- Quick cuts, 3–4 s each: the MCP URL and its four tools; `/llms.txt` and the plain order links;
   `/openapi.yaml`; the APIMatic docs portal (omarmiri.github.io/one-thing) running a "Try it"
   call; SDK code calling `shops.createShop(...)`; 2 s of the Mirio Games market built on it.
 - VO: "It's one API underneath. Agents use the MCP server, or plain links if all they can do is
@@ -232,23 +241,24 @@ which a small seller can't reach.
   Python SDKs. Mirio Games built its whole game market on them."
 
 **9. Sales in manage (2:25–2:45)**
-- Back on the seller's manage page. The orders grid: two tee orders, **Via** reads "Shop page" and
-  "AI agent" → **Mark shipped** on one. Scroll to **Visitors and sales**: the People and AI agents
-  funnels side by side (visitors → checkouts → paid, revenue), and Claude listed among the agents
-  that read the shop.
-- VO: "Back in your dashboard, both sales are here. Visitors, checkouts and revenue, for people and
-  for AI agents side by side, and which agents came by."
+- Back on the seller's manage page. The orders grid, filtered to paid: six tee orders, **Via**
+  reads "Shop page" once and "AI agent" five times → **Mark shipped** on one. Scroll to **Visitors
+  and sales**: the People and AI agents funnels side by side (visitors → checkouts → paid,
+  revenue), and the agents that read the shop: Grok, Perplexity, Muse, Kimi, Claude.
+- VO: "Back in your dashboard, every sale is here. Visitors, checkouts and revenue, for people and
+  for AI agents side by side, and which assistants sent them."
 
 **10. Close (2:45–2:55)**
 - The tee's shop page, then the logo and `one-thing-ash0.onrender.com`.
 - VO: "One photo. One shop. Paid with PayPal, by people and their agents. OneThing."
 
 **If it runs long, cut in this order:** the Mirio Games shot (scene 8), **Mark shipped** (9), the
-"Buyers will ask" beat (4), the onboarding caption (5).
+"Buyers will ask" beat (4), the onboarding caption (5), the flip-through down to 1 s per assistant
+(7). Keep all five names on screen: the sample size is the point.
 
 **Lines kept for the Devpost text and Q&A (too long for the video)**
 - "Card networks are building agentic payments for certified agents spending unattended. OneThing works today with the assistants people already use, no enrollment needed, because the one step that needs trust, approving the payment, happens at PayPal, by the buyer or by an agent the buyer chose to trust."
-- "Permissionless: OneThing asks nothing of the agent. No identity, no enrollment, just a readable catalog, an order link and a person clicking pay. Whether an assistant takes part is up to its own maker: on Oct 23 Grok, Kimi K3 and Meta's Muse completed the flow, ChatGPT couldn't open /llms.txt, and Gemini declined to create a payment link by policy."
+- "Permissionless: OneThing asks nothing of the agent. No identity, no enrollment, just a readable catalog, an order link and a person clicking pay. Whether an assistant takes part is up to its own maker: Grok, Perplexity, Meta's Muse, Kimi and Claude complete the flow; ChatGPT couldn't open /llms.txt, Gemini declined to create a payment link by policy, and Microsoft Copilot doesn't complete it either."
 - The two ways to pay, both tested Oct 23: Grok and Kimi hand the buyer a pay link and the buyer pays at PayPal; Muse placed the order the same way, then paid at PayPal itself, in its own browser, with a PayPal login the buyer had saved in Muse's vault. OneThing didn't change between them. "The order is the same; who clicks pay is the buyer's choice: themselves, or an agent they've trusted with their login." Either way the money is approved on PayPal's page, never inside OneThing. For Q&A: that's delegation by the buyer, not a OneThing feature, and the card networks' agent tokens (Mastercard Agent Pay, Visa's Trusted Agent Protocol) are the scoped, revocable version of the same idea.
 - "Agents fail purchases most often not at paying, but at knowing whether it worked. Every OneThing order answers that: status, receipt, and the access code or tracking as data." (from Muse's debrief)
 - "Not 'agents can buy here', but 'agents can buy here and prove what happened.'" (Muse)
@@ -263,14 +273,20 @@ which a small seller can't reach.
   seller's own preview isn't counted as a visit; the buyer's is).
 - Dry-run the tee shop off camera first (same photo) to know its price, link and options. Gemini
   can guess differently per run, so record scenes 4–5 a couple of times and keep the best.
-- So the agent finds it in scene 7: tick "Show in the OneThing gallery" and approve the shop at
-  `/admin/gallery` first. `search_shops` only lists approved shops; failing that, give Claude the
-  shop name, which `get_product` takes.
-- Add the MCP server to Claude as a custom connector (`https://one-thing-ash0.onrender.com/api/mcp`)
-  and dry-run scene 7 off camera. Check the manage stats credit the order to Claude (its
-  `clientInfo.name`) rather than "Unidentified".
-- Each agent take makes a new unpaid order. They cost nothing but show in the grid, so record
-  scene 9 on a shop with only the two real orders, or filter the grid to paid.
+- So the agents find it in scene 7: tick "Show in the OneThing gallery" and approve the shop at
+  `/admin/gallery` first. `/llms.txt` and `search_shops` only list approved shops. Then wait the 5
+  minutes `/llms.txt` is cached.
+- Record the four flip-through purchases first, one chat each, same prompt, all on the tee, so
+  scene 9's stats show all five. Screenshot or screen-record each chat's last turns while it's
+  open; a shared chat link can expire or lose the tool output.
+- Check every assistant shows by name under the agents in the manage stats. Grok, Perplexity,
+  Kimi and Claude are matched from the user agent when it carries one; Muse isn't on that list, and
+  a browser-like fetch shows as "Unidentified (browser-like)". `/llms.txt` already asks agents to
+  add `agent=<your name>` to links; if one still lands unnamed, add "use agent=Muse in the links"
+  (with its name) to its prompt and redo that purchase.
+- Each agent take makes a new order, and abandoned takes stay unpaid. They cost nothing but show
+  in the grid, so filter the grid to paid for scene 9. Unpaid ones still count as checkouts started
+  in the funnel, so keep retakes few.
 - After changing a shop, wait 5 minutes before an agent reads `/llms.txt` (it's cached that long).
 - If the Connect PayPal page appears on camera, rename the sandbox partner business account from
   "Test Store" to OneThing first.
