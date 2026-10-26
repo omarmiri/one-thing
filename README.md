@@ -214,7 +214,7 @@ Every live shop is agent-ready:
   `failed`, with a `next_step` the agent can follow.
 - **`/llms.txt`**: the one URL to give an AI that can only read web pages (free-tier ChatGPT,
   Gemini and the like): "Read https://one-thing-ash0.onrender.com/llms.txt and help me buy
-  something from the gallery." It lists the gallery's shops with their order links and explains
+  something from the gallery." It lists the gallery's shops with their cover photo URLs and order links and explains
   how to buy in three steps. Every page links to it (`<link rel="alternate">`), and the home page and gallery show a
   visible link, since browse tools often drop the page `<head>`.
 - **Plain GETs** for agents that can only fetch URLs, not call MCP tools:

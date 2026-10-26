@@ -11,14 +11,17 @@ function shopLines(p: ReturnType<typeof agentProduct>, base: string) {
     : p.total && p.total.amount !== p.price.amount
       ? `${p.price.label} + shipping, $${p.total.amount.toFixed(2)} total`
       : p.price.label;
-  const head = `- [${p.name}](${base}/api/agent/shops/${p.shop}): ${price}, ${p.kind}. ${p.headline}`;
-  if ("offers" in p) return `${head}\n  - Bought at a retailer: see the product link.`;
+  const line = `- [${p.name}](${base}/api/agent/shops/${p.shop}): ${price}, ${p.kind}. ${p.headline}`;
+  // The cover photo, so the assistant can show the buyer the product as an image.
+  const photo = p.images[0] ? [`  - Photo: ${p.images[0]}`] : [];
+  const item = (rest: string[], soldOut = false) => [soldOut ? `${line} (sold out)` : line, ...photo, ...rest].join("\n");
+  if ("offers" in p) return item(["  - Bought at a retailer: see the product link."]);
   if ("variants" in p && p.variants) {
     const open = p.variants.filter((v) => v.order_url);
-    if (!open.length) return `${head} (sold out)`;
-    return [head, ...open.map((v) => `  - Order ${Object.values(v.choice).join(" / ")}: ${v.order_url}`)].join("\n");
+    if (!open.length) return item([], true);
+    return item(open.map((v) => `  - Order ${Object.values(v.choice).join(" / ")}: ${v.order_url}`));
   }
-  return "order_url" in p && p.order_url ? `${head}\n  - Order: ${p.order_url}` : `${head} (sold out)`;
+  return "order_url" in p && p.order_url ? item([`  - Order: ${p.order_url}`]) : item([], true);
 }
 
 /**
@@ -43,9 +46,9 @@ ${list}
 
 ## Talking to the buyer (recommended)
 
-Buyers have the best experience with short replies and clickable links. Every JSON reply below includes \`show_buyer\`: a suggested reply in Markdown, with the options to pick from and the links already written as links. Showing it as written, with little of your own around it, usually works best. The flow it follows:
+Buyers have the best experience with short replies and clickable links. Every JSON reply below includes \`show_buyer\`: a suggested reply in Markdown, with the product photo, the options to pick from and the links already written as links. Showing it as written, with little of your own around it, usually works best. The flow it follows:
 
-1. **The product:** name, price, one line about it, then the choices, e.g. "Size: S · M · L" and "Which size?"
+1. **The product:** its photo (the Photo URL listed with each shop above, as a Markdown image: \`![name](photo url)\`), then name, price, one line about it, then the choices, e.g. "Size: S · M · L" and "Which size?"
 2. **The pay link** once they've picked and said to buy: "**[Pay $42.00 with PayPal](…)**". Nothing is charged until they pay at PayPal.
 3. **Done:** what they got (access code, download link or shipping details) and "[Your receipt](…)".
 
