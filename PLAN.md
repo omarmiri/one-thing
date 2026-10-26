@@ -152,59 +152,99 @@ Video: show one of each. The main demo is a physical item (photo → shop → Pa
 
 **Cut list if time runs short (cut from the bottom):** AG Grid → agent endpoint → hybrid add-ons. Never cut: the photo-to-shop-to-PayPal-sale loop.
 
-## 6. Demo video script (under 3 minutes, rewritten Oct 23)
+## 6. Demo video script (under 3 minutes, rewritten Oct 26)
 
-Target 2:45. Voiceover (VO) in quotes; everything else is on screen. Cut every wait (Gemini's
-15–40 s, PayPal redirects) to a jump or a 2× speed-up.
+Target 2:50 (the submission's video must be under 3:00). Voiceover (VO) in quotes, about 330
+words; everything else is on screen. Cut every wait (Gemini's ~20 s, PayPal redirects) to a jump
+or a 2× speed-up with a small on-screen timer, so the "about a minute" claim stays honest.
 
-**1. Intro (0:00–0:10)**
-- On screen: the finished shop page scrolling, then hard cut to a phone photo.
-- VO: "You have one thing to sell. No store, no cart, no password with one uppercase, one number and one hieroglyph. Here's how long it takes with OneThing."
+**The through-line:** one product, the dragon tee (one shirt, the print in red, gold, green and
+blue), goes from a photo to a live shop, is bought once by a person and once by an AI agent, and
+both sales meet in the seller's stats. The problem has two halves, and the close answers both:
+a store is overkill for one product, and more shoppers now send an AI assistant to find things,
+which a small seller can't reach.
 
-**2. Sign in (0:10–0:20)**
-- `/account` → **Log in with PayPal** → PayPal sandbox sign-in → back, signed in.
-- VO: "No new password. Sign in with PayPal."
+| Time | Scene | Beat |
+|---|---|---|
+| 0:00–0:15 | 1. The problem | One thing to sell; stores are overkill; shoppers now ask agents |
+| 0:15–0:25 | 2. What OneThing does | Photo → shop, PayPal pays the seller, agent-ready |
+| 0:25–0:35 | 3. Log in with PayPal | No password; sets where sales are paid |
+| 0:35–1:00 | 4. Upload a photo | Gemini drafts everything, options, "Buyers will ask" |
+| 1:00–1:10 | 5. Publish | Check the guesses, Go live |
+| 1:10–1:30 | 6. Buy direct | A person picks a colour, pays with PayPal |
+| 1:30–2:00 | 7. Buy via an agent | Claude finds the tee over MCP, hands back a PayPal link |
+| 2:00–2:25 | 8. One API underneath | MCP, plain links, OpenAPI, APIMatic docs and SDKs |
+| 2:25–2:45 | 9. Sales in manage | Orders by Via; people vs AI agents funnels |
+| 2:45–2:55 | 10. Close | One line, logo, URL |
 
-**3. Upload a photo (0:20–0:50)**
-- `/new` → drop in the product photo (a tee or mug in two colours shows the options well) → speed through the wait.
-- The manage page appears: designed page, headline, price, link.
-- VO: "One photo. Gemini works out what it is, writes the page, picks a price and a link, and designs it."
-- Quick beats (2–3 s each):
-  - **Buyers will ask** lists sizes, colours and the missing facts.
-  - One chat refine: click "Make it feel more premium" and the page restyles.
-- VO: "It even asks what buyers will want to know."
+**1. The problem (0:00–0:15)**
+- On screen: the tee on a table, photographed on a phone. Then three fast caption cards: "Store
+  builder: 14 steps", "Theme, cart, plugins, fees", and an AI chat answering "find me a dragon
+  t-shirt" with only big-brand results.
+- VO: "You've made one thing worth selling. A whole store is overkill for one product. And more
+  shoppers now ask an AI assistant to find things for them, and it has no way to find you."
 
-**4. Connect PayPal (0:50–1:10)**
-- **Connect PayPal** → PayPal onboarding → Sign in with the sandbox business account → back to the checklist, all ticked → **Go live with PayPal**.
-- VO: "Connect your PayPal business account once. Every sale goes straight to you."
+**2. What OneThing does (0:15–0:25)**
+- On screen: the gallery scrolling, every shop in its own colours.
+- VO: "OneThing turns one photo into a shop. PayPal pays you directly, and every shop is ready for
+  people and for AI agents."
 
-**5. Show the shop and buy (1:10–1:40)**
-- The live shop: scroll the feature story, swipe the gallery, open Inspect, pick a colour (the photo switches).
-- **PayPal** button → sandbox buyer pays → thank-you page.
-- Optional 2 s: the QR code for paying on a phone.
-- Cut to the seller's orders grid: the order with the buyer's address → **Mark shipped** with a tracking number.
-- VO: "Buyers pay with PayPal or a card. You see the order, add tracking, and PayPal shows it to the buyer."
+**3. Log in with PayPal (0:25–0:35)**
+- `/account` → **Log in with PayPal** → sandbox sign-in → back, signed in.
+- VO: "Sign in with PayPal. No new password, and OneThing already knows where to send your money."
 
-**6. An AI assistant buys, no plugins (1:40–2:10)**
-- Grok, with no plugins or connectors (Grok, Kimi K3 and Meta's Muse all completed this whole flow on Oct 23; Kimi is the backup. Muse went further and paid by itself, see the note under Lines). One prompt, pasted:
-  "Read one-thing-ash0.onrender.com/llms.txt and find me a game under $10."
-- 2× speed: it reads the file and lists the two games with prices: Dragon Flight ($4.99) and Raptor Rush ($9.99).
-- You type "Buy Dragon Flight." It opens the order link and replies with a OneThing pay link (`/o/<order id>`). Nothing charged yet.
-- Tap the link → PayPal sandbox → pay as the buyer (jump-cut through PayPal).
-- You type "Paid." It checks the order, sees `paid`, and hands back the access code and a Start link. Tap Start: Dragon Flight plays.
-- On screen, 2 s, as a caption: "No MCP. No plugin. No enrollment." Then a pull quote from Kimi, after its purchase: "I did the errands, you did the decision-making and the money part."
-- Small caption under it: "Also bought here: Grok, Kimi K3, Meta's Muse, Claude."
-- VO: "Shops are agent-legible. With no plugins, Grok reads one small text file, places the order and hands you a pay link. It runs the errands. The decision and the money stay with you, at PayPal."
+**4. Upload a photo (0:35–1:00)**
+- `/new` → **Upload a photo** → the tee → **Build my shop** → jump through the wait (timer reads
+  ~20 s) → the manage page with the designed preview.
+- 2–3 s beats: the "what we guessed" panel (name, physical, price, link); the colour options with
+  swatches sampled from the print; **Buyers will ask** ("What sizes?").
+- VO: "Upload a photo. Gemini works out what it is, picks a price and a link, finds the colours in
+  the print, and designs the page. It even asks what buyers will want to know."
 
-**7. Create a product from the SDK (2:10–2:35)**
-- miriogames.com/market/upload: a developer fills in title, price, the game file and a cover → **Upload** → the manage page appears with its store page made → **Connect PayPal** (skip through) → **Publish**.
-- Split screen, 3 s: the market's server code calling the SDK, `shops.createShop(...)` and `shops.connectPayPal(slug, { returnUrl })`.
-- Cut to the docs portal (omarmiri.github.io/one-thing), "Build a marketplace on OneThing".
-- VO: "That marketplace is built on OneThing's API. Its server calls the SDK APIMatic generates from our spec: a developer uploads a game, connects their own PayPal and gets paid directly. Mirio Games never touches the money."
+**5. Publish (1:00–1:10)**
+- Answer the size question, tick sizes, **Go live with PayPal** → the live link.
+- Optional 2 s caption: "Business sellers can also connect through PayPal onboarding."
+- VO: "Check the guesses. Go live."
 
-**8. Close (2:35–2:45)**
-- Back to the first shop page, the logo and the URL.
-- VO: "One photo, one page, paid with PayPal, and ready for AI agents. OneThing."
+**6. Buy direct (1:10–1:30)**
+- Second browser profile (the buyer). The live shop: the feature story scrolls, tap **Gold**, the
+  gallery slides to the gold print, pick **M**, **PayPal** → personal sandbox buyer → thank-you page.
+- VO: "A buyer picks a colour and pays with PayPal or a card. The money goes straight to the
+  seller. OneThing never holds it."
+
+**7. Buy via an agent (1:30–2:00)**
+- Claude with the OneThing MCP connector. Type: "Find me a dragon t-shirt, size M."
+- 2×: it calls `search_shops` and `get_product`, and replies with the tee, the colours and
+  "Which colour?". Type "Blue." It calls `create_order` and shows **Pay $… with PayPal**.
+- Tap → PayPal sandbox → approve (jump-cut). Type "Paid." `get_order` comes back paid, with the
+  shipping confirmation and the receipt link.
+- Caption, 2 s: "Also bought here with no plugins, from /llms.txt: Grok, Kimi K3, Meta's Muse."
+- VO: "Now the other kind of shopper. Ask Claude for a dragon tee: it finds this shop, reads the
+  sizes and stock, places the order and hands you a PayPal link. The agent runs the errand. You
+  still approve the payment, at PayPal."
+
+**8. One API underneath (2:00–2:25)**
+- Quick cuts, 4–5 s each: the MCP URL and its four tools; `/llms.txt` and the plain order links;
+  `/openapi.yaml`; the APIMatic docs portal (omarmiri.github.io/one-thing) running a "Try it"
+  call; SDK code calling `shops.createShop(...)`; 2 s of the Mirio Games market built on it.
+- VO: "It's one API underneath. Agents use the MCP server, or plain links if all they can do is
+  read. Developers get an OpenAPI spec, and APIMatic turns it into these docs and TypeScript and
+  Python SDKs. Mirio Games built its whole game market on them."
+
+**9. Sales in manage (2:25–2:45)**
+- Back on the seller's manage page. The orders grid: two tee orders, **Via** reads "Shop page" and
+  "AI agent" → **Mark shipped** on one. Scroll to **Visitors and sales**: the People and AI agents
+  funnels side by side (visitors → checkouts → paid, revenue), and Claude listed among the agents
+  that read the shop.
+- VO: "Back in your dashboard, both sales are here. Visitors, checkouts and revenue, for people and
+  for AI agents side by side, and which agents came by."
+
+**10. Close (2:45–2:55)**
+- The tee's shop page, then the logo and `one-thing-ash0.onrender.com`.
+- VO: "One photo. One shop. Paid with PayPal, by people and their agents. OneThing."
+
+**If it runs long, cut in this order:** the Mirio Games shot (scene 8), **Mark shipped** (9), the
+"Buyers will ask" beat (4), the onboarding caption (5).
 
 **Lines kept for the Devpost text and Q&A (too long for the video)**
 - "Card networks are building agentic payments for certified agents spending unattended. OneThing works today with the assistants people already use, no enrollment needed, because the one step that needs trust, approving the payment, happens at PayPal, by the buyer or by an agent the buyer chose to trust."
@@ -215,14 +255,25 @@ Target 2:45. Voiceover (VO) in quotes; everything else is on screen. Cut every w
 - Why PayPal: a seller gets paid by typing an email, with no onboarding at all, and the money goes straight to them; OneThing never holds it. The agent design itself works with any payment provider that has hosted checkout.
 
 **Before recording**
-- Rename the sandbox partner business account from "Test Store" to OneThing; it shows on the Connect PayPal page.
 - Open the Render site a minute ahead, so the first page load isn't slow.
-- Have three sandbox accounts ready: the seller (sign in), a business account that has never connected (for Connect PayPal), and the buyer.
-- Dry-run step 6 off camera in Grok. Tested Oct 23: Grok, Kimi K3 and Meta's Muse completed the whole loop (Muse also paid, with the vaulted login), and so did our own fetch-only test agent. ChatGPT couldn't read /llms.txt, and Gemini refused by policy to create the payment link, so neither goes on camera or in the caption.
-- Step 6 makes a new order each take (every order link opens one), so expect a few unpaid test orders; they cost nothing.
-- Pay as a **personal** sandbox buyer. PayPal refuses the seller's account and the platform account ("This PayPal account is associated with the merchant…"), which cost two of Muse's attempts.
-- After changing a shop, wait 5 minutes or the assistant may read an old `/llms.txt` (it's cached that long).
-- Use a fresh browser profile, logged out of PayPal, so PayPal shows its sign-in pages instead of jumping ahead.
+- Accounts: the seller's sandbox PayPal (Log in with PayPal) and a **personal** sandbox buyer.
+  PayPal refuses the seller's own and the platform account as a buyer ("This PayPal account is
+  associated with the merchant…").
+- Two browser profiles, both logged out of PayPal: the seller's, and the buyer's for scene 6 (the
+  seller's own preview isn't counted as a visit; the buyer's is).
+- Dry-run the tee shop off camera first (same photo) to know its price, link and options. Gemini
+  can guess differently per run, so record scenes 4–5 a couple of times and keep the best.
+- So the agent finds it in scene 7: tick "Show in the OneThing gallery" and approve the shop at
+  `/admin/gallery` first. `search_shops` only lists approved shops; failing that, give Claude the
+  shop name, which `get_product` takes.
+- Add the MCP server to Claude as a custom connector (`https://one-thing-ash0.onrender.com/api/mcp`)
+  and dry-run scene 7 off camera. Check the manage stats credit the order to Claude (its
+  `clientInfo.name`) rather than "Unidentified".
+- Each agent take makes a new unpaid order. They cost nothing but show in the grid, so record
+  scene 9 on a shop with only the two real orders, or filter the grid to paid.
+- After changing a shop, wait 5 minutes before an agent reads `/llms.txt` (it's cached that long).
+- If the Connect PayPal page appears on camera, rename the sandbox partner business account from
+  "Test Store" to OneThing first.
 
 ## 7. Open questions
 - Solo or team?
