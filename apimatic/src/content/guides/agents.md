@@ -30,13 +30,29 @@ and order links, then how to buy in three steps (open the order link, show the b
 open `status_url` once they've paid) and how to search, read and check orders. Every page on the site links to it, and the home page
 and gallery show the link as text too.
 
+## Talking to the buyer (recommended)
+
+Buyers have the best experience with short replies and clickable links. Every product, order
+and order-status reply (JSON and MCP alike) includes `show_buyer`: a suggested reply in Markdown
+with the links already written as links. Showing it as written, with little else, is
+recommended but never required. Along the way the buyer sees:
+
+1. The product, its price and the choices: `Size: 7 · 8 · 9`, then `Which size?`
+2. Once they've picked and said to buy: `**[Pay $255.00 with PayPal](…)**`
+3. Once paid: what they got (access code, download link or shipping details) and `[Your receipt](…)`
+
+Every reply also carries `agent_name`: who the request was credited to in the seller's stats, so
+you can confirm the name you gave was received.
+
 ## Plain GETs
 
 No key, no session. These samples use the hosted sandbox deployment.
 
 **Say who you are (optional).** Add `agent=<your name>` to a product or order link
 (`?agent=my-shopping-bot`, or `&agent=…` after option picks) and the seller's stats show your
-agent by name. A recognised user agent (`ChatGPT-User`, `Claude-User`…) takes precedence.
+agent by name. A recognised user agent (`ChatGPT-User`, `Claude-User`…) takes precedence. The
+reply's `agent_name` says who was credited, and the order and status links it returns carry your
+name on, so you only add it once.
 
 ### Find shops
 

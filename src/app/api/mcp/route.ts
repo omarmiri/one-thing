@@ -2,7 +2,7 @@ import { randomUUID } from "node:crypto";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { agentCreateOrder, AgentError, agentGetOrder, agentProduct, liveShop, searchShops } from "@/lib/agent";
-import { recordVisit } from "@/lib/stats";
+import { agentName, recordVisit } from "@/lib/stats";
 
 /**
  * OneThing's MCP server, so AI agents can shop here: find a shop, read the product, order it.
@@ -22,7 +22,10 @@ const INSTRUCTIONS =
   "OneThing hosts one-product shops. search_shops finds them, get_product describes one. " +
   "To buy: create_order returns pay_url, a link on this site that's safe to show in chat. Give it to the buyer; " +
   "it opens PayPal, where they approve the payment (you can't approve for them). When they say they've paid, " +
-  "call get_order: once status is paid it returns the access code, download link or shipping details.";
+  "call get_order: once status is paid it returns the access code, download link or shipping details. " +
+  "Buyers have the best experience with short replies and clickable links: get_product, create_order and get_order each " +
+  "return show_buyer, a suggested Markdown reply (options to pick from, the pay link, the receipt link). Showing it as " +
+  "written, with little else, is recommended.";
 
 const slug = z.string().min(1).max(60).describe("The shop's link name, e.g. \"bluemug\" (from search_shops or the shop URL)");
 
@@ -105,7 +108,8 @@ async function handle(msg: Rpc, h: Headers, client: string | null) {
       const about = (args.data as { shop?: string }).shop;
       if (about) await recordVisit({ slug: about }, h, "agent", client);
       try {
-        return reply(await (tool.run as (a: unknown) => Promise<unknown>)(args.data));
+        // agent_name says back who this call is credited to in the seller's stats.
+        return reply({ ...(await (tool.run as (a: unknown) => Promise<object>)(args.data)), agent_name: agentName(h, client) });
       } catch (err) {
         if (err instanceof AgentError) return reply({ error: err.message }, true);
         console.error(`mcp ${String(params.name)}:`, err);

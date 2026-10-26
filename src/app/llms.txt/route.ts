@@ -28,7 +28,7 @@ function shopLines(p: ReturnType<typeof agentProduct>, base: string) {
  */
 export async function GET() {
   const base = appUrl();
-  const products = (await listLiveShops(25)).map(agentProduct);
+  const products = (await listLiveShops(25)).map((s) => agentProduct(s));
   const list = products.length ? products.map((p) => shopLines(p, base)).join("\n") : "- No shops in the gallery yet.";
 
   const text = `# OneThing
@@ -41,19 +41,29 @@ export async function GET() {
 
 ${list}
 
+## Talking to the buyer (recommended)
+
+Buyers have the best experience with short replies and clickable links. Every JSON reply below includes \`show_buyer\`: a suggested reply in Markdown, with the options to pick from and the links already written as links. Showing it as written, with little of your own around it, usually works best. The flow it follows:
+
+1. **The product:** name, price, one line about it, then the choices, e.g. "Size: S · M · L" and "Which size?"
+2. **The pay link** once they've picked and said to buy: "**[Pay $42.00 with PayPal](…)**". Nothing is charged until they pay at PayPal.
+3. **Done:** what they got (access code, download link or shipping details) and "[Your receipt](…)".
+
+Raw URLs, JSON and order ids are rarely useful to the buyer. Write links as Markdown links so they can click them.
+
 ## Buy
 
 When the buyer has picked a product (and a size or colour, if it has them) and said to buy it:
 
-1. Open its **Order** link above. It creates the order and returns JSON with \`pay_url\` and \`status_url\`. Nothing is charged yet. Every time an Order link is opened it makes a new order, so open it once, and only after the buyer says to buy.
-2. Show the buyer \`pay_url\` as a link. They pay at PayPal themselves (and give a shipping address there for physical items).
-3. When they say they've paid, open \`status_url\` and tell them what they got (\`delivery\`): an access code, a download link, or the shipping details.
+1. Open its **Order** link above. It creates the order and returns JSON with \`show_buyer\`, \`pay_url\` and \`status_url\`. Nothing is charged yet. Every time an Order link is opened it makes a new order, so open it once, and only after the buyer says to buy.
+2. Give the buyer the pay link (\`show_buyer\` has it as a link). They pay at PayPal themselves (and give a shipping address there for physical items).
+3. When they say they've paid, open \`status_url\` and tell them what they got (\`show_buyer\` again, or \`delivery\`), with their receipt link.
 
 If \`status_url\` says \`declined\`, they can open \`pay_url\` again; \`expired\` means open the Order link for a new order. The reply's \`next_step\` always says what to do.
 
 Every Order link is \`GET ${base}/api/agent/shops/<shop>/order\`, with the buyer's pick as query parameters named after the product's options, e.g. \`?Color=Ice+Blue&Size=L\` (names and values in any case). Products without options take no parameters. A missing or unknown pick gets a 400 listing the valid values. Use the links above as written when you can.
 
-Optionally add \`agent=<your name>\` to any order or product link (e.g. \`&agent=ChatGPT\`, or \`?agent=ChatGPT\` when the link has no \`?\`), so the seller can see which assistant sent the buyer.
+Optionally add \`agent=<your name>\` to any order or product link (e.g. \`&agent=ChatGPT\`, or \`?agent=ChatGPT\` when the link has no \`?\`), so the seller can see which assistant sent the buyer. Replies say back who they credited in \`agent_name\`, and the links they return carry your name on.
 
 ## Find and read
 

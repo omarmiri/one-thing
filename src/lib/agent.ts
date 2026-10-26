@@ -13,24 +13,56 @@ import { blobUrl, getOrder, getShopBySlug, listLiveShops, money, shopPhotos, wit
 /** The order's pay link on this site. It redirects to PayPal, so it's safe to show in chat. */
 const payUrl = (orderId: string) => `${appUrl()}/o/${orderId}`;
 
+/** `?agent=<name>` to carry a name an agent gave itself into the links we hand back, so it sticks. */
+const withAgent = (url: string, agent?: string | null) => (agent ? `${url}${url.includes("?") ? "&" : "?"}${new URLSearchParams({ agent })}` : url);
+
 /**
  * A GET that creates an order: create_order for assistants that can only fetch URLs. Spelled out
  * in full in the product JSON and llms.txt, because some assistants only open URLs they've seen.
  */
-export function orderLink(slug: string, choice?: Record<string, string>) {
+export function orderLink(slug: string, choice?: Record<string, string>, agent?: string | null) {
   const q = choice ? `?${new URLSearchParams(choice)}` : "";
-  return `${appUrl()}/api/agent/shops/${slug}/order${q}`;
+  return withAgent(`${appUrl()}/api/agent/shops/${slug}/order${q}`, agent);
 }
+
+// show_buyer: a suggested reply to the buyer at each step, as Markdown with the links already
+// written as links. Agents left to phrase it themselves were wordy and often printed bare URLs.
+// It's a recommendation, not a rule: the agent still decides what to say.
+const SHOW_BUYER =
+  "Recommended: buyers have the best experience when you show show_buyer as written (it's Markdown, so the links stay clickable) " +
+  "and keep your own words to a minimum.";
+const link = (text: string, url: string) => `[${text.replace(/[[\]]/g, "")}](${url})`;
+/** " (Ice Blue / L)", in the shop's option order: stored picks come back with their keys reordered. */
+const picked = (shop: Shop, choice?: Record<string, string> | null) =>
+  choice ? ` (${(shop.options ?? []).map((o) => choice[o.name]).filter(Boolean).join(" / ")})` : "";
 
 const abs = (path: string | null) => (path ? (path.startsWith("http") ? path : `${appUrl()}${path}`) : null);
 
+/** The product in a few lines for the buyer: price, the options to pick from, and the question. */
+function productForBuyer(shop: Shop, options: NonNullable<Shop["options"]>, soldOut: boolean) {
+  const s = shop.spec;
+  if (shop.product_type === "referral") {
+    const offers = shop.referral?.offers ?? [];
+    return [`**${s.productName}**: ${s.headline}`, `Sold at ${offers.map((o) => link(`${o.domain} (${money(Math.round(o.price * 100), o.currency)})`, o.url)).join(" · ")}`].join("\n");
+  }
+  const shipping = shop.product_type === "physical" && shop.shipping_cents ? ` + ${money(shop.shipping_cents, shop.currency)} shipping` : "";
+  return [
+    `**${s.productName}**: ${money(shop.price_cents, shop.currency)}${shipping}`,
+    s.headline,
+    ...options.map((o) => `${o.name}: ${o.values.map((v) => v.label).join(" · ")}`),
+    soldOut ? "Sold out right now." : options.length ? `Which ${options.map((o) => o.name.toLowerCase()).join(" and ")}?` : "Want it?",
+  ].join("\n");
+}
+
 /** Everything an agent needs to describe a product and decide to buy it. */
-export function agentProduct(shop: Shop) {
+export function agentProduct(shop: Shop, agent?: string | null) {
   const s = shop.spec;
   const referral = shop.product_type === "referral" ? shop.referral : null;
   const shipping = shop.product_type === "physical" ? shop.shipping_cents : 0;
   const options = shop.product_type === "physical" ? (shop.options ?? []) : [];
+  const soldOut = options.length ? allSoldOut(options, shop.option_stock ?? {}) : shop.stock === 0;
   return {
+    show_buyer: productForBuyer(shop, options, soldOut),
     shop: shop.slug,
     url: `${appUrl()}/${shop.slug}`,
     name: s.productName,
@@ -44,7 +76,6 @@ export function agentProduct(shop: Shop) {
     ...(referral
       ? {
           // Someone else's product: bought at the retailer, not through PayPal here.
-          how_to_buy: "At the retailer, through one of the links below.",
           offers: referral.offers.map((o) => ({ retailer: o.domain, price: o.price, currency: o.currency, in_stock: o.inStock, url: o.url })),
         }
       : {
@@ -69,20 +100,23 @@ export function agentProduct(shop: Shop) {
                   return {
                     choice: c,
                     availability: n === null ? "in_stock" : n > 0 ? `in_stock (${n} left)` : "sold_out",
-                    ...(n !== 0 && { order_url: orderLink(shop.slug, c) }),
+                    ...(n !== 0 && { order_url: orderLink(shop.slug, c, agent) }),
                   };
                 }),
-                availability: allSoldOut(options, shop.option_stock ?? {}) ? "sold_out" : "in_stock",
+                availability: soldOut ? "sold_out" : "in_stock",
               }
             : {
                 availability: shop.stock === null ? "in_stock" : shop.stock > 0 ? `in_stock (${shop.stock} left)` : "sold_out",
-                ...(shop.stock !== 0 && { order_url: orderLink(shop.slug) }),
+                ...(shop.stock !== 0 && { order_url: orderLink(shop.slug, undefined, agent) }),
               }),
-          how_to_buy: options.length
-            ? "Open the order_url of the buyer's variant (or call create_order on the OneThing MCP server with shop and options). " +
-              "Either returns a pay_url: give it to the buyer to pay at PayPal."
-            : "Open order_url (or call create_order on the OneThing MCP server). Either returns a pay_url: give it to the buyer to pay at PayPal.",
+          how_to_buy:
+            `${SHOW_BUYER} Once the buyer has picked and said to buy, ` +
+            (options.length
+              ? "open the order_url of their variant (or call create_order on the OneThing MCP server with shop and options). "
+              : "open order_url (or call create_order on the OneThing MCP server). ") +
+            "Either returns show_buyer with the pay link.",
         }),
+    ...(referral && { how_to_buy: `${SHOW_BUYER} The buyer buys at the retailer through one of the links.` }),
   };
 }
 
@@ -110,24 +144,34 @@ export async function liveShop(slug: string) {
   return shop;
 }
 
+/** What the buyer gets once paid, for "tell me once you've paid and I'll get you …". */
+const deliveryNoun = (shop: Shop) =>
+  shop.product_type === "physical" ? "the shipping confirmation" : shop.delivery === "access_code" ? "your access code" : "your download link";
+
 /** One unit on order, waiting for the buyer to approve at PayPal. */
-export async function agentCreateOrder(slug: string, choice?: Record<string, string>) {
+export async function agentCreateOrder(slug: string, choice?: Record<string, string>, agent?: string | null) {
   if (!paypalEnabled()) throw new AgentError("Checkout isn't available on this server.");
   const shop = await liveShop(slug);
   if (shop.product_type === "referral") throw new AgentError("This product is sold by a retailer: use one of the offer links from get_product.");
   try {
     const o = await startCheckout(shop, "agent", choice);
     if (!o.approveUrl) throw new AgentError("PayPal didn't return an approval link. Try again.");
+    const total = money(o.amountCents, shop.currency);
     return {
+      show_buyer: [
+        `${shop.spec.productName}${picked(shop, o.choice)}: ${total} total.`,
+        `**${link(`Pay ${total} with PayPal`, payUrl(o.localId))}**`,
+        `Tell me once you've paid and I'll get you ${deliveryNoun(shop)}.`,
+      ].join("\n"),
       order_id: o.localId,
       status: "awaiting_buyer_approval",
-      total: money(o.amountCents, shop.currency),
+      total,
       ...(o.choice && { options: o.choice }),
       pay_url: payUrl(o.localId),
       // The same answer as get_order, for clients that can only fetch URLs.
-      status_url: `${appUrl()}/api/agent/orders/${o.localId}`,
+      status_url: withAgent(`${appUrl()}/api/agent/orders/${o.localId}`, agent),
       next_step:
-        "Show pay_url to the buyer as a link. It opens PayPal, where they pay (and enter a shipping address for physical items). " +
+        `${SHOW_BUYER} pay_url opens PayPal, where the buyer pays (and enters a shipping address for physical items). ` +
         "When they say they've paid, open status_url (or with MCP, call get_order with order_id): it returns the access code, download link or shipping details.",
     };
   } catch (err) {
@@ -167,7 +211,31 @@ export async function agentGetOrder(orderId: string) {
 
   const status: AgentStatus = order.status === "paid" ? "paid" : outcome === "pending" || outcome === "paid" ? "awaiting_buyer_approval" : outcome;
   const addr = order.shipping_address;
+  const total = money(order.amount_cents, order.currency);
+  const receiptUrl = `${appUrl()}/${shop.slug}/thanks?order=${order.id}`;
+  const shipTo = addr
+    ? [addr.address_line_1, addr.address_line_2, addr.admin_area_2, addr.admin_area_1, addr.postal_code, addr.country_code].filter(Boolean).join(", ")
+    : null;
+  const pay = link(`Pay ${total} with PayPal`, payUrl(order.id));
+  const forBuyer: Record<AgentStatus, () => string[]> = {
+    paid: () => [
+      `Paid: ${shop.spec.productName}${picked(shop, order.options)}, ${total}.`,
+      order.access_code
+        ? `Your access code: \`${order.access_code}\`${shop.access_url ? ` · ${link("Start now", withCode(shop.access_url, order.access_code))}` : ""}`
+        : order.download_token
+          ? `${link("Download it", `${appUrl()}/api/download/${order.download_token}`)} (works 5 times over 14 days)`
+          : `Ships to ${[order.buyer_name, shipTo].filter(Boolean).join(", ") || "the address you gave PayPal"}.` +
+            (order.tracking_number ? ` Tracking: ${order.carrier ?? ""} ${order.tracking_number}`.trimEnd() : ""),
+      link("Your receipt", receiptUrl),
+    ],
+    awaiting_buyer_approval: () => ["Not paid yet.", `**${pay}**`],
+    declined: () => ["PayPal declined the payment. Nothing was charged.", `**${pay}** to try another way.`],
+    sold_out: () => ["It sold out before your payment went through. Nothing was charged."],
+    expired: () => ["That checkout expired. Nothing was charged. Want me to start a new one?"],
+    failed: () => ["I couldn't reach PayPal just now. I'll check again in a moment."],
+  };
   return {
+    show_buyer: forBuyer[status]().join("\n"),
     order_id: order.id,
     status,
     product: shop.spec.productName,
@@ -178,11 +246,12 @@ export async function agentGetOrder(orderId: string) {
       total: order.amount_cents / 100,
       currency: order.currency,
     },
-    total: money(order.amount_cents, order.currency),
+    total,
     ...(status === "paid"
       ? {
           paid_at: order.paid_at,
-          receipt_url: `${appUrl()}/${shop.slug}/thanks?order=${order.id}`,
+          receipt_url: receiptUrl,
+          next_step: SHOW_BUYER,
           delivery: order.access_code
             ? {
                 type: "access_code",
@@ -194,12 +263,7 @@ export async function agentGetOrder(orderId: string) {
               : {
                   type: "shipping",
                   ship_to: addr
-                    ? {
-                        name: order.buyer_name,
-                        address: [addr.address_line_1, addr.address_line_2, addr.admin_area_2, addr.admin_area_1, addr.postal_code, addr.country_code]
-                          .filter(Boolean)
-                          .join(", "),
-                      }
+                    ? { name: order.buyer_name, address: shipTo }
                     : null,
                   fulfillment: order.fulfillment_status,
                   tracking: order.tracking_number ? { carrier: order.carrier, number: order.tracking_number } : null,
@@ -207,7 +271,7 @@ export async function agentGetOrder(orderId: string) {
         }
       : {
           ...((status === "awaiting_buyer_approval" || status === "declined") && { pay_url: payUrl(order.id) }),
-          next_step: NEXT_STEP[status],
+          next_step: `${NEXT_STEP[status]} ${SHOW_BUYER}`,
         }),
   };
 }

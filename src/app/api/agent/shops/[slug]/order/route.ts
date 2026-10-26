@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { agentCreateOrder, AgentError, liveShop } from "@/lib/agent";
-import { recordVisit } from "@/lib/stats";
+import { agentName, recordVisit } from "@/lib/stats";
 
 /**
  * Orders one unit with a GET: create_order for AI assistants that can only fetch URLs. The
@@ -16,7 +16,8 @@ export async function GET(req: Request, ctx: RouteContext<"/api/agent/shops/[slu
     const shop = await liveShop((await ctx.params).slug);
     const params = new URL(req.url).searchParams;
     // ?agent=<name>: optional, an agent naming itself for the seller's stats. Not an option pick.
-    await recordVisit(shop, req.headers, "agent", params.get("agent"));
+    const agent = params.get("agent");
+    await recordVisit(shop, req.headers, "agent", agent);
     // Names and values are matched without caring about case: ?size=m works for Size "M".
     const options = shop.product_type === "physical" ? (shop.options ?? []) : [];
     const same = (a: string, b: string) => a.trim().toLowerCase() === b.trim().toLowerCase();
@@ -30,7 +31,8 @@ export async function GET(req: Request, ctx: RouteContext<"/api/agent/shops/[slu
       }
       choice[o.name] = value;
     }
-    return NextResponse.json(await agentCreateOrder(shop.slug, options.length ? choice : undefined), { headers });
+    const order = await agentCreateOrder(shop.slug, options.length ? choice : undefined, agent);
+    return NextResponse.json({ ...order, agent_name: agentName(req.headers, agent) }, { headers });
   } catch (err) {
     if (err instanceof AgentError) {
       return NextResponse.json({ error: err.message }, { status: err.message.startsWith("No live shop") ? 404 : 400, headers });

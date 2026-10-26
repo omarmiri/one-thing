@@ -196,6 +196,13 @@ Every live shop is agent-ready:
   `claude mcp add --transport http onething https://one-thing-ash0.onrender.com/api/mcp`.
   Working in this repo, you don't need to: [.mcp.json](.mcp.json) registers it, so a new Claude
   Code session here has the tools (Claude Code asks once to approve the server).
+- **A suggested reply in every answer** (`show_buyer`, in the product JSON, order and status
+  replies and the MCP tools): short Markdown with the links already written as links. The product,
+  its options and "Which size?"; then "**[Pay $96.00 with PayPal](…)**"; then what the buyer got
+  and "[Your receipt](…)". It's a recommendation ("buyers have the best experience when…"), not a
+  rule: agents left to phrase things themselves were wordy and often printed bare URLs. Every
+  reply also says back `agent_name`, who the request was credited to in the seller's stats, and
+  links we return carry a `?agent=` name on.
 - **A pay link** at `/o/<order_id>`: the `pay_url` agents hand the buyer. It redirects to
   PayPal's payment page (or the receipt once paid). PayPal's own approval URL carries a checkout
   token that agent platforms hide from chat as a secret, so agents couldn't show it; this link they
