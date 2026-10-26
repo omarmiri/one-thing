@@ -23,9 +23,9 @@ const INSTRUCTIONS =
   "To buy: create_order returns pay_url, a link on this site that's safe to show in chat. Give it to the buyer; " +
   "it opens PayPal, where they approve the payment (you can't approve for them). When they say they've paid, " +
   "call get_order: once status is paid it returns the access code, download link or shipping details. " +
-  "Buyers have the best experience with short replies and clickable links: every tool returns show_buyer, a suggested " +
-  "Markdown reply (the product photo, options to pick from, the pay link, the receipt link). Showing it as " +
-  "written, with little else, is recommended.";
+  "Buyers have the best experience with short replies, the product photo and clickable links: every tool returns show_buyer, " +
+  "the Markdown reply to show (the product photo, options to pick from, the pay link, the receipt link). Show it exactly as " +
+  "written, photo included, with little else.";
 
 const slug = z.string().min(1).max(60).describe("The shop's link name, e.g. \"bluemug\" (from search_shops or the shop URL)");
 

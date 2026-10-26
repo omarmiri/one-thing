@@ -201,10 +201,11 @@ Every live shop is agent-ready:
 - **A suggested reply in every answer** (`show_buyer`, in search results, the product JSON, order
   and status replies and the MCP tools): short Markdown with the links already written as links.
   The product's cover photo as a Markdown image (one per shop in search results), the product, its
-  options and "Which size?"; then "**[Pay $96.00 with PayPal](…)**"; then what the buyer got
-  and "[Your receipt](…)". It's a recommendation ("buyers have the best experience when…"), not a
-  rule: agents left to phrase things themselves were wordy and often printed bare URLs. Whether
-  the photo shows is up to the chat: many block images from other sites and leave the line out. Every
+  options and "Which size?"; then the photo again with "**[Pay $96.00 with PayPal](…)**"; then
+  what the buyer got and "[Your receipt](…)". Agents are told to show it exactly as written, photo
+  included: left to phrase things themselves they were wordy and often printed bare URLs, and
+  when it was only a recommendation, Muse and Kimi dropped the photo. Whether the photo shows is
+  still up to the chat: many block images from other sites and leave the line out. Every
   reply also says back `agent_name`, who the request was credited to in the seller's stats, and
   links we return carry a `?agent=` name on.
 - **A pay link** at `/o/<order_id>`: the `pay_url` agents hand the buyer. It redirects to

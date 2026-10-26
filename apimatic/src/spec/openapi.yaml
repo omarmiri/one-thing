@@ -1606,6 +1606,8 @@ paths:
             application/json:
               example:
                 show_buyer: |-
+                  ![Vintage Cream and Red Roller Skates](https://one-thing-ash0.onrender.com/api/blobs/LFRvGuTU3D8i334X)
+
                   Vintage Cream and Red Roller Skates (9): $255.00 total.
                   **[Pay $255.00 with PayPal](https://one-thing-ash0.onrender.com/o/pX4kR9tVb2nQ7sLe)**
                   Tell me once you've paid and I'll get you the shipping confirmation.
@@ -1831,8 +1833,9 @@ paths:
                   order_url: https://one-thing-ash0.onrender.com/api/agent/shops/vintageskates/order?Size=9
                 availability: in_stock
                 how_to_buy: >-
-                  Recommended: buyers have the best experience when you show show_buyer as written
-                  (it's Markdown, so the links stay clickable) and keep your own words to a minimum.
+                  Show show_buyer to the buyer exactly as written, photo included (it's Markdown, so
+                  the photo displays and the links stay clickable), and keep your own words to a
+                  minimum.
                   Once the buyer has picked and said to buy, open the order_url of their variant (or
                   call create_order on the OneThing MCP server with shop and options). Either returns
                   show_buyer with the pay link.

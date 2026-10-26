@@ -44,12 +44,12 @@ export async function GET() {
 
 ${list}
 
-## Talking to the buyer (recommended)
+## Talking to the buyer
 
-Buyers have the best experience with short replies and clickable links. Every JSON reply below includes \`show_buyer\`: a suggested reply in Markdown, with the product photo, the options to pick from and the links already written as links. Showing it as written, with little of your own around it, usually works best. The flow it follows:
+Buyers have the best experience with short replies, the product photo and clickable links. Every JSON reply below includes \`show_buyer\`: the reply to show the buyer, in Markdown, with the photo, the options to pick from and the links already written as links. **Show \`show_buyer\` exactly as written, photo included**, with little of your own around it. The flow it follows:
 
-1. **The product:** its photo (the Photo URL listed with each shop above, as a Markdown image: \`![name](photo url)\`), then name, price, one line about it, then the choices, e.g. "Size: S · M · L" and "Which size?"
-2. **The pay link** once they've picked and said to buy: "**[Pay $42.00 with PayPal](…)**". Nothing is charged until they pay at PayPal.
+1. **The product:** show its photo first, as a Markdown image (\`![name](photo url)\`, using the Photo URL listed with each shop above), then name, price, one line about it, then the choices, e.g. "Size: S · M · L" and "Which size?"
+2. **The pay link** once they've picked and said to buy: the photo again, then "**[Pay $42.00 with PayPal](…)**". Nothing is charged until they pay at PayPal.
 3. **Done:** what they got (access code, download link or shipping details) and "[Your receipt](…)".
 
 Raw URLs, JSON and order ids are rarely useful to the buyer. Write links as Markdown links so they can click them.

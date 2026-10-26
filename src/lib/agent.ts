@@ -28,8 +28,9 @@ export function orderLink(slug: string, choice?: Record<string, string>, agent?:
 // show_buyer: a suggested reply to the buyer at each step, as Markdown with the links already
 // written as links. Agents left to phrase it themselves were wordy and often printed bare URLs.
 // It's a recommendation, not a rule: the agent still decides what to say.
+// Worded as an instruction: put as a recommendation, Muse and Kimi left the photo out.
 const SHOW_BUYER =
-  "Recommended: buyers have the best experience when you show show_buyer as written (it's Markdown, so the links stay clickable) " +
+  "Show show_buyer to the buyer exactly as written, photo included (it's Markdown, so the photo displays and the links stay clickable), " +
   "and keep your own words to a minimum.";
 const link = (text: string, url: string) => `[${text.replace(/[[\]]/g, "")}](${url})`;
 /** " (Ice Blue / L)", in the shop's option order: stored picks come back with their keys reordered. */
@@ -188,7 +189,9 @@ export async function agentCreateOrder(slug: string, choice?: Record<string, str
     if (!o.approveUrl) throw new AgentError("PayPal didn't return an approval link. Try again.");
     const total = money(o.amountCents, shop.currency);
     return {
+      // The photo again, so the buyer still sees what they're paying for at the pay link.
       show_buyer: [
+        ...coverForBuyer(shop),
         `${shop.spec.productName}${picked(shop, o.choice)}: ${total} total.`,
         `**${link(`Pay ${total} with PayPal`, payUrl(o.localId))}**`,
         `Tell me once you've paid and I'll get you ${deliveryNoun(shop)}.`,
