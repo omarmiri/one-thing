@@ -148,13 +148,16 @@ export async function liveShop(slug: string) {
 const deliveryNoun = (shop: Shop) =>
   shop.product_type === "physical" ? "the shipping confirmation" : shop.delivery === "access_code" ? "your access code" : "your download link";
 
-/** One unit on order, waiting for the buyer to approve at PayPal. */
-export async function agentCreateOrder(slug: string, choice?: Record<string, string>, agent?: string | null) {
+/**
+ * One unit on order, waiting for the buyer to approve at PayPal. agent is the name the agent gave
+ * (carried on the links we return); credit is who the order is credited to (stats.ts agentName).
+ */
+export async function agentCreateOrder(slug: string, choice?: Record<string, string>, agent?: string | null, credit?: string) {
   if (!paypalEnabled()) throw new AgentError("Checkout isn't available on this server.");
   const shop = await liveShop(slug);
   if (shop.product_type === "referral") throw new AgentError("This product is sold by a retailer: use one of the offer links from get_product.");
   try {
-    const o = await startCheckout(shop, "agent", choice);
+    const o = await startCheckout(shop, "agent", choice, credit);
     if (!o.approveUrl) throw new AgentError("PayPal didn't return an approval link. Try again.");
     const total = money(o.amountCents, shop.currency);
     return {

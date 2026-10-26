@@ -31,7 +31,7 @@ function FunnelCard({ title, hint, f, currency }: { title: string; hint: string;
   );
 }
 
-function TopList({ title, items, empty }: { title: string; items: { label: string; n: number }[]; empty: string }) {
+function TopList({ title, items, empty }: { title: string; items: { label: string; n: number | string }[]; empty: string }) {
   return (
     <div>
       <h3 className="text-sm font-semibold">{title}</h3>
@@ -83,7 +83,11 @@ export function StatsView({ stats, currency }: { stats: Stats; currency: string 
       <Daily daily={stats.daily} />
       <div className="grid gap-5 sm:grid-cols-2">
         <TopList title="Where people came from" items={stats.referrers.map((r) => ({ label: r.host, n: r.visitors }))} empty="No visitors yet." />
-        <TopList title="Which agents" items={stats.agents.map((a) => ({ label: a.name, n: a.visitors }))} empty="No agent visits yet." />
+        <TopList
+          title="Which agents"
+          items={stats.agents.map((a) => ({ label: a.name, n: `${a.visitors} ${a.visitors === 1 ? "visit" : "visits"} · ${a.paid} paid` }))}
+          empty="No agent visits yet."
+        />
       </div>
     </div>
   );

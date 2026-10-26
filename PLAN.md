@@ -242,9 +242,10 @@ which a small seller can't reach.
 
 **9. Sales in manage (2:25–2:45)**
 - Back on the seller's manage page. The orders grid, filtered to paid: six tee orders, **Via**
-  reads "Shop page" once and "AI agent" five times → **Mark shipped** on one. Scroll to **Visitors
-  and sales**: the People and AI agents funnels side by side (visitors → checkouts → paid,
-  revenue), and the agents that read the shop: Grok, Perplexity, Muse, Kimi, Claude.
+  reads "Shop page" once and "AI agent · Grok", "· Perplexity", "· Muse", "· Kimi", "· Claude" →
+  **Mark shipped** on one. Scroll to **Visitors and sales**: the People and AI agents funnels side
+  by side (visitors → checkouts → paid, revenue), and **Which agents**, each assistant with its
+  visits and "1 paid".
 - VO: "Back in your dashboard, every sale is here. Visitors, checkouts and revenue, for people and
   for AI agents side by side, and which assistants sent them."
 
@@ -283,7 +284,11 @@ which a small seller can't reach.
   Kimi and Claude are matched from the user agent when it carries one; Muse isn't on that list, and
   a browser-like fetch shows as "Unidentified (browser-like)". `/llms.txt` already asks agents to
   add `agent=<your name>` to links; if one still lands unnamed, add "use agent=Muse in the links"
-  (with its name) to its prompt and redo that purchase.
+  (with its name) to its prompt and redo that purchase. Each order is credited to the agent when
+  it's placed, so a redo is the only fix.
+- Every agent must order through the order link or MCP, not by clicking the PayPal button on the
+  shop page: that's a shop-page order (Muse did this on Oct 21), and it won't show as an agent
+  sale.
 - Each agent take makes a new order, and abandoned takes stay unpaid. They cost nothing but show
   in the grid, so filter the grid to paid for scene 9. Unpaid ones still count as checkouts started
   in the funnel, so keep retakes few.

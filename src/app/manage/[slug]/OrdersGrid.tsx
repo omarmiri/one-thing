@@ -37,8 +37,12 @@ export function OrdersGrid(props: {
       { headerName: "Email", field: "buyer_email", flex: 1, minWidth: 160 },
       // The buyer's size/colour when the shop has options.
       { headerName: "Options", valueGetter: (p) => (p.data?.options ? Object.values(p.data.options).join(" / ") : ""), width: 130 },
-      // Orders started by an AI agent through the MCP server (/api/mcp), not the shop page.
-      { headerName: "Via", field: "channel", width: 100, valueFormatter: (p) => (p.value === "agent" ? "AI agent" : "Shop page") },
+      // Orders started by an AI agent (MCP or the agent links), not the shop page, named when we know which.
+      {
+        headerName: "Via",
+        valueGetter: (p) => (p.data?.channel === "agent" ? (p.data.agent ? `AI agent · ${p.data.agent}` : "AI agent") : "Shop page"),
+        width: 150,
+      },
       {
         headerName: "Total",
         field: "amount_cents",

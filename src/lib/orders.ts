@@ -68,9 +68,10 @@ export class CheckoutError extends Error {
 /**
  * Starts a PayPal order for one unit. The price comes from the database, never the caller.
  * channel says who started it: the shop page ("web") or an AI agent through the MCP server.
- * choice is the buyer's pick when the shop has options (size, color…).
+ * choice is the buyer's pick when the shop has options (size, color…). agent names which agent
+ * started it, for the seller's grid and stats.
  */
-export async function startCheckout(shop: Shop, channel: "web" | "agent", choice?: unknown) {
+export async function startCheckout(shop: Shop, channel: "web" | "agent", choice?: unknown, agent?: string) {
   const options = shop.product_type === "physical" ? (shop.options ?? []) : [];
   let picked: Choice | null = null;
   if (options.length) {
@@ -86,9 +87,19 @@ export async function startCheckout(shop: Shop, channel: "web" | "agent", choice
   const shipping = shop.product_type === "physical" ? shop.shipping_cents : 0;
   const pp = await createOrder(shop, localId, picked ? comboKey(options, picked) : undefined);
   await query(
-    `INSERT INTO orders (id, shop_id, paypal_order_id, amount_cents, shipping_cents, currency, channel, options)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
-    [localId, shop.id, pp.id, shop.price_cents + shipping, shipping, shop.currency, channel, picked ? JSON.stringify(picked) : null],
+    `INSERT INTO orders (id, shop_id, paypal_order_id, amount_cents, shipping_cents, currency, channel, agent, options)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+    [
+      localId,
+      shop.id,
+      pp.id,
+      shop.price_cents + shipping,
+      shipping,
+      shop.currency,
+      channel,
+      channel === "agent" ? (agent ?? null) : null,
+      picked ? JSON.stringify(picked) : null,
+    ],
   );
   return {
     localId,

@@ -93,6 +93,7 @@ ALTER TABLE shops ADD COLUMN IF NOT EXISTS gallery_blobs text[] NOT NULL DEFAULT
 ALTER TABLE shops ADD COLUMN IF NOT EXISTS paypal_status jsonb;     -- src/lib/paypal.ts PayPalStatus
 -- Who started an order: the shop page, or an AI agent through the MCP server (/api/mcp).
 ALTER TABLE orders ADD COLUMN IF NOT EXISTS channel text NOT NULL DEFAULT 'web';  -- web | agent
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS agent text;            -- which agent, as stats.ts agentName credits it
 -- Buyer options (src/lib/options.ts): what a buyer picks (size, color…), stock per combination
 -- (replaces shops.stock when there are options), and Gemini's suggestions for the seller to confirm.
 ALTER TABLE shops  ADD COLUMN IF NOT EXISTS options jsonb NOT NULL DEFAULT '[]';

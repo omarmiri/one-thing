@@ -91,7 +91,7 @@ export type Stats = {
   days: number;
   web: Funnel;
   agent: Funnel;
-  agents: { name: string; visitors: number }[];
+  agents: { name: string; visitors: number; paid: number }[];
   referrers: { host: string; visitors: number }[];
   daily: { day: string; web: number; agent: number }[];
 };
@@ -115,9 +115,15 @@ export async function getStats(shopId: string | null, days: number): Promise<Sta
         GROUP BY channel`,
       params,
     ),
-    query<{ name: string; visitors: string }>(
-      `SELECT agent AS name, count(*) AS visitors FROM visits WHERE channel = 'agent' AND ${visitsIn}
-        GROUP BY agent ORDER BY count(*) DESC LIMIT 10`,
+    // Each agent's visits, and the paid orders credited to it (orders.agent).
+    query<{ name: string; visitors: string; paid: string }>(
+      `SELECT coalesce(v.name, o.name) AS name, coalesce(v.visitors, 0) AS visitors, coalesce(o.paid, 0) AS paid
+         FROM (SELECT agent AS name, count(*) AS visitors FROM visits WHERE channel = 'agent' AND ${visitsIn} GROUP BY agent) v
+         FULL JOIN (SELECT agent AS name, count(*) AS paid FROM orders
+                     WHERE channel = 'agent' AND status = 'paid' AND agent IS NOT NULL
+                       AND created_at > now() - make_interval(days => $1::int) AND ($2::text IS NULL OR shop_id = $2)
+                     GROUP BY agent) o ON o.name = v.name
+        ORDER BY 3 DESC, 2 DESC LIMIT 10`,
       params,
     ),
     query<{ host: string; visitors: string }>(
@@ -138,7 +144,7 @@ export async function getStats(shopId: string | null, days: number): Promise<Sta
   return {
     days,
     ...funnel,
-    agents: agents.map((a) => ({ name: a.name, visitors: Number(a.visitors) })),
+    agents: agents.map((a) => ({ name: a.name, visitors: Number(a.visitors), paid: Number(a.paid) })),
     referrers: referrers.map((r) => ({ host: r.host, visitors: Number(r.visitors) })),
     daily: daily.map((d) => ({ day: d.day, web: Number(d.web), agent: Number(d.agent) })),
   };

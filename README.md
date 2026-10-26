@@ -116,7 +116,8 @@ the AI's guesses and clicks **Go live**. The choices behind it:
   entered as a fallback. A connected account carries over to the seller's other and new shops.
 - **A manage page** (open from Your shops, or by its private link): settings, publish, photos, and an
   [AG Grid](https://www.ag-grid.com/) orders table with sort, filter, search and **Mark shipped**.
-  A **Via** column shows whether each order came from the shop page or an AI agent.
+  A **Via** column shows whether each order came from the shop page or an AI agent, and which
+  agent ("AI agent · Grok"), credited the same way as the stats below (`orders.agent`).
 - **Design A/B test** on the manage page, for signed-in sellers on shops in their account: an
   "A/B test" panel under the design chat shows which model wrote the current design, makes a
   version B with Gemini or Qwen from the seller's same words and photo (the pasted link's page
@@ -125,7 +126,8 @@ the AI's guesses and clicks **Go live**. The choices behind it:
   panel and `POST /api/shops/[slug]/ab` answers 403.
 - **Visitors and sales** on the manage page (7, 30 or 90 days): visitors → checkouts started →
   paid, conversion and revenue, side by side for people on the shop page and AI agents, with
-  visitors per day, where people came from and which agents read the shop. No cookies: a visitor
+  visitors per day, where people came from and which agents read the shop, with each agent's
+  visits and paid orders ("3 visits · 1 paid"). No cookies: a visitor
   is a hash of IP, browser and the day ([src/lib/stats.ts](src/lib/stats.ts)), so nobody is
   followed past a day. People are counted by a beacon the page sends once loaded, so crawlers
   that don't run JavaScript don't count, and the seller's own preview never does. An agent visit is

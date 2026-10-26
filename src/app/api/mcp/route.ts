@@ -49,7 +49,7 @@ const TOOLS = {
       shop: slug,
       options: z.record(z.string().max(20), z.string().max(30)).optional().describe("One value per option from get_product, keyed by option name"),
     }),
-    run: async (a: { shop: string; options?: Record<string, string> }) => agentCreateOrder(a.shop, a.options),
+    run: async (a: { shop: string; options?: Record<string, string> }, agent: string) => agentCreateOrder(a.shop, a.options, null, agent),
   },
   get_order: {
     description:
@@ -108,8 +108,9 @@ async function handle(msg: Rpc, h: Headers, client: string | null) {
       const about = (args.data as { shop?: string }).shop;
       if (about) await recordVisit({ slug: about }, h, "agent", client);
       try {
-        // agent_name says back who this call is credited to in the seller's stats.
-        return reply({ ...(await (tool.run as (a: unknown) => Promise<object>)(args.data)), agent_name: agentName(h, client) });
+        // agent_name says back who this call is credited to in the seller's stats (and on its order).
+        const agent = agentName(h, client);
+        return reply({ ...(await (tool.run as (a: unknown, agent: string) => Promise<object>)(args.data, agent)), agent_name: agent });
       } catch (err) {
         if (err instanceof AgentError) return reply({ error: err.message }, true);
         console.error(`mcp ${String(params.name)}:`, err);

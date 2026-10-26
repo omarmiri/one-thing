@@ -31,8 +31,9 @@ export async function GET(req: Request, ctx: RouteContext<"/api/agent/shops/[slu
       }
       choice[o.name] = value;
     }
-    const order = await agentCreateOrder(shop.slug, options.length ? choice : undefined, agent);
-    return NextResponse.json({ ...order, agent_name: agentName(req.headers, agent) }, { headers });
+    const credit = agentName(req.headers, agent);
+    const order = await agentCreateOrder(shop.slug, options.length ? choice : undefined, agent, credit);
+    return NextResponse.json({ ...order, agent_name: credit }, { headers });
   } catch (err) {
     if (err instanceof AgentError) {
       return NextResponse.json({ error: err.message }, { status: err.message.startsWith("No live shop") ? 404 : 400, headers });
