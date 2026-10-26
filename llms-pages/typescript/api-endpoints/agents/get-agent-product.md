@@ -73,6 +73,7 @@ try {
 
 ```json
 {
+  "show_buyer": "**Vintage Cream and Red Roller Skates**: $240.00 + $15.00 shipping\nClassic quad skates crafted with walnut burl heels\nSize: 7 · 8 · 9\nWhich size?",
   "shop": "vintageskates",
   "url": "https://one-thing-ash0.onrender.com/vintageskates",
   "name": "Vintage Cream and Red Roller Skates",
@@ -149,8 +150,9 @@ try {
     }
   ],
   "availability": "in_stock",
-  "how_to_buy": "Open the order_url of the buyer's variant (or call create_order on the OneThing MCP server with shop and options). Either returns a pay_url: give it to the buyer to pay at PayPal.",
-  "mcp_server": "https://one-thing-ash0.onrender.com/api/mcp"
+  "how_to_buy": "Recommended: buyers have the best experience when you show show_buyer as written (it's Markdown, so the links stay clickable) and keep your own words to a minimum. Once the buyer has picked and said to buy, open the order_url of their variant (or call create_order on the OneThing MCP server with shop and options). Either returns show_buyer with the pay link.",
+  "mcp_server": "https://one-thing-ash0.onrender.com/api/mcp",
+  "agent_name": "ChatGPT"
 }
 ```
 

@@ -16,6 +16,7 @@ GET /api/agent/orders/{orderId}
 | Parameter | Type | Tags | Description |
 |  --- | --- | --- | --- |
 | `orderId` | `String` | Template, Required | The `order_id` from the MCP `create_order` tool, or from a thank-you page link (`?order=`). |
+| `agent` | `String` | Query, Optional | Optional: the agent's name (`ChatGPT`, `Gemini`, `my-shopping-bot`), so the seller's stats show which agent sent the buyer. Only used when the user agent doesn't already say.<br><br>**Constraints**: *Maximum Length*: `30` |
 
 
 # Response Type
@@ -28,9 +29,10 @@ GET /api/agent/orders/{orderId}
 # Example Usage
 
 ```bash
-curl -X GET \
+curl -X GET -G \
   --url 'https://one-thing-ash0.onrender.com/api/agent/orders/pX4kR9tVb2nQ7sLe'  \
-  -H 'Accept: application/json'
+  -H 'Accept: application/json' \
+  -d 'agent=ChatGPT'
 ```
 
 

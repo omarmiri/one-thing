@@ -14,6 +14,8 @@ An order as `get_order` and `getAgentOrder` report it.
 
 | Name | Type | Tags | Description |
 |  --- | --- | --- | --- |
+| `show_buyer` | `str` | Optional | A suggested reply to the buyer, in Markdown with the links already written as links: the product and its options to pick from, the pay link, or what they got with a receipt link. Buyers have the best experience when agents show it as written. |
+| `agent_name` | `str` | Optional | Who this request was credited to in the seller's stats: a recognised user agent, else the name the agent gave itself (`?agent=`, or the MCP client's name), else the user agent's first word. |
 | `order_id` | `str` | Required | - |
 | `status` | [`Status2`](/llms-pages/python/models/enumerations/status-2.md) | Required | `declined`: PayPal declined it, nothing charged, the buyer can open `pay_url` again. `sold_out`: it sold out before the payment was captured. `expired`: the PayPal checkout expired; create a new order. `failed`: PayPal couldn't be reached; ask again. |
 | `product` | `str` | Required | - |
@@ -30,8 +32,6 @@ An order as `get_order` and `getAgentOrder` report it.
 # Example
 
 ```python
-import dateutil.parser
-
 from onethingapi.models.agent_order import AgentOrder
 from onethingapi.models.amount import Amount
 from onethingapi.models.status_2 import Status2
@@ -47,14 +47,14 @@ agent_order = AgentOrder(
         currency='currency2'
     ),
     total='total0',
+    show_buyer='show_buyer0',
+    agent_name='agent_name8',
     options={
         'Size': 'M',
         'Color': 'Black'
     },
     pay_url='pay_url6',
-    next_step='next_step8',
-    paid_at=dateutil.parser.parse('2016-03-13T12:52:32.123Z'),
-    receipt_url='receipt_url8'
+    next_step='next_step8'
 )
 ```
 

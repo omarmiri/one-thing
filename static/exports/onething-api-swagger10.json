@@ -1605,6 +1605,15 @@
               "allowMultiple": false,
               "uniqueItems": false,
               "type": "string"
+            },
+            {
+              "name": "agent",
+              "description": "Optional: the agent's name (`ChatGPT`, `Gemini`, `my-shopping-bot`), so the seller's stats show which agent sent the buyer. Only used when the user agent doesn't already say.",
+              "paramType": "query",
+              "required": false,
+              "allowMultiple": false,
+              "uniqueItems": false,
+              "type": "string"
             }
           ],
           "produces": [
@@ -2501,6 +2510,16 @@
         "how_to_buy"
       ],
       "properties": {
+        "show_buyer": {
+          "description": "A suggested reply to the buyer, in Markdown with the links already written as links: the product and its options to pick from, the pay link, or what they got with a receipt link. Buyers have the best experience when agents show it as written.",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "agent_name": {
+          "description": "Who this request was credited to in the seller's stats: a recognised user agent, else the name the agent gave itself (`?agent=`, or the MCP client's name), else the user agent's first word.",
+          "uniqueItems": false,
+          "type": "string"
+        },
         "shop": {
           "description": "The link name, which the MCP tools take as `shop`.",
           "uniqueItems": false,
@@ -2694,6 +2713,16 @@
         "next_step"
       ],
       "properties": {
+        "show_buyer": {
+          "description": "A suggested reply to the buyer, in Markdown with the links already written as links: the product and its options to pick from, the pay link, or what they got with a receipt link. Buyers have the best experience when agents show it as written.",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "agent_name": {
+          "description": "Who this request was credited to in the seller's stats: a recognised user agent, else the name the agent gave itself (`?agent=`, or the MCP client's name), else the user agent's first word.",
+          "uniqueItems": false,
+          "type": "string"
+        },
         "order_id": {
           "description": "",
           "uniqueItems": false,
@@ -2743,6 +2772,16 @@
         "total"
       ],
       "properties": {
+        "show_buyer": {
+          "description": "A suggested reply to the buyer, in Markdown with the links already written as links: the product and its options to pick from, the pay link, or what they got with a receipt link. Buyers have the best experience when agents show it as written.",
+          "uniqueItems": false,
+          "type": "string"
+        },
+        "agent_name": {
+          "description": "Who this request was credited to in the seller's stats: a recognised user agent, else the name the agent gave itself (`?agent=`, or the MCP client's name), else the user agent's first word.",
+          "uniqueItems": false,
+          "type": "string"
+        },
         "order_id": {
           "description": "",
           "uniqueItems": false,

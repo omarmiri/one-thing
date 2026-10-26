@@ -65,6 +65,7 @@ print(result)
 
 ```json
 {
+  "show_buyer": "Vintage Cream and Red Roller Skates (9): $255.00 total.\n**[Pay $255.00 with PayPal](https://one-thing-ash0.onrender.com/o/pX4kR9tVb2nQ7sLe)**\nTell me once you've paid and I'll get you the shipping confirmation.",
   "order_id": "pX4kR9tVb2nQ7sLe",
   "status": "awaiting_buyer_approval",
   "total": "$255.00",

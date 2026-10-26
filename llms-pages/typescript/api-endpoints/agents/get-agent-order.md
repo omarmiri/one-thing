@@ -9,6 +9,7 @@ Where an order stands and, once paid, what the buyer got: the access code, the d
 ```ts
 async getAgentOrder(
   orderId: string,
+  agent?: string,
   requestOptions?: RequestOptions
 ): Promise<ApiResponse<AgentOrder>>
 ```
@@ -19,6 +20,7 @@ async getAgentOrder(
 | Parameter | Type | Tags | Description |
 |  --- | --- | --- | --- |
 | `orderId` | `string` | Template, Required | The `order_id` from the MCP `create_order` tool, or from a thank-you page link (`?order=`). |
+| `agent` | `string \| undefined` | Query, Optional | Optional: the agent's name (`ChatGPT`, `Gemini`, `my-shopping-bot`), so the seller's stats show which agent sent the buyer. Only used when the user agent doesn't already say.<br><br>**Constraints**: *Maximum Length*: `30` |
 | `requestOptions` | `RequestOptions \| undefined` | Optional | Pass additional request options. |
 
 
@@ -34,8 +36,13 @@ This method returns an [`ApiResponse`](/llms-pages/typescript/sdk-infrastructure
 ```ts
 const orderId = 'pX4kR9tVb2nQ7sLe';
 
+const agent = 'ChatGPT';
+
 try {
-  const response = await agentsApi.getAgentOrder(orderId);
+  const response = await agentsApi.getAgentOrder(
+    orderId,
+    agent
+  );
 
   // Extracting fully parsed response body.
   console.log(response.result);

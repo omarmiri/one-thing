@@ -1,129 +1,129 @@
 {
-  "id": "6f874d71-fd36-4969-9452-480cea0ae795",
+  "id": "74728070-125a-4a93-8037-c35725209c35",
   "name": "OneThing API",
   "description": "OneThing turns a photo, a link or a picked product into a live one-product shop that takes\nPayPal payments, or a recommendation page that earns referral commissions through Channel3.\n\n**How a shop is made**\n1. `createShop`: start from a photo, a link, or a Channel3 product. Gemini guesses what it\n   is, how it's delivered, the price, a short link and the page design. You get back the\n   shop's link name and an **admin token**.\n2. `updateShop`: correct anything the AI guessed, then set `status: live`.\n3. Buyers pay on `https://<host>/<slug>` with PayPal. Sellers read orders and ship them.\n\n**Auth.** Seller endpoints take the shop's admin token in the `x-admin-token` header, or a\n**platform API key** (`Authorization: Bearer ot_sk_…`) for marketplaces that make shops for\ntheir own sellers. Buyer endpoints (checkout, access-code verification, downloads) are public.\n\n**Access codes.** A digital product can unlock an app or game instead of shipping a file.\nEach paid order gets a code such as `K7QF-M2XP-9HTD`; your app calls `verifyAccessCode`\nbefore unlocking. Raptor Rush on miriogames.com is a live example.\n\n**Agent-ready.** Every live shop is also published for AI shopping agents: an MCP server at\n`/api/mcp` with `search_shops`, `get_product`, `create_order` and `get_order`, and the same\nfour as plain GETs for assistants that can only fetch URLs (`listAgentShops`,\n`getAgentProduct`, `orderByLink`, `getAgentOrder`), with `/llms.txt` as the starting point.\nAn agent can find and order, but the buyer still approves every payment at PayPal.\n\nAll money moves through PayPal (sandbox in this deployment). OneThing never holds card data.\n",
   "order": [],
   "folders": [
     {
-      "id": "eda85c88-5d8e-4761-a3c8-b578ae3497d2",
+      "id": "213855dd-2e89-489c-be48-dc07f3009ef9",
       "name": "Accounts",
       "description": "Sign in as a seller with an email or a phone number. Shops made while signed in belong to the account.",
       "order": [
-        "60747aa4-05be-4ba6-a4e0-9162ef6525e9",
-        "0e7c2162-b95e-4927-97c5-020cbad5309a",
-        "80b2b19f-d466-4e0b-bfd8-cc48dd129b5e"
+        "f6393a96-b161-41e4-826f-bfc0d1c5d0d1",
+        "b329877a-bcd6-4c68-90d7-80ecfc0cdd8c",
+        "68eef0b7-ab0e-4b4e-9c20-f801631eed80"
       ],
-      "collection_id": "6f874d71-fd36-4969-9452-480cea0ae795"
+      "collection_id": "74728070-125a-4a93-8037-c35725209c35"
     },
     {
-      "id": "f430e49c-2429-4b75-8152-c21ea971bee8",
+      "id": "c862ec92-e5d1-4ea4-8e41-5a6b2a3337ac",
       "name": "Shops",
       "description": "Create a shop and manage it as its seller.",
       "order": [
-        "e96dc5a0-8ef7-4c0a-b22d-204b2937d53c",
-        "f5ea64c1-a8ce-4338-80be-5f94697deb62",
-        "1d8ad613-e0bd-4084-bac8-77fd85b9640f",
-        "bfc9da66-06c1-4923-86bd-885443d4381f",
-        "2681d06a-27d4-4f76-9cf9-177af1807343",
-        "0531e042-ae6c-45e7-8b5e-c3913a3f61e1",
-        "0ac1f379-14e4-4913-89a0-71d5d4c44e29",
-        "ace82736-f666-4e78-84ce-6f2292bd9b18",
-        "3402a833-c40d-42e1-8c39-f1fb59a3b28a",
-        "5e452925-a34e-49b0-bbfe-24a6a3d64633",
-        "3d6a40ee-b72d-4ef1-a65f-6afc02af4b47",
-        "57f2f8cb-1c22-4c07-aeba-c4de2d3fca11",
-        "13b30d5c-be39-46f6-bcd0-6928ffcb43f0",
-        "c37bf987-fb1f-4348-a127-5466fcd06080"
+        "07fa2c9d-270e-4c10-a93b-3aef361a8665",
+        "92e1d24a-f746-4604-b7c6-d9dc02c856f3",
+        "b48849e1-f39e-49b1-9a57-57bee14cd90a",
+        "1300a50f-76f3-4311-8129-c757a9458e1a",
+        "5a7a187d-5dc4-49dc-b921-62916b4da994",
+        "361bdba2-d999-438d-99ca-52208d72c9fc",
+        "3376f067-785a-4f5a-a2eb-7551f448cc62",
+        "71f0ae4e-a67f-4192-b1bc-aeb42599cb0f",
+        "836f1633-efc8-4f0e-9222-db5f8f4981e1",
+        "bb0b6447-3b07-42dc-b4f4-2168cd2a1e9c",
+        "6bbb46d9-34e3-47c2-bab2-8843c7c26835",
+        "f960cec4-cff6-4061-8c26-746559e44aa7",
+        "6c806e3d-a7f5-4948-a6a8-428207ac9498",
+        "0f22e32e-cc72-4a40-bf18-b0e78a7d09b0"
       ],
-      "collection_id": "6f874d71-fd36-4969-9452-480cea0ae795"
+      "collection_id": "74728070-125a-4a93-8037-c35725209c35"
     },
     {
-      "id": "5ebc79c0-03e7-46c8-8e94-8856347fd180",
+      "id": "d40fceae-e1ea-402c-84fe-1cf8829278a2",
       "name": "Links",
       "description": "Short shop links (`/<slug>`).",
       "order": [
-        "89305676-15e6-4266-9e50-b1da52ecaae8"
+        "c8b97553-9b9a-4e88-bd7d-55ffa7f3d5bd"
       ],
-      "collection_id": "6f874d71-fd36-4969-9452-480cea0ae795"
+      "collection_id": "74728070-125a-4a93-8037-c35725209c35"
     },
     {
-      "id": "e98a2fbb-601c-4361-bb9b-6edd4fcd4ef3",
+      "id": "92162658-9b30-4988-867b-bfdbe8b7d6ab",
       "name": "Products",
       "description": "Find products to recommend (Channel3 catalog).",
       "order": [
-        "54660d22-220d-412e-a1c7-30cb976485be"
+        "fbd082f5-c829-41d7-a254-726d8ac0d821"
       ],
-      "collection_id": "6f874d71-fd36-4969-9452-480cea0ae795"
+      "collection_id": "74728070-125a-4a93-8037-c35725209c35"
     },
     {
-      "id": "9cc27985-9501-4df1-9387-6f1ea72273df",
+      "id": "81508100-5fc8-41ff-94fd-a6a486704e5d",
       "name": "Checkout",
       "description": "Buyer-side PayPal checkout.",
       "order": [
-        "26a7300f-6f1b-4f6e-ac21-6127a6348732",
-        "e0127334-272b-4fb7-b736-54a13dd8e2a0",
-        "a47fdfff-d732-4e09-9864-32599c24eefc"
+        "f4172e52-3543-44a3-9b3e-29ca29740e16",
+        "ada61778-1e14-48ea-9776-1156010b954b",
+        "01b96cea-856d-43e7-afc7-c35384580a5a"
       ],
-      "collection_id": "6f874d71-fd36-4969-9452-480cea0ae795"
+      "collection_id": "74728070-125a-4a93-8037-c35725209c35"
     },
     {
-      "id": "c545c1d1-758f-4f98-91f9-ba3398d7703f",
+      "id": "e22ac1a6-5977-41cf-a2a7-32d6f13dffc4",
       "name": "Access codes",
       "description": "Unlock a paid app or game with a buyer's code.",
       "order": [
-        "d2b3f277-41c9-4f09-a9bc-8a3e58fbc01b"
+        "80d059fe-ef0a-4d71-851b-0d04519e9fdb"
       ],
-      "collection_id": "6f874d71-fd36-4969-9452-480cea0ae795"
+      "collection_id": "74728070-125a-4a93-8037-c35725209c35"
     },
     {
-      "id": "840cbfc7-300a-41f6-9eb4-8577a09b2403",
+      "id": "d6756ba0-1e51-489c-aaf9-febcc6c70b07",
       "name": "Orders",
       "description": "The seller's orders, fulfilment and PayPal webhook log.",
       "order": [
-        "97da2a70-9ae4-498c-aa4e-32735895a6f5",
-        "20744d1c-c96e-481f-9b35-e632c07cf263",
-        "2f76873f-7005-4f76-acd3-9f4ef235829c"
+        "6649597e-c73c-4b86-a4f6-ff8816169d6d",
+        "42e47e3d-7d51-48e2-891c-df57853382d7",
+        "d8fcd271-55c8-454a-a35f-eec553e980d1"
       ],
-      "collection_id": "6f874d71-fd36-4969-9452-480cea0ae795"
+      "collection_id": "74728070-125a-4a93-8037-c35725209c35"
     },
     {
-      "id": "7f343d20-b705-49a1-907b-f3518aadd1f4",
+      "id": "53b66190-1a7f-431f-962f-227b1d1ddb6e",
       "name": "Files",
       "description": "Digital downloads and shop images.",
       "order": [
-        "e1da8a24-6049-4b79-af0b-dfc8033acdfe",
-        "7598a5c9-8b84-4472-9835-60f79061d64b"
+        "5f55efc5-9f5e-4f00-bbab-da0afe73dcb7",
+        "9c137d29-3b77-43ad-bdf4-8a2de6a42887"
       ],
-      "collection_id": "6f874d71-fd36-4969-9452-480cea0ae795"
+      "collection_id": "74728070-125a-4a93-8037-c35725209c35"
     },
     {
-      "id": "d1aa2437-425b-43bc-bf91-bd67eaf39a4d",
+      "id": "c62c1631-fd03-461c-a6d8-f97cea6e964c",
       "name": "Agents",
       "description": "Machine-readable shops and the MCP server AI shopping agents buy through.",
       "order": [
-        "437979fe-5264-4794-915e-ff3187b6ced0",
-        "04c85e67-2464-4e6b-a894-4d8246e618d4",
-        "dee4bf38-e734-4f49-aad9-a7224171df54",
-        "f59a38eb-addf-4eea-b31d-4a72645a6238",
-        "20779254-4ab3-4ee5-944c-db27a40ba176",
-        "dec4b734-9dfb-4dcc-a3b2-cc4d576bf693"
+        "a5122625-f890-4ab3-9bfb-0f9770daf962",
+        "60686a38-eb31-4260-bf87-f0c3e41fdb6d",
+        "e1891d3d-3b89-4cb7-a1c5-22960f243171",
+        "9fedb1cc-9698-4690-b2fa-122fa4f3e3ae",
+        "317e9cd1-b092-4c4c-838e-2f7763739c24",
+        "a5f535a4-ccda-42cc-b842-48af647da9be"
       ],
-      "collection_id": "6f874d71-fd36-4969-9452-480cea0ae795"
+      "collection_id": "74728070-125a-4a93-8037-c35725209c35"
     },
     {
-      "id": "7b926f76-e710-4956-929a-77f542d73464",
+      "id": "5846d180-e3e8-4b5a-b3e3-a955a3a91525",
       "name": "Platforms",
       "description": "For marketplaces that make and run shops for their own sellers with one API key.",
       "order": [
-        "e0d67160-fd50-4b13-8b4e-9a5d01ff3cd7"
+        "c38c786f-8f59-4d9c-b58e-aef868efe25a"
       ],
-      "collection_id": "6f874d71-fd36-4969-9452-480cea0ae795"
+      "collection_id": "74728070-125a-4a93-8037-c35725209c35"
     }
   ],
   "requests": [
     {
-      "folder": "eda85c88-5d8e-4761-a3c8-b578ae3497d2",
-      "id": "60747aa4-05be-4ba6-a4e0-9162ef6525e9",
+      "folder": "213855dd-2e89-489c-be48-dc07f3009ef9",
+      "id": "f6393a96-b161-41e4-826f-bfc0d1c5d0d1",
       "name": "signIn",
       "dataMode": "raw",
       "dataDisabled": false,
@@ -135,8 +135,8 @@
       "url": "{{default}}/api/account/signin",
       "responses": [
         {
-          "request": "60747aa4-05be-4ba6-a4e0-9162ef6525e9",
-          "id": "98b5beaf-ea43-4cf5-a401-5b2734c91d82",
+          "request": "f6393a96-b161-41e4-826f-bfc0d1c5d0d1",
+          "id": "bd8e50ad-fd16-4c65-9656-9a05715cb173",
           "name": "Response_200",
           "status": "Signed in. The `ot_session` cookie is set.",
           "responseCode": {
@@ -163,7 +163,7 @@
         }
       ],
       "rawModeData": "{\"identifier\":\"maker@example.com\"}",
-      "collectionId": "6f874d71-fd36-4969-9452-480cea0ae795",
+      "collectionId": "74728070-125a-4a93-8037-c35725209c35",
       "queryParams": [],
       "headerData": [
         {
@@ -179,8 +179,8 @@
       "pathVariableData": []
     },
     {
-      "folder": "eda85c88-5d8e-4761-a3c8-b578ae3497d2",
-      "id": "0e7c2162-b95e-4927-97c5-020cbad5309a",
+      "folder": "213855dd-2e89-489c-be48-dc07f3009ef9",
+      "id": "b329877a-bcd6-4c68-90d7-80ecfc0cdd8c",
       "name": "signOut",
       "dataDisabled": false,
       "descriptionFormat": "markdown",
@@ -191,8 +191,8 @@
       "url": "{{default}}/api/account/signout",
       "responses": [
         {
-          "request": "0e7c2162-b95e-4927-97c5-020cbad5309a",
-          "id": "f3f31274-7cf5-4267-81fe-20f981261086",
+          "request": "b329877a-bcd6-4c68-90d7-80ecfc0cdd8c",
+          "id": "1114b9a5-7b3c-484a-983a-e7f5559c6cd8",
           "name": "Response_200",
           "status": "Done.",
           "responseCode": {
@@ -212,7 +212,7 @@
           "rawDataType": "text"
         }
       ],
-      "collectionId": "6f874d71-fd36-4969-9452-480cea0ae795",
+      "collectionId": "74728070-125a-4a93-8037-c35725209c35",
       "queryParams": [],
       "headerData": [
         {
@@ -223,8 +223,8 @@
       "pathVariableData": []
     },
     {
-      "folder": "eda85c88-5d8e-4761-a3c8-b578ae3497d2",
-      "id": "80b2b19f-d466-4e0b-bfd8-cc48dd129b5e",
+      "folder": "213855dd-2e89-489c-be48-dc07f3009ef9",
+      "id": "68eef0b7-ab0e-4b4e-9c20-f801631eed80",
       "name": "logInWithPayPal",
       "dataDisabled": false,
       "descriptionFormat": "markdown",
@@ -235,8 +235,8 @@
       "url": "{{default}}/api/account/paypal?next=%2Fnew",
       "responses": [
         {
-          "request": "80b2b19f-d466-4e0b-bfd8-cc48dd129b5e",
-          "id": "0a39e175-0b8c-49e3-85d7-f1f6d5da84e3",
+          "request": "68eef0b7-ab0e-4b4e-9c20-f801631eed80",
+          "id": "b8da93e0-2626-4b27-bbd2-bc8cf3b959b8",
           "name": "Response_302",
           "status": "To PayPal's sign-in page.",
           "responseCode": {
@@ -248,8 +248,8 @@
           "language": "Text"
         },
         {
-          "request": "80b2b19f-d466-4e0b-bfd8-cc48dd129b5e",
-          "id": "08cbf0ae-4405-486c-b9fc-151f103ac81f",
+          "request": "68eef0b7-ab0e-4b4e-9c20-f801631eed80",
+          "id": "dc4d53a2-f588-4663-ac73-d27e74ce473e",
           "name": "Response_503",
           "status": "Log in with PayPal isn't switched on for this server.",
           "responseCode": {
@@ -264,12 +264,12 @@
             }
           ],
           "mime": "application/json",
-          "text": "{\n  \"error\": \"error86\",\n  \"field\": \"field44\",\n  \"detail\": \"detail34\"\n}",
+          "text": "{\n  \"error\": \"error55\",\n  \"field\": \"field21\",\n  \"detail\": \"detail63\"\n}",
           "language": "Text",
           "rawDataType": "text"
         }
       ],
-      "collectionId": "6f874d71-fd36-4969-9452-480cea0ae795",
+      "collectionId": "74728070-125a-4a93-8037-c35725209c35",
       "queryParams": [
         {
           "key": "next",
@@ -286,8 +286,8 @@
       "pathVariableData": []
     },
     {
-      "folder": "f430e49c-2429-4b75-8152-c21ea971bee8",
-      "id": "e96dc5a0-8ef7-4c0a-b22d-204b2937d53c",
+      "folder": "c862ec92-e5d1-4ea4-8e41-5a6b2a3337ac",
+      "id": "07fa2c9d-270e-4c10-a93b-3aef361a8665",
       "name": "createShop",
       "dataMode": "params",
       "data": [
@@ -366,7 +366,7 @@
         },
         {
           "key": "stock",
-          "value": "231",
+          "value": "10",
           "description": "",
           "enabled": true,
           "type": "text"
@@ -387,7 +387,7 @@
         },
         {
           "key": "seller_email",
-          "value": "seller_email36",
+          "value": "seller_email32",
           "description": "",
           "enabled": true,
           "type": "text"
@@ -412,8 +412,8 @@
       "url": "{{default}}/api/shops",
       "responses": [
         {
-          "request": "e96dc5a0-8ef7-4c0a-b22d-204b2937d53c",
-          "id": "d62d83f4-dfc5-41c0-8287-847fcb5c9ac8",
+          "request": "07fa2c9d-270e-4c10-a93b-3aef361a8665",
+          "id": "dd43d15c-d400-42b0-9266-5e4404c4e160",
           "name": "Response_200",
           "status": "Draft created.",
           "responseCode": {
@@ -433,7 +433,7 @@
           "rawDataType": "text"
         }
       ],
-      "collectionId": "6f874d71-fd36-4969-9452-480cea0ae795",
+      "collectionId": "74728070-125a-4a93-8037-c35725209c35",
       "queryParams": [],
       "headerData": [
         {
@@ -444,8 +444,8 @@
       "pathVariableData": []
     },
     {
-      "folder": "f430e49c-2429-4b75-8152-c21ea971bee8",
-      "id": "f5ea64c1-a8ce-4338-80be-5f94697deb62",
+      "folder": "c862ec92-e5d1-4ea4-8e41-5a6b2a3337ac",
+      "id": "92e1d24a-f746-4604-b7c6-d9dc02c856f3",
       "name": "getShop",
       "dataDisabled": false,
       "descriptionFormat": "markdown",
@@ -456,7 +456,7 @@
       "helperAttributes": {
         "id": "apikey",
         "key": "x-admin-token",
-        "value": "x-admin-token70",
+        "value": "x-admin-token68",
         "in": "header"
       },
       "auth": {
@@ -474,7 +474,7 @@
           },
           {
             "key": "value",
-            "value": "x-admin-token52",
+            "value": "x-admin-token47",
             "type": "string"
           }
         ]
@@ -485,8 +485,8 @@
       "url": "{{default}}/api/shops/:slug",
       "responses": [
         {
-          "request": "f5ea64c1-a8ce-4338-80be-5f94697deb62",
-          "id": "bf3df383-2cca-4b8a-bdc2-62b5948efb02",
+          "request": "92e1d24a-f746-4604-b7c6-d9dc02c856f3",
+          "id": "76498ffa-d8e8-451c-b5d5-b12dc9d854d5",
           "name": "Response_200",
           "status": "The shop.",
           "responseCode": {
@@ -506,7 +506,7 @@
           "rawDataType": "text"
         }
       ],
-      "collectionId": "6f874d71-fd36-4969-9452-480cea0ae795",
+      "collectionId": "74728070-125a-4a93-8037-c35725209c35",
       "queryParams": [],
       "headerData": [
         {
@@ -523,8 +523,8 @@
       ]
     },
     {
-      "folder": "f430e49c-2429-4b75-8152-c21ea971bee8",
-      "id": "1d8ad613-e0bd-4084-bac8-77fd85b9640f",
+      "folder": "c862ec92-e5d1-4ea4-8e41-5a6b2a3337ac",
+      "id": "b48849e1-f39e-49b1-9a57-57bee14cd90a",
       "name": "updateShop",
       "dataMode": "raw",
       "dataDisabled": false,
@@ -536,7 +536,7 @@
       "helperAttributes": {
         "id": "apikey",
         "key": "x-admin-token",
-        "value": "x-admin-token66",
+        "value": "x-admin-token8",
         "in": "header"
       },
       "auth": {
@@ -554,7 +554,7 @@
           },
           {
             "key": "value",
-            "value": "x-admin-token27",
+            "value": "x-admin-token10",
             "type": "string"
           }
         ]
@@ -565,8 +565,8 @@
       "url": "{{default}}/api/shops/:slug",
       "responses": [
         {
-          "request": "1d8ad613-e0bd-4084-bac8-77fd85b9640f",
-          "id": "c98aeec2-f998-4f2e-825f-744b8a0df80e",
+          "request": "b48849e1-f39e-49b1-9a57-57bee14cd90a",
+          "id": "dbbdf6b2-0afa-4589-b486-2ff209dbd5e7",
           "name": "Response_200",
           "status": "Saved.",
           "responseCode": {
@@ -587,7 +587,7 @@
         }
       ],
       "rawModeData": "{\"status\":\"live\"}",
-      "collectionId": "6f874d71-fd36-4969-9452-480cea0ae795",
+      "collectionId": "74728070-125a-4a93-8037-c35725209c35",
       "queryParams": [],
       "headerData": [
         {
@@ -609,8 +609,8 @@
       ]
     },
     {
-      "folder": "f430e49c-2429-4b75-8152-c21ea971bee8",
-      "id": "bfc9da66-06c1-4923-86bd-885443d4381f",
+      "folder": "c862ec92-e5d1-4ea4-8e41-5a6b2a3337ac",
+      "id": "1300a50f-76f3-4311-8129-c757a9458e1a",
       "name": "refineShopDesign",
       "dataMode": "raw",
       "dataDisabled": false,
@@ -622,7 +622,7 @@
       "helperAttributes": {
         "id": "apikey",
         "key": "x-admin-token",
-        "value": "x-admin-token38",
+        "value": "x-admin-token75",
         "in": "header"
       },
       "auth": {
@@ -640,7 +640,7 @@
           },
           {
             "key": "value",
-            "value": "x-admin-token63",
+            "value": "x-admin-token94",
             "type": "string"
           }
         ]
@@ -651,8 +651,8 @@
       "url": "{{default}}/api/shops/:slug/refine",
       "responses": [
         {
-          "request": "bfc9da66-06c1-4923-86bd-885443d4381f",
-          "id": "663884fd-b9a5-4508-9347-6858afbbccfc",
+          "request": "1300a50f-76f3-4311-8129-c757a9458e1a",
+          "id": "e58c2ab7-0d50-4b03-8424-9e141d247b8d",
           "name": "Response_200",
           "status": "The new design.",
           "responseCode": {
@@ -673,7 +673,7 @@
         }
       ],
       "rawModeData": "{\"instruction\":\"Make it feel more premium\"}",
-      "collectionId": "6f874d71-fd36-4969-9452-480cea0ae795",
+      "collectionId": "74728070-125a-4a93-8037-c35725209c35",
       "queryParams": [],
       "headerData": [
         {
@@ -695,8 +695,8 @@
       ]
     },
     {
-      "folder": "f430e49c-2429-4b75-8152-c21ea971bee8",
-      "id": "2681d06a-27d4-4f76-9cf9-177af1807343",
+      "folder": "c862ec92-e5d1-4ea4-8e41-5a6b2a3337ac",
+      "id": "5a7a187d-5dc4-49dc-b921-62916b4da994",
       "name": "regenerateHeroArt",
       "dataDisabled": false,
       "descriptionFormat": "markdown",
@@ -707,7 +707,7 @@
       "helperAttributes": {
         "id": "apikey",
         "key": "x-admin-token",
-        "value": "x-admin-token65",
+        "value": "x-admin-token45",
         "in": "header"
       },
       "auth": {
@@ -725,7 +725,7 @@
           },
           {
             "key": "value",
-            "value": "x-admin-token58",
+            "value": "x-admin-token18",
             "type": "string"
           }
         ]
@@ -736,8 +736,8 @@
       "url": "{{default}}/api/shops/:slug/hero",
       "responses": [
         {
-          "request": "2681d06a-27d4-4f76-9cf9-177af1807343",
-          "id": "544ecc85-d490-4cfb-a964-febdd0e33fe3",
+          "request": "5a7a187d-5dc4-49dc-b921-62916b4da994",
+          "id": "0340a7ec-0893-47a6-b33d-8ff08c781b2a",
           "name": "Response_200",
           "status": "Done.",
           "responseCode": {
@@ -757,7 +757,7 @@
           "rawDataType": "text"
         }
       ],
-      "collectionId": "6f874d71-fd36-4969-9452-480cea0ae795",
+      "collectionId": "74728070-125a-4a93-8037-c35725209c35",
       "queryParams": [],
       "headerData": [
         {
@@ -774,8 +774,8 @@
       ]
     },
     {
-      "folder": "f430e49c-2429-4b75-8152-c21ea971bee8",
-      "id": "0531e042-ae6c-45e7-8b5e-c3913a3f61e1",
+      "folder": "c862ec92-e5d1-4ea4-8e41-5a6b2a3337ac",
+      "id": "361bdba2-d999-438d-99ca-52208d72c9fc",
       "name": "uploadDigitalFile",
       "dataMode": "params",
       "data": [
@@ -795,7 +795,7 @@
       "helperAttributes": {
         "id": "apikey",
         "key": "x-admin-token",
-        "value": "x-admin-token66",
+        "value": "x-admin-token24",
         "in": "header"
       },
       "auth": {
@@ -813,7 +813,7 @@
           },
           {
             "key": "value",
-            "value": "x-admin-token89",
+            "value": "x-admin-token65",
             "type": "string"
           }
         ]
@@ -824,8 +824,8 @@
       "url": "{{default}}/api/shops/:slug/file",
       "responses": [
         {
-          "request": "0531e042-ae6c-45e7-8b5e-c3913a3f61e1",
-          "id": "ee3b150a-33a3-4ac6-9eb0-7d0e28a476e5",
+          "request": "361bdba2-d999-438d-99ca-52208d72c9fc",
+          "id": "2eea2732-d62f-4866-a55d-4471d7bacd88",
           "name": "Response_200",
           "status": "Uploaded.",
           "responseCode": {
@@ -845,7 +845,7 @@
           "rawDataType": "text"
         }
       ],
-      "collectionId": "6f874d71-fd36-4969-9452-480cea0ae795",
+      "collectionId": "74728070-125a-4a93-8037-c35725209c35",
       "queryParams": [],
       "headerData": [
         {
@@ -862,8 +862,8 @@
       ]
     },
     {
-      "folder": "f430e49c-2429-4b75-8152-c21ea971bee8",
-      "id": "0ac1f379-14e4-4913-89a0-71d5d4c44e29",
+      "folder": "c862ec92-e5d1-4ea4-8e41-5a6b2a3337ac",
+      "id": "3376f067-785a-4f5a-a2eb-7551f448cc62",
       "name": "addPhotos",
       "dataMode": "params",
       "data": [
@@ -883,7 +883,87 @@
       "helperAttributes": {
         "id": "apikey",
         "key": "x-admin-token",
-        "value": "x-admin-token23",
+        "value": "x-admin-token52",
+        "in": "header"
+      },
+      "auth": {
+        "type": "apikey",
+        "apikey": [
+          {
+            "key": "in",
+            "value": "header",
+            "type": "string"
+          },
+          {
+            "key": "key",
+            "value": "x-admin-token",
+            "type": "string"
+          },
+          {
+            "key": "value",
+            "value": "x-admin-token48",
+            "type": "string"
+          }
+        ]
+      },
+      "pathVariables": {
+        "slug": "raptorrush"
+      },
+      "url": "{{default}}/api/shops/:slug/photos",
+      "responses": [
+        {
+          "request": "3376f067-785a-4f5a-a2eb-7551f448cc62",
+          "id": "802e9ecd-8b47-46ad-b4ec-5dc19810de81",
+          "name": "Response_200",
+          "status": "The shop's photos, cover first.",
+          "responseCode": {
+            "code": 200,
+            "name": "200",
+            "detail": "The shop's photos, cover first."
+          },
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "mime": "application/json",
+          "text": "{\n  \"photos\": [\n    {\n      \"id\": \"LFRvGuTU3D8i334X\",\n      \"url\": \"/api/blobs/LFRvGuTU3D8i334X\"\n    },\n    {\n      \"id\": \"zrySajNyao6_j11x\",\n      \"url\": \"/api/blobs/zrySajNyao6_j11x\"\n    }\n  ]\n}",
+          "language": "Text",
+          "rawDataType": "text"
+        }
+      ],
+      "collectionId": "74728070-125a-4a93-8037-c35725209c35",
+      "queryParams": [],
+      "headerData": [
+        {
+          "key": "Accept",
+          "value": "application/json"
+        }
+      ],
+      "pathVariableData": [
+        {
+          "key": "slug",
+          "value": "raptorrush",
+          "description": "The shop's link name (current or former)."
+        }
+      ]
+    },
+    {
+      "folder": "c862ec92-e5d1-4ea4-8e41-5a6b2a3337ac",
+      "id": "71f0ae4e-a67f-4192-b1bc-aeb42599cb0f",
+      "name": "setPhotoOrder",
+      "dataMode": "raw",
+      "dataDisabled": false,
+      "descriptionFormat": "markdown",
+      "description": "Sets the photo order; the first becomes the cover. Leaving a photo out removes it.",
+      "headers": "Content-Type:application/json\nAccept:application/json\n",
+      "method": "PUT",
+      "currentHelper": "apikey",
+      "helperAttributes": {
+        "id": "apikey",
+        "key": "x-admin-token",
+        "value": "x-admin-token35",
         "in": "header"
       },
       "auth": {
@@ -912,88 +992,8 @@
       "url": "{{default}}/api/shops/:slug/photos",
       "responses": [
         {
-          "request": "0ac1f379-14e4-4913-89a0-71d5d4c44e29",
-          "id": "d6fbb9fa-cd8d-4a43-a390-bbd4c36c9f33",
-          "name": "Response_200",
-          "status": "The shop's photos, cover first.",
-          "responseCode": {
-            "code": 200,
-            "name": "200",
-            "detail": "The shop's photos, cover first."
-          },
-          "headers": [
-            {
-              "key": "Content-Type",
-              "value": "application/json"
-            }
-          ],
-          "mime": "application/json",
-          "text": "{\n  \"photos\": [\n    {\n      \"id\": \"LFRvGuTU3D8i334X\",\n      \"url\": \"/api/blobs/LFRvGuTU3D8i334X\"\n    },\n    {\n      \"id\": \"zrySajNyao6_j11x\",\n      \"url\": \"/api/blobs/zrySajNyao6_j11x\"\n    }\n  ]\n}",
-          "language": "Text",
-          "rawDataType": "text"
-        }
-      ],
-      "collectionId": "6f874d71-fd36-4969-9452-480cea0ae795",
-      "queryParams": [],
-      "headerData": [
-        {
-          "key": "Accept",
-          "value": "application/json"
-        }
-      ],
-      "pathVariableData": [
-        {
-          "key": "slug",
-          "value": "raptorrush",
-          "description": "The shop's link name (current or former)."
-        }
-      ]
-    },
-    {
-      "folder": "f430e49c-2429-4b75-8152-c21ea971bee8",
-      "id": "ace82736-f666-4e78-84ce-6f2292bd9b18",
-      "name": "setPhotoOrder",
-      "dataMode": "raw",
-      "dataDisabled": false,
-      "descriptionFormat": "markdown",
-      "description": "Sets the photo order; the first becomes the cover. Leaving a photo out removes it.",
-      "headers": "Content-Type:application/json\nAccept:application/json\n",
-      "method": "PUT",
-      "currentHelper": "apikey",
-      "helperAttributes": {
-        "id": "apikey",
-        "key": "x-admin-token",
-        "value": "x-admin-token11",
-        "in": "header"
-      },
-      "auth": {
-        "type": "apikey",
-        "apikey": [
-          {
-            "key": "in",
-            "value": "header",
-            "type": "string"
-          },
-          {
-            "key": "key",
-            "value": "x-admin-token",
-            "type": "string"
-          },
-          {
-            "key": "value",
-            "value": "x-admin-token72",
-            "type": "string"
-          }
-        ]
-      },
-      "pathVariables": {
-        "slug": "raptorrush"
-      },
-      "url": "{{default}}/api/shops/:slug/photos",
-      "responses": [
-        {
-          "request": "ace82736-f666-4e78-84ce-6f2292bd9b18",
-          "id": "164cbaaa-e1a4-436c-afd7-c5a9c4f47f0c",
+          "request": "71f0ae4e-a67f-4192-b1bc-aeb42599cb0f",
+          "id": "ba7b739f-2ae3-4e82-b9bd-d15575db4f2a",
           "name": "Response_200",
           "status": "The shop's photos, cover first.",
           "responseCode": {
@@ -1014,7 +1014,7 @@
         }
       ],
       "rawModeData": "{\"photos\":[\"zrySajNyao6_j11x\",\"LFRvGuTU3D8i334X\",\"SuqcgNv64HWN8H6e\"]}",
-      "collectionId": "6f874d71-fd36-4969-9452-480cea0ae795",
+      "collectionId": "74728070-125a-4a93-8037-c35725209c35",
       "queryParams": [],
       "headerData": [
         {
@@ -1036,13 +1036,93 @@
       ]
     },
     {
-      "folder": "f430e49c-2429-4b75-8152-c21ea971bee8",
-      "id": "3402a833-c40d-42e1-8c39-f1fb59a3b28a",
+      "folder": "c862ec92-e5d1-4ea4-8e41-5a6b2a3337ac",
+      "id": "836f1633-efc8-4f0e-9222-db5f8f4981e1",
       "name": "checkMissingDetails",
       "dataDisabled": false,
       "descriptionFormat": "markdown",
       "description": "Asks Gemini what buyers will want to choose (sizes, colours) and what they'll ask that the\nlisting doesn't say (dimensions, materials). `createShop` already does this once; call it\nagain after editing the product. The result is saved as the shop's `suggestions`.\n\nNothing changes on the shop page until the seller confirms: save options with `updateShop`\n(`options`), and answer the questions with `updateShop` (`facts`). Not for recommendations.\n",
       "headers": "Accept:application/json\n",
+      "method": "POST",
+      "currentHelper": "apikey",
+      "helperAttributes": {
+        "id": "apikey",
+        "key": "x-admin-token",
+        "value": "x-admin-token76",
+        "in": "header"
+      },
+      "auth": {
+        "type": "apikey",
+        "apikey": [
+          {
+            "key": "in",
+            "value": "header",
+            "type": "string"
+          },
+          {
+            "key": "key",
+            "value": "x-admin-token",
+            "type": "string"
+          },
+          {
+            "key": "value",
+            "value": "x-admin-token28",
+            "type": "string"
+          }
+        ]
+      },
+      "pathVariables": {
+        "slug": "raptorrush"
+      },
+      "url": "{{default}}/api/shops/:slug/suggest",
+      "responses": [
+        {
+          "request": "836f1633-efc8-4f0e-9222-db5f8f4981e1",
+          "id": "49f3438b-ee68-4def-be3a-a0733146c711",
+          "name": "Response_200",
+          "status": "The suggestions.",
+          "responseCode": {
+            "code": 200,
+            "name": "200",
+            "detail": "The suggestions."
+          },
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "mime": "application/json",
+          "text": "{\n  \"oneOfAKind\": false,\n  \"options\": [\n    {\n      \"name\": \"Size\",\n      \"kind\": \"size\",\n      \"values\": [\n        {\n          \"label\": \"7\"\n        },\n        {\n          \"label\": \"8\"\n        },\n        {\n          \"label\": \"9\"\n        }\n      ],\n      \"fromSeller\": false\n    }\n  ],\n  \"missingFacts\": [\n    {\n      \"label\": \"Wheel size\",\n      \"question\": \"How big are the wheels?\",\n      \"placeholder\": \"57 mm\"\n    }\n  ]\n}",
+          "language": "Text",
+          "rawDataType": "text"
+        }
+      ],
+      "collectionId": "74728070-125a-4a93-8037-c35725209c35",
+      "queryParams": [],
+      "headerData": [
+        {
+          "key": "Accept",
+          "value": "application/json"
+        }
+      ],
+      "pathVariableData": [
+        {
+          "key": "slug",
+          "value": "raptorrush",
+          "description": "The shop's link name (current or former)."
+        }
+      ]
+    },
+    {
+      "folder": "c862ec92-e5d1-4ea4-8e41-5a6b2a3337ac",
+      "id": "bb0b6447-3b07-42dc-b4f4-2168cd2a1e9c",
+      "name": "matchColorPhotos",
+      "dataMode": "raw",
+      "dataDisabled": false,
+      "descriptionFormat": "markdown",
+      "description": "Gemini looks at the shop's photos and says which one shows each colour, so buyers who pick a colour see it. Suggests only; save the matches with `setColorPhotos`. Needs at least two photos.",
+      "headers": "Content-Type:application/json\nAccept:application/json\n",
       "method": "POST",
       "currentHelper": "apikey",
       "helperAttributes": {
@@ -1066,87 +1146,7 @@
           },
           {
             "key": "value",
-            "value": "x-admin-token53",
-            "type": "string"
-          }
-        ]
-      },
-      "pathVariables": {
-        "slug": "raptorrush"
-      },
-      "url": "{{default}}/api/shops/:slug/suggest",
-      "responses": [
-        {
-          "request": "3402a833-c40d-42e1-8c39-f1fb59a3b28a",
-          "id": "afa9935f-a2e3-41ca-bba0-57909614074e",
-          "name": "Response_200",
-          "status": "The suggestions.",
-          "responseCode": {
-            "code": 200,
-            "name": "200",
-            "detail": "The suggestions."
-          },
-          "headers": [
-            {
-              "key": "Content-Type",
-              "value": "application/json"
-            }
-          ],
-          "mime": "application/json",
-          "text": "{\n  \"oneOfAKind\": false,\n  \"options\": [\n    {\n      \"name\": \"Size\",\n      \"kind\": \"size\",\n      \"values\": [\n        {\n          \"label\": \"7\"\n        },\n        {\n          \"label\": \"8\"\n        },\n        {\n          \"label\": \"9\"\n        }\n      ],\n      \"fromSeller\": false\n    }\n  ],\n  \"missingFacts\": [\n    {\n      \"label\": \"Wheel size\",\n      \"question\": \"How big are the wheels?\",\n      \"placeholder\": \"57 mm\"\n    }\n  ]\n}",
-          "language": "Text",
-          "rawDataType": "text"
-        }
-      ],
-      "collectionId": "6f874d71-fd36-4969-9452-480cea0ae795",
-      "queryParams": [],
-      "headerData": [
-        {
-          "key": "Accept",
-          "value": "application/json"
-        }
-      ],
-      "pathVariableData": [
-        {
-          "key": "slug",
-          "value": "raptorrush",
-          "description": "The shop's link name (current or former)."
-        }
-      ]
-    },
-    {
-      "folder": "f430e49c-2429-4b75-8152-c21ea971bee8",
-      "id": "5e452925-a34e-49b0-bbfe-24a6a3d64633",
-      "name": "matchColorPhotos",
-      "dataMode": "raw",
-      "dataDisabled": false,
-      "descriptionFormat": "markdown",
-      "description": "Gemini looks at the shop's photos and says which one shows each colour, so buyers who pick a colour see it. Suggests only; save the matches with `setColorPhotos`. Needs at least two photos.",
-      "headers": "Content-Type:application/json\nAccept:application/json\n",
-      "method": "POST",
-      "currentHelper": "apikey",
-      "helperAttributes": {
-        "id": "apikey",
-        "key": "x-admin-token",
-        "value": "x-admin-token96",
-        "in": "header"
-      },
-      "auth": {
-        "type": "apikey",
-        "apikey": [
-          {
-            "key": "in",
-            "value": "header",
-            "type": "string"
-          },
-          {
-            "key": "key",
-            "value": "x-admin-token",
-            "type": "string"
-          },
-          {
-            "key": "value",
-            "value": "x-admin-token18",
+            "value": "x-admin-token73",
             "type": "string"
           }
         ]
@@ -1157,8 +1157,8 @@
       "url": "{{default}}/api/shops/:slug/match-photos",
       "responses": [
         {
-          "request": "5e452925-a34e-49b0-bbfe-24a6a3d64633",
-          "id": "fc00fb23-4e85-467c-a3bf-ae4125f66633",
+          "request": "bb0b6447-3b07-42dc-b4f4-2168cd2a1e9c",
+          "id": "ac3af7a2-3986-485e-b7ed-067239ef14c1",
           "name": "Response_200",
           "status": "A photo id for each colour Gemini could match. Colours it couldn't place are left out.",
           "responseCode": {
@@ -1179,7 +1179,7 @@
         }
       ],
       "rawModeData": "{\"colors\":[{\"label\":\"Cream\",\"hex\":\"#f3e9d2\"},{\"label\":\"Red\",\"hex\":\"#b3261e\"}]}",
-      "collectionId": "6f874d71-fd36-4969-9452-480cea0ae795",
+      "collectionId": "74728070-125a-4a93-8037-c35725209c35",
       "queryParams": [],
       "headerData": [
         {
@@ -1201,8 +1201,8 @@
       ]
     },
     {
-      "folder": "f430e49c-2429-4b75-8152-c21ea971bee8",
-      "id": "3d6a40ee-b72d-4ef1-a65f-6afc02af4b47",
+      "folder": "c862ec92-e5d1-4ea4-8e41-5a6b2a3337ac",
+      "id": "6bbb46d9-34e3-47c2-bab2-8843c7c26835",
       "name": "setColorPhotos",
       "dataMode": "raw",
       "dataDisabled": false,
@@ -1214,93 +1214,7 @@
       "helperAttributes": {
         "id": "apikey",
         "key": "x-admin-token",
-        "value": "x-admin-token58",
-        "in": "header"
-      },
-      "auth": {
-        "type": "apikey",
-        "apikey": [
-          {
-            "key": "in",
-            "value": "header",
-            "type": "string"
-          },
-          {
-            "key": "key",
-            "value": "x-admin-token",
-            "type": "string"
-          },
-          {
-            "key": "value",
-            "value": "x-admin-token81",
-            "type": "string"
-          }
-        ]
-      },
-      "pathVariables": {
-        "slug": "raptorrush"
-      },
-      "url": "{{default}}/api/shops/:slug/color-photos",
-      "responses": [
-        {
-          "request": "3d6a40ee-b72d-4ef1-a65f-6afc02af4b47",
-          "id": "2908f9e6-1ec0-4421-bd5b-18779a8c9466",
-          "name": "Response_200",
-          "status": "The colours that were changed.",
-          "responseCode": {
-            "code": 200,
-            "name": "200",
-            "detail": "The colours that were changed."
-          },
-          "headers": [
-            {
-              "key": "Content-Type",
-              "value": "application/json"
-            }
-          ],
-          "mime": "application/json",
-          "text": "{\n  \"saved\": [\n    \"Cream\",\n    \"Red\"\n  ]\n}",
-          "language": "Text",
-          "rawDataType": "text"
-        }
-      ],
-      "rawModeData": "{\"photos\":{\"Cream\":\"LFRvGuTU3D8i334X\",\"Red\":null}}",
-      "collectionId": "6f874d71-fd36-4969-9452-480cea0ae795",
-      "queryParams": [],
-      "headerData": [
-        {
-          "key": "Content-Type",
-          "value": "application/json",
-          "description": ""
-        },
-        {
-          "key": "Accept",
-          "value": "application/json"
-        }
-      ],
-      "pathVariableData": [
-        {
-          "key": "slug",
-          "value": "raptorrush",
-          "description": "The shop's link name (current or former)."
-        }
-      ]
-    },
-    {
-      "folder": "f430e49c-2429-4b75-8152-c21ea971bee8",
-      "id": "57f2f8cb-1c22-4c07-aeba-c4de2d3fca11",
-      "name": "connectPayPal",
-      "dataMode": "raw",
-      "dataDisabled": false,
-      "descriptionFormat": "markdown",
-      "description": "Starts PayPal's seller onboarding (Partner Referrals). Send the seller's browser to the\nreturned `url`; they sign in to PayPal (or create a business account) and grant OneThing\npermission. PayPal brings them back to `/api/shops/<slug>/paypal/return`, which saves the\nconnection and opens the manage page. From then on, sales are paid to that account.\n\nWithout a connection, a shop can still go live with a typed `paypal_email`.\n\n**Platforms:** call it with your API key and a `returnUrl`, and PayPal's flow ends on your own\npage instead, as `returnUrl?paypal=connected|incomplete|cancelled|failed&shop=<slug>`. The\nURL's origin must be one registered on the key.\n",
-      "headers": "Content-Type:application/json\nAccept:application/json\n",
-      "method": "POST",
-      "currentHelper": "apikey",
-      "helperAttributes": {
-        "id": "apikey",
-        "key": "x-admin-token",
-        "value": "x-admin-token31",
+        "value": "x-admin-token82",
         "in": "header"
       },
       "auth": {
@@ -1326,17 +1240,17 @@
       "pathVariables": {
         "slug": "raptorrush"
       },
-      "url": "{{default}}/api/shops/:slug/paypal",
+      "url": "{{default}}/api/shops/:slug/color-photos",
       "responses": [
         {
-          "request": "57f2f8cb-1c22-4c07-aeba-c4de2d3fca11",
-          "id": "9b62a50a-4f50-489d-908f-eec1e9848e49",
+          "request": "6bbb46d9-34e3-47c2-bab2-8843c7c26835",
+          "id": "3e95fef2-702d-44af-8856-0bcf77a99ff2",
           "name": "Response_200",
-          "status": "Where to send the seller.",
+          "status": "The colours that were changed.",
           "responseCode": {
             "code": 200,
             "name": "200",
-            "detail": "Where to send the seller."
+            "detail": "The colours that were changed."
           },
           "headers": [
             {
@@ -1345,13 +1259,13 @@
             }
           ],
           "mime": "application/json",
-          "text": "{\n  \"url\": \"https://www.sandbox.paypal.com/bizsignup/partner/entry?referralToken=EXAMPLE\"\n}",
+          "text": "{\n  \"saved\": [\n    \"Cream\",\n    \"Red\"\n  ]\n}",
           "language": "Text",
           "rawDataType": "text"
         }
       ],
-      "rawModeData": "{\"returnUrl\":\"https://www.miriogames.com/market/manage/?g=7Hq2\"}",
-      "collectionId": "6f874d71-fd36-4969-9452-480cea0ae795",
+      "rawModeData": "{\"photos\":{\"Cream\":\"LFRvGuTU3D8i334X\",\"Red\":null}}",
+      "collectionId": "74728070-125a-4a93-8037-c35725209c35",
       "queryParams": [],
       "headerData": [
         {
@@ -1373,19 +1287,20 @@
       ]
     },
     {
-      "folder": "f430e49c-2429-4b75-8152-c21ea971bee8",
-      "id": "13b30d5c-be39-46f6-bcd0-6928ffcb43f0",
-      "name": "getPayPalConnection",
+      "folder": "c862ec92-e5d1-4ea4-8e41-5a6b2a3337ac",
+      "id": "f960cec4-cff6-4061-8c26-746559e44aa7",
+      "name": "connectPayPal",
+      "dataMode": "raw",
       "dataDisabled": false,
       "descriptionFormat": "markdown",
-      "description": "Asks PayPal where the seller's connection stands and saves it on the shop. Also finds a connection the seller finished at PayPal without coming back.",
-      "headers": "Accept:application/json\n",
-      "method": "GET",
+      "description": "Starts PayPal's seller onboarding (Partner Referrals). Send the seller's browser to the\nreturned `url`; they sign in to PayPal (or create a business account) and grant OneThing\npermission. PayPal brings them back to `/api/shops/<slug>/paypal/return`, which saves the\nconnection and opens the manage page. From then on, sales are paid to that account.\n\nWithout a connection, a shop can still go live with a typed `paypal_email`.\n\n**Platforms:** call it with your API key and a `returnUrl`, and PayPal's flow ends on your own\npage instead, as `returnUrl?paypal=connected|incomplete|cancelled|failed&shop=<slug>`. The\nURL's origin must be one registered on the key.\n",
+      "headers": "Content-Type:application/json\nAccept:application/json\n",
+      "method": "POST",
       "currentHelper": "apikey",
       "helperAttributes": {
         "id": "apikey",
         "key": "x-admin-token",
-        "value": "x-admin-token69",
+        "value": "x-admin-token44",
         "in": "header"
       },
       "auth": {
@@ -1414,8 +1329,93 @@
       "url": "{{default}}/api/shops/:slug/paypal",
       "responses": [
         {
-          "request": "13b30d5c-be39-46f6-bcd0-6928ffcb43f0",
-          "id": "5c7da53b-7609-423b-a23b-481487d6d079",
+          "request": "f960cec4-cff6-4061-8c26-746559e44aa7",
+          "id": "301b7070-f793-4a29-8799-3f5d052909d5",
+          "name": "Response_200",
+          "status": "Where to send the seller.",
+          "responseCode": {
+            "code": 200,
+            "name": "200",
+            "detail": "Where to send the seller."
+          },
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "mime": "application/json",
+          "text": "{\n  \"url\": \"https://www.sandbox.paypal.com/bizsignup/partner/entry?referralToken=EXAMPLE\"\n}",
+          "language": "Text",
+          "rawDataType": "text"
+        }
+      ],
+      "rawModeData": "{\"returnUrl\":\"https://www.miriogames.com/market/manage/?g=7Hq2\"}",
+      "collectionId": "74728070-125a-4a93-8037-c35725209c35",
+      "queryParams": [],
+      "headerData": [
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "description": ""
+        },
+        {
+          "key": "Accept",
+          "value": "application/json"
+        }
+      ],
+      "pathVariableData": [
+        {
+          "key": "slug",
+          "value": "raptorrush",
+          "description": "The shop's link name (current or former)."
+        }
+      ]
+    },
+    {
+      "folder": "c862ec92-e5d1-4ea4-8e41-5a6b2a3337ac",
+      "id": "6c806e3d-a7f5-4948-a6a8-428207ac9498",
+      "name": "getPayPalConnection",
+      "dataDisabled": false,
+      "descriptionFormat": "markdown",
+      "description": "Asks PayPal where the seller's connection stands and saves it on the shop. Also finds a connection the seller finished at PayPal without coming back.",
+      "headers": "Accept:application/json\n",
+      "method": "GET",
+      "currentHelper": "apikey",
+      "helperAttributes": {
+        "id": "apikey",
+        "key": "x-admin-token",
+        "value": "x-admin-token18",
+        "in": "header"
+      },
+      "auth": {
+        "type": "apikey",
+        "apikey": [
+          {
+            "key": "in",
+            "value": "header",
+            "type": "string"
+          },
+          {
+            "key": "key",
+            "value": "x-admin-token",
+            "type": "string"
+          },
+          {
+            "key": "value",
+            "value": "x-admin-token49",
+            "type": "string"
+          }
+        ]
+      },
+      "pathVariables": {
+        "slug": "raptorrush"
+      },
+      "url": "{{default}}/api/shops/:slug/paypal",
+      "responses": [
+        {
+          "request": "6c806e3d-a7f5-4948-a6a8-428207ac9498",
+          "id": "ebf18687-126d-4124-9be7-f0fde20cb3de",
           "name": "Response_200",
           "status": "The connection, or nulls if there is none yet.",
           "responseCode": {
@@ -1435,7 +1435,7 @@
           "rawDataType": "text"
         }
       ],
-      "collectionId": "6f874d71-fd36-4969-9452-480cea0ae795",
+      "collectionId": "74728070-125a-4a93-8037-c35725209c35",
       "queryParams": [],
       "headerData": [
         {
@@ -1452,8 +1452,8 @@
       ]
     },
     {
-      "folder": "f430e49c-2429-4b75-8152-c21ea971bee8",
-      "id": "c37bf987-fb1f-4348-a127-5466fcd06080",
+      "folder": "c862ec92-e5d1-4ea4-8e41-5a6b2a3337ac",
+      "id": "0f22e32e-cc72-4a40-bf18-b0e78a7d09b0",
       "name": "disconnectPayPal",
       "dataDisabled": false,
       "descriptionFormat": "markdown",
@@ -1464,7 +1464,7 @@
       "helperAttributes": {
         "id": "apikey",
         "key": "x-admin-token",
-        "value": "x-admin-token48",
+        "value": "x-admin-token28",
         "in": "header"
       },
       "auth": {
@@ -1482,7 +1482,7 @@
           },
           {
             "key": "value",
-            "value": "x-admin-token80",
+            "value": "x-admin-token92",
             "type": "string"
           }
         ]
@@ -1493,8 +1493,8 @@
       "url": "{{default}}/api/shops/:slug/paypal",
       "responses": [
         {
-          "request": "c37bf987-fb1f-4348-a127-5466fcd06080",
-          "id": "96d86bf1-bcd1-4fc7-8249-9cd245680f47",
+          "request": "0f22e32e-cc72-4a40-bf18-b0e78a7d09b0",
+          "id": "1bed4045-c9ce-4087-ae70-2ba66bbac428",
           "name": "Response_200",
           "status": "Done.",
           "responseCode": {
@@ -1514,7 +1514,7 @@
           "rawDataType": "text"
         }
       ],
-      "collectionId": "6f874d71-fd36-4969-9452-480cea0ae795",
+      "collectionId": "74728070-125a-4a93-8037-c35725209c35",
       "queryParams": [],
       "headerData": [
         {
@@ -1531,8 +1531,8 @@
       ]
     },
     {
-      "folder": "5ebc79c0-03e7-46c8-8e94-8856347fd180",
-      "id": "89305676-15e6-4266-9e50-b1da52ecaae8",
+      "folder": "d40fceae-e1ea-402c-84fe-1cf8829278a2",
+      "id": "c8b97553-9b9a-4e88-bd7d-55ffa7f3d5bd",
       "name": "checkLinkName",
       "dataDisabled": false,
       "descriptionFormat": "markdown",
@@ -1543,8 +1543,8 @@
       "url": "{{default}}/api/slugs/check?name=Raptor%20Rush",
       "responses": [
         {
-          "request": "89305676-15e6-4266-9e50-b1da52ecaae8",
-          "id": "a8bcb509-d54f-492e-a331-794c5ee1debd",
+          "request": "c8b97553-9b9a-4e88-bd7d-55ffa7f3d5bd",
+          "id": "c81bc32e-95b1-4b60-a5c3-6d7887e59164",
           "name": "Response_200",
           "status": "The normalised name and whether it can be used.",
           "responseCode": {
@@ -1564,7 +1564,7 @@
           "rawDataType": "text"
         }
       ],
-      "collectionId": "6f874d71-fd36-4969-9452-480cea0ae795",
+      "collectionId": "74728070-125a-4a93-8037-c35725209c35",
       "queryParams": [
         {
           "key": "name",
@@ -1581,8 +1581,8 @@
       "pathVariableData": []
     },
     {
-      "folder": "e98a2fbb-601c-4361-bb9b-6edd4fcd4ef3",
-      "id": "54660d22-220d-412e-a1c7-30cb976485be",
+      "folder": "92162658-9b30-4988-867b-bfdbe8b7d6ab",
+      "id": "fbd082f5-c829-41d7-a254-726d8ac0d821",
       "name": "searchProducts",
       "dataDisabled": false,
       "descriptionFormat": "markdown",
@@ -1593,8 +1593,8 @@
       "url": "{{default}}/api/channel3/search?q=gifts%20for%20trail%20runners%20under%20%2460",
       "responses": [
         {
-          "request": "54660d22-220d-412e-a1c7-30cb976485be",
-          "id": "c5844d14-e27c-4bfc-b09d-e91b6301b6c8",
+          "request": "fbd082f5-c829-41d7-a254-726d8ac0d821",
+          "id": "a5f0c147-e6b4-4e43-8b12-5609b7ef7b86",
           "name": "Response_200",
           "status": "Up to 12 products.",
           "responseCode": {
@@ -1614,7 +1614,7 @@
           "rawDataType": "text"
         }
       ],
-      "collectionId": "6f874d71-fd36-4969-9452-480cea0ae795",
+      "collectionId": "74728070-125a-4a93-8037-c35725209c35",
       "queryParams": [
         {
           "key": "q",
@@ -1631,8 +1631,8 @@
       "pathVariableData": []
     },
     {
-      "folder": "9cc27985-9501-4df1-9387-6f1ea72273df",
-      "id": "26a7300f-6f1b-4f6e-ac21-6127a6348732",
+      "folder": "81508100-5fc8-41ff-94fd-a6a486704e5d",
+      "id": "f4172e52-3543-44a3-9b3e-29ca29740e16",
       "name": "getPayPalClientToken",
       "dataDisabled": false,
       "descriptionFormat": "markdown",
@@ -1643,8 +1643,8 @@
       "url": "{{default}}/api/paypal/client-token",
       "responses": [
         {
-          "request": "26a7300f-6f1b-4f6e-ac21-6127a6348732",
-          "id": "3f320a7d-0dfd-424e-b6b0-34432e28deca",
+          "request": "f4172e52-3543-44a3-9b3e-29ca29740e16",
+          "id": "bc872698-630f-42d1-b986-2afbc6ff7e6c",
           "name": "Response_200",
           "status": "A token for this site's domain.",
           "responseCode": {
@@ -1664,7 +1664,7 @@
           "rawDataType": "text"
         }
       ],
-      "collectionId": "6f874d71-fd36-4969-9452-480cea0ae795",
+      "collectionId": "74728070-125a-4a93-8037-c35725209c35",
       "queryParams": [],
       "headerData": [
         {
@@ -1675,8 +1675,8 @@
       "pathVariableData": []
     },
     {
-      "folder": "9cc27985-9501-4df1-9387-6f1ea72273df",
-      "id": "e0127334-272b-4fb7-b736-54a13dd8e2a0",
+      "folder": "81508100-5fc8-41ff-94fd-a6a486704e5d",
+      "id": "ada61778-1e14-48ea-9776-1156010b954b",
       "name": "createCheckoutOrder",
       "dataMode": "raw",
       "dataDisabled": false,
@@ -1688,8 +1688,8 @@
       "url": "{{default}}/api/orders",
       "responses": [
         {
-          "request": "e0127334-272b-4fb7-b736-54a13dd8e2a0",
-          "id": "b730abec-f588-4ee1-a3f3-5b45e7a730d1",
+          "request": "ada61778-1e14-48ea-9776-1156010b954b",
+          "id": "b65b6830-57fc-4617-953b-43d3e49dcb70",
           "name": "Response_200",
           "status": "PayPal order created.",
           "responseCode": {
@@ -1710,7 +1710,7 @@
         }
       ],
       "rawModeData": "{\"slug\":\"raptorrush\"}",
-      "collectionId": "6f874d71-fd36-4969-9452-480cea0ae795",
+      "collectionId": "74728070-125a-4a93-8037-c35725209c35",
       "queryParams": [],
       "headerData": [
         {
@@ -1726,8 +1726,8 @@
       "pathVariableData": []
     },
     {
-      "folder": "9cc27985-9501-4df1-9387-6f1ea72273df",
-      "id": "a47fdfff-d732-4e09-9864-32599c24eefc",
+      "folder": "81508100-5fc8-41ff-94fd-a6a486704e5d",
+      "id": "01b96cea-856d-43e7-afc7-c35384580a5a",
       "name": "captureCheckoutOrder",
       "dataDisabled": false,
       "descriptionFormat": "markdown",
@@ -1740,8 +1740,8 @@
       "url": "{{default}}/api/orders/:paypalOrderId/capture",
       "responses": [
         {
-          "request": "a47fdfff-d732-4e09-9864-32599c24eefc",
-          "id": "5c052722-9e06-4aec-8ac4-fda828a5e48d",
+          "request": "01b96cea-856d-43e7-afc7-c35384580a5a",
+          "id": "f2303739-22f2-430d-8284-af041fa99245",
           "name": "Response_200",
           "status": "Paid.",
           "responseCode": {
@@ -1761,7 +1761,7 @@
           "rawDataType": "text"
         }
       ],
-      "collectionId": "6f874d71-fd36-4969-9452-480cea0ae795",
+      "collectionId": "74728070-125a-4a93-8037-c35725209c35",
       "queryParams": [],
       "headerData": [
         {
@@ -1778,8 +1778,8 @@
       ]
     },
     {
-      "folder": "c545c1d1-758f-4f98-91f9-ba3398d7703f",
-      "id": "d2b3f277-41c9-4f09-a9bc-8a3e58fbc01b",
+      "folder": "e22ac1a6-5977-41cf-a2a7-32d6f13dffc4",
+      "id": "80d059fe-ef0a-4d71-851b-0d04519e9fdb",
       "name": "verifyAccessCode",
       "dataMode": "raw",
       "dataDisabled": false,
@@ -1791,8 +1791,8 @@
       "url": "{{default}}/api/access/verify",
       "responses": [
         {
-          "request": "d2b3f277-41c9-4f09-a9bc-8a3e58fbc01b",
-          "id": "8de219ba-67d6-4621-a242-177a29f80122",
+          "request": "80d059fe-ef0a-4d71-851b-0d04519e9fdb",
+          "id": "a198d591-634f-40e3-b12b-7479c9bdbf66",
           "name": "Response_200",
           "status": "The answer. Invalid codes are also a 200.",
           "responseCode": {
@@ -1813,7 +1813,7 @@
         }
       ],
       "rawModeData": "{\"shop\":\"raptorrush\",\"code\":\"K7QF-M2XP-9HTD\"}",
-      "collectionId": "6f874d71-fd36-4969-9452-480cea0ae795",
+      "collectionId": "74728070-125a-4a93-8037-c35725209c35",
       "queryParams": [],
       "headerData": [
         {
@@ -1829,8 +1829,8 @@
       "pathVariableData": []
     },
     {
-      "folder": "840cbfc7-300a-41f6-9eb4-8577a09b2403",
-      "id": "97da2a70-9ae4-498c-aa4e-32735895a6f5",
+      "folder": "d6756ba0-1e51-489c-aaf9-febcc6c70b07",
+      "id": "6649597e-c73c-4b86-a4f6-ff8816169d6d",
       "name": "listOrders",
       "dataDisabled": false,
       "descriptionFormat": "markdown",
@@ -1841,7 +1841,7 @@
       "helperAttributes": {
         "id": "apikey",
         "key": "x-admin-token",
-        "value": "x-admin-token32",
+        "value": "x-admin-token27",
         "in": "header"
       },
       "auth": {
@@ -1859,7 +1859,7 @@
           },
           {
             "key": "value",
-            "value": "x-admin-token40",
+            "value": "x-admin-token48",
             "type": "string"
           }
         ]
@@ -1870,8 +1870,8 @@
       "url": "{{default}}/api/shops/:slug/orders",
       "responses": [
         {
-          "request": "97da2a70-9ae4-498c-aa4e-32735895a6f5",
-          "id": "914e0599-6a5c-44ba-802b-3e8edae78aef",
+          "request": "6649597e-c73c-4b86-a4f6-ff8816169d6d",
+          "id": "4207fe2b-0a51-4b4c-98f1-979beebc9630",
           "name": "Response_200",
           "status": "Orders.",
           "responseCode": {
@@ -1891,7 +1891,7 @@
           "rawDataType": "text"
         }
       ],
-      "collectionId": "6f874d71-fd36-4969-9452-480cea0ae795",
+      "collectionId": "74728070-125a-4a93-8037-c35725209c35",
       "queryParams": [],
       "headerData": [
         {
@@ -1908,8 +1908,8 @@
       ]
     },
     {
-      "folder": "840cbfc7-300a-41f6-9eb4-8577a09b2403",
-      "id": "20744d1c-c96e-481f-9b35-e632c07cf263",
+      "folder": "d6756ba0-1e51-489c-aaf9-febcc6c70b07",
+      "id": "42e47e3d-7d51-48e2-891c-df57853382d7",
       "name": "markOrderShipped",
       "dataMode": "raw",
       "dataDisabled": false,
@@ -1921,7 +1921,7 @@
       "helperAttributes": {
         "id": "apikey",
         "key": "x-admin-token",
-        "value": "x-admin-token97",
+        "value": "x-admin-token8",
         "in": "header"
       },
       "auth": {
@@ -1939,7 +1939,7 @@
           },
           {
             "key": "value",
-            "value": "x-admin-token62",
+            "value": "x-admin-token13",
             "type": "string"
           }
         ]
@@ -1951,8 +1951,8 @@
       "url": "{{default}}/api/shops/:slug/orders/:orderId/ship",
       "responses": [
         {
-          "request": "20744d1c-c96e-481f-9b35-e632c07cf263",
-          "id": "c23b6d04-0c93-4cee-8fbb-1bcd9b4812c3",
+          "request": "42e47e3d-7d51-48e2-891c-df57853382d7",
+          "id": "26b5ec79-71db-4193-b8fa-1f7b19d5593a",
           "name": "Response_200",
           "status": "Shipped.",
           "responseCode": {
@@ -1973,7 +1973,7 @@
         }
       ],
       "rawModeData": "{\"carrier\":\"USPS\",\"trackingNumber\":\"9400111899223817362315\"}",
-      "collectionId": "6f874d71-fd36-4969-9452-480cea0ae795",
+      "collectionId": "74728070-125a-4a93-8037-c35725209c35",
       "queryParams": [],
       "headerData": [
         {
@@ -2000,8 +2000,8 @@
       ]
     },
     {
-      "folder": "840cbfc7-300a-41f6-9eb4-8577a09b2403",
-      "id": "2f76873f-7005-4f76-acd3-9f4ef235829c",
+      "folder": "d6756ba0-1e51-489c-aaf9-febcc6c70b07",
+      "id": "d8fcd271-55c8-454a-a35f-eec553e980d1",
       "name": "listWebhookEvents",
       "dataDisabled": false,
       "descriptionFormat": "markdown",
@@ -2012,7 +2012,7 @@
       "helperAttributes": {
         "id": "apikey",
         "key": "x-admin-token",
-        "value": "x-admin-token21",
+        "value": "x-admin-token37",
         "in": "header"
       },
       "auth": {
@@ -2030,7 +2030,7 @@
           },
           {
             "key": "value",
-            "value": "x-admin-token50",
+            "value": "x-admin-token3",
             "type": "string"
           }
         ]
@@ -2041,8 +2041,8 @@
       "url": "{{default}}/api/shops/:slug/webhooks",
       "responses": [
         {
-          "request": "2f76873f-7005-4f76-acd3-9f4ef235829c",
-          "id": "b5fc1737-718b-4230-9670-a05e5619f4b8",
+          "request": "d8fcd271-55c8-454a-a35f-eec553e980d1",
+          "id": "caa8f701-079e-4115-9ac5-2a0f790b7b0c",
           "name": "Response_200",
           "status": "Events, newest first.",
           "responseCode": {
@@ -2062,7 +2062,7 @@
           "rawDataType": "text"
         }
       ],
-      "collectionId": "6f874d71-fd36-4969-9452-480cea0ae795",
+      "collectionId": "74728070-125a-4a93-8037-c35725209c35",
       "queryParams": [],
       "headerData": [
         {
@@ -2079,8 +2079,8 @@
       ]
     },
     {
-      "folder": "7f343d20-b705-49a1-907b-f3518aadd1f4",
-      "id": "e1da8a24-6049-4b79-af0b-dfc8033acdfe",
+      "folder": "53b66190-1a7f-431f-962f-227b1d1ddb6e",
+      "id": "5f55efc5-9f5e-4f00-bbab-da0afe73dcb7",
       "name": "downloadFile",
       "dataDisabled": false,
       "descriptionFormat": "markdown",
@@ -2093,8 +2093,8 @@
       "url": "{{default}}/api/download/:token",
       "responses": [
         {
-          "request": "e1da8a24-6049-4b79-af0b-dfc8033acdfe",
-          "id": "2f2df701-bdcb-4914-826d-95c89cbb1c53",
+          "request": "5f55efc5-9f5e-4f00-bbab-da0afe73dcb7",
+          "id": "edf6e101-b1b6-409c-9bd5-2efbd8dac539",
           "name": "Response_200",
           "status": "The file.",
           "responseCode": {
@@ -2107,8 +2107,8 @@
           "language": "Text"
         },
         {
-          "request": "e1da8a24-6049-4b79-af0b-dfc8033acdfe",
-          "id": "c5744c3c-1c0d-4705-879c-e1d34a27b3cf",
+          "request": "5f55efc5-9f5e-4f00-bbab-da0afe73dcb7",
+          "id": "5945ef36-415a-4fb8-88f5-90dde2fa7088",
           "name": "Response_410",
           "status": "Expired or used up.",
           "responseCode": {
@@ -2123,12 +2123,12 @@
             }
           ],
           "mime": "text/plain",
-          "text": "response41027",
+          "text": "response41040",
           "language": "Text",
           "rawDataType": "text"
         }
       ],
-      "collectionId": "6f874d71-fd36-4969-9452-480cea0ae795",
+      "collectionId": "74728070-125a-4a93-8037-c35725209c35",
       "queryParams": [],
       "headerData": [
         {
@@ -2145,8 +2145,8 @@
       ]
     },
     {
-      "folder": "7f343d20-b705-49a1-907b-f3518aadd1f4",
-      "id": "7598a5c9-8b84-4472-9835-60f79061d64b",
+      "folder": "53b66190-1a7f-431f-962f-227b1d1ddb6e",
+      "id": "9c137d29-3b77-43ad-bdf4-8a2de6a42887",
       "name": "getImage",
       "dataDisabled": false,
       "descriptionFormat": "markdown",
@@ -2159,8 +2159,8 @@
       "url": "{{default}}/api/blobs/:id",
       "responses": [
         {
-          "request": "7598a5c9-8b84-4472-9835-60f79061d64b",
-          "id": "8dab7bc7-f9a7-4d1d-a94c-1ac9d1953cb7",
+          "request": "9c137d29-3b77-43ad-bdf4-8a2de6a42887",
+          "id": "db4d9e63-6b71-43f9-85c5-548b1c9d3876",
           "name": "Response_200",
           "status": "The image.",
           "responseCode": {
@@ -2180,8 +2180,8 @@
           "rawDataType": "text"
         },
         {
-          "request": "7598a5c9-8b84-4472-9835-60f79061d64b",
-          "id": "8a7ba1f0-984e-4bd1-b83f-de125db464bf",
+          "request": "9c137d29-3b77-43ad-bdf4-8a2de6a42887",
+          "id": "bf742ac2-71f9-4640-9a78-08b826810717",
           "name": "Response_404",
           "status": "Not a public shop image.",
           "responseCode": {
@@ -2193,7 +2193,7 @@
           "language": "Text"
         }
       ],
-      "collectionId": "6f874d71-fd36-4969-9452-480cea0ae795",
+      "collectionId": "74728070-125a-4a93-8037-c35725209c35",
       "queryParams": [],
       "headerData": [
         {
@@ -2210,8 +2210,8 @@
       ]
     },
     {
-      "folder": "d1aa2437-425b-43bc-bf91-bd67eaf39a4d",
-      "id": "437979fe-5264-4794-915e-ff3187b6ced0",
+      "folder": "c62c1631-fd03-461c-a6d8-f97cea6e964c",
+      "id": "a5122625-f890-4ab3-9bfb-0f9770daf962",
       "name": "openPayLink",
       "dataDisabled": false,
       "descriptionFormat": "markdown",
@@ -2224,8 +2224,8 @@
       "url": "{{default}}/o/:orderId",
       "responses": [
         {
-          "request": "437979fe-5264-4794-915e-ff3187b6ced0",
-          "id": "a9480701-238e-4345-b6d7-a95676ebf0c5",
+          "request": "a5122625-f890-4ab3-9bfb-0f9770daf962",
+          "id": "4b134efc-673f-4d0b-a01f-cbe82571677f",
           "name": "Response_303",
           "status": "Redirect to PayPal, the thank-you page or the shop page.",
           "responseCode": {
@@ -2237,8 +2237,8 @@
           "language": "Text"
         },
         {
-          "request": "437979fe-5264-4794-915e-ff3187b6ced0",
-          "id": "f0d2eff0-9719-438e-ae3f-99ec70a9ede8",
+          "request": "a5122625-f890-4ab3-9bfb-0f9770daf962",
+          "id": "1f3d7c25-1521-4887-8a25-3eb1b912fcc1",
           "name": "Response_404",
           "status": "No order with that id.",
           "responseCode": {
@@ -2253,12 +2253,12 @@
             }
           ],
           "mime": "text/plain",
-          "text": "response40491",
+          "text": "response40460",
           "language": "Text",
           "rawDataType": "text"
         }
       ],
-      "collectionId": "6f874d71-fd36-4969-9452-480cea0ae795",
+      "collectionId": "74728070-125a-4a93-8037-c35725209c35",
       "queryParams": [],
       "headerData": [
         {
@@ -2275,8 +2275,8 @@
       ]
     },
     {
-      "folder": "d1aa2437-425b-43bc-bf91-bd67eaf39a4d",
-      "id": "04c85e67-2464-4e6b-a894-4d8246e618d4",
+      "folder": "c62c1631-fd03-461c-a6d8-f97cea6e964c",
+      "id": "60686a38-eb31-4260-bf87-f0c3e41fdb6d",
       "name": "listAgentShops",
       "dataDisabled": false,
       "descriptionFormat": "markdown",
@@ -2287,8 +2287,8 @@
       "url": "{{default}}/api/agent/shops?q=skates&limit=10",
       "responses": [
         {
-          "request": "04c85e67-2464-4e6b-a894-4d8246e618d4",
-          "id": "4ee36ef0-b78a-46ba-acf1-0e2ff7f34fe8",
+          "request": "60686a38-eb31-4260-bf87-f0c3e41fdb6d",
+          "id": "a7ab4738-cb20-46a0-b343-8f894c22959a",
           "name": "Response_200",
           "status": "The matching shops.",
           "responseCode": {
@@ -2308,7 +2308,7 @@
           "rawDataType": "text"
         }
       ],
-      "collectionId": "6f874d71-fd36-4969-9452-480cea0ae795",
+      "collectionId": "74728070-125a-4a93-8037-c35725209c35",
       "queryParams": [
         {
           "key": "q",
@@ -2330,8 +2330,8 @@
       "pathVariableData": []
     },
     {
-      "folder": "d1aa2437-425b-43bc-bf91-bd67eaf39a4d",
-      "id": "dee4bf38-e734-4f49-aad9-a7224171df54",
+      "folder": "c62c1631-fd03-461c-a6d8-f97cea6e964c",
+      "id": "e1891d3d-3b89-4cb7-a1c5-22960f243171",
       "name": "orderByLink",
       "dataDisabled": false,
       "descriptionFormat": "markdown",
@@ -2344,8 +2344,8 @@
       "url": "{{default}}/api/agent/shops/:slug/order?agent=ChatGPT&Size=9",
       "responses": [
         {
-          "request": "dee4bf38-e734-4f49-aad9-a7224171df54",
-          "id": "266a43ba-1a30-430a-b977-9c9a7bf3e853",
+          "request": "e1891d3d-3b89-4cb7-a1c5-22960f243171",
+          "id": "dab330da-19bc-47f8-a557-881ea7a6a311",
           "name": "Response_200",
           "status": "The order, waiting for the buyer to pay.",
           "responseCode": {
@@ -2360,12 +2360,12 @@
             }
           ],
           "mime": "application/json",
-          "text": "{\n  \"order_id\": \"pX4kR9tVb2nQ7sLe\",\n  \"status\": \"awaiting_buyer_approval\",\n  \"total\": \"$255.00\",\n  \"options\": {\n    \"Size\": \"9\"\n  },\n  \"pay_url\": \"https://one-thing-ash0.onrender.com/o/pX4kR9tVb2nQ7sLe\",\n  \"status_url\": \"https://one-thing-ash0.onrender.com/api/agent/orders/pX4kR9tVb2nQ7sLe\",\n  \"next_step\": \"Show pay_url to the buyer as a link. It opens PayPal, where they pay (and enter a shipping address for physical items). When they say they've paid, open status_url (or with MCP, call get_order with order_id): it returns the access code, download link or shipping details.\"\n}",
+          "text": "{\n  \"show_buyer\": \"Vintage Cream and Red Roller Skates (9): $255.00 total.\\n**[Pay $255.00 with PayPal](https://one-thing-ash0.onrender.com/o/pX4kR9tVb2nQ7sLe)**\\nTell me once you've paid and I'll get you the shipping confirmation.\",\n  \"order_id\": \"pX4kR9tVb2nQ7sLe\",\n  \"status\": \"awaiting_buyer_approval\",\n  \"total\": \"$255.00\",\n  \"options\": {\n    \"Size\": \"9\"\n  },\n  \"pay_url\": \"https://one-thing-ash0.onrender.com/o/pX4kR9tVb2nQ7sLe\",\n  \"status_url\": \"https://one-thing-ash0.onrender.com/api/agent/orders/pX4kR9tVb2nQ7sLe\",\n  \"next_step\": \"Show pay_url to the buyer as a link. It opens PayPal, where they pay (and enter a shipping address for physical items). When they say they've paid, open status_url (or with MCP, call get_order with order_id): it returns the access code, download link or shipping details.\"\n}",
           "language": "Text",
           "rawDataType": "text"
         }
       ],
-      "collectionId": "6f874d71-fd36-4969-9452-480cea0ae795",
+      "collectionId": "74728070-125a-4a93-8037-c35725209c35",
       "queryParams": [
         {
           "key": "agent",
@@ -2393,8 +2393,8 @@
       ]
     },
     {
-      "folder": "d1aa2437-425b-43bc-bf91-bd67eaf39a4d",
-      "id": "f59a38eb-addf-4eea-b31d-4a72645a6238",
+      "folder": "c62c1631-fd03-461c-a6d8-f97cea6e964c",
+      "id": "9fedb1cc-9698-4690-b2fa-122fa4f3e3ae",
       "name": "getAgentOrder",
       "dataDisabled": false,
       "descriptionFormat": "markdown",
@@ -2404,11 +2404,11 @@
       "pathVariables": {
         "orderId": "pX4kR9tVb2nQ7sLe"
       },
-      "url": "{{default}}/api/agent/orders/:orderId",
+      "url": "{{default}}/api/agent/orders/:orderId?agent=ChatGPT",
       "responses": [
         {
-          "request": "f59a38eb-addf-4eea-b31d-4a72645a6238",
-          "id": "23b10add-a46f-40fd-baaf-e2395cb16a3c",
+          "request": "9fedb1cc-9698-4690-b2fa-122fa4f3e3ae",
+          "id": "7513a91b-2561-42e5-a115-991998783fd9",
           "name": "Response_200",
           "status": "The order.",
           "responseCode": {
@@ -2428,8 +2428,14 @@
           "rawDataType": "text"
         }
       ],
-      "collectionId": "6f874d71-fd36-4969-9452-480cea0ae795",
-      "queryParams": [],
+      "collectionId": "74728070-125a-4a93-8037-c35725209c35",
+      "queryParams": [
+        {
+          "key": "agent",
+          "value": "ChatGPT",
+          "description": "Optional: the agent's name (`ChatGPT`, `Gemini`, `my-shopping-bot`), so the seller's stats show which agent sent the buyer. Only used when the user agent doesn't already say."
+        }
+      ],
       "headerData": [
         {
           "key": "Accept",
@@ -2445,8 +2451,8 @@
       ]
     },
     {
-      "folder": "d1aa2437-425b-43bc-bf91-bd67eaf39a4d",
-      "id": "20779254-4ab3-4ee5-944c-db27a40ba176",
+      "folder": "c62c1631-fd03-461c-a6d8-f97cea6e964c",
+      "id": "317e9cd1-b092-4c4c-838e-2f7763739c24",
       "name": "getAgentProduct",
       "dataDisabled": false,
       "descriptionFormat": "markdown",
@@ -2459,8 +2465,8 @@
       "url": "{{default}}/api/agent/shops/:slug?agent=ChatGPT",
       "responses": [
         {
-          "request": "20779254-4ab3-4ee5-944c-db27a40ba176",
-          "id": "cf6ce470-102a-4053-98c9-2172793121f0",
+          "request": "317e9cd1-b092-4c4c-838e-2f7763739c24",
+          "id": "a8139484-1b8e-4411-8a3d-c160ad7e7577",
           "name": "Response_200",
           "status": "The product.",
           "responseCode": {
@@ -2475,12 +2481,12 @@
             }
           ],
           "mime": "application/json",
-          "text": "{\n  \"shop\": \"vintageskates\",\n  \"url\": \"https://one-thing-ash0.onrender.com/vintageskates\",\n  \"name\": \"Vintage Cream and Red Roller Skates\",\n  \"kind\": \"physical\",\n  \"headline\": \"Classic quad skates crafted with walnut burl heels\",\n  \"description\": \"A vintage pair of skates featuring cream leather, bold red trim, and durable quad wheels.\",\n  \"highlights\": [\n    \"Handmade cream leather upper with rich red trim\",\n    \"Sculpted walnut burl heel structure for stability\"\n  ],\n  \"details\": [\n    {\n      \"label\": \"Materials\",\n      \"value\": \"Leather upper, walnut burl heel, rubber wheels\"\n    }\n  ],\n  \"faq\": [\n    {\n      \"q\": \"What is the return policy?\",\n      \"a\": \"Unworn skates in original condition can be returned within 30 days of delivery.\"\n    }\n  ],\n  \"images\": [\n    \"https://one-thing-ash0.onrender.com/api/blobs/LFRvGuTU3D8i334X\",\n    \"https://one-thing-ash0.onrender.com/api/blobs/zrySajNyao6_j11x\"\n  ],\n  \"price\": {\n    \"amount\": 240,\n    \"currency\": \"USD\",\n    \"label\": \"$240.00\"\n  },\n  \"shipping\": {\n    \"amount\": 15,\n    \"currency\": \"USD\",\n    \"ships_to\": [\n      \"US\"\n    ]\n  },\n  \"total\": {\n    \"amount\": 255,\n    \"currency\": \"USD\"\n  },\n  \"delivery\": \"Shipped. PayPal collects the buyer's address at checkout.\",\n  \"options\": [\n    {\n      \"name\": \"Size\",\n      \"values\": [\n        \"7\",\n        \"8\",\n        \"9\"\n      ]\n    }\n  ],\n  \"variants\": [\n    {\n      \"choice\": {\n        \"Size\": \"7\"\n      },\n      \"availability\": \"in_stock (3 left)\",\n      \"order_url\": \"https://one-thing-ash0.onrender.com/api/agent/shops/vintageskates/order?Size=7\"\n    },\n    {\n      \"choice\": {\n        \"Size\": \"8\"\n      },\n      \"availability\": \"sold_out\"\n    },\n    {\n      \"choice\": {\n        \"Size\": \"9\"\n      },\n      \"availability\": \"in_stock (6 left)\",\n      \"order_url\": \"https://one-thing-ash0.onrender.com/api/agent/shops/vintageskates/order?Size=9\"\n    }\n  ],\n  \"availability\": \"in_stock\",\n  \"how_to_buy\": \"Open the order_url of the buyer's variant (or call create_order on the OneThing MCP server with shop and options). Either returns a pay_url: give it to the buyer to pay at PayPal.\",\n  \"mcp_server\": \"https://one-thing-ash0.onrender.com/api/mcp\"\n}",
+          "text": "{\n  \"show_buyer\": \"**Vintage Cream and Red Roller Skates**: $240.00 + $15.00 shipping\\nClassic quad skates crafted with walnut burl heels\\nSize: 7 · 8 · 9\\nWhich size?\",\n  \"shop\": \"vintageskates\",\n  \"url\": \"https://one-thing-ash0.onrender.com/vintageskates\",\n  \"name\": \"Vintage Cream and Red Roller Skates\",\n  \"kind\": \"physical\",\n  \"headline\": \"Classic quad skates crafted with walnut burl heels\",\n  \"description\": \"A vintage pair of skates featuring cream leather, bold red trim, and durable quad wheels.\",\n  \"highlights\": [\n    \"Handmade cream leather upper with rich red trim\",\n    \"Sculpted walnut burl heel structure for stability\"\n  ],\n  \"details\": [\n    {\n      \"label\": \"Materials\",\n      \"value\": \"Leather upper, walnut burl heel, rubber wheels\"\n    }\n  ],\n  \"faq\": [\n    {\n      \"q\": \"What is the return policy?\",\n      \"a\": \"Unworn skates in original condition can be returned within 30 days of delivery.\"\n    }\n  ],\n  \"images\": [\n    \"https://one-thing-ash0.onrender.com/api/blobs/LFRvGuTU3D8i334X\",\n    \"https://one-thing-ash0.onrender.com/api/blobs/zrySajNyao6_j11x\"\n  ],\n  \"price\": {\n    \"amount\": 240,\n    \"currency\": \"USD\",\n    \"label\": \"$240.00\"\n  },\n  \"shipping\": {\n    \"amount\": 15,\n    \"currency\": \"USD\",\n    \"ships_to\": [\n      \"US\"\n    ]\n  },\n  \"total\": {\n    \"amount\": 255,\n    \"currency\": \"USD\"\n  },\n  \"delivery\": \"Shipped. PayPal collects the buyer's address at checkout.\",\n  \"options\": [\n    {\n      \"name\": \"Size\",\n      \"values\": [\n        \"7\",\n        \"8\",\n        \"9\"\n      ]\n    }\n  ],\n  \"variants\": [\n    {\n      \"choice\": {\n        \"Size\": \"7\"\n      },\n      \"availability\": \"in_stock (3 left)\",\n      \"order_url\": \"https://one-thing-ash0.onrender.com/api/agent/shops/vintageskates/order?Size=7\"\n    },\n    {\n      \"choice\": {\n        \"Size\": \"8\"\n      },\n      \"availability\": \"sold_out\"\n    },\n    {\n      \"choice\": {\n        \"Size\": \"9\"\n      },\n      \"availability\": \"in_stock (6 left)\",\n      \"order_url\": \"https://one-thing-ash0.onrender.com/api/agent/shops/vintageskates/order?Size=9\"\n    }\n  ],\n  \"availability\": \"in_stock\",\n  \"how_to_buy\": \"Recommended: buyers have the best experience when you show show_buyer as written (it's Markdown, so the links stay clickable) and keep your own words to a minimum. Once the buyer has picked and said to buy, open the order_url of their variant (or call create_order on the OneThing MCP server with shop and options). Either returns show_buyer with the pay link.\",\n  \"mcp_server\": \"https://one-thing-ash0.onrender.com/api/mcp\",\n  \"agent_name\": \"ChatGPT\"\n}",
           "language": "Text",
           "rawDataType": "text"
         }
       ],
-      "collectionId": "6f874d71-fd36-4969-9452-480cea0ae795",
+      "collectionId": "74728070-125a-4a93-8037-c35725209c35",
       "queryParams": [
         {
           "key": "agent",
@@ -2503,8 +2509,8 @@
       ]
     },
     {
-      "folder": "d1aa2437-425b-43bc-bf91-bd67eaf39a4d",
-      "id": "dec4b734-9dfb-4dcc-a3b2-cc4d576bf693",
+      "folder": "c62c1631-fd03-461c-a6d8-f97cea6e964c",
+      "id": "a5f535a4-ccda-42cc-b842-48af647da9be",
       "name": "callMcp",
       "dataMode": "raw",
       "dataDisabled": false,
@@ -2516,8 +2522,8 @@
       "url": "{{default}}/api/mcp",
       "responses": [
         {
-          "request": "dec4b734-9dfb-4dcc-a3b2-cc4d576bf693",
-          "id": "ef8553d6-cb56-4454-8a51-d1fb2e75b354",
+          "request": "a5f535a4-ccda-42cc-b842-48af647da9be",
+          "id": "2bee40df-9486-4a15-a18f-c073f71de12b",
           "name": "Response_200",
           "status": "The JSON-RPC reply (an array for a batch).",
           "responseCode": {
@@ -2537,8 +2543,8 @@
           "rawDataType": "text"
         },
         {
-          "request": "dec4b734-9dfb-4dcc-a3b2-cc4d576bf693",
-          "id": "7ce4181f-f317-4032-b794-c084c6353ab4",
+          "request": "a5f535a4-ccda-42cc-b842-48af647da9be",
+          "id": "c8cd8d1a-4798-4f61-a727-e8df4676ca53",
           "name": "Response_202",
           "status": "Only notifications were sent; there's nothing to reply.",
           "responseCode": {
@@ -2551,7 +2557,7 @@
         }
       ],
       "rawModeData": "{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"tools/call\",\"params\":{\"name\":\"search_shops\",\"arguments\":{\"query\":\"game\"}}}",
-      "collectionId": "6f874d71-fd36-4969-9452-480cea0ae795",
+      "collectionId": "74728070-125a-4a93-8037-c35725209c35",
       "queryParams": [],
       "headerData": [
         {
@@ -2567,8 +2573,8 @@
       "pathVariableData": []
     },
     {
-      "folder": "7b926f76-e710-4956-929a-77f542d73464",
-      "id": "e0d67160-fd50-4b13-8b4e-9a5d01ff3cd7",
+      "folder": "5846d180-e3e8-4b5a-b3e3-a955a3a91525",
+      "id": "c38c786f-8f59-4d9c-b58e-aef868efe25a",
       "name": "listMyShops",
       "dataDisabled": false,
       "descriptionFormat": "markdown",
@@ -2594,8 +2600,8 @@
       "url": "{{default}}/api/platform/shops?status=live",
       "responses": [
         {
-          "request": "e0d67160-fd50-4b13-8b4e-9a5d01ff3cd7",
-          "id": "1b1589fa-0975-411f-a7d1-279dd6ff4b4d",
+          "request": "c38c786f-8f59-4d9c-b58e-aef868efe25a",
+          "id": "e4908be6-0950-4a0d-afeb-e685b8cd3b5b",
           "name": "Response_200",
           "status": "The shops.",
           "responseCode": {
@@ -2615,7 +2621,7 @@
           "rawDataType": "text"
         }
       ],
-      "collectionId": "6f874d71-fd36-4969-9452-480cea0ae795",
+      "collectionId": "74728070-125a-4a93-8037-c35725209c35",
       "queryParams": [
         {
           "key": "status",

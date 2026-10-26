@@ -14,6 +14,8 @@ An order as `get_order` and `getAgentOrder` report it.
 
 | Name | Type | Tags | Description |
 |  --- | --- | --- | --- |
+| `showBuyer` | `string \| undefined` | Optional | A suggested reply to the buyer, in Markdown with the links already written as links: the product and its options to pick from, the pay link, or what they got with a receipt link. Buyers have the best experience when agents show it as written. |
+| `agentName` | `string \| undefined` | Optional | Who this request was credited to in the seller's stats: a recognised user agent, else the name the agent gave itself (`?agent=`, or the MCP client's name), else the user agent's first word. |
 | `orderId` | `string` | Required | - |
 | `status` | [`Status2`](/llms-pages/typescript/models/enumerations/status-2.md) | Required | `declined`: PayPal declined it, nothing charged, the buyer can open `pay_url` again. `sold_out`: it sold out before the payment was captured. `expired`: the PayPal checkout expired; create a new order. `failed`: PayPal couldn't be reached; ask again. |
 | `product` | `string` | Required | - |
@@ -43,14 +45,14 @@ const agentOrder: AgentOrder = {
     currency: 'currency2',
   },
   total: 'total4',
+  showBuyer: 'show_buyer4',
+  agentName: 'agent_name2',
   options: {
     'Size': 'M',
     'Color': 'Black'
   },
   payUrl: 'pay_url0',
   nextStep: 'next_step2',
-  paidAt: '2016-03-13T12:52:32.123Z',
-  receiptUrl: 'receipt_url6',
 };
 ```
 

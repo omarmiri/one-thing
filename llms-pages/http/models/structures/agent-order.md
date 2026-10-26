@@ -9,6 +9,8 @@ An order as `get_order` and `getAgentOrder` report it.
 
 | Name | Type | Tags | Description |
 |  --- | --- | --- | --- |
+| `show_buyer` | `String` | Optional | A suggested reply to the buyer, in Markdown with the links already written as links: the product and its options to pick from, the pay link, or what they got with a receipt link. Buyers have the best experience when agents show it as written. |
+| `agent_name` | `String` | Optional | Who this request was credited to in the seller's stats: a recognised user agent, else the name the agent gave itself (`?agent=`, or the MCP client's name), else the user agent's first word. |
 | `order_id` | `String` | Required | - |
 | `status` | [`Status 2`](/llms-pages/http/models/enumerations/status-2.md) | Required | `declined`: PayPal declined it, nothing charged, the buyer can open `pay_url` again. `sold_out`: it sold out before the payment was captured. `expired`: the PayPal checkout expired; create a new order. `failed`: PayPal couldn't be reached; ask again. |
 | `product` | `String` | Required | - |
@@ -40,10 +42,10 @@ An order as `get_order` and `getAgentOrder` report it.
     "currency": "currency2"
   },
   "total": "total6",
+  "show_buyer": "show_buyer6",
+  "agent_name": "agent_name4",
   "pay_url": "pay_url2",
-  "next_step": "next_step4",
-  "paid_at": "2016-03-13T12:52:32.123Z",
-  "receipt_url": "receipt_url2"
+  "next_step": "next_step4"
 }
 ```
 

@@ -302,6 +302,10 @@ type PayPalStatus {
 
 "A live shop as an AI agent sees it. Recommendations have `offers`; everything else has `price` and is bought with `create_order`."
 type AgentProduct {
+    "A suggested reply to the buyer, in Markdown with the links already written as links: the product and its options to pick from, the pay link, or what they got with a receipt link. Buyers have the best experience when agents show it as written."
+    showBuyer: String!
+    "Who this request was credited to in the seller's stats: a recognised user agent, else the name the agent gave itself (`?agent=`, or the MCP client's name), else the user agent's first word."
+    agentName: String!
     "The link name, which the MCP tools take as `shop`."
     shop: String!
     url: String!
@@ -345,6 +349,10 @@ type AgentShopSummary {
 
 "A new order, as `create_order` and `orderByLink` return it."
 type AgentCreatedOrder {
+    "A suggested reply to the buyer, in Markdown with the links already written as links: the product and its options to pick from, the pay link, or what they got with a receipt link. Buyers have the best experience when agents show it as written."
+    showBuyer: String!
+    "Who this request was credited to in the seller's stats: a recognised user agent, else the name the agent gave itself (`?agent=`, or the MCP client's name), else the user agent's first word."
+    agentName: String!
     orderId: String!
     status: String!
     "The total with shipping, as a label."
@@ -360,6 +368,10 @@ type AgentCreatedOrder {
 
 "An order as `get_order` and `getAgentOrder` report it."
 type AgentOrder {
+    "A suggested reply to the buyer, in Markdown with the links already written as links: the product and its options to pick from, the pay link, or what they got with a receipt link. Buyers have the best experience when agents show it as written."
+    showBuyer: String!
+    "Who this request was credited to in the seller's stats: a recognised user agent, else the name the agent gave itself (`?agent=`, or the MCP client's name), else the user agent's first word."
+    agentName: String!
     orderId: String!
     "`declined`: PayPal declined it, nothing charged, the buyer can open `pay_url` again. `sold_out`: it sold out before the payment was captured. `expired`: the PayPal checkout expired; create a new order. `failed`: PayPal couldn't be reached; ask again."
     status: Status2!
@@ -1125,6 +1137,8 @@ input GetOrderbylinkInput {
 input GetAgentOrderInput {
     "The `order_id` from the MCP `create_order` tool, or from a thank-you page link (`?order=`)."
     orderId: String!
+    "Optional: the agent's name (`ChatGPT`, `Gemini`, `my-shopping-bot`), so the seller's stats show which agent sent the buyer. Only used when the user agent doesn't already say."
+    agent: String!
     xAdminToken: String!
 }
 

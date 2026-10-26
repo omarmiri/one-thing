@@ -8,7 +8,8 @@ Where an order stands and, once paid, what the buyer got: the access code, the d
 
 ```python
 def get_agent_order(self,
-                   order_id)
+                   order_id,
+                   agent=None)
 ```
 
 
@@ -17,6 +18,7 @@ def get_agent_order(self,
 | Parameter | Type | Tags | Description |
 |  --- | --- | --- | --- |
 | `order_id` | `str` | Template, Required | The `order_id` from the MCP `create_order` tool, or from a thank-you page link (`?order=`). |
+| `agent` | `str` | Query, Optional | Optional: the agent's name (`ChatGPT`, `Gemini`, `my-shopping-bot`), so the seller's stats show which agent sent the buyer. Only used when the user agent doesn't already say.<br><br>**Constraints**: *Maximum Length*: `30` |
 
 
 # Response Type
@@ -31,7 +33,12 @@ def get_agent_order(self,
 ```python
 order_id = 'pX4kR9tVb2nQ7sLe'
 
-result = agents_api.get_agent_order(order_id)
+agent = 'ChatGPT'
+
+result = agents_api.get_agent_order(
+    order_id,
+    agent=agent
+)
 print(result)
 ```
 

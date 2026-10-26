@@ -1866,6 +1866,12 @@ paths:
             $ref: '#/definitions/AgentCreatedOrder'
           examples:
             application/json:
+              show_buyer: >-
+                Vintage Cream and Red Roller Skates (9): $255.00 total.
+
+                **[Pay $255.00 with PayPal](https://one-thing-ash0.onrender.com/o/pX4kR9tVb2nQ7sLe)**
+
+                Tell me once you've paid and I'll get you the shipping confirmation.
               order_id: pX4kR9tVb2nQ7sLe
               status: awaiting_buyer_approval
               total: $255.00
@@ -1907,6 +1913,12 @@ paths:
         required: true
         type: string
         description: The `order_id` from the MCP `create_order` tool, or from a thank-you page link (`?order=`).
+      - name: agent
+        in: query
+        required: false
+        type: string
+        maxLength: 30
+        description: "Optional: the agent's name (`ChatGPT`, `Gemini`, `my-shopping-bot`), so the seller's stats show which agent sent the buyer. Only used when the user agent doesn't already say."
       responses:
         '200':
           description: The order.
@@ -1962,6 +1974,14 @@ paths:
             $ref: '#/definitions/AgentProduct'
           examples:
             application/json:
+              show_buyer: >-
+                **Vintage Cream and Red Roller Skates**: $240.00 + $15.00 shipping
+
+                Classic quad skates crafted with walnut burl heels
+
+                Size: 7 · 8 · 9
+
+                Which size?
               shop: vintageskates
               url: https://one-thing-ash0.onrender.com/vintageskates
               name: Vintage Cream and Red Roller Skates
@@ -2012,8 +2032,9 @@ paths:
                 availability: in_stock (6 left)
                 order_url: https://one-thing-ash0.onrender.com/api/agent/shops/vintageskates/order?Size=9
               availability: in_stock
-              how_to_buy: "Open the order_url of the buyer's variant (or call create_order on the OneThing MCP server with shop and options). Either returns a pay_url: give it to the buyer to pay at PayPal."
+              how_to_buy: "Recommended: buyers have the best experience when you show show_buyer as written (it's Markdown, so the links stay clickable) and keep your own words to a minimum. Once the buyer has picked and said to buy, open the order_url of their variant (or call create_order on the OneThing MCP server with shop and options). Either returns show_buyer with the pay link."
               mcp_server: https://one-thing-ash0.onrender.com/api/mcp
+              agent_name: ChatGPT
           headers: {}
         '404':
           description: No live shop with that link name.
@@ -2614,6 +2635,12 @@ definitions:
     description: A live shop as an AI agent sees it. Recommendations have `offers`; everything else has `price` and is bought with `create_order`.
     type: object
     properties:
+      show_buyer:
+        description: 'A suggested reply to the buyer, in Markdown with the links already written as links: the product and its options to pick from, the pay link, or what they got with a receipt link. Buyers have the best experience when agents show it as written.'
+        type: string
+      agent_name:
+        description: "Who this request was credited to in the seller's stats: a recognised user agent, else the name the agent gave itself (`?agent=`, or the MCP client's name), else the user agent's first word."
+        type: string
       shop:
         description: The link name, which the MCP tools take as `shop`.
         type: string
@@ -2723,6 +2750,12 @@ definitions:
     description: A new order, as `create_order` and `orderByLink` return it.
     type: object
     properties:
+      show_buyer:
+        description: 'A suggested reply to the buyer, in Markdown with the links already written as links: the product and its options to pick from, the pay link, or what they got with a receipt link. Buyers have the best experience when agents show it as written.'
+        type: string
+      agent_name:
+        description: "Who this request was credited to in the seller's stats: a recognised user agent, else the name the agent gave itself (`?agent=`, or the MCP client's name), else the user agent's first word."
+        type: string
       order_id:
         type: string
       status:
@@ -2759,6 +2792,12 @@ definitions:
     description: An order as `get_order` and `getAgentOrder` report it.
     type: object
     properties:
+      show_buyer:
+        description: 'A suggested reply to the buyer, in Markdown with the links already written as links: the product and its options to pick from, the pay link, or what they got with a receipt link. Buyers have the best experience when agents show it as written.'
+        type: string
+      agent_name:
+        description: "Who this request was credited to in the seller's stats: a recognised user agent, else the name the agent gave itself (`?agent=`, or the MCP client's name), else the user agent's first word."
+        type: string
       order_id:
         type: string
       status:

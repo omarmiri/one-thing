@@ -14,6 +14,8 @@ A live shop as an AI agent sees it. Recommendations have `offers`; everything el
 
 | Name | Type | Tags | Description |
 |  --- | --- | --- | --- |
+| `show_buyer` | `str` | Optional | A suggested reply to the buyer, in Markdown with the links already written as links: the product and its options to pick from, the pay link, or what they got with a receipt link. Buyers have the best experience when agents show it as written. |
+| `agent_name` | `str` | Optional | Who this request was credited to in the seller's stats: a recognised user agent, else the name the agent gave itself (`?agent=`, or the MCP client's name), else the user agent's first word. |
 | `shop` | `str` | Required | The link name, which the MCP tools take as `shop`. |
 | `url` | `str` | Required | - |
 | `name` | `str` | Required | - |
@@ -76,6 +78,8 @@ agent_product = AgentProduct(
         'images6'
     ],
     how_to_buy='how_to_buy2',
+    show_buyer='show_buyer4',
+    agent_name='agent_name4',
     price=AgentMoney(
         amount=150.74,
         currency='currency2',
