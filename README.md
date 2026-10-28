@@ -192,7 +192,10 @@ the AI's guesses and clicks **Go live**. The choices behind it:
   to review. Shops already in the gallery when review was added stayed approved. Each shop there
   shows how to reach its seller: the account's email or phone, the seller email typed at setup,
   and the PayPal email. A **Find any shop** box (`?q=`) looks up any shop by name, link or
-  description, including ones never sent to the gallery, with the same contacts.
+  description, including ones never sent to the gallery, with the same contacts. A shop that
+  belongs to no account (made signed out, or before accounts existed) has **Give to account**.
+  Enter the seller's email or phone, and the shop shows up in their **Your shops**, for when the
+  private manage link is lost. Shops that already have an owner are never moved.
 - **Site stats** at `/admin/stats?key=<ADMIN_KEY>` (not linked anywhere): the same funnel for the
   whole site, people vs agents, plus a table of every shop with visits or orders.
 

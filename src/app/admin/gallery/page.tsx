@@ -14,7 +14,7 @@ const LABEL: Record<GalleryStatus, string> = { pending: "Waiting", approved: "In
  * account (allowlisted), or open it with ?key=ADMIN_KEY.
  */
 export default async function GalleryReview({ searchParams }: PageProps<"/admin/gallery">) {
-  const { key: k, q: query } = await searchParams;
+  const { key: k, q: query, note } = await searchParams;
   const key = typeof k === "string" && isAdminKey(k) ? k : null;
   const admin = await currentAdmin();
   const supabase = adminSupabase();
@@ -41,6 +41,22 @@ export default async function GalleryReview({ searchParams }: PageProps<"/admin/
     ]
       .filter(Boolean)
       .join(" · ") || "No contact on file";
+  // A shop nobody owns can only be managed by its private link; this gives it to a seller's account.
+  const giveForm = (shop: Shop) =>
+    !shop.account_id && (
+      <form method="post" action="/api/admin/shops/owner" className="mt-2 flex max-w-sm gap-2">
+        {key && <input type="hidden" name="key" value={key} />}
+        {q && <input type="hidden" name="q" value={q} />}
+        <input type="hidden" name="id" value={shop.id} />
+        <input
+          name="owner"
+          required
+          placeholder="Give to account: email or phone"
+          className="min-w-0 flex-1 rounded-lg border border-line bg-white px-2 py-1 text-xs"
+        />
+        <button className="rounded-full border border-line px-3 py-1 text-xs font-semibold">Give</button>
+      </form>
+    );
 
   return (
     <main className="mx-auto w-full max-w-5xl px-4 py-10 sm:px-6">
@@ -56,6 +72,7 @@ export default async function GalleryReview({ searchParams }: PageProps<"/admin/
         Shops whose sellers asked to be in /gallery. Only approved ones show there, on the home page and in agent search.
       </p>
 
+      {typeof note === "string" && note && <p className="mt-4 rounded-lg bg-black/5 px-3 py-2 text-sm">{note.slice(0, 200)}</p>}
       <form method="get" className="mt-6 flex max-w-md gap-2">
         {key && <input type="hidden" name="key" value={key} />}
         <input
@@ -78,6 +95,7 @@ export default async function GalleryReview({ searchParams }: PageProps<"/admin/
                   /{shop.slug} · {shop.status}
                 </span>
                 <p className="mt-1 break-all text-muted">{who(shop)}</p>
+                {giveForm(shop)}
               </li>
             ))
           ) : (
@@ -108,6 +126,7 @@ export default async function GalleryReview({ searchParams }: PageProps<"/admin/
                   <p className="truncate text-sm text-muted">{shop.spec.headline}</p>
                   <p className="text-sm">{money(shop.price_cents, shop.currency)}</p>
                   <p className="truncate text-xs text-muted">{who(shop)}</p>
+                  {giveForm(shop)}
                 </div>
                 <form method="post" action="/api/admin/gallery" className="flex shrink-0 flex-col gap-2 sm:flex-row">
                   {key && <input type="hidden" name="key" value={key} />}
