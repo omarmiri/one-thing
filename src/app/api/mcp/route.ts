@@ -4,6 +4,7 @@ import { z } from "zod";
 import { agentCreateOrder, AgentError, agentGetOrder, agentProduct, liveShop, searchShops } from "@/lib/agent";
 import { overLimit } from "@/lib/rateLimit";
 import { agentName, recordVisit } from "@/lib/stats";
+import { WIDGET_HTML, WIDGET_MIME, WIDGET_URI, widgetMeta, widgetToolMeta } from "@/lib/widget";
 
 /**
  * OneThing's MCP server, so AI agents can shop here: find a shop, read the product, order it.
@@ -35,11 +36,15 @@ const TOOLS = {
     description: "Find live OneThing shops by keywords (product name, category, what it's for). Empty query lists recent shops.",
     input: z.object({ query: z.string().max(200).optional(), limit: z.number().int().min(1).max(25).optional() }),
     run: async (a: { query?: string; limit?: number }) => searchShops(a.query, a.limit),
+    annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+    _meta: widgetToolMeta("Looking through the shops…", "Found shops"),
   },
   get_product: {
     description: "Everything about one shop's product: description, price, shipping, delivery, availability, images, FAQ.",
     input: z.object({ shop: slug }),
     run: async (a: { shop: string }) => agentProduct(await liveShop(a.shop)),
+    annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+    _meta: widgetToolMeta("Opening the shop…", "Here it is"),
   },
   create_order: {
     description:
@@ -51,6 +56,9 @@ const TOOLS = {
       options: z.record(z.string().max(20), z.string().max(30)).optional().describe("One value per option from get_product, keyed by option name"),
     }),
     run: async (a: { shop: string; options?: Record<string, string> }, agent: string) => agentCreateOrder(a.shop, a.options, null, agent),
+    // Starts a PayPal order but charges nothing: the buyer approves at PayPal. A new order each call.
+    annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: true },
+    _meta: widgetToolMeta("Starting checkout…", "Ready to pay"),
   },
   get_order: {
     description:
@@ -58,6 +66,10 @@ const TOOLS = {
       "Once paid, delivery holds what the buyer got: an access code, a download link, or shipping details and tracking.",
     input: z.object({ order_id: z.string().min(1).max(64) }),
     run: async (a: { order_id: string }) => agentGetOrder(a.order_id),
+    // Read-only to the agent: it may capture a payment, but only one the buyer already approved at
+    // PayPal, so a confirmation prompt on "have I paid?" would ask the buyer twice.
+    annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+    _meta: undefined,
   },
 } as const;
 
@@ -77,7 +89,7 @@ async function handle(msg: Rpc, h: Headers, client: string | null) {
       const asked = String(params.protocolVersion ?? "");
       return result(id, {
         protocolVersion: VERSIONS.includes(asked) ? asked : VERSIONS[0],
-        capabilities: { tools: { listChanged: false } },
+        capabilities: { tools: { listChanged: false }, resources: { listChanged: false } },
         serverInfo: { name: "onething", title: "OneThing shops", version: "1.0.0" },
         instructions: INSTRUCTIONS,
       });
@@ -90,9 +102,18 @@ async function handle(msg: Rpc, h: Headers, client: string | null) {
           name,
           description: t.description,
           inputSchema: z.toJSONSchema(t.input),
-          annotations: { readOnlyHint: name !== "create_order", openWorldHint: true },
+          annotations: t.annotations,
+          ...(t._meta && { _meta: t._meta }),
         })),
       });
+    // The product card (src/lib/widget.ts), for hosts that draw tool results as UI.
+    case "resources/list":
+      return result(id, { resources: [{ uri: WIDGET_URI, name: "OneThing product card", mimeType: WIDGET_MIME, _meta: widgetMeta() }] });
+    case "resources/templates/list":
+      return result(id, { resourceTemplates: [] });
+    case "resources/read":
+      if (params.uri !== WIDGET_URI) return failure(id, -32002, `Resource not found: ${String(params.uri)}`);
+      return result(id, { contents: [{ uri: WIDGET_URI, mimeType: WIDGET_MIME, text: WIDGET_HTML, _meta: widgetMeta() }] });
     case "tools/call": {
       const tool = TOOLS[String(params.name) as keyof typeof TOOLS];
       if (!tool) return failure(id, -32602, `Unknown tool: ${String(params.name)}`);

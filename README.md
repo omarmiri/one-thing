@@ -198,6 +198,18 @@ Every live shop is agent-ready:
   `claude mcp add --transport http onething https://one-thing-ash0.onrender.com/api/mcp`.
   Working in this repo, you don't need to: [.mcp.json](.mcp.json) registers it, so a new Claude
   Code session here has the tools (Claude Code asks once to approve the server).
+  **In ChatGPT**, add it as a custom MCP server: chatgpt.com/plugins, then **+**, then "Add custom
+  MCP server", with that URL and no authentication. Pick it with **@** in a chat. Every tool says
+  explicitly whether it is read-only, destructive, idempotent or open-world (ChatGPT uses this to
+  decide when to ask the user first). `create_order` is the only one that isn't read-only, and it
+  charges nothing.
+- **A product card** ([src/lib/widget.ts](src/lib/widget.ts)) for hosts that draw tool results as UI
+  (ChatGPT and other MCP Apps hosts). It's an MCP Apps resource, `ui://onething/shop-card-v1.html`, linked from
+  `search_shops`, `get_product` and `create_order`. It shows a grid of shops, then the product with its
+  photo, option chips and **Buy with PayPal**. That button calls `create_order` from the card itself
+  and turns into **Pay $96.00 with PayPal**, which opens the `/o/` pay link in the buyer's
+  browser. The card speaks both ChatGPT's `window.openai` API and the standard MCP Apps postMessage
+  bridge. It was tested locally against a stand-in host; it still needs a real ChatGPT check.
 - **A suggested reply in every answer** (`show_buyer`, in search results, the product JSON, order
   and status replies and the MCP tools): short Markdown with the links already written as links.
   The product's cover photo as a Markdown image (one per shop in search results), the product, its
