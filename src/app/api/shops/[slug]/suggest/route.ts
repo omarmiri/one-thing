@@ -1,12 +1,15 @@
 import { NextResponse } from "next/server";
 import { requireShop } from "@/lib/auth";
 import { geminiEnabled, listingText, suggestOptions } from "@/lib/gemini";
+import { limited } from "@/lib/rateLimit";
 import { getBlob, updateShop } from "@/lib/shops";
 
 /** Check for missing details: asks Gemini again about an existing shop's options and gaps. */
 export async function POST(req: Request, ctx: RouteContext<"/api/shops/[slug]/suggest">) {
   const r = await requireShop(req, (await ctx.params).slug);
   if ("error" in r) return r.error;
+  const busy = await limited("ai", req.headers);
+  if (busy) return busy;
   const { shop } = r;
   if (!geminiEnabled()) return NextResponse.json({ error: "Set GEMINI_API_KEY first." }, { status: 400 });
   if (shop.product_type === "referral") return NextResponse.json({ error: "Recommendations use the retailer's details." }, { status: 400 });

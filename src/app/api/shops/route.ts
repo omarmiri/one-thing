@@ -10,6 +10,7 @@ import { readForm } from "@/lib/formBody";
 import { designShop, geminiEnabled, suggestOptions, type Photo } from "@/lib/gemini";
 import { generateHero } from "@/lib/hero";
 import { newId } from "@/lib/ids";
+import { limited } from "@/lib/rateLimit";
 import { saveBlob } from "@/lib/shops";
 import { claimSlug, pickSlug, slugProblem, slugTaken, toSlug } from "@/lib/slugs";
 
@@ -41,6 +42,11 @@ export async function POST(req: Request) {
   const k = await requestKey(req);
   if (k && "invalid" in k) return badKey();
   const apiKey = k?.key ?? null;
+  // A key's account answers for its shops; without one, an address gets a few an hour.
+  if (!apiKey) {
+    const busy = await limited("shop", req.headers);
+    if (busy) return busy;
+  }
   const form = await readForm(req);
   const source = str(form, "source") ?? "photo";
   const id = newId();

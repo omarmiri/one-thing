@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { agentCreateOrder, AgentError, agentGetOrder, agentProduct, liveShop, searchShops } from "@/lib/agent";
+import { overLimit } from "@/lib/rateLimit";
 import { agentName, recordVisit } from "@/lib/stats";
 
 /**
@@ -107,6 +108,8 @@ async function handle(msg: Rpc, h: Headers, client: string | null) {
       // A tool call about one shop (get_product, create_order) is an agent visit to it.
       const about = (args.data as { shop?: string }).shop;
       if (about) await recordVisit({ slug: about }, h, "agent", client);
+      const over = params.name === "create_order" ? await overLimit("order", h) : null;
+      if (over) return reply({ error: over.error }, true);
       try {
         // agent_name says back who this call is credited to in the seller's stats (and on its order).
         const agent = agentName(h, client);

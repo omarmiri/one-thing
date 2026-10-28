@@ -194,6 +194,15 @@ CREATE TABLE IF NOT EXISTS visits (
   PRIMARY KEY (shop_id, day, visitor, channel)
 );
 CREATE INDEX IF NOT EXISTS visits_day_idx ON visits(day);
+
+-- Rate limits (src/lib/rateLimit.ts): calls per hashed IP and kind in one fixed time window.
+CREATE TABLE IF NOT EXISTS rate_hits (
+  key   text NOT NULL,                                -- hash of the limit's kind and the IP
+  win   bigint NOT NULL,                              -- window number: epoch ms / window length
+  hits  integer NOT NULL DEFAULT 1,
+  at    timestamptz NOT NULL DEFAULT now(),
+  PRIMARY KEY (key, win)
+);
 `;
 
 async function open(): Promise<Db> {

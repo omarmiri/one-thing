@@ -26,6 +26,18 @@ const AGENTS: [RegExp, string][] = [
 const AI_FETCHER = /ChatGPT-User|Claude-User|Perplexity-User|MistralAI-User|DuckAssistBot|Google-Agent/i;
 // Bots that do run JavaScript, so the beacon alone doesn't keep them out.
 const BOT = /bot|crawl|spider|slurp|preview|headless|lighthouse|pingdom|uptime/i;
+/**
+ * Crawlers building an index and apps unfurling a pasted link: they open URLs nobody asked them
+ * to act on, so they must not place orders. Named one by one, never a wildcard: assistants
+ * fetching for a buyer (Claude-User honours robots.txt) have to keep getting through. Twitterbot
+ * is left out on purpose: we don't know that Grok's fetches never carry it.
+ */
+export const PREFETCHERS = [
+  "Googlebot", "bingbot", "Applebot", "DuckDuckBot", "YandexBot", "Baiduspider",
+  "GPTBot", "OAI-SearchBot", "ClaudeBot", "Claude-SearchBot", "PerplexityBot", "CCBot", "Amazonbot", "Bytespider", "meta-externalagent",
+  "Slackbot", "facebookexternalhit", "LinkedInBot", "Discordbot", "TelegramBot", "WhatsApp", "SkypeUriPreview", "redditbot", "Pinterestbot", "Iframely", "Embedly",
+];
+const PREFETCHER = new RegExp(PREFETCHERS.join("|"), "i");
 
 const ua = (h: Headers) => h.get("user-agent") ?? "";
 const known = (s: string) => AGENTS.find(([re]) => re.test(s))?.[1];
@@ -46,6 +58,7 @@ export function agentName(h: Headers, claimed?: string | null) {
 /** An assistant fetching the shop page for someone: counts as an agent visit, not a web one. */
 export const isAiFetcher = (h: Headers) => AI_FETCHER.test(ua(h));
 export const isBot = (h: Headers) => !ua(h) || BOT.test(ua(h));
+export const isPrefetcher = (h: Headers) => PREFETCHER.test(ua(h));
 
 function visitorId(h: Headers) {
   const ip = h.get("x-forwarded-for")?.split(",")[0].trim() || h.get("x-real-ip") || "";

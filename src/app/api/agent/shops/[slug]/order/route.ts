@@ -1,17 +1,24 @@
 import { NextResponse } from "next/server";
 import { agentCreateOrder, AgentError, liveShop } from "@/lib/agent";
-import { agentName, recordVisit } from "@/lib/stats";
+import { limited } from "@/lib/rateLimit";
+import { agentName, isPrefetcher, recordVisit } from "@/lib/stats";
 
 /**
  * Orders one unit with a GET: create_order for AI assistants that can only fetch URLs. The
  * buyer's pick comes as query parameters (?Size=9). Like create_order, nothing is charged: the
  * reply's pay_url is where the buyer pays at PayPal, and status_url says when they have.
  *
- * A GET that creates something gets opened by link previewers too. That leaves an unpaid order
- * at most: stock is only taken when a payment is captured, and PayPal drops unapproved orders.
+ * A GET that creates something gets opened by crawlers and link previewers too. The ones we know
+ * are told no here (and kept out by robots.txt); any other leaves an unpaid order at most: stock
+ * is only taken when a payment is captured, and PayPal drops unapproved orders.
  */
 export async function GET(req: Request, ctx: RouteContext<"/api/agent/shops/[slug]/order">) {
   const headers = { "cache-control": "no-store", "x-robots-tag": "noindex, nofollow" };
+  if (isPrefetcher(req.headers)) {
+    return NextResponse.json({ error: "Crawlers and link previews don't place orders. Read the product at the shop's page." }, { status: 403, headers });
+  }
+  const busy = await limited("order", req.headers);
+  if (busy) return busy;
   try {
     const shop = await liveShop((await ctx.params).slug);
     const params = new URL(req.url).searchParams;

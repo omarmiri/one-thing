@@ -3,6 +3,7 @@ import sharp from "sharp";
 import { z } from "zod";
 import { requireShop } from "@/lib/auth";
 import { geminiEnabled, matchColorPhotos } from "@/lib/gemini";
+import { limited } from "@/lib/rateLimit";
 import { getBlob, shopPhotos } from "@/lib/shops";
 
 const Body = z.object({ colors: z.array(z.object({ label: z.string().max(30), hex: z.string().max(7).optional() })).min(1).max(12) });
@@ -14,6 +15,8 @@ const Body = z.object({ colors: z.array(z.object({ label: z.string().max(30), he
 export async function POST(req: Request, ctx: RouteContext<"/api/shops/[slug]/match-photos">) {
   const r = await requireShop(req, (await ctx.params).slug);
   if ("error" in r) return r.error;
+  const busy = await limited("ai", req.headers);
+  if (busy) return busy;
   if (!geminiEnabled()) return NextResponse.json({ error: "Set GEMINI_API_KEY first." }, { status: 400 });
   const body = Body.safeParse(await req.json().catch(() => null));
   if (!body.success) return NextResponse.json({ error: "Send the colours to match." }, { status: 400 });

@@ -224,7 +224,17 @@ Every live shop is agent-ready:
   `pay_url` and `status_url`) and `/api/agent/orders/<order_id>` (status and delivery, like
   `get_order`). The product JSON and `/llms.txt` write the order links out in full, one per size
   or colour, because some assistants only open URLs they've been shown. Each request makes a new,
-  unpaid order; the buyer still pays at PayPal.
+  unpaid order; the buyer still pays at PayPal. A GET can start an order but never move money.
+  Search crawlers and link previewers (Slack, Discord, Facebook and the like) get a 403 from
+  order links instead of an order, and `/robots.txt` keeps them off order and pay links by name.
+  There's no `*` rule, because assistants fetching for a buyer (Claude-User, for one) honour
+  robots.txt too.
+- **Rate limits** per IP address on everything that costs something: 30 checkouts per 10 minutes
+  (web, GET order links and MCP `create_order` together), 10 new shops an hour without an API key,
+  and 60 seller AI requests an hour. Going over gets a 429 with `Retry-After` (an error result over
+  MCP). The caps are high because assistants shop for many people from a few shared addresses.
+  They're there to stop loops and floods, not people. Counts live in Postgres (`rate_hits`), keyed
+  by a salted hash of the IP.
 - **Product JSON** at `/api/agent/shops/<slug>`: price, shipping, delivery, availability, images
   and FAQ, plus where the MCP server is. Shop pages link to it (`<link rel="alternate">`).
 - **schema.org `Product` JSON-LD** on every live shop page, which shopping agents and search

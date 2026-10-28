@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { requireShop } from "@/lib/auth";
 import { designShop, designerReady, type Designer } from "@/lib/gemini";
 import { currentAccount } from "@/lib/accounts";
+import { limited } from "@/lib/rateLimit";
 import { getBlob, updateShop, type DesignB } from "@/lib/shops";
 
 export const maxDuration = 90;
@@ -16,6 +17,8 @@ export const maxDuration = 90;
 export async function POST(req: Request, ctx: RouteContext<"/api/shops/[slug]/ab">) {
   const r = await requireShop(req, (await ctx.params).slug);
   if ("error" in r) return r.error;
+  const busy = await limited("ai", req.headers);
+  if (busy) return busy;
   const account = await currentAccount();
   if (!account || r.shop.account_id !== account.id) {
     return NextResponse.json({ error: "Sign in to try another AI designer." }, { status: 403 });

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { requireShop } from "@/lib/auth";
 import { refineShop } from "@/lib/gemini";
+import { limited } from "@/lib/rateLimit";
 import { updateShop } from "@/lib/shops";
 
 export const maxDuration = 60;
@@ -9,6 +10,8 @@ export const maxDuration = 60;
 export async function POST(req: Request, ctx: RouteContext<"/api/shops/[slug]/refine">) {
   const r = await requireShop(req, (await ctx.params).slug);
   if ("error" in r) return r.error;
+  const busy = await limited("ai", req.headers);
+  if (busy) return busy;
   const body = (await req.json().catch(() => null)) as { instruction?: string } | null;
   const instruction = body?.instruction?.trim();
   if (!instruction || instruction.length > 500) {
