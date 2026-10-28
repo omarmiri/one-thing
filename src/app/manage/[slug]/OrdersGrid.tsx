@@ -20,7 +20,9 @@ export function OrdersGrid(props: {
   orders: SellerOrder[];
   physical: boolean;
   onShip(orderId: string, carrier: string, trackingNumber: string, carrierName?: string): Promise<string | null>;
+  onRefund(order: SellerOrder): void;
 }) {
+  const { onRefund } = props;
   const [search, setSearch] = useState("");
   const [shipping, setShipping] = useState<SellerOrder | null>(null);
 
@@ -58,7 +60,9 @@ export function OrdersGrid(props: {
               field: "fulfillment_status",
               width: 170,
               cellRenderer: (p: { data?: SellerOrder }) =>
-                p.data?.fulfillment_status === "to_ship" ? (
+                p.data?.status === "refunded" ? (
+                  <span className="text-muted">{p.data.fulfillment_status === "shipped" ? `Shipped · ${p.data.tracking_number ?? ""}` : "Not shipped"}</span>
+                ) : p.data?.fulfillment_status === "to_ship" ? (
                   <button className="rounded-full bg-accent px-3 py-1 text-xs font-semibold text-white" onClick={() => setShipping(p.data!)}>
                     Mark shipped
                   </button>
@@ -72,9 +76,23 @@ export function OrdersGrid(props: {
         : ([
             { headerName: "Downloads", field: "downloads", width: 120, type: "rightAligned" },
           ] satisfies ColDef<SellerOrder>[])),
+      {
+        headerName: "Refund",
+        width: 130,
+        cellRenderer: (p: { data?: SellerOrder }) =>
+          p.data?.status === "refunded" ? (
+            <span className="text-muted" title={p.data.refund_id ? `PayPal refund ${p.data.refund_id}` : "Refunded in PayPal"}>
+              Refunded
+            </span>
+          ) : p.data?.status === "paid" ? (
+            <button className="rounded-full border border-line px-3 py-1 text-xs font-semibold" onClick={() => onRefund(p.data!)}>
+              Refund
+            </button>
+          ) : null,
+      },
       { headerName: "PayPal order", field: "paypal_order_id", width: 170 },
     ],
-    [props.physical],
+    [props.physical, onRefund],
   );
 
   return (

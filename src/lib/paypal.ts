@@ -56,7 +56,7 @@ export class PayPalError extends Error {
 async function call<T>(
   op: string,
   path: string,
-  init: { method: string; body?: unknown; requestId?: string },
+  init: { method: string; body?: unknown; requestId?: string; headers?: Record<string, string> },
   token: () => Promise<string> = accessToken,
 ) {
   const res = await fetch(`${API}${path}`, {
@@ -65,6 +65,7 @@ async function call<T>(
       authorization: `Bearer ${await token()}`,
       "content-type": "application/json",
       ...(init.requestId && { "PayPal-Request-Id": init.requestId }),
+      ...init.headers,
     },
     body: init.body === undefined ? undefined : JSON.stringify(init.body),
   });
@@ -191,6 +192,29 @@ export const addTracking = (
       notify_payer: true,
     },
   });
+
+export type Refund = { id: string; status: string };
+
+/**
+ * Refunds a capture in full. Only the account that received the money can refund it: our keys
+ * can when that was the platform's own account; for a seller who connected PayPal, the Platform
+ * app refunds as them (Connect asked for the REFUND permission). A payment to an email the seller
+ * only typed can't be refunded by anyone but them; that comes back as a PayPalError (403/422).
+ */
+export async function refundCapture(captureId: string, localOrderId: string, merchantId?: string | null): Promise<Refund> {
+  const path = `/v2/payments/captures/${encodeURIComponent(captureId)}/refund`;
+  const init = { method: "POST", body: {}, requestId: `refund-${localOrderId}` };
+  try {
+    return await call<Refund>("refund", path, init);
+  } catch (err) {
+    const notOurs = err instanceof PayPalError && (err.status === 403 || /NOT_AUTHORIZED|PERMISSION_DENIED|PAYEE/.test(err.body));
+    if (!notOurs || !merchantId || !paypalConnectEnabled()) throw err;
+    // PayPal-Auth-Assertion: an unsigned JWT naming the partner app and the seller it acts for.
+    const b64 = (o: object) => Buffer.from(JSON.stringify(o)).toString("base64url");
+    const assertion = `${b64({ alg: "none" })}.${b64({ iss: process.env.PAYPAL_PARTNER_CLIENT_ID, payer_id: merchantId })}.`;
+    return call<Refund>("refund as seller", path, { ...init, headers: { "PayPal-Auth-Assertion": assertion } }, partnerToken);
+  }
+}
 
 /** Asks PayPal whether a webhook delivery is genuine. */
 export async function verifyWebhook(headers: Headers, event: unknown): Promise<boolean> {

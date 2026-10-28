@@ -115,7 +115,15 @@ the AI's guesses and clicks **Go live**. The choices behind it:
   **Disconnect**. **Go live** waits until PayPal says the account can be paid, or a PayPal email is
   entered as a fallback. A connected account carries over to the seller's other and new shops.
 - **A manage page** (open from Your shops, or by its private link): settings, publish, photos, and an
-  [AG Grid](https://www.ag-grid.com/) orders table with sort, filter, search and **Mark shipped**.
+  [AG Grid](https://www.ag-grid.com/) orders table with sort, filter, search, **Mark shipped** and
+  **Refund**. Refund sends the full amount back through PayPal's refund API. When a seller
+  connected PayPal, the Platform app refunds on their behalf, since Connect asks for the `REFUND`
+  permission. When a sale was paid straight to OneThing's own account, OneThing refunds it
+  directly. When it was paid to an email the seller only typed in, PayPal lets only that account
+  refund, so the seller refunds it in PayPal and marks it refunded here. A
+  `PAYMENT.CAPTURE.REFUNDED` webhook marks it too. A refunded order's download link and access
+  code stop working, an unshipped item goes back into stock, and the receipt, `get_order` and
+  Zapier (`order.refunded`) all say so.
   A **Via** column shows whether each order came from the shop page or an AI agent, and which
   agent ("AI agent · Grok"), credited the same way as the stats below (`orders.agent`).
 - **Design A/B test** on the manage page, for signed-in sellers on shops in their account: an
@@ -299,6 +307,8 @@ valid. The image below recreates that session ([source](docs/muse-checkout-demo.
    generator** (real cards are refused in sandbox). You land on the thank-you page, and the order
    appears in the seller's grid.
 4. For a physical order, click **Mark shipped** and add a tracking number.
+5. Click **Refund** on the order. The receipt now says it was refunded, and the buyer's sandbox
+   PayPal account shows the money back.
 
 To try **Connect PayPal** instead of typing an email: on a draft shop's manage page, click
 **Connect PayPal** and sign in with a sandbox business account (not the Platform app's own
@@ -396,12 +406,12 @@ service URL.
 
 | Tool | How it's used |
 |---|---|
-| **PayPal** JS SDK v6, Orders v2 (create/capture, payee routing, shipping preference), order tracking API, webhooks, Log in with PayPal (OpenID Connect), Partner Referrals and merchant integration status | All checkout and payment handling, seller sign-in, seller onboarding with a readiness check, and agent orders the buyer approves at PayPal |
+| **PayPal** JS SDK v6, Orders v2 (create/capture, payee routing, shipping preference), Payments v2 refunds (as the seller via PayPal-Auth-Assertion for connected accounts), order tracking API, webhooks, Log in with PayPal (OpenID Connect), Partner Referrals and merchant integration status | All checkout and payment handling, seller sign-in, seller onboarding with a readiness check, and agent orders the buyer approves at PayPal |
 | **Model Context Protocol** | `/api/mcp`, so AI agents can find shops and order through PayPal |
 | **Google Gemini** (`@google/genai`) | Reads the photo or page; guesses the product, delivery, price and link; generates the structured design spec and copy; edits it from chat; an image model makes the hero art |
 | **Channel3** | Product search, store-link lookup, and recommendation shops that earn through Channel3's tracked buy links |
 | **Render** | Hosting and Postgres via `render.yaml` |
-| **AG Grid** | The seller's orders table (sort, filter, search, mark shipped) |
+| **AG Grid** | The seller's orders table (sort, filter, search, mark shipped, refund) |
 | **Zapier** | Optional per-shop Catch Hook: every paid or shipped order is posted to it |
 | **APIMatic** | Generates the TypeScript and Python SDKs and the [docs portal](https://omarmiri.github.io/one-thing/) from the OpenAPI spec. Its PayPal Context Plugin gave Claude Code PayPal's API reference while building the PayPal features |
 | **Postman** | A collection covering the whole API |

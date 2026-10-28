@@ -100,6 +100,9 @@ ALTER TABLE shops  ADD COLUMN IF NOT EXISTS options jsonb NOT NULL DEFAULT '[]';
 ALTER TABLE shops  ADD COLUMN IF NOT EXISTS option_stock jsonb NOT NULL DEFAULT '{}';
 ALTER TABLE shops  ADD COLUMN IF NOT EXISTS suggestions jsonb;
 ALTER TABLE orders ADD COLUMN IF NOT EXISTS options jsonb;          -- the buyer's choice, e.g. {"Size":"M"}
+-- Refunds (status 'refunded'): PayPal's refund id, or null when the seller refunded in PayPal themselves.
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS refund_id text;
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS refunded_at timestamptz;
 -- Design A/B test (manage page, signed-in sellers): which model wrote the current spec, and the
 -- other version, {spec, model, seconds}, which "Show this version" swaps in.
 ALTER TABLE shops  ADD COLUMN IF NOT EXISTS ai_model text;          -- null: made before this was recorded

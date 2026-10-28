@@ -216,6 +216,28 @@ export function ManageApp(props: {
               return (e as Error).message;
             }
           }}
+          onRefund={async (o) => {
+            const total = `${(o.amount_cents / 100).toFixed(2)}`;
+            if (!window.confirm(`Refund ${total} to ${o.buyer_name ?? o.buyer_email ?? "the buyer"}? PayPal sends it back in full. Their download link or access code stops working.`)) return;
+            const refund = async (record: boolean) => {
+              // Not through api(): a 409 here carries refundInPayPal, which the caller needs.
+              const res = await fetch(`/api/shops/${slug}/orders/${o.id}/refund`, {
+                method: "POST",
+                headers: { "x-admin-token": token, "content-type": "application/json" },
+                body: JSON.stringify({ record }),
+              }).catch(() => null);
+              return res ? ((await res.json().catch(() => ({}))) as { ok?: boolean; error?: string; refundInPayPal?: boolean }) : { error: "Couldn't reach OneThing. Try again." };
+            };
+            let r = await refund(false);
+            if (r.refundInPayPal && window.confirm(`${r.error}
+
+Already refunded it in PayPal? OK marks it refunded here.`)) r = await refund(true);
+            else if (r.refundInPayPal) return;
+            if (r.ok) {
+              setOrders(await api("/orders"));
+              setToast(`Refunded ${total}`);
+            } else setToast(r.error ?? "The refund didn't go through.");
+          }}
         />
       </section>
 

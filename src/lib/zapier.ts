@@ -4,10 +4,10 @@ import type { Order, Shop } from "./shops";
 
 /**
  * Sponsor tool: Zapier. A seller pastes a Zapier "Catch Hook" URL in settings, and every paid
- * order is posted to it — from there, Zapier can put it in a Google Sheet, Slack, a label printer…
+ * order is posted to it (and its shipping and refund) — from there, Zapier can put it in a Google Sheet, Slack, a label printer…
  * Best-effort: a broken hook never affects the sale.
  */
-export async function notifyZapier(shop: Shop, event: "order.paid" | "order.shipped", order: Order) {
+export async function notifyZapier(shop: Shop, event: "order.paid" | "order.shipped" | "order.refunded", order: Order) {
   if (!shop.zapier_hook_url?.startsWith("https://hooks.zapier.com/")) return;
   try {
     await fetch(shop.zapier_hook_url, {

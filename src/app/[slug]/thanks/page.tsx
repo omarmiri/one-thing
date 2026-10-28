@@ -19,14 +19,15 @@ export default async function Thanks(props: PageProps<"/[slug]/thanks">) {
 
   const p = shop.spec.palette;
   const paid = order.status === "paid";
+  const refunded = order.status === "refunded";
   const addr = order.shipping_address;
   return (
     <div className="min-h-screen px-4 py-16" style={{ background: p.background, color: p.text }}>
       <div className="mx-auto max-w-lg rounded-2xl p-8 text-center shadow-lg" style={{ background: p.surface }}>
         <p className="text-sm font-semibold uppercase tracking-widest" style={{ color: p.accent }}>
-          {paid ? "Payment received" : "Almost there"}
+          {paid ? "Payment received" : refunded ? "Refunded" : "Almost there"}
         </p>
-        <h1 className="mt-3 text-3xl font-bold">{paid ? "Thank you!" : "We're confirming your payment"}</h1>
+        <h1 className="mt-3 text-3xl font-bold">{paid ? "Thank you!" : refunded ? "This order was refunded" : "We're confirming your payment"}</h1>
         <p className="mt-3" style={{ color: p.muted }}>
           {shop.spec.productName}
           {order.options && ` (${Object.values(order.options).join(" / ")})`} · {money(order.amount_cents, order.currency)}
@@ -91,7 +92,12 @@ export default async function Thanks(props: PageProps<"/[slug]/thanks">) {
           </div>
         )}
 
-        {!paid && (
+        {refunded && (
+          <p className="mt-6 text-sm" style={{ color: p.muted }}>
+            The seller refunded {money(order.amount_cents, order.currency)} to your PayPal account. PayPal emails you when it lands.
+          </p>
+        )}
+        {!paid && !refunded && (
           <p className="mt-6 text-sm" style={{ color: p.muted }}>
             Refresh in a moment. If you were charged, PayPal will confirm it shortly.
           </p>

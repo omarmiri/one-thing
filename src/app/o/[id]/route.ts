@@ -19,7 +19,7 @@ export async function GET(_req: Request, ctx: RouteContext<"/o/[id]">) {
 
   const go = (url: string) => NextResponse.redirect(url, { status: 303, headers: { "cache-control": "no-store" } });
   const receipt = `${appUrl()}/${shop.slug}/thanks?order=${order.id}`;
-  if (order.status === "paid") return go(receipt);
+  if (order.status === "paid" || order.status === "refunded") return go(receipt);
   if (!order.paypal_order_id) return go(`${appUrl()}/${shop.slug}`);
 
   const pp = await getPayPalOrder(order.paypal_order_id);

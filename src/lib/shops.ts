@@ -59,7 +59,7 @@ export type Order = {
   id: string;
   shop_id: string;
   paypal_order_id: string | null;
-  status: "created" | "paid" | "failed";
+  status: "created" | "paid" | "failed" | "refunded";
   amount_cents: number;
   shipping_cents: number;
   currency: string;
@@ -78,6 +78,8 @@ export type Order = {
   code_last_used_at: string | null;
   channel: "web" | "agent";
   agent: string | null; // e.g. "Grok"; agent orders only
+  refund_id: string | null;
+  refunded_at: string | null;
   options: Choice | null;
   created_at: string;
   paid_at: string | null;

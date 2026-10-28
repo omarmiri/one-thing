@@ -219,7 +219,7 @@ export async function agentCreateOrder(slug: string, choice?: Record<string, str
   }
 }
 
-type AgentStatus = "awaiting_buyer_approval" | "paid" | "declined" | "sold_out" | "expired" | "failed";
+type AgentStatus = "awaiting_buyer_approval" | "paid" | "declined" | "sold_out" | "expired" | "failed" | "refunded";
 
 const NEXT_STEP: Record<Exclude<AgentStatus, "paid">, string> = {
   awaiting_buyer_approval: "The buyer hasn't paid yet. Give them pay_url; when they say they've paid, call get_order again.",
@@ -227,6 +227,7 @@ const NEXT_STEP: Record<Exclude<AgentStatus, "paid">, string> = {
   sold_out: "It sold out before the payment went through. Nothing was charged. Offer something else.",
   expired: "This checkout expired at PayPal. Nothing was charged. Call create_order for a new one.",
   failed: "Couldn't reach PayPal to check this order. Call get_order again in a moment.",
+  refunded: "The seller refunded this order in full; the money goes back to the buyer's PayPal. Its access code or download link no longer works.",
 };
 
 /**
@@ -242,7 +243,7 @@ export async function agentGetOrder(orderId: string) {
   const shop = await one<Shop>("SELECT * FROM shops WHERE id = $1", [order.shop_id]);
   if (!shop) throw new AgentError("No order with that id.");
 
-  const status: AgentStatus = order.status === "paid" ? "paid" : outcome === "pending" || outcome === "paid" ? "awaiting_buyer_approval" : outcome;
+  const status: AgentStatus = order.status === "refunded" ? "refunded" : order.status === "paid" ? "paid" : outcome === "pending" || outcome === "paid" ? "awaiting_buyer_approval" : outcome;
   const addr = order.shipping_address;
   const total = money(order.amount_cents, order.currency);
   const receiptUrl = `${appUrl()}/${shop.slug}/thanks?order=${order.id}`;
@@ -266,6 +267,7 @@ export async function agentGetOrder(orderId: string) {
     sold_out: () => ["It sold out before your payment went through. Nothing was charged."],
     expired: () => ["That checkout expired. Nothing was charged. Want me to start a new one?"],
     failed: () => ["I couldn't reach PayPal just now. I'll check again in a moment."],
+    refunded: () => [`The seller refunded this order: ${total} back to your PayPal.`, link("Your receipt", receiptUrl)],
   };
   return {
     show_buyer: forBuyer[status]().join("\n"),

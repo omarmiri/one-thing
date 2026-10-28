@@ -2,7 +2,7 @@ import "server-only";
 import { one, query } from "./db";
 import { accessCode, newId } from "./ids";
 import { comboKey, isCompleteChoice, stockOf, type Choice } from "./options";
-import { approveLink, captureOrder, createOrder, orderStatus, PayPalError, type Capture } from "./paypal";
+import { approveLink, captureOrder, createOrder, orderStatus, PayPalError, refundCapture, type Capture } from "./paypal";
 import type { Order, Shop } from "./shops";
 import { notifyZapier } from "./zapier";
 
@@ -27,7 +27,7 @@ export async function markPaid(paypalOrderId: string, capture?: Capture): Promis
         download_token = CASE WHEN s.product_type = 'digital' AND s.delivery = 'file' THEN $6 ELSE NULL END,
         access_code = CASE WHEN s.product_type = 'digital' AND s.delivery = 'access_code' THEN $7 ELSE NULL END
       FROM shops s
-      WHERE o.shop_id = s.id AND o.paypal_order_id = $1 AND o.status <> 'paid'
+      WHERE o.shop_id = s.id AND o.paypal_order_id = $1 AND o.status NOT IN ('paid', 'refunded')
       RETURNING o.*, s.product_type`,
     [
       paypalOrderId,
@@ -154,6 +154,54 @@ async function returnUnit(ref: StockRef) {
   }
 }
 
+// ---- Refunds ---------------------------------------------------------------------------------
+
+export class RefundError extends Error {
+  /** payee: PayPal won't let us refund it, because the money went to an email the seller typed. */
+  constructor(message: string, public payee = false) {
+    super(message);
+  }
+}
+
+/**
+ * Marks a paid order refunded, once: from the seller's Refund button, from "I refunded it in
+ * PayPal", or from PayPal's refund webhook. The download link and access code stop working (they
+ * check status = 'paid'), and an item that never shipped goes back into stock.
+ */
+export async function markRefunded(orderId: string, refundId: string | null): Promise<Order | null> {
+  const order = await one<Order>(
+    `UPDATE orders SET status = 'refunded', refunded_at = now(), refund_id = COALESCE($2, refund_id)
+      WHERE id = $1 AND status = 'paid' RETURNING *`,
+    [orderId, refundId],
+  );
+  if (order && order.fulfillment_status !== "shipped") await returnUnit(await stockRef(order));
+  return order;
+}
+
+/** Refunds a paid order in full at PayPal, then marks it refunded. */
+export async function refundOrder(order: Order, shop: Shop): Promise<Order> {
+  if (order.status !== "paid") throw new RefundError(order.status === "refunded" ? "Already refunded." : "Only paid orders can be refunded.");
+  if (!order.capture_id) throw new RefundError("PayPal hasn't confirmed this payment yet. Try again in a minute.");
+  let refundId: string | null = null;
+  try {
+    refundId = (await refundCapture(order.capture_id, order.id, shop.paypal_merchant_id)).id;
+  } catch (err) {
+    if (!(err instanceof PayPalError)) throw err;
+    // Refunded already (in PayPal, or a retry after a lost reply): just catch up.
+    if (!err.body.includes("CAPTURE_FULLY_REFUNDED")) {
+      console.warn(err.message);
+      if (err.status === 403 || /NOT_AUTHORIZED|PERMISSION_DENIED|PAYEE/.test(err.body)) {
+        throw new RefundError(
+          "PayPal only lets the account that was paid refund this. Refund it in your PayPal account (Activity, then this payment, then Refund), then mark it refunded here.",
+          true,
+        );
+      }
+      throw new RefundError("PayPal couldn't refund it just now. Try again, or refund it in your PayPal account.");
+    }
+  }
+  return (await markRefunded(order.id, refundId)) ?? order;
+}
+
 export type CaptureOutcome = "paid" | "pending" | "declined" | "sold_out" | "expired" | "failed";
 
 /**
@@ -164,6 +212,7 @@ export type CaptureOutcome = "paid" | "pending" | "declined" | "sold_out" | "exp
  */
 export async function captureWithStock(order: Order): Promise<CaptureOutcome> {
   if (order.status === "paid") return "paid";
+  if (order.status === "refunded") return "failed"; // callers show refunded orders as such first
   if (!order.paypal_order_id) return "failed";
   // Only approved orders are worth claiming stock for; the poll asks every few seconds.
   const at = await orderStatus(order.paypal_order_id).catch(() => null);
@@ -197,7 +246,7 @@ export async function captureWithStock(order: Order): Promise<CaptureOutcome> {
 
 /** Captures if the buyer approved, and returns the order as it stands afterwards. */
 export async function captureIfApproved(order: Order): Promise<Order> {
-  if (order.status === "paid" || !order.paypal_order_id) return order;
+  if (order.status === "paid" || order.status === "refunded" || !order.paypal_order_id) return order;
   await captureWithStock(order);
   return (await one<Order>("SELECT * FROM orders WHERE id = $1", [order.id])) ?? order;
 }

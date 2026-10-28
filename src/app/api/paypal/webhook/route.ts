@@ -1,11 +1,12 @@
 import { NextResponse } from "next/server";
 import { one, query } from "@/lib/db";
-import { markPaid } from "@/lib/orders";
+import { markPaid, markRefunded } from "@/lib/orders";
 import { verifyWebhook } from "@/lib/paypal";
 
 /**
  * PayPal webhook. In the developer dashboard, add <APP_URL>/api/paypal/webhook to the app with
- * at least PAYMENT.CAPTURE.COMPLETED, and put the webhook id in PAYPAL_WEBHOOK_ID.
+ * at least PAYMENT.CAPTURE.COMPLETED (and PAYMENT.CAPTURE.REFUNDED, so a refund the seller makes in
+ * PayPal shows here too), and put the webhook id in PAYPAL_WEBHOOK_ID.
  *
  * It's the safety net for buyers who close the tab between approving and our capture call
  * returning, and every delivery that belongs to a shop is logged to webhook_events so the
@@ -20,8 +21,12 @@ type Event = {
     id?: string;
     amount?: { value?: string; currency_code?: string };
     supplementary_data?: { related_ids?: { order_id?: string } };
+    links?: { rel: string; href: string }[];
   };
 };
+
+// A refund points back at its capture with rel "up": .../v2/payments/captures/<id>.
+const refundedCaptureOf = (e: Event) => e.resource?.links?.find((l) => l.rel === "up")?.href.match(/\/captures\/([^/?]+)/)?.[1] ?? null;
 
 // CHECKOUT.ORDER.* events carry the order itself; PAYMENT.CAPTURE.* carry it as a related id.
 const orderIdOf = (e: Event) =>
@@ -35,9 +40,12 @@ export async function POST(req: Request) {
 
   const verified = await verifyWebhook(req.headers, event).catch(() => false);
   const paypalOrderId = orderIdOf(event);
+  const refunded = event.event_type === "PAYMENT.CAPTURE.REFUNDED" ? refundedCaptureOf(event) : null;
   const order = paypalOrderId
-    ? await one<{ shop_id: string; status: string }>("SELECT shop_id, status FROM orders WHERE paypal_order_id = $1", [paypalOrderId])
-    : null;
+    ? await one<{ id: string; shop_id: string; status: string }>("SELECT id, shop_id, status FROM orders WHERE paypal_order_id = $1", [paypalOrderId])
+    : refunded
+      ? await one<{ id: string; shop_id: string; status: string }>("SELECT id, shop_id, status FROM orders WHERE capture_id = $1", [refunded])
+      : null;
 
   let outcome = "Logged";
   if (!verified) outcome = "Rejected: signature did not verify";
@@ -47,6 +55,9 @@ export async function POST(req: Request) {
       await markPaid(paypalOrderId);
       outcome = "Marked the order paid";
     } else outcome = "No matching order";
+  } else if (event.event_type === "PAYMENT.CAPTURE.REFUNDED" && order) {
+    // Our own Refund button gets here too, after the order is already marked.
+    outcome = (await markRefunded(order.id, event.resource?.id ?? null)) ? "Marked the order refunded" : "Confirmed: order already refunded";
   }
 
   // Only log what belongs to a shop: unverified noise from the internet never reaches the table.
