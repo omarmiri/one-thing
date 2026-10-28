@@ -189,7 +189,10 @@ the AI's guesses and clicks **Go live**. The choices behind it:
   `/admin/gallery`, a review page that isn't linked anywhere. Sign in there with the Opal Games
   usage dashboard account (the same Supabase sign-in, and only emails in its `analytics_allowlist`),
   so the key never goes in a URL; `/admin/gallery?key=<ADMIN_KEY>` still works too. Changing an approved shop's photos, product name or headline sends it back
-  to review. Shops already in the gallery when review was added stayed approved.
+  to review. Shops already in the gallery when review was added stayed approved. Each shop there
+  shows how to reach its seller: the account's email or phone, the seller email typed at setup,
+  and the PayPal email. A **Find any shop** box (`?q=`) looks up any shop by name, link or
+  description, including ones never sent to the gallery, with the same contacts.
 - **Site stats** at `/admin/stats?key=<ADMIN_KEY>` (not linked anywhere): the same funnel for the
   whole site, people vs agents, plus a table of every shop with visits or orders.
 

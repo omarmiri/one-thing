@@ -202,6 +202,23 @@ export const listLiveShops = async (limit = 60) =>
     )
   ).map((row) => hydrate(row)!);
 
+/** Any shop whose slug, product name or description has these words, for the admin's lookup. */
+export const findShops = async (q: string) =>
+  (
+    await query<Shop>(
+      `SELECT * FROM shops WHERE slug ILIKE $1 OR spec->>'productName' ILIKE $1 OR description ILIKE $1
+        ORDER BY created_at DESC LIMIT 25`,
+      [`%${q.replace(/[%_\\]/g, (c) => `\\${c}`)}%`],
+    )
+  ).map((row) => hydrate(row)!);
+
+/** Who to contact about each shop: the account it belongs to (email or phone). For admin pages only. */
+export async function shopContacts(shops: Pick<Shop, "id" | "account_id">[]) {
+  const ids = [...new Set(shops.map((s) => s.account_id).filter((id): id is string => Boolean(id)))];
+  const rows = ids.length ? await query<{ id: string; email: string | null; phone: string | null }>("SELECT id, email, phone FROM accounts WHERE id = ANY($1)", [ids]) : [];
+  return new Map(rows.map((a) => [a.id, a.email ?? a.phone]));
+}
+
 /** Shops that asked to be in the gallery, for review: waiting ones first, then newest. */
 export const listGalleryRequests = async () =>
   (

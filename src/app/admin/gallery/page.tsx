@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { adminSupabase, currentAdmin } from "@/lib/admin";
 import { isAdminKey } from "@/lib/ids";
-import { listGalleryRequests, money, shopView, type GalleryStatus } from "@/lib/shops";
+import { findShops, listGalleryRequests, money, shopContacts, shopView, type GalleryStatus, type Shop } from "@/lib/shops";
 import { AdminSignIn, AdminSignOut } from "./AdminSignIn";
 
 export const dynamic = "force-dynamic";
@@ -14,7 +14,7 @@ const LABEL: Record<GalleryStatus, string> = { pending: "Waiting", approved: "In
  * account (allowlisted), or open it with ?key=ADMIN_KEY.
  */
 export default async function GalleryReview({ searchParams }: PageProps<"/admin/gallery">) {
-  const { key: k } = await searchParams;
+  const { key: k, q: query } = await searchParams;
   const key = typeof k === "string" && isAdminKey(k) ? k : null;
   const admin = await currentAdmin();
   const supabase = adminSupabase();
@@ -28,6 +28,19 @@ export default async function GalleryReview({ searchParams }: PageProps<"/admin/
     );
   }
   const shops = await listGalleryRequests();
+  const q = typeof query === "string" ? query.trim().slice(0, 60) : "";
+  const found = q ? await findShops(q) : [];
+  const contacts = await shopContacts([...shops, ...found]);
+  // The seller's sign-in (account email or phone), the email typed at setup, and where PayPal pays.
+  const who = (shop: Shop) =>
+    [
+      shop.account_id && contacts.get(shop.account_id) && `Account: ${contacts.get(shop.account_id)}`,
+      shop.seller_email && `Seller: ${shop.seller_email}`,
+      shop.paypal_email && `PayPal: ${shop.paypal_email}`,
+      shop.paypal_merchant_id && "PayPal connected",
+    ]
+      .filter(Boolean)
+      .join(" · ") || "No contact on file";
 
   return (
     <main className="mx-auto w-full max-w-5xl px-4 py-10 sm:px-6">
@@ -42,6 +55,36 @@ export default async function GalleryReview({ searchParams }: PageProps<"/admin/
       <p className="mt-2 text-muted">
         Shops whose sellers asked to be in /gallery. Only approved ones show there, on the home page and in agent search.
       </p>
+
+      <form method="get" className="mt-6 flex max-w-md gap-2">
+        {key && <input type="hidden" name="key" value={key} />}
+        <input
+          name="q"
+          defaultValue={q}
+          placeholder="Find any shop: name, link or description"
+          className="min-w-0 flex-1 rounded-lg border border-line bg-white px-3 py-2 text-sm"
+        />
+        <button className="rounded-full border border-line px-4 py-2 text-sm font-semibold">Find</button>
+      </form>
+      {q && (
+        <ul className="mt-3 space-y-2">
+          {found.length ? (
+            found.map((shop) => (
+              <li key={shop.id} className="rounded-xl border border-line bg-white px-4 py-3 text-sm">
+                <a href={`/${shop.slug}`} target="_blank" className="font-semibold hover:underline">
+                  {shop.spec.productName}
+                </a>{" "}
+                <span className="text-muted">
+                  /{shop.slug} · {shop.status}
+                </span>
+                <p className="mt-1 break-all text-muted">{who(shop)}</p>
+              </li>
+            ))
+          ) : (
+            <li className="text-sm text-muted">No shop matches &ldquo;{q}&rdquo;.</li>
+          )}
+        </ul>
+      )}
       {shops.length ? (
         <ul className="mt-8 space-y-3">
           {shops.map((shop) => {
@@ -64,6 +107,7 @@ export default async function GalleryReview({ searchParams }: PageProps<"/admin/
                   </a>
                   <p className="truncate text-sm text-muted">{shop.spec.headline}</p>
                   <p className="text-sm">{money(shop.price_cents, shop.currency)}</p>
+                  <p className="truncate text-xs text-muted">{who(shop)}</p>
                 </div>
                 <form method="post" action="/api/admin/gallery" className="flex shrink-0 flex-col gap-2 sm:flex-row">
                   {key && <input type="hidden" name="key" value={key} />}
