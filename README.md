@@ -209,7 +209,11 @@ Every live shop is agent-ready:
   photo, option chips and **Buy with PayPal**. That button calls `create_order` from the card itself
   and turns into **Pay $96.00 with PayPal**, which opens the `/o/` pay link in the buyer's
   browser. The card speaks both ChatGPT's `window.openai` API and the standard MCP Apps postMessage
-  bridge. It was tested locally against a stand-in host; it still needs a real ChatGPT check.
+  bridge. Tested in ChatGPT. Clients that draw the card get different words from the server. A
+  client counts as one when it announces MCP Apps support (`io.modelcontextprotocol/ui`) or is
+  ChatGPT. Their instructions and `show_buyer` say the card already shows the real photos, so the
+  model should reply in a sentence and add no images. Told to show the photo it couldn't display,
+  ChatGPT made up product pictures of its own.
 - **A suggested reply in every answer** (`show_buyer`, in search results, the product JSON, order
   and status replies and the MCP tools): short Markdown with the links already written as links.
   The product's cover photo as a Markdown image (one per shop in search results), the product, its

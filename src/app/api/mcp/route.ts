@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { agentCreateOrder, AgentError, agentGetOrder, agentProduct, liveShop, searchShops } from "@/lib/agent";
+import { agentCreateOrder, AgentError, agentGetOrder, agentProduct, liveShop, searchShops, SHOW_BUYER } from "@/lib/agent";
 import { overLimit } from "@/lib/rateLimit";
 import { agentName, recordVisit } from "@/lib/stats";
 import { WIDGET_HTML, WIDGET_MIME, WIDGET_URI, widgetMeta, widgetToolMeta } from "@/lib/widget";
@@ -28,6 +28,31 @@ const INSTRUCTIONS =
   "Buyers have the best experience with short replies, the product photo and clickable links: every tool returns show_buyer, " +
   "the Markdown reply to show (the product photo, options to pick from, the pay link, the receipt link). Show it exactly as " +
   "written, photo included, with little else.";
+
+// For hosts that draw the product card (src/lib/widget.ts): the card already shows the real photos,
+// options and pay button. Asked to show show_buyer "photo included" where it can't display our
+// Markdown image, ChatGPT made up product pictures of its own.
+const CARD_INSTRUCTIONS =
+  "OneThing hosts one-product shops. search_shops finds them, get_product describes one, create_order starts a PayPal " +
+  "checkout and get_order says once it's paid. Results appear to the buyer as a OneThing card with the real product photos, " +
+  "options and a Pay with PayPal button, so reply in a sentence at most. Never add, generate, search for or describe product " +
+  "images: the card has the real ones. The buyer pays at PayPal (you can't approve for them); when they say they've paid, call " +
+  "get_order and show its show_buyer (the access code, download link or shipping details).";
+const CARD_NOTE =
+  "The buyer sees this as the OneThing card: the real photos, options and pay button. Reply in a sentence at most, and don't add or make up images.";
+
+/** A tool result as a card host's model should see it: no Markdown to repeat, no photo to stand in for. */
+function forCardHost(name: string, data: Record<string, unknown>) {
+  const out = { ...data };
+  const carded = name !== "get_order";
+  if (typeof out.show_buyer === "string") {
+    out.show_buyer = carded ? CARD_NOTE : out.show_buyer.split("\n").filter((l) => !l.startsWith("![")).join("\n");
+  }
+  for (const k of ["next_step", "how_to_buy"]) {
+    if (typeof out[k] === "string") out[k] = (out[k] as string).replace(SHOW_BUYER, carded ? "" : "Show show_buyer as written, and add no images.").trim();
+  }
+  return out;
+}
 
 const slug = z.string().min(1).max(60).describe("The shop's link name, e.g. \"bluemug\" (from search_shops or the shop URL)");
 
@@ -78,11 +103,18 @@ type Rpc = { jsonrpc: "2.0"; id?: string | number | null; method: string; params
 const result = (id: Rpc["id"], r: unknown) => ({ jsonrpc: "2.0", id, result: r });
 const failure = (id: Rpc["id"], code: number, message: string) => ({ jsonrpc: "2.0", id: id ?? null, error: { code, message } });
 
-// Session id "<random>.<base64url client name>": visible ASCII, as the transport requires.
-const sessionFor = (client: string) => `${randomUUID()}.${Buffer.from(client.slice(0, 30)).toString("base64url")}`;
+// Session id "<random>.<base64url client name>[.ui]": visible ASCII, as the transport requires.
+// ".ui" marks a client that draws the product card, so later calls know without asking again.
+const sessionFor = (client: string, card: boolean) =>
+  `${randomUUID()}.${Buffer.from(client.slice(0, 30)).toString("base64url")}${card ? ".ui" : ""}`;
 const clientOf = (session: string | null) => (session?.includes(".") ? Buffer.from(session.split(".")[1], "base64url").toString() : null);
+const cardOf = (session: string | null) => session?.split(".")[2] === "ui";
+// A client draws the card when it says it speaks MCP Apps, or it's ChatGPT (which may not say so).
+const drawsCard = (init: { capabilities?: unknown; clientInfo?: { name?: unknown } }, h: Headers) =>
+  Boolean((init.capabilities as { extensions?: Record<string, unknown> } | undefined)?.extensions?.["io.modelcontextprotocol/ui"]) ||
+  /openai|chatgpt/i.test(`${String(init.clientInfo?.name ?? "")} ${h.get("user-agent") ?? ""}`);
 
-async function handle(msg: Rpc, h: Headers, client: string | null) {
+async function handle(msg: Rpc, h: Headers, client: string | null, card: boolean) {
   const { id, method, params = {} } = msg;
   switch (method) {
     case "initialize": {
@@ -91,7 +123,7 @@ async function handle(msg: Rpc, h: Headers, client: string | null) {
         protocolVersion: VERSIONS.includes(asked) ? asked : VERSIONS[0],
         capabilities: { tools: { listChanged: false }, resources: { listChanged: false } },
         serverInfo: { name: "onething", title: "OneThing shops", version: "1.0.0" },
-        instructions: INSTRUCTIONS,
+        instructions: card ? CARD_INSTRUCTIONS : INSTRUCTIONS,
       });
     }
     case "ping":
@@ -134,7 +166,8 @@ async function handle(msg: Rpc, h: Headers, client: string | null) {
       try {
         // agent_name says back who this call is credited to in the seller's stats (and on its order).
         const agent = agentName(h, client);
-        return reply({ ...(await (tool.run as (a: unknown, agent: string) => Promise<object>)(args.data, agent)), agent_name: agent });
+        const data = { ...(await (tool.run as (a: unknown, agent: string) => Promise<object>)(args.data, agent)), agent_name: agent };
+        return reply(card ? forCardHost(String(params.name), data) : data);
       } catch (err) {
         if (err instanceof AgentError) return reply({ error: err.message }, true);
         console.error(`mcp ${String(params.name)}:`, err);
@@ -151,10 +184,14 @@ export async function POST(req: Request) {
   if (!body || typeof body !== "object") return NextResponse.json(failure(null, -32700, "Parse error"), { status: 400 });
   const batch = Array.isArray(body);
   const msgs = batch ? body : [body];
-  const init = msgs.find((m) => m?.method === "initialize")?.params?.clientInfo as { name?: unknown } | undefined;
-  const session = init ? sessionFor(typeof init.name === "string" && init.name ? init.name : "Unknown") : null;
-  const client = clientOf(session ?? req.headers.get("mcp-session-id"));
-  const replies = (await Promise.all(msgs.map((m) => (m?.method ? handle(m, req.headers, client) : failure(m?.id, -32600, "Invalid request"))))).filter(
+  const init = msgs.find((m) => m?.method === "initialize")?.params as { capabilities?: unknown; clientInfo?: { name?: unknown } } | undefined;
+  const name = init?.clientInfo?.name;
+  const session = init ? sessionFor(typeof name === "string" && name ? name : "Unknown", drawsCard(init, req.headers)) : null;
+  const sid = session ?? req.headers.get("mcp-session-id");
+  const client = clientOf(sid);
+  // Sessions from before the card existed carry no mark; ChatGPT's user agent still gives it away.
+  const card = cardOf(sid) || /openai|chatgpt/i.test(req.headers.get("user-agent") ?? "");
+  const replies = (await Promise.all(msgs.map((m) => (m?.method ? handle(m, req.headers, client, card) : failure(m?.id, -32600, "Invalid request"))))).filter(
     (r) => r !== null,
   );
   // Only notifications: accepted, nothing to say.

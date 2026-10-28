@@ -29,7 +29,7 @@ export function orderLink(slug: string, choice?: Record<string, string>, agent?:
 // written as links. Agents left to phrase it themselves were wordy and often printed bare URLs.
 // It's a recommendation, not a rule: the agent still decides what to say.
 // Worded as an instruction: put as a recommendation, Muse and Kimi left the photo out.
-const SHOW_BUYER =
+export const SHOW_BUYER =
   "Show show_buyer to the buyer exactly as written, photo included (it's Markdown, so the photo displays and the links stay clickable), " +
   "and keep your own words to a minimum.";
 const link = (text: string, url: string) => `[${text.replace(/[[\]]/g, "")}](${url})`;
