@@ -22,7 +22,7 @@ const withAgent = (url: string, agent?: string | null) => (agent ? `${url}${url.
  */
 export function orderLink(slug: string, choice?: Record<string, string>, agent?: string | null) {
   const q = choice ? `?${new URLSearchParams(choice)}` : "";
-  return withAgent(`${appUrl()}/api/agent/shops/${slug}/order${q}`, agent);
+  return withAgent(`${appUrl()}/${slug}/buy${q}`, agent);
 }
 
 // show_buyer: a suggested reply to the buyer at each step, as Markdown with the links already
@@ -202,7 +202,7 @@ export async function agentCreateOrder(slug: string, choice?: Record<string, str
       ...(o.choice && { options: o.choice }),
       pay_url: payUrl(o.localId),
       // The same answer as get_order, for clients that can only fetch URLs.
-      status_url: withAgent(`${appUrl()}/api/agent/orders/${o.localId}`, agent),
+      status_url: withAgent(`${appUrl()}/o/${o.localId}/status`, agent),
       next_step:
         `${SHOW_BUYER} pay_url opens PayPal, where the buyer pays (and enters a shipping address for physical items). ` +
         "When they say they've paid, open status_url (or with MCP, call get_order with order_id): it returns the access code, download link or shipping details.",

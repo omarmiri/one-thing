@@ -250,15 +250,16 @@ Every live shop is agent-ready:
   visible link, since browse tools often drop the page `<head>`.
 - **Plain GETs** for agents that can only fetch URLs, not call MCP tools:
   `/api/agent/shops?q=<keywords>` (the gallery, like `search_shops`) and
-  `/api/agent/shops/<slug>/order?Size=9` (places an order like `create_order`, and returns its
-  `pay_url` and `status_url`) and `/api/agent/orders/<order_id>` (status and delivery, like
-  `get_order`). The product JSON and `/llms.txt` write the order links out in full, one per size
+  `/<slug>/buy?Size=9` (places an order like `create_order`, and returns its `pay_url` and
+  `status_url`) and `/o/<order_id>/status` (status and delivery, like `get_order`). They live
+  outside `/api` because Meta AI's browsing refused `/api/agent/...` URLs; the older
+  `/api/agent/shops/<slug>/order` and `/api/agent/orders/<order_id>` still work. The product JSON and `/llms.txt` write the order links out in full, one per size
   or colour, because some assistants only open URLs they've been shown. Each request makes a new,
   unpaid order; the buyer still pays at PayPal. A GET can start an order but never move money.
   Assistants sometimes hand these links to the buyer instead of opening them. A person clicking
   one (the browser opens it as a page, `Sec-Fetch-Mode: navigate`, a header fetchers don't send) gets a page, not JSON: an
   order link makes the order and goes straight to its pay page, an order link missing a size or
-  colour goes to the shop page, and the product JSON goes to the shop page (`?view=json` keeps it).
+  colour goes to the shop page, a status link goes to the receipt, and the product JSON goes to the shop page (`?view=json` keeps it).
   Search crawlers and link previewers (Slack, Discord, Facebook and the like) get a 403 from
   order links instead of an order, and `/robots.txt` keeps them off order and pay links by name.
   There's no `*` rule, because assistants fetching for a buyer (Claude-User, for one) honour

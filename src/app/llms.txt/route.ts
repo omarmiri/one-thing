@@ -64,7 +64,7 @@ When the buyer has picked a product (and a size or colour, if it has them) and s
 
 If \`status_url\` says \`declined\`, they can open \`pay_url\` again; \`expired\` means open the Order link for a new order. The reply's \`next_step\` always says what to do.
 
-Every Order link is \`GET ${base}/api/agent/shops/<shop>/order\`, with the buyer's pick as query parameters named after the product's options, e.g. \`?Color=Ice+Blue&Size=L\` (names and values in any case). Products without options take no parameters. A missing or unknown pick gets a 400 listing the valid values. Use the links above as written when you can.
+Every Order link is \`GET ${base}/<shop>/buy\` (also at \`/api/agent/shops/<shop>/order\`), with the buyer's pick as query parameters named after the product's options, e.g. \`?Color=Ice+Blue&Size=L\` (names and values in any case). Products without options take no parameters. A missing or unknown pick gets a 400 listing the valid values. Use the links above as written when you can.
 
 Optionally add \`agent=<your name>\` to any order or product link (e.g. \`&agent=ChatGPT\`, or \`?agent=ChatGPT\` when the link has no \`?\`), so the seller can see which assistant sent the buyer. Replies say back who they credited in \`agent_name\`, and the links they return carry your name on.
 
@@ -75,7 +75,7 @@ Optionally add \`agent=<your name>\` to any order or product link (e.g. \`&agent
 
 ## Check an order
 
-- \`GET ${base}/api/agent/orders/<order_id>\` (the \`status_url\` an Order link returns): \`status\` is \`paid\`, \`awaiting_buyer_approval\`, \`declined\`, \`sold_out\`, \`expired\` or \`failed\`, with a \`next_step\`. Once paid, \`delivery\` has what the buyer got.
+- \`GET ${base}/o/<order_id>/status\` (the \`status_url\` an Order link returns): \`status\` is \`paid\`, \`awaiting_buyer_approval\`, \`declined\`, \`sold_out\`, \`expired\` or \`failed\`, with a \`next_step\`. Once paid, \`delivery\` has what the buyer got.
 
 ## MCP
 

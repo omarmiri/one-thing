@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { AgentError, agentGetOrder } from "@/lib/agent";
-import { agentName } from "@/lib/stats";
+import { agentName, isPersonClick } from "@/lib/stats";
 
 /**
  * An order's status and, once paid, what the buyer got: the GET twin of the MCP get_order tool,
@@ -9,7 +9,10 @@ import { agentName } from "@/lib/stats";
  */
 export async function GET(req: Request, ctx: RouteContext<"/api/agent/orders/[id]">) {
   try {
-    const order = await agentGetOrder((await ctx.params).id);
+    const id = (await ctx.params).id;
+    // A buyer opening this link in a browser gets their receipt page instead of JSON.
+    if (isPersonClick(req.headers)) return new Response(null, { status: 303, headers: { Location: `/o/${id}` } });
+    const order = await agentGetOrder(id);
     const agent = agentName(req.headers, new URL(req.url).searchParams.get("agent"));
     return NextResponse.json({ ...order, agent_name: agent }, { headers: { "cache-control": "no-store" } });
   } catch (err) {

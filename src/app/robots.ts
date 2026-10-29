@@ -9,7 +9,7 @@ import { PREFETCHERS } from "@/lib/stats";
 export default function robots(): MetadataRoute.Robots {
   return {
     rules: [
-      { userAgent: PREFETCHERS, allow: "/", disallow: ["/api/agent/shops/*/order", "/o/"] },
+      { userAgent: PREFETCHERS, allow: "/", disallow: ["/api/agent/shops/*/order", "/*/buy", "/o/"] },
       { userAgent: "*", allow: "/" },
     ],
   };
