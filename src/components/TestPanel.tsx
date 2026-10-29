@@ -3,7 +3,7 @@
 import { usePathname } from "next/navigation";
 import { ApiLog } from "@/components/ApiLog";
 import { apiCalls, installApiLog, subscribeApiLog } from "@/lib/apiLog";
-import { OPEN_PANEL, setTestMode, useTestMode } from "@/lib/testMode";
+import { OPEN_PANEL, setTestMode, useTestMode, useTestModeExplicit } from "@/lib/testMode";
 import {
   useEffect,
   useRef,
@@ -276,13 +276,18 @@ export function TestPanel() {
   const dragging = useRef(false);
   const [resizing, setResizing] = useState(false);
   const testMode = useTestMode();
+  const testModeByHand = useTestModeExplicit();
   const logged = useSyncExternalStore(subscribeApiLog, () => apiCalls().length, () => 0);
 
   const first = path.split("/")[1] ?? "";
   const isShop = !!first && first !== "gallery" && !NOT_SHOPS.has(first) && path.split("/").length === 2;
   // Framed: the manage page's shop preview, which already sits beside this panel.
   const framed = useSyncExternalStore(noSubscribe, () => window.self !== window.top, () => false);
-  const hidden = !testMode || first === "admin" || framed;
+  // A buyer's pages (the shop, its buy and thanks pages, order status) stay clean unless test mode
+  // was switched on by hand: someone buying wants the product and the receipt, not the API calls.
+  const parts = path.split("/");
+  const buyerPage = first === "o" || (isShop || (!!first && !NOT_SHOPS.has(first) && first !== "gallery" && parts.length === 3 && ["buy", "thanks"].includes(parts[2])));
+  const hidden = !testMode || first === "admin" || framed || (buyerPage && !testModeByHand);
 
   // Opening writes a fresh prompt: this shop on a shop page (its title is the product name), else the
   // gallery. Kept short: the assistants that work find /llms.txt or the MCP tools themselves, and

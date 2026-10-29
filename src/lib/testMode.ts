@@ -39,3 +39,13 @@ export function setTestMode(on: boolean) {
 }
 
 export const useTestMode = () => useSyncExternalStore(subscribe, read, () => false);
+
+/** Switched on by hand (the footer switch or ?test=1), not just on by default. */
+const readExplicit = () => {
+  try {
+    return localStorage.getItem(KEY) === "1";
+  } catch {
+    return false;
+  }
+};
+export const useTestModeExplicit = () => useSyncExternalStore(subscribe, readExplicit, () => false);
