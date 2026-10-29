@@ -60,6 +60,8 @@ export async function POST(req: Request) {
     outcome = (await markRefunded(order.id, event.resource?.id ?? null)) ? "Marked the order refunded" : "Confirmed: order already refunded";
   }
 
+  console.log(`PayPal webhook ${event.event_type} order=${paypalOrderId ?? refunded ?? "-"} verified=${verified} matched=${Boolean(order)}: ${outcome}`);
+
   // Only log what belongs to a shop: unverified noise from the internet never reaches the table.
   if (order) {
     const amount = event.resource?.amount;
