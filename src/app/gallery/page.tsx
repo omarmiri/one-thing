@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { GalleryCard } from "@/components/GalleryCard";
+import { TestModeSwitch } from "@/components/TestModeSwitch";
 import { listLiveShops } from "@/lib/shops";
 
 // Reads live shops: render per request, not once at build time.
@@ -56,6 +57,10 @@ export default async function Gallery() {
           </div>
         )}
       </section>
+
+      <footer className="border-t border-line py-8 text-center text-sm text-muted">
+        <TestModeSwitch />
+      </footer>
     </main>
   );
 }

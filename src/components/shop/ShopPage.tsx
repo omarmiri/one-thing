@@ -1,5 +1,6 @@
 import type { CSSProperties, ReactNode } from "react";
 import { fontsHref, isLight, type DesignSpec } from "@/lib/design";
+import { TestModeSwitch } from "@/components/TestModeSwitch";
 import type { Referral } from "@/lib/channel3";
 import type { ShowcaseView } from "@/lib/showcase";
 import { FeatureStory } from "@/components/motion/FeatureStory";
@@ -123,7 +124,7 @@ export function ShopPage({ view, buy, motion }: { view: ShopView; buy: ReactNode
         <StickyBuy name={spec.productName} price={view.priceLabel} image={product} cta={spec.ctaLabel} buy={buy} feel={motion.feel} />
       )}
       <footer className="pb-10 text-center text-sm" style={{ color: "var(--muted)" }}>
-        Made with OneThing · Payments by PayPal
+        Made with OneThing · Payments by PayPal · <TestModeSwitch />
       </footer>
     </div>
   );

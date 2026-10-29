@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ShopCarousel } from "@/components/ShopCarousel";
+import { TestModeSwitch } from "@/components/TestModeSwitch";
 import { listLiveShops, shopView } from "@/lib/shops";
 
 // Reads live shops: render per request, not once at build time.
@@ -81,7 +82,8 @@ export default async function Home() {
         ·{" "}
         <a href="/llms.txt" className="underline hover:text-foreground">
           For AI assistants
-        </a>
+        </a>{" "}
+        · <TestModeSwitch />
       </footer>
     </main>
   );

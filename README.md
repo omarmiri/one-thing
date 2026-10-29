@@ -277,7 +277,15 @@ Every live shop is agent-ready:
   engines already read.
 
 **Test Panel** ([src/components/TestPanel.tsx](src/components/TestPanel.tsx)): a small "Test Panel" tab on the
-edge of the home page, the gallery and every shop, so the page design stays as it is. « slides it open; the grip
+screen edge, shown only in **test mode**: a "Test mode" switch in the footer of the home page, the gallery and
+every shop, or `?test=1` on any link (`?test=0` turns it off). The choice is kept in the browser
+(`localStorage`), so normal visitors never see the panel and the page design stays as it is. In test mode it
+shows on every page but the admin ones, including `/new` and the manage page. Its **API log** tab lists every
+call the page makes to our `/api/*` (method, path, status, time, and the request and response with tokens
+masked), each matched to its operation in `/openapi.yaml` and linked to that page in the APIMatic docs: the site
+runs on the same API it documents. It wraps `window.fetch` while test mode is on and keeps the last 40 calls in
+`sessionStorage`, so the calls that make a shop on `/new` are still there on the manage page
+([src/lib/apiLog.ts](src/lib/apiLog.ts)). « slides it open; the grip
 drags it along an edge or to any other edge, and the browser remembers where. It opens Grok and Kimi with
 a buying prompt for that shop already typed (both ask before sending), copies the prompt and
 opens Muse (muse.ai, by Meta), and walks through adding the MCP connector to ChatGPT and to Gemini, one step at a time: each step has a button that opens the right settings page (`chatgpt.com/plugins`, `gemini.google.com/customize/connectors`) or copies what to paste, and a short looping clip of the click (`public/connect/chatgpt-1.webm` … `gemini-3.webm`, cropped VP9 WebM made from the recordings in `docs/videos`; a step without its clip shows text only). It also explains paying in the PayPal

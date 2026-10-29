@@ -1,6 +1,9 @@
 "use client";
 
 import { usePathname } from "next/navigation";
+import { ApiLog } from "@/components/ApiLog";
+import { apiCalls, installApiLog, subscribeApiLog } from "@/lib/apiLog";
+import { OPEN_PANEL, setTestMode, useTestMode } from "@/lib/testMode";
 import {
   useEffect,
   useRef,
@@ -11,11 +14,11 @@ import {
 
 type Edge = "left" | "right" | "top" | "bottom";
 type Dock = { edge: Edge; at: number };
-type Section = "ai" | "sandbox" | "dev";
+type Section = "ai" | "sandbox" | "dev" | "log";
 
 const STORE = "onething-test-panel";
 const DEFAULT: Dock = { edge: "right", at: 0.5 };
-// Routes that aren't storefronts: the panel stays off them.
+// Routes that aren't storefronts: there the prompt is about the gallery, not this page.
 const NOT_SHOPS = new Set([
   "account",
   "admin",
@@ -235,10 +238,18 @@ const dockAt = (x: number, y: number): Dock => {
   return { edge, at: Math.min(0.92, Math.max(0.08, at)) };
 };
 
+/** This shop on a shop page (its title is the product name), else the gallery. */
+const promptFor = (isShop: boolean, origin: string, path: string) =>
+  isShop
+    ? `Buy me ${document.title.split(" — ")[0]} from ${origin}${path}`
+    : `Find me something interesting to buy from the OneThing gallery at ${origin}/gallery`;
+
 /**
  * A "Test Panel" tab on the screen edge for judges and testers: buy through an AI assistant,
- * pay in the PayPal sandbox, and find the agent endpoints. Drag the grip to move it along an edge
- * or to another one; « opens it. Its place is remembered in this browser only.
+ * pay in the PayPal sandbox, find the agent endpoints, and watch the page's API calls. It only
+ * shows in test mode (the footer switch, or ?test=1), and then on every page but the admin ones.
+ * Drag the grip to move it along an edge or to another one; « opens it. Its place is remembered
+ * in this browser only.
  */
 export function TestPanel() {
   const path = usePathname();
@@ -255,23 +266,41 @@ export function TestPanel() {
   const [prompt, setPrompt] = useState("");
   const [copied, setCopied] = useState("");
   const dragging = useRef(false);
+  const testMode = useTestMode();
+  const logged = useSyncExternalStore(subscribeApiLog, () => apiCalls().length, () => 0);
 
   const first = path.split("/")[1] ?? "";
-  const isShop = !!first && first !== "gallery" && path.split("/").length === 2;
-  const hidden = NOT_SHOPS.has(first) || path.split("/").length > 2;
+  const isShop = !!first && first !== "gallery" && !NOT_SHOPS.has(first) && path.split("/").length === 2;
+  const hidden = !testMode || first === "admin";
 
   // Opening writes a fresh prompt: this shop on a shop page (its title is the product name), else the
   // gallery. Kept short: the assistants that work find /llms.txt or the MCP tools themselves, and
   // pointing them at llms.txt didn't help the ones that don't.
   const toggle = () => {
-    if (!open)
-      setPrompt(
-        isShop
-          ? `Buy me ${document.title.split(" — ")[0]} from ${origin}${path}`
-          : `Find me something interesting to buy from the OneThing gallery at ${origin}/gallery`,
-      );
+    if (!open) setPrompt(promptFor(isShop, origin, path));
     setOpen(!open);
   };
+
+  // ?test=1 (or ?test=0) on any link switches test mode, so a link can open the site ready to test.
+  useEffect(() => {
+    const t = new URLSearchParams(window.location.search).get("test");
+    if (t === "1" || t === "on") setTestMode(true);
+    if (t === "0" || t === "off") setTestMode(false);
+  }, []);
+
+  useEffect(() => {
+    if (testMode) installApiLog();
+  }, [testMode]);
+
+  // The footer switch asks the panel to open once test mode is on.
+  useEffect(() => {
+    const show = () => {
+      setPrompt(promptFor(isShop, origin, path));
+      setOpen(true);
+    };
+    window.addEventListener(OPEN_PANEL, show);
+    return () => window.removeEventListener(OPEN_PANEL, show);
+  }, [isShop, origin, path]);
 
   useEffect(() => {
     if (!open) return;
@@ -403,6 +432,12 @@ export function TestPanel() {
             <p className="font-semibold">Test Panel</p>
           </div>
           <button
+            onClick={() => setTestMode(false)}
+            className="rounded-full border border-line px-3 py-1.5 text-xs text-muted hover:text-foreground"
+          >
+            Leave test mode
+          </button>
+          <button
             onClick={() => setOpen(false)}
             aria-label="Close"
             className="grid size-9 place-items-center rounded-full border border-line hover:bg-black/5"
@@ -416,6 +451,7 @@ export function TestPanel() {
               ["ai", "Buy with AI"],
               ["sandbox", "Pay in sandbox"],
               ["dev", "For developers"],
+              ["log", "API log"],
             ] as const
           ).map(([id, label]) => (
             <button
@@ -424,6 +460,11 @@ export function TestPanel() {
               className={`shrink-0 rounded-full px-4 py-1.5 ${section === id ? "border border-foreground bg-foreground text-background" : "text-muted hover:text-foreground"}`}
             >
               {label}
+              {id === "log" && logged > 0 && (
+                <span className="ml-1.5 rounded-full bg-accent px-1.5 text-[10px] font-semibold text-white">
+                  {logged}
+                </span>
+              )}
             </button>
           ))}
         </nav>
@@ -595,6 +636,7 @@ export function TestPanel() {
             </div>
           )}
 
+          {section === "log" && <ApiLog />}
           {section === "dev" && (
             <div className="space-y-3">
               <h2 className="text-2xl font-bold">How agents shop here</h2>
