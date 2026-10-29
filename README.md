@@ -265,7 +265,7 @@ Every live shop is agent-ready:
   There's no `*` rule, because assistants fetching for a buyer (Claude-User, for one) honour
   robots.txt too. Meta's `meta-externalagent` isn't on the list: Meta AI was refused the order
   links while it was (`LIVE_CRAWL_POLICY_BLOCKED`).
-- **Rate limits** per IP address on everything that costs something: 30 checkouts per 10 minutes
+- **Rate limits** per IP address on everything that costs something: 120 checkouts per 10 minutes (30 until Kimi, retrying its own timeouts, kept hitting it)
   (web, GET order links and MCP `create_order` together), 10 new shops an hour without an API key,
   and 60 seller AI requests an hour. Going over gets a 429 with `Retry-After` (an error result over
   MCP). The caps are high because assistants shop for many people from a few shared addresses.

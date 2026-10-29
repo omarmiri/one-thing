@@ -6,9 +6,10 @@ import { query } from "./db";
 // Per-IP caps on the calls that cost something: a checkout is a PayPal order, a new shop or a
 // seller's AI tool is a Gemini call on our paid key. Fixed windows counted in Postgres, so they
 // hold across restarts and instances. Generous on purpose: assistants fetch for many buyers from
-// a few shared addresses, and a cap here should only ever stop a loop or a flood.
+// a few shared addresses, and a cap here should only ever stop a loop or a flood. Orders were 30
+// per 10 minutes until Kimi, retrying its own timeouts, kept hitting the cap (2026-10-28).
 const LIMITS = {
-  order: { max: 30, minutes: 10, what: "checkouts" },
+  order: { max: 120, minutes: 10, what: "checkouts" },
   shop: { max: 10, minutes: 60, what: "new shops" },
   ai: { max: 60, minutes: 60, what: "AI requests" },
 } as const;
@@ -42,6 +43,7 @@ export async function overLimit(kind: LimitKind, h: Headers): Promise<{ error: s
     return null;
   }
   const retryAfter = Math.ceil(((win + 1) * windowMs - Date.now()) / 1000);
+  console.warn(`rate limit: ${kind} over ${max}/${minutes}min ua="${(h.get("user-agent") ?? "").slice(0, 120)}"`);
   return { error: `Too many ${what} from your network. Try again in ${Math.ceil(retryAfter / 60)} min.`, retryAfter };
 }
 

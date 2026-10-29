@@ -12,7 +12,17 @@ import { agentName, isPersonClick, isPrefetcher, recordVisit } from "@/lib/stats
  * are told no here (and kept out by robots.txt); any other leaves an unpaid order at most: stock
  * is only taken when a payment is captured, and PayPal drops unapproved orders.
  */
+// One line per order link in the host's logs (Render → Logs): which agent, what it got, how long it
+// took. The app logs nothing else per request, and without this an assistant's "timed out" was a guess.
 export async function GET(req: Request, ctx: RouteContext<"/api/agent/shops/[slug]/order">) {
+  const started = Date.now();
+  const res = await order(req, ctx);
+  const ua = (req.headers.get("user-agent") ?? "").slice(0, 120);
+  console.info(`order link ${new URL(req.url).pathname} ${res.status} ${Date.now() - started}ms ua="${ua}"`);
+  return res;
+}
+
+async function order(req: Request, ctx: RouteContext<"/api/agent/shops/[slug]/order">) {
   const headers = { "cache-control": "no-store", "x-robots-tag": "noindex, nofollow" };
   if (isPrefetcher(req.headers)) {
     return NextResponse.json({ error: "Crawlers and link previews don't place orders. Read the product at the shop's page." }, { status: 403, headers });
