@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { AllCommunityModule, ModuleRegistry, themeQuartz, type ColDef } from "ag-grid-community";
 import { AgGridReact } from "ag-grid-react";
 import type { Order } from "@/lib/shops";
+import { useTestMode } from "@/lib/testMode";
 
 // Sponsor tool: AG Grid — the seller's orders table (sort, filter, quick search).
 ModuleRegistry.registerModules([AllCommunityModule]);
@@ -12,6 +13,13 @@ export type SellerOrder = Omit<Order, "download_token">;
 
 const CARRIERS = ["USPS", "UPS", "FEDEX", "DHL", "OTHER"] as const;
 const theme = themeQuartz.withParams({ fontFamily: "inherit", headerFontWeight: 600, accentColor: "#1f4fd8" });
+
+const digits = (n: number) => Array.from({ length: n }, () => Math.floor(Math.random() * 10)).join("");
+const alnum = (n: number) => Array.from({ length: n }, () => "0123456789ABCDEFGHJKLMNPRSTUVWXYZ"[Math.floor(Math.random() * 33)]).join("");
+
+// In test mode the ship form starts with a number in the carrier's real format, so a demo ships in one click.
+const sampleTracking = (carrier: string) =>
+  ({ USPS: `9400111${digits(15)}`, UPS: `1Z${alnum(6)}03${digits(8)}`, FEDEX: digits(12), DHL: digits(10) })[carrier] ?? `TRK${digits(10)}`;
 
 const fmtAddr = (a: SellerOrder["shipping_address"]) =>
   a ? [a.address_line_1, a.admin_area_2, a.admin_area_1, a.postal_code, a.country_code].filter(Boolean).join(", ") : "";
@@ -123,7 +131,10 @@ function ShipForm(props: {
   onClose(): void;
   onShip(orderId: string, carrier: string, trackingNumber: string, carrierName?: string): Promise<string | null>;
 }) {
+  const testMode = useTestMode();
   const [carrier, setCarrier] = useState<string>("USPS");
+  const [tracking, setTracking] = useState(() => (testMode ? sampleTracking("USPS") : ""));
+  const [typed, setTyped] = useState(false);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   return (
@@ -133,7 +144,7 @@ function ShipForm(props: {
         e.preventDefault();
         const f = new FormData(e.currentTarget);
         setBusy(true);
-        const error = await props.onShip(props.order.id, carrier, String(f.get("tracking")), String(f.get("carrier_name") ?? ""));
+        const error = await props.onShip(props.order.id, carrier, tracking.trim(), String(f.get("carrier_name") ?? ""));
         setBusy(false);
         if (error) setErr(error);
         else props.onClose();
@@ -144,7 +155,12 @@ function ShipForm(props: {
       </p>
       <label className="text-sm">
         Carrier
-        <select value={carrier} onChange={(e) => setCarrier(e.target.value)} className="mt-1 block rounded-lg border border-line px-2 py-2">
+        <select
+          value={carrier}
+          onChange={(e) => {
+            setCarrier(e.target.value);
+            if (testMode && !typed) setTracking(sampleTracking(e.target.value));
+          }} className="mt-1 block rounded-lg border border-line px-2 py-2">
           {CARRIERS.map((c) => (
             <option key={c}>{c}</option>
           ))}
@@ -158,7 +174,17 @@ function ShipForm(props: {
       )}
       <label className="text-sm grow">
         Tracking number
-        <input name="tracking" required minLength={4} className="mt-1 block w-full rounded-lg border border-line px-2 py-2" />
+        <input
+          name="tracking"
+          required
+          minLength={4}
+          value={tracking}
+          onChange={(e) => {
+            setTracking(e.target.value);
+            setTyped(true);
+          }}
+          className="mt-1 block w-full rounded-lg border border-line px-2 py-2 font-mono"
+        />
       </label>
       <button disabled={busy} className="rounded-full bg-foreground px-5 py-2.5 text-sm font-semibold text-background">
         {busy ? "Saving…" : "Mark shipped"}

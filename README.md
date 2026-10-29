@@ -349,7 +349,7 @@ valid. The image below recreates that session ([source](docs/muse-checkout-demo.
    Credit Card** and use a test card from the dashboard's **Testing tools → Credit card
    generator** (real cards are refused in sandbox). You land on the thank-you page, and the order
    appears in the seller's grid.
-4. For a physical order, click **Mark shipped** and add a tracking number.
+4. For a physical order, click **Mark shipped** and add a tracking number (in test mode the form fills in a sample one in the carrier's format).
 5. Click **Refund** on the order. The receipt now says it was refunded, and the buyer's sandbox
    PayPal account shows the money back.
 
