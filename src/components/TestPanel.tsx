@@ -492,7 +492,7 @@ export function TestPanel() {
                 steps={[
                   {
                     clip: "/connect/gemini-1.webm",
-                    text: "Open Gemini's Connected Apps and click + Custom.",
+                    text: "Open Gemini's Connected Apps (Customize → Connectors) and click + Custom.",
                     action: {
                       label: "Open Connected Apps ↗",
                       href: "https://gemini.google.com/customize/connectors",
@@ -502,7 +502,8 @@ export function TestPanel() {
                     clip: "/connect/gemini-2.webm",
                     text: (
                       <>
-                        Name it OneThing, paste the server URL and approve:{" "}
+                        Paste the server URL and click Next, tick the box and
+                        click Connect, then Connect again to save it:{" "}
                         <Url>{mcp}</Url>
                       </>
                     ),
