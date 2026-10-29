@@ -270,6 +270,13 @@ Every live shop is agent-ready:
 - **schema.org `Product` JSON-LD** on every live shop page, which shopping agents and search
   engines already read.
 
+**Test Panel** ([src/components/TestPanel.tsx](src/components/TestPanel.tsx)): a small "Test Panel" tab on the
+edge of the home page, the gallery and every shop, so the page design stays as it is. « slides it open; the grip
+drags it along an edge or to any other edge, and the browser remembers where. It opens Perplexity, Grok and Kimi with
+a buying prompt for that shop already typed (Perplexity sends it, the other two ask first), copies the prompt and
+opens Muse (Meta AI), and walks through adding the MCP connector to ChatGPT. It also explains paying in the PayPal
+sandbox and links the agent endpoints.
+
 **Tested with a third-party agent.** Meta's Muse, given only the gallery URL, browsed the shops,
 ranked its picks, and bought Raptor Rush through the normal shop page and PayPal sandbox checkout
 (using a sandbox PayPal login the user saved in Muse). The access code it brought back verified as
