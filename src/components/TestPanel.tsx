@@ -21,7 +21,9 @@ const NOT_SHOPS = new Set([
   "admin",
   "api",
   "lab",
+  "llms",
   "manage",
+  "mcp",
   "new",
   "o",
   "s",
@@ -573,8 +575,10 @@ export function TestPanel() {
               {[
                 [
                   "llms.txt",
-                  `${origin}/llms.txt`,
+                  `${origin}/llms`,
                   "Instructions any assistant can read",
+                  `${origin}/llms.txt`,
+                  `${origin}/llms.txt`,
                 ],
                 ...(isShop
                   ? [
@@ -587,29 +591,55 @@ export function TestPanel() {
                   : []),
                 [
                   "MCP server",
+                  `${origin}/mcp`,
+                  "How to add it to ChatGPT, Gemini, Claude or an editor",
+                  undefined,
                   mcp,
-                  "search_shops, get_product, create_order, get_order",
                 ],
-                ["OpenAPI", `${origin}/openapi.yaml`, "The full REST API"],
+                [
+                  "OpenAPI",
+                  `${origin}/openapi`,
+                  "The full REST API, rendered",
+                  `${origin}/openapi.yaml`,
+                ],
                 [
                   "Docs and SDKs",
                   "https://omarmiri.github.io/one-thing/",
                   "Generated with APIMatic",
                 ],
-              ].map(([name, url, note]) => (
-                <a
+              ].map(([name, url, note, download, shown = url]) => (
+                <div
                   key={name}
-                  href={url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="block rounded-xl border border-line bg-white p-3 hover:border-accent/70"
+                  className="relative flex items-start gap-2 rounded-xl border border-line bg-white p-3 hover:border-accent/70"
                 >
-                  <span className="font-semibold">{name} ↗</span>
-                  <span className="block text-xs text-muted">{note}</span>
-                  <span className="block truncate font-mono text-xs text-muted">
-                    {url}
-                  </span>
-                </a>
+                  <a
+                    href={url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="min-w-0 flex-1 after:absolute after:inset-0"
+                  >
+                    <span className="font-semibold">{name} ↗</span>
+                    <span className="block text-xs text-muted">{note}</span>
+                    <span className="block truncate font-mono text-xs text-muted">
+                      {shown}
+                    </span>
+                  </a>
+                  {download && (
+                    <a
+                      href={download}
+                      download
+                      title={`Download ${download.split("/").pop()}`}
+                      aria-label={`Download ${download.split("/").pop()}`}
+                      className="relative z-10 shrink-0 rounded-full border border-line p-2 text-muted hover:border-accent/70 hover:text-accent"
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                        <path d="M12 3v12" />
+                        <path d="m7 10 5 5 5-5" />
+                        <path d="M5 21h14" />
+                      </svg>
+                    </a>
+                  )}
+                </div>
               ))}
             </div>
           )}

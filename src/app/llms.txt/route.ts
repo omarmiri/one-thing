@@ -79,7 +79,7 @@ Optionally add \`agent=<your name>\` to any order or product link (e.g. \`&agent
 
 ## MCP
 
-Assistants that can call MCP tools can use \`${base}/api/mcp\` (Streamable HTTP, no authentication) instead: \`search_shops\`, \`get_product\`, \`create_order\`, \`get_order\`.
+Assistants that can call MCP tools can use \`${base}/api/mcp\` (Streamable HTTP, no authentication) instead: \`search_shops\`, \`get_product\`, \`create_order\`, \`get_order\`. Setup steps for each assistant: ${base}/mcp
 
 ## More
 
