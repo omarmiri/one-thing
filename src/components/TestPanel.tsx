@@ -450,7 +450,7 @@ export function TestPanel() {
                   ? [
                       [
                         "Product JSON",
-                        `${origin}/api/agent/shops${path}`,
+                        `${origin}/api/agent/shops${path}?view=json`,
                         "Price, options and the order links",
                       ],
                     ]

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { agentCreateOrder, AgentError, liveShop } from "@/lib/agent";
 import { limited } from "@/lib/rateLimit";
-import { agentName, isPrefetcher, recordVisit } from "@/lib/stats";
+import { agentName, isPersonClick, isPrefetcher, recordVisit } from "@/lib/stats";
 
 /**
  * Orders one unit with a GET: create_order for AI assistants that can only fetch URLs. The
@@ -40,9 +40,15 @@ export async function GET(req: Request, ctx: RouteContext<"/api/agent/shops/[slu
     }
     const credit = agentName(req.headers, agent);
     const order = await agentCreateOrder(shop.slug, options.length ? choice : undefined, agent, credit);
+    // An assistant may hand the buyer this link instead of opening it; a click goes straight to paying.
+    if (isPersonClick(req.headers)) return new Response(null, { status: 303, headers: { ...headers, Location: order.pay_url } });
     return NextResponse.json({ ...order, agent_name: credit }, { headers });
   } catch (err) {
     if (err instanceof AgentError) {
+      // A person whose link lacked a size or colour picks it on the shop page instead.
+      if (isPersonClick(req.headers) && !err.message.startsWith("No live shop")) {
+        return new Response(null, { status: 303, headers: { ...headers, Location: `/${(await ctx.params).slug}` } });
+      }
       return NextResponse.json({ error: err.message }, { status: err.message.startsWith("No live shop") ? 404 : 400, headers });
     }
     throw err;

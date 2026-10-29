@@ -59,6 +59,11 @@ export function agentName(h: Headers, claimed?: string | null) {
 export const isAiFetcher = (h: Headers) => AI_FETCHER.test(ua(h));
 export const isBot = (h: Headers) => !ua(h) || BOT.test(ua(h));
 export const isPrefetcher = (h: Headers) => PREFETCHER.test(ua(h));
+/**
+ * A person clicking a link in their browser, not a program fetching it: browsers send
+ * Sec-Fetch-User only for navigations a user started, and assistants' fetchers don't send it.
+ */
+export const isPersonClick = (h: Headers) => h.get("sec-fetch-user") === "?1" && h.get("sec-fetch-mode") === "navigate";
 
 function visitorId(h: Headers) {
   const ip = h.get("x-forwarded-for")?.split(",")[0].trim() || h.get("x-real-ip") || "";
