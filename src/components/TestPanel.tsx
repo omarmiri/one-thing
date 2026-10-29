@@ -204,8 +204,6 @@ function ConnectorSteps({
   );
 }
 
-const noSubscribe = () => () => {};
-// The raw stored string, so React can compare snapshots by value.
 const storedDock = () => {
   try {
     return localStorage.getItem(STORE);
@@ -259,6 +257,8 @@ const promptFor = (isShop: boolean, origin: string, path: string) =>
  * Drag the grip to move it along an edge or to another one; « opens it. Its place is remembered
  * in this browser only.
  */
+const noSubscribe = () => () => {};
+
 export function TestPanel() {
   const path = usePathname();
   const stored = useSyncExternalStore(noSubscribe, storedDock, () => null);
@@ -280,7 +280,9 @@ export function TestPanel() {
 
   const first = path.split("/")[1] ?? "";
   const isShop = !!first && first !== "gallery" && !NOT_SHOPS.has(first) && path.split("/").length === 2;
-  const hidden = !testMode || first === "admin";
+  // Framed: the manage page's shop preview, which already sits beside this panel.
+  const framed = useSyncExternalStore(noSubscribe, () => window.self !== window.top, () => false);
+  const hidden = !testMode || first === "admin" || framed;
 
   // Opening writes a fresh prompt: this shop on a shop page (its title is the product name), else the
   // gallery. Kept short: the assistants that work find /llms.txt or the MCP tools themselves, and

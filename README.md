@@ -281,7 +281,7 @@ screen edge, shown in **test mode**. Test mode is on by default, with the panel 
 without looking (this is a sandbox demo). The "Test mode" switch in the footer of the home page, the gallery
 and every shop turns it off, as does `?test=0` on any link; `?test=1` turns it back on and opens the panel. The
 choice is kept in the browser (`localStorage`), and with the panel closed the page design stays as it is. In test
-mode it shows on every page but the admin ones, including `/new` and the manage page. Its **API log** tab lists every
+mode it shows on every page but the admin ones, including `/new` and the manage page (but not inside its shop preview). Its **API log** tab lists every
 call the page makes to our `/api/*` (method, path, status, time, and the request and response with tokens
 masked), each matched to its operation in `/openapi.yaml` and linked to that page in the APIMatic docs: the site
 runs on the same API it documents. It wraps `window.fetch` while test mode is on and keeps the last 40 calls in
