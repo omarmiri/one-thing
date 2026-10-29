@@ -29,8 +29,10 @@ const NOT_SHOPS = new Set([
 
 /**
  * Assistants that have bought from OneThing in testing. `url` opens the assistant with the
- * prompt typed (Perplexity sends it, Grok and Kimi ask first); without one the prompt is copied
+ * prompt typed (Grok and Kimi ask before sending); without one the prompt is copied
  * and the site opened. ChatGPT can't read our pages, so it gets the connector steps instead.
+ * Perplexity was dropped on 2026-10-28: its fetches of /llms.txt fail ("Failed to fetch") while
+ * ours get a 200, probably at the Cloudflare in front of Render, so it couldn't finish a purchase.
  */
 const ASSISTANTS: {
   name: string;
@@ -52,14 +54,6 @@ const ASSISTANTS: {
     url: (p) =>
       `https://www.kimi.ai/_prefill_chat?prefill_prompt=${encodeURIComponent(p)}&send_immediately=false`,
     home: "https://www.kimi.ai",
-  },
-  // Since 2026-10-28 Perplexity's free plan answers from search results without opening the
-  // link, so it's last and says so.
-  {
-    name: "Perplexity",
-    note: "Runs the prompt. The free plan may not open links",
-    url: (p) => `https://www.perplexity.ai/search?q=${encodeURIComponent(p)}`,
-    home: "https://www.perplexity.ai",
   },
   {
     name: "Muse",

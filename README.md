@@ -278,12 +278,13 @@ Every live shop is agent-ready:
 
 **Test Panel** ([src/components/TestPanel.tsx](src/components/TestPanel.tsx)): a small "Test Panel" tab on the
 edge of the home page, the gallery and every shop, so the page design stays as it is. « slides it open; the grip
-drags it along an edge or to any other edge, and the browser remembers where. It opens Grok, Kimi and Perplexity with
-a buying prompt for that shop already typed (Perplexity sends it, the other two ask first), copies the prompt and
+drags it along an edge or to any other edge, and the browser remembers where. It opens Grok and Kimi with
+a buying prompt for that shop already typed (both ask before sending), copies the prompt and
 opens Muse (muse.ai, by Meta), and walks through adding the MCP connector to ChatGPT. It also explains paying in the PayPal
 sandbox and links the agent endpoints. The prompt points the assistant at `/llms.txt` first, since assistants
-given only a page link often give up. Perplexity's free plan stopped opening links on 2026-10-28 (it answers
-from search results instead), so it comes after Grok and Kimi.
+given only a page link often give up. Assistants are listed only if they finish a purchase in one conversation:
+Perplexity was dropped on 2026-10-28 (its fetches of `/llms.txt` started failing while ours got a 200), and so was
+meta.ai, which won't open order links.
 
 **Tested with a third-party agent.** Meta's Muse, given only the gallery URL, browsed the shops,
 ranked its picks, and bought Raptor Rush through the normal shop page and PayPal sandbox checkout
