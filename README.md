@@ -262,7 +262,8 @@ Every live shop is agent-ready:
   Search crawlers and link previewers (Slack, Discord, Facebook and the like) get a 403 from
   order links instead of an order, and `/robots.txt` keeps them off order and pay links by name.
   There's no `*` rule, because assistants fetching for a buyer (Claude-User, for one) honour
-  robots.txt too.
+  robots.txt too. Meta's `meta-externalagent` isn't on the list: Meta AI was refused the order
+  links while it was (`LIVE_CRAWL_POLICY_BLOCKED`).
 - **Rate limits** per IP address on everything that costs something: 30 checkouts per 10 minutes
   (web, GET order links and MCP `create_order` together), 10 new shops an hour without an API key,
   and 60 seller AI requests an hour. Going over gets a 429 with `Retry-After` (an error result over

@@ -23,18 +23,20 @@ const AGENTS: [RegExp, string][] = [
   [/DuckAssist/i, "DuckDuckGo"],
 ];
 // Fetchers an assistant sends to read a page for a user who asked (not crawlers building an index).
-const AI_FETCHER = /ChatGPT-User|Claude-User|Perplexity-User|MistralAI-User|DuckAssistBot|Google-Agent/i;
+const AI_FETCHER = /ChatGPT-User|Claude-User|Perplexity-User|MistralAI-User|DuckAssistBot|Google-Agent|meta-externalfetcher/i;
 // Bots that do run JavaScript, so the beacon alone doesn't keep them out.
 const BOT = /bot|crawl|spider|slurp|preview|headless|lighthouse|pingdom|uptime/i;
 /**
  * Crawlers building an index and apps unfurling a pasted link: they open URLs nobody asked them
  * to act on, so they must not place orders. Named one by one, never a wildcard: assistants
  * fetching for a buyer (Claude-User honours robots.txt) have to keep getting through. Twitterbot
- * is left out on purpose: we don't know that Grok's fetches never carry it.
+ * is left out on purpose: we don't know that Grok's fetches never carry it. meta-externalagent is
+ * left out too: Meta AI, fetching for a buyer, was refused the order links while it was listed
+ * (it reported LIVE_CRAWL_POLICY_BLOCKED, 2026-10-28).
  */
 export const PREFETCHERS = [
   "Googlebot", "bingbot", "Applebot", "DuckDuckBot", "YandexBot", "Baiduspider",
-  "GPTBot", "OAI-SearchBot", "ClaudeBot", "Claude-SearchBot", "PerplexityBot", "CCBot", "Amazonbot", "Bytespider", "meta-externalagent",
+  "GPTBot", "OAI-SearchBot", "ClaudeBot", "Claude-SearchBot", "PerplexityBot", "CCBot", "Amazonbot", "Bytespider",
   "Slackbot", "facebookexternalhit", "LinkedInBot", "Discordbot", "TelegramBot", "WhatsApp", "SkypeUriPreview", "redditbot", "Pinterestbot", "Iframely", "Embedly",
 ];
 const PREFETCHER = new RegExp(PREFETCHERS.join("|"), "i");
