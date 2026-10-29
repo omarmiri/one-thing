@@ -1,4 +1,5 @@
 import type { CSSProperties, ReactNode } from "react";
+import Link from "next/link";
 import { fontsHref, isLight, type DesignSpec } from "@/lib/design";
 import { TestModeSwitch } from "@/components/TestModeSwitch";
 import type { Referral } from "@/lib/channel3";
@@ -124,7 +125,11 @@ export function ShopPage({ view, buy, motion }: { view: ShopView; buy: ReactNode
         <StickyBuy name={spec.productName} price={view.priceLabel} image={product} cta={spec.ctaLabel} buy={buy} feel={motion.feel} />
       )}
       <footer className="pb-10 text-center text-sm" style={{ color: "var(--muted)" }}>
-        Made with OneThing · Payments by PayPal · <TestModeSwitch />
+        Made with{" "}
+        <Link href="/" target="_top" className="underline underline-offset-2 hover:opacity-80">
+          OneThing
+        </Link>{" "}
+        · Payments by PayPal · <TestModeSwitch byHand />
       </footer>
     </div>
   );

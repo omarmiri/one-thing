@@ -283,7 +283,8 @@ and every shop turns it off, as does `?test=0` on any link; `?test=1` turns it b
 choice is kept in the browser (`localStorage`), and with the panel closed the page design stays as it is. In test
 mode it shows on every page but the admin ones, including `/new` and the manage page (but not inside its shop preview).
 A buyer's pages (the shop, its buy and thanks pages, `/o/…`) show it only when test mode was switched on by
-hand (the footer switch or `?test=1`), not just by default: someone buying wants the receipt. Its **API log** tab lists every
+hand (the footer switch or `?test=1`), not just by default: someone buying wants the receipt. A shop's footer switch
+reads on only then, and its "OneThing" links to the home page. Its **API log** tab lists every
 call the page makes to our `/api/*` (method, path, status, time, and the request and response with tokens
 masked), each matched to its operation in `/openapi.yaml` and linked to that page in the APIMatic docs: the site
 runs on the same API it documents. It wraps `window.fetch` while test mode is on and keeps the last 40 calls in

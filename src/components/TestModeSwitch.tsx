@@ -1,10 +1,15 @@
 "use client";
 
-import { setTestMode, useTestMode } from "@/lib/testMode";
+import { setTestMode, useTestMode, useTestModeExplicit } from "@/lib/testMode";
 
-/** The footer switch that shows the Test Panel. Takes its colour from the text around it. */
-export function TestModeSwitch() {
-  const on = useTestMode();
+/**
+ * The footer switch that shows the Test Panel. Takes its colour from the text around it. On a
+ * buyer's page (`byHand`) it reads on only when switched on by hand, since that's when the panel shows there.
+ */
+export function TestModeSwitch({ byHand = false }: { byHand?: boolean }) {
+  const testMode = useTestMode();
+  const explicit = useTestModeExplicit();
+  const on = byHand ? explicit : testMode;
   return (
     <button
       type="button"
