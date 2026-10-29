@@ -55,3 +55,8 @@ and a sample 2xx reply, and every path or query parameter has an `example`. The 
 code samples from them, so a new endpoint needs both. The samples share one made-up world: the
 `vintageskates` and `raptorrush` shops, order `pX4kR9tVb2nQ7sLe`, PayPal order `5O190127TN364715T`.
 `apimatic api validate` flags an example that doesn't match its schema.
+
+Every schema and property also has a `description` and an `examples` entry, which APIMatic's API
+score counts. What `apimatic api validate` still warns about is on purpose: inline object and enum
+schemas (moving them to `components` would rename the SDK models), per-operation `security`
+(public and bearer-only routes), and redirect or empty replies that have no body to describe.
