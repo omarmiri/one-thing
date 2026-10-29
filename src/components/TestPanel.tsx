@@ -131,7 +131,7 @@ function ConnectorSteps({
         ref={(v) => {
           if (v && v.readyState >= 2) shown();
         }}
-        className={`mt-3 aspect-video w-full rounded-lg border border-line bg-black/5 object-cover ${ready[step.clip] ? "" : "hidden"}`}
+        className={`mt-3 max-h-80 w-full rounded-lg border border-line bg-black object-contain ${ready[step.clip] ? "" : "hidden"}`}
       />
       <div className="mt-3">{step.text}</div>
       <div className="mt-3 flex flex-wrap items-center gap-2">
@@ -455,18 +455,19 @@ export function TestPanel() {
                 steps={[
                   {
                     clip: "/connect/chatgpt-1.webm",
-                    text: "Open ChatGPT's plugin settings and choose to add your own.",
+                    text: "Open ChatGPT's Plugins page, click Add, then Add custom MCP server.",
                     action: {
-                      label: "Open plugin settings ↗",
-                      href: "https://chatgpt.com/settings/plugins-settings",
+                      label: "Open Plugins ↗",
+                      href: "https://chatgpt.com/plugins",
                     },
                   },
                   {
                     clip: "/connect/chatgpt-2.webm",
                     text: (
                       <>
-                        Name it OneThing, choose No authentication, and paste
-                        the server URL: <Url>{mcp}</Url>
+                        Name it OneThing, paste the server URL, choose No
+                        authentication, tick I understand and click Create as a
+                        plugin: <Url>{mcp}</Url>
                       </>
                     ),
                     action: {
@@ -477,7 +478,7 @@ export function TestPanel() {
                   },
                   {
                     clip: "/connect/chatgpt-3.webm",
-                    text: "Turn OneThing on in a new chat and ask for something.",
+                    text: "Ask for something in a new chat: OneThing shows its card with a PayPal button.",
                     action: {
                       label: "Open ChatGPT with the prompt ↗",
                       href: `https://chatgpt.com/?q=${encodeURIComponent(prompt)}`,
