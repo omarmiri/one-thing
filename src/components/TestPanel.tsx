@@ -62,9 +62,9 @@ const ASSISTANTS: {
     home: "https://www.perplexity.ai",
   },
   {
-    name: "Muse (Meta AI)",
+    name: "Muse",
     note: "Prompt copied: paste it",
-    home: "https://www.meta.ai",
+    home: "https://muse.ai",
   },
 ];
 

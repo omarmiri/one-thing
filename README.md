@@ -278,7 +278,7 @@ Every live shop is agent-ready:
 edge of the home page, the gallery and every shop, so the page design stays as it is. « slides it open; the grip
 drags it along an edge or to any other edge, and the browser remembers where. It opens Grok, Kimi and Perplexity with
 a buying prompt for that shop already typed (Perplexity sends it, the other two ask first), copies the prompt and
-opens Muse (Meta AI), and walks through adding the MCP connector to ChatGPT. It also explains paying in the PayPal
+opens Muse (muse.ai, by Meta), and walks through adding the MCP connector to ChatGPT. It also explains paying in the PayPal
 sandbox and links the agent endpoints. The prompt points the assistant at `/llms.txt` first, since assistants
 given only a page link often give up. Perplexity's free plan stopped opening links on 2026-10-28 (it answers
 from search results instead), so it comes after Grok and Kimi.
