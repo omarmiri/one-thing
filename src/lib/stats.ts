@@ -62,11 +62,13 @@ export const isAiFetcher = (h: Headers) => AI_FETCHER.test(ua(h));
 export const isBot = (h: Headers) => !ua(h) || BOT.test(ua(h));
 export const isPrefetcher = (h: Headers) => PREFETCHER.test(ua(h));
 /**
- * A browser opening a link as a page, not a program fetching it: assistants' fetchers send no
- * Sec-Fetch headers. Not Sec-Fetch-User alone, since link wrappers (Meta AI's l.meta.ai) forward
- * the click by script, which drops it.
+ * A person clicking a link, not a program fetching it: browsers send Sec-Fetch-User only for a
+ * navigation the user started. Not any page load: Kimi reads pages with a real browser, and a
+ * looser check sent it to the PayPal page, where its tool timed out. Known agents and headless
+ * browsers never count.
  */
-export const isPersonClick = (h: Headers) => h.get("sec-fetch-mode") === "navigate" && h.get("sec-fetch-dest") === "document";
+export const isPersonClick = (h: Headers) =>
+  h.get("sec-fetch-user") === "?1" && h.get("sec-fetch-mode") === "navigate" && !/HeadlessChrome|Headless/i.test(ua(h)) && !known(ua(h));
 
 function visitorId(h: Headers) {
   const ip = h.get("x-forwarded-for")?.split(",")[0].trim() || h.get("x-real-ip") || "";

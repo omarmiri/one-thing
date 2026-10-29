@@ -257,7 +257,7 @@ Every live shop is agent-ready:
   or colour, because some assistants only open URLs they've been shown. Each request makes a new,
   unpaid order; the buyer still pays at PayPal. A GET can start an order but never move money.
   Assistants sometimes hand these links to the buyer instead of opening them. A person clicking
-  one (the browser opens it as a page, `Sec-Fetch-Mode: navigate`, a header fetchers don't send) gets a page, not JSON: an
+  one (the browser sends `Sec-Fetch-User: ?1` for a click; known AI agents and headless browsers never count, since Kimi reads pages with a real browser) gets a page, not JSON: an
   order link makes the order and goes straight to its pay page, an order link missing a size or
   colour goes to the shop page, a status link goes to the receipt, and the product JSON goes to the shop page (`?view=json` keeps it).
   Search crawlers and link previewers (Slack, Discord, Facebook and the like) get a 403 from
