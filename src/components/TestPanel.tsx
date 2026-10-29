@@ -62,6 +62,114 @@ const ASSISTANTS: {
   },
 ];
 
+type Step = {
+  clip: string;
+  text: React.ReactNode;
+  action: { label: string; href?: string; copy?: string; copied?: string };
+};
+
+const Url = ({ children }: { children: string }) => (
+  <span className="mt-1 block truncate rounded-lg bg-black/5 px-3 py-2 font-mono text-xs">
+    {children}
+  </span>
+);
+
+/**
+ * A connector's setup one step at a time: a short looping clip of the click, one line saying what
+ * to do, and the one button that step needs (open the right settings page, or copy what to paste).
+ * Clips live in public/connect, recorded in a real account; a clip shows once it has loaded, so a
+ * step without one shows text only.
+ */
+function ConnectorSteps({
+  title,
+  note,
+  steps,
+}: {
+  title: string;
+  note: string;
+  steps: Step[];
+}) {
+  const [i, setI] = useState(0);
+  const [copied, setCopied] = useState(-1);
+  const [ready, setReady] = useState<Record<string, boolean>>({});
+  const step = steps[i];
+  const shown = () =>
+    !ready[step.clip] && setReady((r) => ({ ...r, [step.clip]: true }));
+  const act = async () => {
+    if (!step.action.copy) return;
+    try {
+      await navigator.clipboard.writeText(step.action.copy);
+      setCopied(i);
+      setTimeout(() => setCopied(-1), 2500);
+    } catch {}
+  };
+  const label =
+    copied === i && step.action.copied ? step.action.copied : step.action.label;
+  const primary =
+    "rounded-full border border-foreground bg-foreground px-4 py-1.5 text-background hover:opacity-90";
+  const plain =
+    "rounded-full border border-line px-3 py-1.5 disabled:opacity-40";
+
+  return (
+    <div className="rounded-xl border border-line bg-white p-4">
+      <div className="flex items-baseline justify-between gap-3">
+        <p className="font-semibold">{title}</p>
+        <p className="shrink-0 text-xs text-muted">
+          Step {i + 1} of {steps.length}
+        </p>
+      </div>
+      <p className="mt-1 text-xs text-muted">{note}</p>
+      <video
+        key={step.clip}
+        src={step.clip}
+        autoPlay
+        muted
+        loop
+        playsInline
+        onLoadedData={shown}
+        // The page is server-rendered, so a clip can finish loading before React listens.
+        ref={(v) => {
+          if (v && v.readyState >= 2) shown();
+        }}
+        className={`mt-3 aspect-video w-full rounded-lg border border-line bg-black/5 object-cover ${ready[step.clip] ? "" : "hidden"}`}
+      />
+      <div className="mt-3">{step.text}</div>
+      <div className="mt-3 flex flex-wrap items-center gap-2">
+        {step.action.href ? (
+          <a
+            href={step.action.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={act}
+            className={primary}
+          >
+            {label}
+          </a>
+        ) : (
+          <button onClick={act} className={primary}>
+            {label}
+          </button>
+        )}
+        <span className="flex-1" />
+        <button
+          disabled={i === 0}
+          onClick={() => setI(i - 1)}
+          className={plain}
+        >
+          Back
+        </button>
+        <button
+          disabled={i === steps.length - 1}
+          onClick={() => setI(i + 1)}
+          className={plain}
+        >
+          Next
+        </button>
+      </div>
+    </div>
+  );
+}
+
 const noSubscribe = () => () => {};
 // The raw stored string, so React can compare snapshots by value.
 const storedDock = () => {
@@ -337,104 +445,84 @@ export function TestPanel() {
                     className="rounded-xl border border-line bg-white p-3 hover:border-accent/70"
                   >
                     <span className="font-semibold">{a.name} ↗</span>
-                    <span className="block text-xs text-muted">
-                      {a.note}
-                    </span>
+                    <span className="block text-xs text-muted">{a.note}</span>
                   </a>
                 ))}
               </div>
-              <div className="rounded-xl border border-line bg-white p-4">
-                <p className="font-semibold">
-                  ChatGPT, with the OneThing connector
-                </p>
-                <p className="mt-1 text-xs text-muted">
-                  ChatGPT can&apos;t open our pages from its sandbox, so it
-                  shops through our MCP server and shows a product card. Needs
-                  ChatGPT Plus or higher.
-                </p>
-                <ol className="mt-3 list-decimal space-y-1 pl-5 text-foreground/80">
-                  <li>
-                    Settings → Apps &amp; Connectors → Advanced → turn on
-                    Developer mode.
-                  </li>
-                  <li>
-                    Create a connector, name it OneThing, and paste the server
-                    URL:
-                  </li>
-                </ol>
-                <div className="mt-2 flex items-center gap-2 rounded-lg bg-black/5 px-3 py-2 font-mono text-xs">
-                  <span className="min-w-0 flex-1 truncate">{mcp}</span>
-                  <button
-                    onClick={() => copy(mcp, "mcp")}
-                    className="shrink-0 text-accent hover:underline"
-                  >
-                    {copied === "mcp" ? "Copied" : "Copy"}
-                  </button>
-                </div>
-                <ol
-                  start={3}
-                  className="mt-2 list-decimal space-y-1 pl-5 text-foreground/80"
-                >
-                  <li>
-                    Choose No authentication, save, and turn OneThing on in a
-                    new chat.
-                  </li>
-                </ol>
-                <a
-                  href={`https://chatgpt.com/?q=${encodeURIComponent(prompt)}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="mt-3 inline-block rounded-full border border-foreground bg-foreground text-background px-4 py-1.5 hover:opacity-90"
-                >
-                  Open ChatGPT with the prompt ↗
-                </a>
-              </div>
-              <div className="rounded-xl border border-line bg-white p-4">
-                <p className="font-semibold">
-                  Gemini, with the OneThing connector
-                </p>
-                <p className="mt-1 text-xs text-muted">
-                  Gemini shops through our MCP server as a custom app. Custom
-                  apps may need a paid Google AI plan.
-                </p>
-                <ol className="mt-3 list-decimal space-y-1 pl-5 text-foreground/80">
-                  <li>
-                    On gemini.google.com: Settings → Connected Apps → Add a
-                    custom app.
-                  </li>
-                  <li>Name it OneThing and paste the server URL:</li>
-                </ol>
-                <div className="mt-2 flex items-center gap-2 rounded-lg bg-black/5 px-3 py-2 font-mono text-xs">
-                  <span className="min-w-0 flex-1 truncate">{mcp}</span>
-                  <button
-                    onClick={() => copy(mcp, "mcp-gemini")}
-                    className="shrink-0 text-accent hover:underline"
-                  >
-                    {copied === "mcp-gemini" ? "Copied" : "Copy"}
-                  </button>
-                </div>
-                <ol
-                  start={3}
-                  className="mt-2 list-decimal space-y-1 pl-5 text-foreground/80"
-                >
-                  <li>
-                    Approve the connection, then start your message with
-                    @OneThing so Gemini uses it.
-                  </li>
-                </ol>
-                {/* Gemini has no link that types a prompt, so the button copies it. */}
-                <a
-                  href="https://gemini.google.com/app"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={() => copy(`@OneThing ${prompt}`, "gemini")}
-                  className="mt-3 inline-block rounded-full border border-foreground bg-foreground text-background px-4 py-1.5 hover:opacity-90"
-                >
-                  {copied === "gemini"
-                    ? "Prompt copied: paste it in Gemini"
-                    : "Copy the prompt and open Gemini ↗"}
-                </a>
-              </div>
+              <ConnectorSteps
+                title="ChatGPT, with the OneThing connector"
+                note="ChatGPT can't open our pages from its sandbox, so it shops through our MCP server and shows a product card. Adding your own needs ChatGPT Plus or higher, with Developer mode on."
+                steps={[
+                  {
+                    clip: "/connect/chatgpt-1.webm",
+                    text: "Open ChatGPT's plugin settings and choose to add your own.",
+                    action: {
+                      label: "Open plugin settings ↗",
+                      href: "https://chatgpt.com/settings/plugins-settings",
+                    },
+                  },
+                  {
+                    clip: "/connect/chatgpt-2.webm",
+                    text: (
+                      <>
+                        Name it OneThing, choose No authentication, and paste
+                        the server URL: <Url>{mcp}</Url>
+                      </>
+                    ),
+                    action: {
+                      label: "Copy the server URL",
+                      copy: mcp,
+                      copied: "Copied: now paste it in ChatGPT",
+                    },
+                  },
+                  {
+                    clip: "/connect/chatgpt-3.webm",
+                    text: "Turn OneThing on in a new chat and ask for something.",
+                    action: {
+                      label: "Open ChatGPT with the prompt ↗",
+                      href: `https://chatgpt.com/?q=${encodeURIComponent(prompt)}`,
+                    },
+                  },
+                ]}
+              />
+              <ConnectorSteps
+                title="Gemini, with the OneThing connector"
+                note="Gemini shops through our MCP server as a custom app. Custom apps may need a paid Google AI plan."
+                steps={[
+                  {
+                    clip: "/connect/gemini-1.webm",
+                    text: "Open Gemini's Connected Apps and click + Custom.",
+                    action: {
+                      label: "Open Connected Apps ↗",
+                      href: "https://gemini.google.com/customize/connectors",
+                    },
+                  },
+                  {
+                    clip: "/connect/gemini-2.webm",
+                    text: (
+                      <>
+                        Name it OneThing, paste the server URL and approve:{" "}
+                        <Url>{mcp}</Url>
+                      </>
+                    ),
+                    action: {
+                      label: "Copy the server URL",
+                      copy: mcp,
+                      copied: "Copied: now paste it in Gemini",
+                    },
+                  },
+                  {
+                    clip: "/connect/gemini-3.webm",
+                    text: "Start your message with @OneThing so Gemini uses it. Gemini has no link that types a prompt, so this copies it.",
+                    action: {
+                      label: "Copy the prompt and open Gemini ↗",
+                      href: "https://gemini.google.com/app",
+                      copy: `@OneThing ${prompt}`,
+                      copied: "Prompt copied: paste it in Gemini",
+                    },
+                  },
+                ]}
+              />
             </div>
           )}
 
