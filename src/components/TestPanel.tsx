@@ -598,8 +598,9 @@ export function TestPanel() {
                 ],
                 [
                   "OpenAPI",
-                  `${origin}/openapi`,
-                  "The full REST API, rendered",
+                  "https://omarmiri.github.io/one-thing/#/http/api-endpoints/agents/overview",
+                  "The agent endpoints in the APIMatic portal; download the spec",
+                  `${origin}/openapi.yaml`,
                   `${origin}/openapi.yaml`,
                 ],
                 [
