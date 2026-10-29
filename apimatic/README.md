@@ -30,7 +30,7 @@ To republish after a spec change, run `apimatic portal generate --force` and pus
 of that folder to `gh-pages`. Its "Try it" calls work because `src/proxy.ts` allows CORS from that origin on `/api/*`.
 
 When you change an API route in `src/app/api/`, update `src/spec/openapi.yaml` in the same
-commit, then run `npx @redocly/cli@1 lint apimatic/src/spec/openapi.yaml`.
+commit, then run `apimatic api validate --file=src/spec/openapi.yaml` from `apimatic/`.
 
 Every operation carries a sample request body (`example`, or named `examples` for several cases)
 and a sample 2xx reply, and every path or query parameter has an `example`. The portal builds its
