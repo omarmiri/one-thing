@@ -42,8 +42,8 @@ curl -X GET \
 
 | HTTP Status Code | Error Description | Exception Class |
 |  --- | --- | --- |
-| 502 | Gemini, PayPal or Channel3 failed or isn't configured. | [`Error_ErrorException`](/llms-pages/http/models/exceptions/error-error.md) |
-| 503 | Gemini, PayPal or Channel3 failed or isn't configured. | [`Error_ErrorException`](/llms-pages/http/models/exceptions/error-error.md) |
+| 502 | Gemini, PayPal or Channel3 failed or isn't configured. | [`ErrorResponse_ErrorException`](/llms-pages/http/models/exceptions/error-response-error.md) |
+| 503 | Gemini, PayPal or Channel3 failed or isn't configured. | [`ErrorResponse_ErrorException`](/llms-pages/http/models/exceptions/error-response-error.md) |
 
 
 

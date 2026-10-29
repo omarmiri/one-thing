@@ -2,6 +2,8 @@
 
 Source: /#/typescript/x-redirect/JTI0bSUyRkZhcQ
 
+One question and its answer.
+
 
 # Interface Name
 
@@ -12,8 +14,8 @@ Source: /#/typescript/x-redirect/JTI0bSUyRkZhcQ
 
 | Name | Type | Tags | Description |
 |  --- | --- | --- | --- |
-| `q` | `string` | Required | - |
-| `a` | `string` | Required | - |
+| `q` | `string` | Required | The question. |
+| `a` | `string` | Required | The answer. |
 
 
 # Example
@@ -22,8 +24,8 @@ Source: /#/typescript/x-redirect/JTI0bSUyRkZhcQ
 import { Faq } from 'one-thing-sdk';
 
 const faq: Faq = {
-  q: 'q0',
-  a: 'a8',
+  q: 'Are these suitable for outdoor skating?',
+  a: 'Yes, on indoor rink floors and paved outdoor paths.',
 };
 ```
 

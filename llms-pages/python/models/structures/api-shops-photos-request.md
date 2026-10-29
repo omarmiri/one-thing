@@ -2,6 +2,8 @@
 
 Source: /#/python/x-redirect/JTI0bSUyRkFwaSUyNTIwU2hvcHMlMjUyMFBob3RvcyUyNTIwUmVxdWVzdA
 
+The new photo order.
+
 
 # Class Name
 
@@ -22,9 +24,8 @@ from onethingapi.models.api_shops_photos_request import ApiShopsPhotosRequest
 
 api_shops_photos_request = ApiShopsPhotosRequest(
     photos=[
-        'photos2',
-        'photos1',
-        'photos0'
+        'zrySajNyao6_j11x',
+        'LFRvGuTU3D8i334X'
     ]
 )
 ```

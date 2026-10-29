@@ -2,6 +2,8 @@
 
 Source: /#/typescript/x-redirect/JTI0bSUyRlNob3BQaG90b3M
 
+The shop's photos.
+
 
 # Interface Name
 
@@ -12,7 +14,7 @@ Source: /#/typescript/x-redirect/JTI0bSUyRlNob3BQaG90b3M
 
 | Name | Type | Tags | Description |
 |  --- | --- | --- | --- |
-| `photos` | [`Photo[]`](/llms-pages/typescript/models/structures/photo.md) | Required | - |
+| `photos` | [`Photo[]`](/llms-pages/typescript/models/structures/photo.md) | Required | Every photo, the cover first. |
 
 
 # Example
@@ -23,8 +25,8 @@ import { ShopPhotos } from 'one-thing-sdk';
 const shopPhotos: ShopPhotos = {
   photos: [
     {
-      id: 'id8',
-      url: 'url2',
+      id: 'LFRvGuTU3D8i334X',
+      url: '/api/blobs/LFRvGuTU3D8i334X',
     }
   ],
 };

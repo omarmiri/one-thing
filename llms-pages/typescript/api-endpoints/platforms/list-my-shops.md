@@ -6,7 +6,7 @@ Every shop the API key's account owns, newest first, with what a catalog page ne
 
 ```ts
 async listMyShops(
-  status?: Status,
+  status?: Status5,
   requestOptions?: RequestOptions
 ): Promise<ApiResponse<ApiPlatformShopsResponse>>
 ```
@@ -21,7 +21,7 @@ This endpoint requires [PlatformKey](/llms-pages/typescript/getting-started/sdk-
 
 | Parameter | Type | Tags | Description |
 |  --- | --- | --- | --- |
-| `status` | [`Status \| undefined`](/llms-pages/typescript/models/enumerations/status.md) | Query, Optional | Only shops with this status, e.g. `live` for a public catalog. |
+| `status` | [`Status5 \| undefined`](/llms-pages/typescript/models/enumerations/status-5.md) | Query, Optional | Only shops with this status, e.g. `live` for a public catalog. |
 | `requestOptions` | `RequestOptions \| undefined` | Optional | Pass additional request options. |
 
 
@@ -35,7 +35,7 @@ This method returns an [`ApiResponse`](/llms-pages/typescript/sdk-infrastructure
 # Example Usage
 
 ```ts
-const status = Status.Live;
+const status = Status5.Live;
 
 try {
   const response = await platformsApi.listMyShops(status);
@@ -57,7 +57,7 @@ try {
     console.log(error.headers);
     // Extracting response error body of type `string | Stream`.
     console.log(error.body);
-    if (error instanceof CustomError) {
+    if (error instanceof ErrorResponseError) {
       console.log(error.result);
     }
   }
@@ -95,7 +95,7 @@ try {
 
 | HTTP Status Code | Error Description | Exception Class |
 |  --- | --- | --- |
-| 401 | No API key, or it's wrong or revoked. | [`CustomError`](/llms-pages/typescript/models/exceptions/error.md) |
+| 401 | No API key, or it's wrong or revoked. | [`ErrorResponseError`](/llms-pages/typescript/models/exceptions/error-response.md) |
 
 
 

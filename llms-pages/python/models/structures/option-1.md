@@ -2,6 +2,8 @@
 
 Source: /#/python/x-redirect/JTI0bSUyRk9wdGlvbjE
 
+One option and its values.
+
 
 # Class Name
 
@@ -12,8 +14,8 @@ Source: /#/python/x-redirect/JTI0bSUyRk9wdGlvbjE
 
 | Name | Type | Tags | Description |
 |  --- | --- | --- | --- |
-| `name` | `str` | Required | - |
-| `values` | `List[str]` | Required | - |
+| `name` | `str` | Required | The option's name, which is also its query parameter on `order_url`. |
+| `values` | `List[str]` | Required | The values the buyer can pick. |
 
 
 # Example
@@ -22,10 +24,11 @@ Source: /#/python/x-redirect/JTI0bSUyRk9wdGlvbjE
 from onethingapi.models.option_1 import Option1
 
 option_1 = Option1(
-    name='name2',
+    name='Size',
     values=[
-        'values2',
-        'values1'
+        '7',
+        '8',
+        '9'
     ]
 )
 ```

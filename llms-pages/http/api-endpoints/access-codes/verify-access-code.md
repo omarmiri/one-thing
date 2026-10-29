@@ -17,7 +17,7 @@ POST /api/access/verify
 
 | Parameter | Type | Tags | Description |
 |  --- | --- | --- | --- |
-| `body` | [`Api Access Verify Request`](/llms-pages/http/models/structures/api-access-verify-request.md) | Body, Required | - |
+| `body` | [`Api Access Verify Request`](/llms-pages/http/models/structures/api-access-verify-request.md) | Body, Required | The shop and the code to check. |
 
 
 # Response Type

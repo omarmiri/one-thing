@@ -2,6 +2,8 @@
 
 Source: /#/python/x-redirect/JTI0bSUyRk1pc3NpbmdGYWN0
 
+One question to answer.
+
 
 # Class Name
 
@@ -12,9 +14,9 @@ Source: /#/python/x-redirect/JTI0bSUyRk1pc3NpbmdGYWN0
 
 | Name | Type | Tags | Description |
 |  --- | --- | --- | --- |
-| `label` | `str` | Required | - |
-| `question` | `str` | Required | - |
-| `placeholder` | `str` | Required | - |
+| `label` | `str` | Required | The product detail it becomes. |
+| `question` | `str` | Required | The question, for the seller. |
+| `placeholder` | `str` | Required | An example answer. |
 
 
 # Example

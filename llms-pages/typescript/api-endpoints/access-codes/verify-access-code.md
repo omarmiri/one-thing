@@ -20,7 +20,7 @@ async verifyAccessCode(
 
 | Parameter | Type | Tags | Description |
 |  --- | --- | --- | --- |
-| `body` | [`ApiAccessVerifyRequest`](/llms-pages/typescript/models/structures/api-access-verify-request.md) | Body, Required | - |
+| `body` | [`ApiAccessVerifyRequest`](/llms-pages/typescript/models/structures/api-access-verify-request.md) | Body, Required | The shop and the code to check. |
 | `requestOptions` | `RequestOptions \| undefined` | Optional | Pass additional request options. |
 
 

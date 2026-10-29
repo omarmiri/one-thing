@@ -26,7 +26,8 @@ Source: /#/http/x-redirect/JTI0bSUyRkFnZW50T3JkZXJEZWxpdmVyeQ
 ```bash
 {
   "type": "access_code",
-  "access_code": "access_code2"
+  "access_code": "K7QF-M2XP-9HTD",
+  "start_url": "https://www.miriogames.com/raptor-rush/?code=K7QF-M2XP-9HTD"
 }
 ```
 
@@ -40,7 +41,8 @@ Source: /#/http/x-redirect/JTI0bSUyRkFnZW50T3JkZXJEZWxpdmVyeQ
 ```bash
 {
   "type": "download",
-  "download_url": "download_url8"
+  "download_url": "https://one-thing-ash0.onrender.com/api/download/dl_4mQ8sT2vX9",
+  "note": "Works 5 times over 14 days."
 }
 ```
 
@@ -54,7 +56,15 @@ Source: /#/http/x-redirect/JTI0bSUyRkFnZW50T3JkZXJEZWxpdmVyeQ
 ```bash
 {
   "type": "shipping",
-  "fulfillment": "to_ship"
+  "ship_to": {
+    "name": "Sam Rivera",
+    "address": "1 Main St, Springfield, IL, 62701, US"
+  },
+  "fulfillment": "to_ship",
+  "tracking": {
+    "carrier": "USPS",
+    "number": "9400111899223197428490"
+  }
 }
 ```
 

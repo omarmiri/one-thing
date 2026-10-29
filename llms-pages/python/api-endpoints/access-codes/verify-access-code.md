@@ -18,7 +18,7 @@ def verify_access_code(self,
 
 | Parameter | Type | Tags | Description |
 |  --- | --- | --- | --- |
-| `body` | [`ApiAccessVerifyRequest`](/llms-pages/python/models/structures/api-access-verify-request.md) | Body, Required | - |
+| `body` | [`ApiAccessVerifyRequest`](/llms-pages/python/models/structures/api-access-verify-request.md) | Body, Required | The shop and the code to check. |
 
 
 # Response Type

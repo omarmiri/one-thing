@@ -2,6 +2,8 @@
 
 Source: /#/typescript/x-redirect/JTI0bSUyRkZvbnRz
 
+Google Fonts for the page.
+
 
 # Interface Name
 
@@ -12,8 +14,8 @@ Source: /#/typescript/x-redirect/JTI0bSUyRkZvbnRz
 
 | Name | Type | Tags | Description |
 |  --- | --- | --- | --- |
-| `heading` | `string` | Required | - |
-| `body` | `string` | Required | - |
+| `heading` | `string` | Required | The headings font. |
+| `body` | `string` | Required | The body text font. |
 
 
 # Example
@@ -22,8 +24,8 @@ Source: /#/typescript/x-redirect/JTI0bSUyRkZvbnRz
 import { Fonts } from 'one-thing-sdk';
 
 const fonts: Fonts = {
-  heading: 'heading2',
-  body: 'body6',
+  heading: 'Playfair Display',
+  body: 'Inter',
 };
 ```
 

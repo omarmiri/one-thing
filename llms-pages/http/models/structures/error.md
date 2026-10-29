@@ -2,23 +2,23 @@
 
 Source: /#/http/x-redirect/JTI0bSUyRkVycm9y
 
+Present when the call failed.
+
 
 # Fields
 
 | Name | Type | Tags | Description |
 |  --- | --- | --- | --- |
-| `error` | `String` | Required | A sentence you can show to a person. |
-| `field` | `String` | Optional | The form field at fault, when there is one. |
-| `detail` | `String` | Optional | The upstream service's own message, for debugging. |
+| `code` | `Number` | Required | The JSON-RPC error code. |
+| `message` | `String` | Required | What went wrong. |
 
 
 # Example (as JSON)
 
 ```json
 {
-  "error": "error8",
-  "field": "field8",
-  "detail": "detail0"
+  "code": -32601,
+  "message": "Method not found"
 }
 ```
 

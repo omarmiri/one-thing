@@ -2,6 +2,8 @@
 
 Source: /#/typescript/x-redirect/JTI0bSUyRkFwaSUyNTIwU2hvcHMlMjUyMEZpbGUlMjUyMFJlc3BvbnNl
 
+The uploaded file.
+
 
 # Interface Name
 
@@ -12,8 +14,8 @@ Source: /#/typescript/x-redirect/JTI0bSUyRkFwaSUyNTIwU2hvcHMlMjUyMEZpbGUlMjUyMFJ
 
 | Name | Type | Tags | Description |
 |  --- | --- | --- | --- |
-| `ok` | `boolean` | Required | - |
-| `filename` | `string` | Required | - |
+| `ok` | `boolean` | Required | Always `true`. |
+| `filename` | `string` | Required | The file's name, as buyers will download it. |
 
 
 # Example
@@ -22,8 +24,8 @@ Source: /#/typescript/x-redirect/JTI0bSUyRkFwaSUyNTIwU2hvcHMlMjUyMEZpbGUlMjUyMFJ
 import { ApiShopsFileResponse } from 'one-thing-sdk';
 
 const apiShopsFileResponse: ApiShopsFileResponse = {
-  ok: false,
-  filename: 'filename8',
+  ok: true,
+  filename: 'dragon-flight-presets.zip',
 };
 ```
 

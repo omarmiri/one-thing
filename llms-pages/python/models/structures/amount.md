@@ -2,6 +2,8 @@
 
 Source: /#/python/x-redirect/JTI0bSUyRkFtb3VudA
 
+What the order costs, as numbers.
+
 
 # Class Name
 
@@ -12,10 +14,10 @@ Source: /#/python/x-redirect/JTI0bSUyRkFtb3VudA
 
 | Name | Type | Tags | Description |
 |  --- | --- | --- | --- |
-| `item` | `float` | Required | - |
-| `shipping` | `float` | Required | - |
-| `total` | `float` | Required | - |
-| `currency` | `str` | Required | - |
+| `item` | `float` | Required | The product's price. |
+| `shipping` | `float` | Required | Shipping; 0 for digital products. |
+| `total` | `float` | Required | Product plus shipping: what the buyer pays. |
+| `currency` | `str` | Required | ISO 4217 currency code. |
 
 
 # Example
@@ -24,10 +26,10 @@ Source: /#/python/x-redirect/JTI0bSUyRkFtb3VudA
 from onethingapi.models.amount import Amount
 
 amount = Amount(
-    item=175.9,
-    shipping=226.72,
-    total=71.32,
-    currency='currency2'
+    item=240,
+    shipping=15,
+    total=255,
+    currency='USD'
 )
 ```
 

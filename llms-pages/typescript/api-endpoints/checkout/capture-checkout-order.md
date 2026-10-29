@@ -55,7 +55,7 @@ try {
     console.log(error.headers);
     // Extracting response error body of type `string | Stream`.
     console.log(error.body);
-    if (error instanceof CustomError) {
+    if (error instanceof ErrorResponseError) {
       console.log(error.result);
     } else if (error instanceof ApiOrdersCapture409Error) {
       console.log(error.result);
@@ -79,12 +79,12 @@ try {
 
 | HTTP Status Code | Error Description | Exception Class |
 |  --- | --- | --- |
-| 402 | Something in the request needs fixing; `error` says what. | [`CustomError`](/llms-pages/typescript/models/exceptions/error.md) |
-| 404 | No such shop, or the admin token or API key doesn't match it. | [`CustomError`](/llms-pages/typescript/models/exceptions/error.md) |
+| 402 | Something in the request needs fixing; `error` says what. | [`ErrorResponseError`](/llms-pages/typescript/models/exceptions/error-response.md) |
+| 404 | No such shop, or the admin token or API key doesn't match it. | [`ErrorResponseError`](/llms-pages/typescript/models/exceptions/error-response.md) |
 | 409 | The buyer hasn't approved the order yet. | [`ApiOrdersCapture409Error`](/llms-pages/typescript/models/exceptions/api-orders-capture-409-error.md) |
-| 410 | The last unit (or the last of the buyer's combination) sold while they were paying, or the PayPal checkout expired before they paid. The payment isn't captured, so the buyer isn't charged. | [`CustomError`](/llms-pages/typescript/models/exceptions/error.md) |
-| 422 | The buyer's funding source was declined (`INSTRUMENT_DECLINED`); they can try another. | [`CustomError`](/llms-pages/typescript/models/exceptions/error.md) |
-| 502 | Gemini, PayPal or Channel3 failed or isn't configured. | [`CustomError`](/llms-pages/typescript/models/exceptions/error.md) |
+| 410 | The last unit (or the last of the buyer's combination) sold while they were paying, or the PayPal checkout expired before they paid. The payment isn't captured, so the buyer isn't charged. | [`ErrorResponseError`](/llms-pages/typescript/models/exceptions/error-response.md) |
+| 422 | The buyer's funding source was declined (`INSTRUMENT_DECLINED`); they can try another. | [`ErrorResponseError`](/llms-pages/typescript/models/exceptions/error-response.md) |
+| 502 | Gemini, PayPal or Channel3 failed or isn't configured. | [`ErrorResponseError`](/llms-pages/typescript/models/exceptions/error-response.md) |
 
 
 

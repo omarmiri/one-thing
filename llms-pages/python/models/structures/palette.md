@@ -2,6 +2,8 @@
 
 Source: /#/python/x-redirect/JTI0bSUyRlBhbGV0dGU
 
+The page colours, taken from the photo. Text colours are checked for contrast.
+
 
 # Class Name
 
@@ -12,12 +14,12 @@ Source: /#/python/x-redirect/JTI0bSUyRlBhbGV0dGU
 
 | Name | Type | Tags | Description |
 |  --- | --- | --- | --- |
-| `background` | `str` | Required | **Constraints**: *Pattern*: `^#[0-9a-fA-F]{6}$` |
-| `surface` | `str` | Required | **Constraints**: *Pattern*: `^#[0-9a-fA-F]{6}$` |
-| `text` | `str` | Required | **Constraints**: *Pattern*: `^#[0-9a-fA-F]{6}$` |
-| `muted` | `str` | Required | **Constraints**: *Pattern*: `^#[0-9a-fA-F]{6}$` |
-| `accent` | `str` | Required | **Constraints**: *Pattern*: `^#[0-9a-fA-F]{6}$` |
-| `accent_text` | `str` | Required | **Constraints**: *Pattern*: `^#[0-9a-fA-F]{6}$` |
+| `background` | `str` | Required | A colour as `#rrggbb`.<br><br>**Constraints**: *Pattern*: `^#[0-9a-fA-F]{6}$` |
+| `surface` | `str` | Required | A colour as `#rrggbb`.<br><br>**Constraints**: *Pattern*: `^#[0-9a-fA-F]{6}$` |
+| `text` | `str` | Required | A colour as `#rrggbb`.<br><br>**Constraints**: *Pattern*: `^#[0-9a-fA-F]{6}$` |
+| `muted` | `str` | Required | A colour as `#rrggbb`.<br><br>**Constraints**: *Pattern*: `^#[0-9a-fA-F]{6}$` |
+| `accent` | `str` | Required | A colour as `#rrggbb`.<br><br>**Constraints**: *Pattern*: `^#[0-9a-fA-F]{6}$` |
+| `accent_text` | `str` | Required | A colour as `#rrggbb`.<br><br>**Constraints**: *Pattern*: `^#[0-9a-fA-F]{6}$` |
 
 
 # Example
@@ -26,12 +28,12 @@ Source: /#/python/x-redirect/JTI0bSUyRlBhbGV0dGU
 from onethingapi.models.palette import Palette
 
 palette = Palette(
-    background='#14171a',
-    surface='#14171a',
-    text='#14171a',
-    muted='#14171a',
-    accent='#14171a',
-    accent_text='#14171a'
+    background='#f7f1e8',
+    surface='#ffffff',
+    text='#1f1a17',
+    muted='#6b625b',
+    accent='#b3262d',
+    accent_text='#ffffff'
 )
 ```
 

@@ -30,8 +30,13 @@ Source: /#/http/x-redirect/JTI0bSUyRlNob3BTdWdnZXN0aW9ucw
       "kind": "size",
       "values": [
         {
-          "label": "M",
-          "hex": "#14171a"
+          "label": "S"
+        },
+        {
+          "label": "M"
+        },
+        {
+          "label": "L"
         }
       ]
     }

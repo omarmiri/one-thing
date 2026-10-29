@@ -2,6 +2,8 @@
 
 Source: /#/typescript/x-redirect/JTI0bSUyRkFwaSUyNTIwU2hvcHMlMjUyMFBob3RvcyUyNTIwUmVxdWVzdA
 
+The new photo order.
+
 
 # Interface Name
 
@@ -22,8 +24,8 @@ import { ApiShopsPhotosRequest } from 'one-thing-sdk';
 
 const apiShopsPhotosRequest: ApiShopsPhotosRequest = {
   photos: [
-    'photos0',
-    'photos1'
+    'zrySajNyao6_j11x',
+    'LFRvGuTU3D8i334X'
   ],
 };
 ```

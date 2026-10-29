@@ -2,6 +2,8 @@
 
 Source: /#/python/x-redirect/JTI0bSUyRk1ldGhvZA
 
+The MCP method. `tools/call` runs a tool; `tools/list` lists them.
+
 
 # Enum Type Name
 

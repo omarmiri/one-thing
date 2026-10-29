@@ -2,11 +2,13 @@
 # Host: https://one-thing-ash0.onrender.com
 # OneThing turns a photo, a link or a picked product into a live one-product shop that takes\nPayPal payments, or a recommendation page that earns referral commissions through Channel3.\n\n**How a shop is made**\n1. `createShop`: start from a photo, a link, or a Channel3 product. Gemini guesses what it\n   is, how it's delivered, the price, a short link and the page design. You get back the\n   shop's link name and an **admin token**.\n2. `updateShop`: correct anything the AI guessed, then set `status: live`.\n3. Buyers pay on `https://<host>/<slug>` with PayPal. Sellers read orders and ship them.\n\n**Auth.** Seller endpoints take the shop's admin token in the `x-admin-token` header, or a\n**platform API key** (`Authorization: Bearer ot_sk_…`) for marketplaces that make shops for\ntheir own sellers. Buyer endpoints (checkout, access-code verification, downloads) are public.\n\n**Access codes.** A digital product can unlock an app or game instead of shipping a file.\nEach paid order gets a code such as `K7QF-M2XP-9HTD`; your app calls `verifyAccessCode`\nbefore unlocking. Raptor Rush on miriogames.com is a live example.\n\n**Agent-ready.** Every live shop is also published for AI shopping agents: an MCP server at\n`/api/mcp` with `search_shops`, `get_product`, `create_order` and `get_order`, and the same\nfour as plain GETs for assistants that can only fetch URLs (`listAgentShops`,\n`getAgentProduct`, `orderByLink`, `getAgentOrder`), with `/llms.txt` as the starting point.\nOrder and status links also have short forms, `/<slug>/buy` and `/o/<order_id>/status`.\nAn agent can find and order, but the buyer still approves every payment at PayPal.\n\n**Limits.** Calls that cost something are capped per network: 120 checkouts per 10 minutes,\n10 new shops an hour and 60 AI requests an hour. Over the cap the reply is a 429 with\n`Retry-After`.\n\nAll money moves through PayPal (sandbox in this deployment). OneThing never holds card data.
 
+"Who designed the page: `gemini`, or `fallback` when Gemini wasn't available and a plain template was used."
 enum AiSource {
     FALLBACK
     GEMINI
 }
 
+"The carrier. `OTHER` needs `carrierName`."
 enum Carrier {
     DHL
     FEDEX
@@ -27,22 +29,32 @@ enum Delivery {
     FILE
 }
 
+"Digital products: `file` or `access_code`."
 enum Delivery1 {
     ACCESS_CODE
     FILE
 }
 
+"Digital products: `file` (a download) or `access_code` (a code that unlocks an app or game)."
+enum Delivery2 {
+    ACCESS_CODE
+    FILE
+}
+
+"What happened."
 enum Event {
     ORDERPAID
     ORDERREFUNDED
     ORDERSHIPPED
 }
 
+"`to_ship` until the seller adds tracking, then `shipped`."
 enum Fulfillment {
     SHIPPED
     TO_SHIP
 }
 
+"`to_ship` and `shipped` for physical orders, `digital_sent` for digital ones, `none` before payment."
 enum FulfillmentStatus {
     DIGITAL_SENT
     NONE
@@ -50,6 +62,7 @@ enum FulfillmentStatus {
     TO_SHIP
 }
 
+"Hero art: `pending` while generating, then `ready` or `failed`; `none` if not requested."
 enum HeroStatus {
     FAILED
     NONE
@@ -64,12 +77,21 @@ enum Kind {
     SIZE
 }
 
+"`physical` ships, `digital` downloads or unlocks with a code, `referral` is bought at another store."
 enum Kind1 {
     DIGITAL
     PHYSICAL
     REFERRAL
 }
 
+"`physical`, `digital` or `referral`."
+enum Kind2 {
+    DIGITAL
+    PHYSICAL
+    REFERRAL
+}
+
+"The page template: `bold-hero` (image first, punchy), `editorial` (magazine), `minimal` (quiet, lots of space) or `playful`."
 enum Layout {
     BOLDHERO
     EDITORIAL
@@ -77,6 +99,7 @@ enum Layout {
     PLAYFUL
 }
 
+"The MCP method. `tools/call` runs a tool; `tools/list` lists them."
 enum Method {
     INITIALIZE
     NOTIFICATIONSINITIALIZED
@@ -92,24 +115,41 @@ enum ProductType {
     REFERRAL
 }
 
+"`physical` ships, `digital` downloads or unlocks, `referral` recommends a Channel3 product."
 enum ProductType1 {
     DIGITAL
     PHYSICAL
     REFERRAL
 }
 
+"What the AI decided the product is."
 enum ProductType2 {
     DIGITAL
     PHYSICAL
 }
 
+"`physical`, `digital` or `referral`."
+enum ProductType3 {
+    DIGITAL
+    PHYSICAL
+    REFERRAL
+}
+
+"What the shop starts from: a photo (with an optional description), a product link, or a Channel3 product to recommend."
 enum Source {
     CHANNEL3
     LINK
     PHOTO
 }
 
+"`live` publishes the shop; `draft` takes it down."
 enum Status {
+    DRAFT
+    LIVE
+}
+
+"`draft` until the seller goes live; only `live` shops take orders."
+enum Status1 {
     DRAFT
     LIVE
 }
@@ -124,6 +164,13 @@ enum Status2 {
     SOLD_OUT
 }
 
+"`draft` until the seller goes live."
+enum Status3 {
+    DRAFT
+    LIVE
+}
+
+"`created` until paid; `failed` if PayPal declined; `refunded` after a refund."
 enum Status4 {
     CREATED
     FAILED
@@ -131,21 +178,31 @@ enum Status4 {
     REFUNDED
 }
 
+"Only shops with this status, e.g. `live` for a public catalog."
+enum Status5 {
+    DRAFT
+    LIVE
+}
+
+"`pending` until the buyer approves at PayPal."
 enum Status6 {
     PENDING
 }
 
+"`physical` ships, `digital` is a file or an access code, `auto` lets the AI decide."
 enum Type {
     AUTO
     DIGITAL
     PHYSICAL
 }
 
+"`json` keeps the JSON for a person opening the link in a browser."
 enum View {
     JSON
 }
 
-type Error {
+"An error reply."
+type ErrorResponse {
     "A sentence you can show to a person."
     error: String!
     "The form field at fault, when there is one."
@@ -154,7 +211,9 @@ type Error {
     detail: String!
 }
 
+"What to make a shop from. Only `source` is required; the AI guesses the rest and the seller corrects it with `updateShop`."
 type CreateShopForm {
+    "What the shop starts from: a photo (with an optional description), a product link, or a Channel3 product to recommend."
     source: Source!
     "`source=photo`: the product photo, up to 8 MB."
     photo: String!
@@ -166,6 +225,7 @@ type CreateShopForm {
     productId: String!
     "The link name you want. If omitted, the AI suggests one."
     slug: String!
+    "`physical` ships, `digital` is a file or an access code, `auto` lets the AI decide."
     type: Type!
     "For digital products. If omitted, the AI guesses."
     delivery: Delivery!
@@ -173,15 +233,23 @@ type CreateShopForm {
     accessUrl: String!
     "USD. If omitted, the AI suggests a price."
     price: Float!
+    "Physical products: shipping per order, in USD. If omitted, the AI suggests it."
     shipping: Float!
+    "How many are for sale. Leave out for unlimited."
     stock: Int!
+    "Physical products: comma-separated ISO country codes to ship to. Empty means anywhere PayPal ships."
     shipCountries: String!
+    "The PayPal account that gets paid, if the seller doesn't connect one with `connectPayPal`."
     paypalEmail: String!
+    "Where order notifications go."
     sellerEmail: String!
+    "Digital products sold as a file: the file buyers download, up to 25 MB. Can also be added later with `uploadDigitalFile`."
     digitalFile: String!
 }
 
+"The new draft shop and the credentials to manage it."
 type CreatedShop {
+    "The shop's link name: the page is `https://<host>/<slug>`."
     slug: String!
     "The admin token. Shown once; store it."
     token: String!
@@ -189,19 +257,31 @@ type CreatedShop {
     manageUrl: String!
 }
 
+"The fields to change. Anything left out stays as it is."
 type ShopUpdate {
+    "A new link name. The old one keeps redirecting."
     slug: String!
+    "`live` publishes the shop; `draft` takes it down."
     status: Status!
     "`referral` only for shops created from Channel3."
     productType: ProductType!
+    "The price in USD."
     price: Float!
+    "Shipping per order, in USD."
     shipping: Float!
+    "How many are for sale; null for unlimited."
     stock: Int
+    "Comma-separated ISO country codes; null or empty means anywhere PayPal ships."
     shipCountries: String
+    "Digital products: `file` or `access_code`."
     delivery: Delivery1!
+    "Access-code products: where buyers enter their code."
     accessUrl: String
+    "The PayPal account paid when no account is connected."
     paypalEmail: String
+    "Where order notifications go."
     sellerEmail: String
+    "A Zapier Catch Hook for order events; null removes it."
     zapierHookUrl: String
     "Feature the shop at `/gallery` while it's live. Off by default."
     inGallery: Boolean!
@@ -213,77 +293,125 @@ type ShopUpdate {
     facts: [Fact!]
 }
 
+"A shop, as its seller sees it."
 type Shop {
+    "OneThing's internal shop id."
     id: String!
+    "The shop's link name."
     slug: String!
-    status: Status!
+    "`draft` until the seller goes live; only `live` shops take orders."
+    status: Status1!
+    "`physical` ships, `digital` downloads or unlocks, `referral` recommends a Channel3 product."
     productType: ProductType1!
+    "The price in cents."
     priceCents: Int!
+    "ISO 4217 currency code."
     currency: String!
+    "Shipping per order, in cents."
     shippingCents: Int!
+    "Comma-separated ISO country codes; null or empty means anywhere PayPal ships."
     shipCountries: String
+    "How many are left; null for unlimited. With options, see `option_stock`."
     stock: Int
-    delivery: Delivery1!
+    "Digital products: `file` (a download) or `access_code` (a code that unlocks an app or game)."
+    delivery: Delivery2!
+    "Access-code products: where buyers enter their code."
     accessUrl: String
+    "The PayPal account paid when no account is connected."
     paypalEmail: String
+    "Where order notifications go."
     sellerEmail: String
     "The connected PayPal account (`connectPayPal`). Sales go here when it can receive payments."
     paypalMerchantId: String
+    "What PayPal last said about the connected account; null when none is connected."
     paypalStatus: PayPalStatus
+    "A Zapier Catch Hook that gets an `OrderEvent` for each paid, shipped or refunded order."
     zapierHookUrl: String
+    "Whether the shop is featured at `/gallery` while live."
     inGallery: Boolean!
     "The seller account that owns the shop, if it was made while signed in."
     accountId: String
+    "What the buyer picks, such as size or colour."
     options: [ShopOption!]
     "Stock per combination, keyed by its values in option order joined with ` / ` (e.g. `M / Black`). A missing key or `null` means unlimited; `0` is sold out."
     optionStock: Int!
+    "What the AI thinks buyers will pick or ask; null once handled."
     suggestions: Suggestions
     "Image id for `getImage`. The cover photo."
     photoBlob: String
     "The other photos, in order."
     galleryBlobs: [String!]
+    "Image id of the AI hero art, when there is one."
     heroBlob: String
+    "Hero art: `pending` while generating, then `ready` or `failed`; `none` if not requested."
     heroStatus: HeroStatus!
+    "Why hero art failed, when it did."
     heroError: String
+    "Who designed the page: `gemini`, or `fallback` when Gemini wasn't available and a plain template was used."
     aiSource: AiSource!
+    "The product link the shop was made from, if any."
     sourceUrl: String
+    "Recommendation shops: the Channel3 product; null otherwise."
     referral: Referral
     "What Gemini designed. OneThing's templates render it; Gemini never writes HTML."
     spec: DesignSpec!
+    "When the shop was made."
     createdAt: String!
 }
 
 "What Gemini designed. OneThing's templates render it; Gemini never writes HTML."
 type DesignSpec {
+    "What the AI decided the product is."
     productType: ProductType2!
+    "The product's name."
     productName: String!
+    "The page template: `bold-hero` (image first, punchy), `editorial` (magazine), `minimal` (quiet, lots of space) or `playful`."
     layout: Layout!
+    "The page colours, taken from the photo. Text colours are checked for contrast."
     palette: Palette!
+    "Google Fonts for the page."
     fonts: Fonts!
+    "A short label above the headline."
     eyebrow: String!
+    "The page's main headline."
     headline: String!
+    "A line under the headline."
     subheadline: String!
+    "A short paragraph about the product."
     story: String!
+    "Short selling points."
     bullets: [String!]
+    "Product facts shown on the page."
     details: [Detail!]
+    "Questions buyers will ask, with answers."
     faq: [Faq!]
+    "The buy button's text."
     ctaLabel: String!
+    "The AI's price suggestion, in USD."
     suggestedPriceUsd: Float!
+    "The AI's shipping suggestion, in USD."
     suggestedShippingUsd: Float!
+    "Alt text for the product photo."
     imageAlt: String!
+    "The prompt used to generate hero art for the page."
     heroPrompt: String!
 }
 
 "Something the buyer picks, such as a size or a colour. The shop still sells one product."
 type ShopOption {
+    "What the buyer is choosing."
     name: String!
     "`color` shows swatches, and the photo of the picked colour."
     kind: Kind!
+    "The values to pick from."
     values: [OptionValue!]
 }
 
+"One value of an option."
 type OptionValue {
+    "What the buyer sees and picks."
     label: String!
+    "A colour as `#rrggbb`."
     hex: String!
     "Colours: the shop photo (id) that shows this colour. See `matchColorPhotos`."
     photo: String!
@@ -293,7 +421,9 @@ type OptionValue {
 type Suggestions {
     "A single item (vintage, handmade), so options and stock don't apply."
     oneOfAKind: Boolean!
+    "Options buyers will likely want to pick."
     options: [Option!]
+    "Questions buyers will ask that the listing doesn't answer yet."
     missingFacts: [MissingFact!]
 }
 
@@ -303,6 +433,7 @@ type PayPalStatus {
     receivable: Boolean!
     "The seller has confirmed their email with PayPal."
     emailConfirmed: Boolean!
+    "When OneThing last asked PayPal."
     checkedAt: String!
 }
 
@@ -314,38 +445,57 @@ type AgentProduct {
     agentName: String!
     "The link name, which the MCP tools take as `shop`."
     shop: String!
+    "The shop page, where a person can buy it too."
     url: String!
+    "The product's name."
     name: String!
+    "`physical` ships, `digital` downloads or unlocks with a code, `referral` is bought at another store."
     kind: Kind1!
+    "The shop's one-line pitch."
     headline: String!
+    "What the product is, in a few sentences."
     description: String!
+    "The product's selling points, one per line."
     highlights: [String!]
+    "Product facts, such as size, material or format."
     details: [Detail!]
+    "Questions buyers ask, answered by the seller's page."
     faq: [Faq!]
+    "Photo URLs, the cover first. Show these rather than generating or searching for images."
     images: [String!]
+    "An amount of money, as a number and as a label."
     price: AgentMoney!
     "Physical products only."
     shipping: Shipping
+    "An amount of money, as a number and as a label."
     total: AgentMoney!
+    "How the buyer gets it, in plain words."
     delivery: String!
+    "`in_stock`, `in_stock (N left)` or `sold_out`. With options, see `variants`."
     availability: String!
     "Pass one value per option to `create_order`."
     options: [Option1!]
+    "Products with options: each combination, its stock and its order link."
     variants: [Variant!]
     "Products without options: `orderByLink`, which orders one unit with a GET. Left out when sold out. With options, each variant has its own."
     orderUrl: String!
     "Recommendations only. Bought at the retailer."
     offers: [Offer1!]
+    "How to buy it, written for an agent: which tool or link to use and what to ask the buyer."
     howToBuy: String!
     "The MCP server to order through (`getAgentProduct` only)."
     mcpServer: String!
 }
 
+"A shop in search results."
 type AgentShopSummary {
     "The link name, for `getAgentProduct` and the MCP tools."
     shop: String!
+    "The product's name."
     name: String!
-    kind: Kind1!
+    "`physical`, `digital` or `referral`."
+    kind: Kind2!
+    "The shop's one-line pitch."
     headline: String!
     "The price label, e.g. `$2.99`; null for recommendations."
     price: String
@@ -361,7 +511,9 @@ type AgentCreatedOrder {
     showBuyer: String!
     "Who this request was credited to in the seller's stats: a recognised user agent, else the name the agent gave itself (`?agent=`, or the MCP client's name), else the user agent's first word."
     agentName: String!
+    "The order's id, for `get_order` and `getAgentOrder`."
     orderId: String!
+    "Always `awaiting_buyer_approval`: nothing is charged until the buyer approves at PayPal."
     status: String!
     "The total with shipping, as a label."
     total: String!
@@ -371,6 +523,7 @@ type AgentCreatedOrder {
     payUrl: String!
     "`getAgentOrder` for this order."
     statusUrl: String!
+    "What the agent should do next, in plain words: show `pay_url`, then check `status_url` once the buyer says they've paid."
     nextStep: String!
 }
 
@@ -380,12 +533,15 @@ type AgentOrder {
     showBuyer: String!
     "Who this request was credited to in the seller's stats: a recognised user agent, else the name the agent gave itself (`?agent=`, or the MCP client's name), else the user agent's first word."
     agentName: String!
+    "The order's id."
     orderId: String!
     "`declined`: PayPal declined it, nothing charged, the buyer can open `pay_url` again. `sold_out`: it sold out before the payment was captured. `expired`: the PayPal checkout expired; create a new order. `failed`: PayPal couldn't be reached; ask again."
     status: Status2!
+    "The product's name."
     product: String!
     "The buyer's pick, one value per option, keyed by option name."
     options: String!
+    "What the order costs, as numbers."
     amount: Amount!
     "The total as a label, e.g. `$255.00`."
     total: String!
@@ -393,6 +549,7 @@ type AgentOrder {
     payUrl: String!
     "Unpaid orders. What the agent should do next, in plain words."
     nextStep: String!
+    "Paid orders. When PayPal captured the payment."
     paidAt: String!
     "Paid orders. The buyer's thank-you page."
     receiptUrl: String!
@@ -402,7 +559,9 @@ type AgentOrder {
 
 "A digital product unlocked with an access code."
 type AgentDeliveryAccessCode {
+    "Always `access_code`."
     type: String!
+    "The buyer's code, which unlocks the seller's app or game."
     accessCode: String!
     "The seller's app with the code filled in."
     startUrl: String!
@@ -410,25 +569,39 @@ type AgentDeliveryAccessCode {
 
 "A digital file to download."
 type AgentDeliveryDownload {
+    "Always `download`."
     type: String!
+    "A private link to the file. It works 5 times over 14 days."
     downloadUrl: String!
+    "How long the link lasts and how many downloads it allows, in words."
     note: String!
 }
 
 "A physical product shipped to the buyer."
 type AgentDeliveryShipping {
+    "Always `shipping`."
     type: String!
+    "Where it ships, from the buyer's PayPal checkout. Null if PayPal didn't share it."
     shipTo: ShipTo
+    "`to_ship` until the seller adds tracking, then `shipped`."
     fulfillment: Fulfillment!
+    "The carrier and tracking number once shipped; null before."
     tracking: Tracking
 }
 
+"A shop as a platform API key lists it."
 type PlatformShop {
+    "The shop's link name."
     slug: String!
-    status: Status!
+    "`draft` until the seller goes live."
+    status: Status3!
+    "The product's name."
     name: String!
+    "The shop's one-line pitch."
     headline: String!
-    productType: ProductType1!
+    "`physical`, `digital` or `referral`."
+    productType: ProductType3!
+    "An amount of money, as a number and as a label."
     price: AgentMoney!
     "The shop page buyers pay on."
     url: String!
@@ -438,73 +611,117 @@ type PlatformShop {
     paypalConnected: Boolean!
     "Paid orders."
     sales: Int!
+    "When the shop was made."
     createdAt: String!
 }
 
+"An amount of money, as a number and as a label."
 type AgentMoney {
+    "The amount in the currency's main unit (dollars, not cents)."
     amount: Float!
+    "ISO 4217 currency code."
     currency: String!
+    "The amount formatted for people."
     label: String!
 }
 
+"A JSON-RPC 2.0 request to the MCP server."
 type JsonRpcRequest {
+    "Always `2.0`."
     jsonrpc: String!
     "Leave out for a notification."
     id: String
+    "The MCP method. `tools/call` runs a tool; `tools/list` lists them."
     method: Method!
     "For `tools/call`: `{ name, arguments }`."
     params: String!
 }
 
+"A JSON-RPC 2.0 reply from the MCP server."
 type JsonRpcResponse {
+    "Always `2.0`."
     jsonrpc: String!
+    "The request's `id`."
     id: String
     "For `tools/call`: `content` (the answer as JSON text), `structuredContent` (the same object) and `isError`."
     result: String!
-    error: Error1!
+    "Present when the call failed."
+    error: Error!
 }
 
 "A recommended Channel3 product. Buy links are Channel3-tracked, credited to this shop."
 type Referral {
+    "Channel3's product id."
     productId: String!
+    "The product's name."
     title: String!
+    "The brand, when known."
     brand: String
+    "The product image's URL."
     image: String
+    "Stores that sell it, with tracked links."
     offers: [Offer!]
 }
 
+"A Channel3 product in search results."
 type ProductCard {
+    "Channel3's product id: pass it to `createShop` as `productId`."
     id: String!
+    "The product's name."
     title: String!
+    "The brand, when known."
     brand: String
+    "The product image's URL."
     image: String!
+    "The best offer's price."
     price: Float!
+    "ISO 4217 currency code."
     currency: String!
     "The store with the best offer."
     retailer: String!
+    "How many stores sell it."
     retailers: Int!
     "Best commission rate across offers, 0–1."
     commission: Float!
 }
 
+"An order, as the seller sees it."
 type Order {
+    "OneThing's order id."
     id: String!
+    "PayPal's order id."
     paypalOrderId: String
+    "`created` until paid; `failed` if PayPal declined; `refunded` after a refund."
     status: Status4!
+    "The total charged, shipping included, in cents."
     amountCents: Int!
+    "The shipping part of `amount_cents`."
     shippingCents: Int!
+    "ISO 4217 currency code."
     currency: String!
+    "From PayPal, once paid."
     buyerEmail: String
+    "From PayPal, once paid."
     buyerName: String
+    "Physical orders: the address from PayPal checkout, by field."
     shippingAddress: String
+    "PayPal's capture id, once paid. Refunds use it."
     captureId: String
+    "`to_ship` and `shipped` for physical orders, `digital_sent` for digital ones, `none` before payment."
     fulfillmentStatus: FulfillmentStatus!
+    "Shipped orders: the carrier."
     carrier: String
+    "Shipped orders: the tracking number."
     trackingNumber: String
+    "Whether PayPal accepted the tracking number."
     trackingSynced: Boolean!
+    "How many times the buyer downloaded the file."
     downloads: Int!
+    "Access-code products: the code this buyer got."
     accessCode: String
+    "How many times the access code was checked."
     codeUses: Int!
+    "When the access code was last checked with `verifyAccessCode`."
     codeLastUsedAt: String
     "`agent` for orders an AI agent placed (MCP or an order link)."
     channel: Channel!
@@ -512,56 +729,81 @@ type Order {
     agent: String
     "PayPal's refund id, once refunded through OneThing."
     refundId: String
+    "When the order was refunded."
     refundedAt: String
     "The buyer's pick, one value per option, keyed by option name (see `Choice`)."
     options: String
+    "When PayPal captured the payment."
     paidAt: String
+    "When the order was made."
     createdAt: String!
 }
 
+"A PayPal webhook delivery for this shop's orders."
 type WebhookEvent {
     "PayPal's event id."
     id: String!
+    "PayPal's event type."
     eventType: String!
+    "The PayPal order it was about."
     paypalOrderId: String
+    "The amount, or PayPal's summary."
     summary: String
     "Whether PayPal confirmed the delivery's signature."
     verified: Boolean!
+    "What OneThing did with it."
     outcome: String!
+    "When it arrived."
     receivedAt: String!
 }
 
+"What OneThing posts to the seller's Zapier hook."
 type OrderEvent {
+    "What happened."
     event: Event!
+    "The shop the order belongs to."
     shop: Shop1!
+    "The order."
     order: Order1!
 }
 
+"What the order costs, as numbers."
 type Amount {
+    "The product's price."
     item: Float!
+    "Shipping; 0 for digital products."
     shipping: Float!
+    "Product plus shipping: what the buyer pays."
     total: Float!
+    "ISO 4217 currency code."
     currency: String!
 }
 
+"The code to check, and which shop it's for."
 type ApiAccessVerifyRequest {
     "The shop's link name."
     shop: String!
+    "The access code the buyer entered. Case and dashes don't matter."
     code: String!
 }
 
+"Whether the code is valid."
 type ApiAccessVerifyResponse {
+    "True if the code belongs to a paid, unrefunded order for this shop."
     valid: Boolean!
     "The product name, when valid."
     product: String!
 }
 
+"Who is signing in."
 type ApiAccountSigninRequest {
     "An email address, or a phone number (spaces, dashes and brackets are ignored; keep a leading +)."
     identifier: String!
 }
 
+"The signed-in account."
 type ApiAccountSigninResponse {
+    "The account's id."
     id: String!
     "Lower-cased."
     email: String
@@ -569,9 +811,11 @@ type ApiAccountSigninResponse {
     phone: String
 }
 
+"The matching shops, with a reply to show the buyer."
 type ApiAgentShopsResponse {
     "A suggested reply to the buyer, in Markdown: each shop's cover photo as an image, its name, price and headline, then \"Which one?\". Chats that block images from other sites just leave the image lines out."
     showBuyer: String!
+    "Shops, best match first."
     shops: [AgentShopSummary!]
     "False when nothing matched the query and `shops` is the newest gallery shops instead; `show_buyer` then starts by saying so."
     matched: Boolean!
@@ -579,62 +823,85 @@ type ApiAgentShopsResponse {
     mcpServer: String!
 }
 
+"The products found."
 type ApiChannel3SearchResponse {
+    "Products, best match first."
     products: [ProductCard!]
 }
 
+"Not approved yet."
 type ApiOrdersCapture409Error1 {
+    "`pending` until the buyer approves at PayPal."
     status: Status6!
 }
 
+"The paid order."
 type ApiOrdersCaptureResponse {
     "OneThing's order id; the thank-you page is `/<slug>/thanks?order=<orderId>`."
     orderId: String!
+    "Always `paid`."
     status: String!
 }
 
+"The shop to buy from and the buyer's pick."
 type ApiOrdersRequest {
+    "The shop's link name."
     slug: String!
     "The buyer's pick, one value per option, keyed by option name."
     options: String!
 }
 
+"The PayPal order to approve."
 type ApiOrdersResponse {
     "PayPal order id."
     id: String!
 }
 
+"The client token."
 type ApiPaypalClientTokenResponse {
     "Pass to `createInstance` in the PayPal JavaScript SDK v6."
     clientToken: String!
 }
 
+"The account's shops."
 type ApiPlatformShopsResponse {
+    "Shops, newest first."
     shops: [PlatformShop!]
 }
 
+"Which photo shows each colour."
 type ApiShopsColorPhotosRequest {
     "Colour label → photo id, or `null`."
     photos: String!
 }
 
+"The colours that changed."
 type ApiShopsColorPhotosResponse {
+    "Colour labels whose photo changed."
     saved: [String!]
 }
 
+"The uploaded file."
 type ApiShopsFileResponse {
+    "Always `true`."
     ok: Boolean!
+    "The file's name, as buyers will download it."
     filename: String!
 }
 
+"The colours to find photos for."
 type ApiShopsMatchPhotosRequest {
+    "The colour option's values."
     colors: [Color!]
 }
 
+"Gemini's matches."
 type ApiShopsMatchPhotosResponse {
+    "Colour label → photo id."
     matches: String!
 }
 
+"Why the order can't be refunded here."
 type ApiShopsOrdersRefund409Error1 {
     "A sentence you can show to a person."
     error: String!
@@ -646,208 +913,309 @@ type ApiShopsOrdersRefund409Error1 {
     refundInPayPal: Boolean!
 }
 
+"How to refund."
 type ApiShopsOrdersRefundRequest {
     "`true`: don't contact PayPal, just record that the seller refunded it themselves."
     record: Boolean!
 }
 
+"The refund."
 type ApiShopsOrdersRefundResponse {
+    "Always `true`."
     ok: Boolean!
     "PayPal's refund id; null when `record` was used."
     refundId: String
 }
 
+"The shipment's tracking."
 type ApiShopsOrdersShipRequest {
+    "The carrier. `OTHER` needs `carrierName`."
     carrier: Carrier!
     "Required when `carrier` is `OTHER`."
     carrierName: String!
+    "The carrier's tracking number."
     trackingNumber: String!
 }
 
+"The order is marked shipped."
 type ApiShopsOrdersShipResponse {
+    "Always `true`."
     ok: Boolean!
     "Whether PayPal accepted the tracking number."
     synced: Boolean!
 }
 
+"Where to come back to."
 type ApiShopsPaypalRequest {
     "Platform key only. Where to send the seller after PayPal."
     returnUrl: String!
 }
 
+"The onboarding link."
 type ApiShopsPaypalResponse {
     "PayPal's onboarding page for this shop."
     url: String!
 }
 
+"The shop's PayPal connection."
 type ApiShopsPaypalResponse1 {
     "The seller's PayPal merchant id."
     merchantId: String
+    "What PayPal last said; null when nothing is connected."
     status: PayPalStatus
 }
 
+"The new photo order."
 type ApiShopsPhotosRequest {
     "Photo ids, in order."
     photos: [String!]
 }
 
+"The design change, in words."
 type ApiShopsRefineRequest {
+    "What to change, e.g. \"make it feel more premium\"."
     instruction: String!
 }
 
+"The redesigned page."
 type ApiShopsRefineResponse {
     "What Gemini designed. OneThing's templates render it; Gemini never writes HTML."
     spec: DesignSpec!
 }
 
+"The shop was saved."
 type ApiShopsResponse {
+    "Always `true`."
     ok: Boolean!
     "The shop's link name after this change."
     slug: String!
 }
 
+"Whether the link name can be used."
 type ApiSlugsCheckResponse {
+    "The name, normalised."
     slug: String!
+    "True if no other shop has it and it isn't reserved."
     available: Boolean!
     "Why not, when unavailable."
     problem: String!
 }
 
+"One colour."
 type Color {
+    "The colour's name, as buyers see it."
     label: String!
+    "A colour as `#rrggbb`."
     hex: String!
 }
 
+"One product fact."
 type Detail {
+    "What the fact is about."
     label: String!
+    "The fact."
     value: String!
 }
 
-type Error1 {
+"Present when the call failed."
+type Error {
+    "The JSON-RPC error code."
     code: Int!
+    "What went wrong."
     message: String!
 }
 
+"One answered question."
 type Fact {
+    "The detail's label."
     label: String!
+    "The answer."
     value: String!
 }
 
+"One question and its answer."
 type Faq {
+    "The question."
     q: String!
+    "The answer."
     a: String!
 }
 
+"Google Fonts for the page."
 type Fonts {
+    "The headings font."
     heading: String!
+    "The body text font."
     body: String!
 }
 
+"One question to answer."
 type MissingFact {
+    "The product detail it becomes."
     label: String!
+    "The question, for the seller."
     question: String!
+    "An example answer."
     placeholder: String!
 }
 
+"One store's offer."
 type Offer {
+    "The store's domain."
     domain: String!
+    "A Channel3-tracked buy link, credited to this shop."
     url: String!
+    "The store's price."
     price: Float!
+    "ISO 4217 currency code."
     currency: String!
+    "Whether the store has it in stock."
     inStock: Boolean!
     "Maximum commission rate, 0–1 (0.08 = 8%)."
     commission: Float!
 }
 
+"One store's offer."
 type Offer1 {
+    "The store."
     retailer: String!
+    "The store's price."
     price: Float!
+    "ISO 4217 currency code."
     currency: String!
+    "Whether the store has it in stock."
     inStock: Boolean!
+    "A tracked buy link at that store."
     url: String!
 }
 
+"Confirms the change."
 type Ok {
+    "Always `true`."
     ok: Boolean!
 }
 
+"A suggested option."
 type Option {
+    "What the buyer is choosing."
     name: String!
     "`color` shows swatches, and the photo of the picked colour."
     kind: Kind!
+    "The values to pick from."
     values: [OptionValue!]
     "The seller's description or photo named these values; otherwise they're a guess."
     fromSeller: Boolean!
 }
 
+"One option and its values."
 type Option1 {
+    "The option's name, which is also its query parameter on `order_url`."
     name: String!
+    "The values the buyer can pick."
     values: [String!]
 }
 
+"The order."
 type Order1 {
+    "OneThing's order id."
     id: String!
+    "PayPal's order id."
     paypalOrderId: String
+    "The total, as a decimal string."
     amount: String!
+    "ISO 4217 currency code."
     currency: String!
+    "The buyer's name, from PayPal."
     buyerName: String
+    "The buyer's email, from PayPal."
     buyerEmail: String
+    "Physical orders: the address, by field."
     shippingAddress: String
+    "As in `Order.fulfillment_status`."
     fulfillmentStatus: String!
+    "The tracking number, once shipped."
     trackingNumber: String
+    "The carrier, once shipped."
     carrier: String
 }
 
+"The page colours, taken from the photo. Text colours are checked for contrast."
 type Palette {
+    "A colour as `#rrggbb`."
     background: String!
+    "A colour as `#rrggbb`."
     surface: String!
+    "A colour as `#rrggbb`."
     text: String!
+    "A colour as `#rrggbb`."
     muted: String!
+    "A colour as `#rrggbb`."
     accent: String!
+    "A colour as `#rrggbb`."
     accentText: String!
 }
 
+"One photo."
 type Photo {
+    "The photo's id, for `getImage`, `setPhotoOrder` and colour matching."
     id: String!
     "Public image URL on this site."
     url: String!
 }
 
+"Shipping cost and destinations."
 type Shipping {
+    "Shipping cost per order."
     amount: Float!
+    "ISO 4217 currency code."
     currency: String!
     "Country codes; empty means anywhere PayPal ships."
     shipsTo: [String!]
 }
 
+"Where it ships, from the buyer's PayPal checkout. Null if PayPal didn't share it."
 type ShipTo {
+    "The recipient's name."
     name: String
+    "The address on one line."
     address: String!
 }
 
+"The shop the order belongs to."
 type Shop1 {
+    "The shop's link name."
     slug: String!
+    "The product's name."
     name: String!
+    "The shop page."
     url: String!
 }
 
+"The shop's photos."
 type ShopPhotos {
+    "Every photo, the cover first."
     photos: [Photo!]
 }
 
+"The carrier and tracking number once shipped; null before."
 type Tracking {
+    "The shipping carrier."
     carrier: String!
+    "The tracking number."
     number: String!
 }
 
+"One combination of option values."
 type Variant {
     "The buyer's pick, one value per option, keyed by option name."
     choice: String!
+    "`in_stock`, `in_stock (N left)` or `sold_out`."
     availability: String!
     "`orderByLink` for this pick. Left out when it's sold out."
     orderUrl: String!
 }
 
+"Who is signing in."
 input ApiAccountSigninRequestInput {
     "An email address, or a phone number (spaces, dashes and brackets are ignored; keep a leading +)."
     identifier: String!
@@ -855,6 +1223,7 @@ input ApiAccountSigninRequestInput {
 
 input CreateSigninInput {
     contentType: String!
+    "The email or phone number to sign in with."
     body: ApiAccountSigninRequestInput!
     xAdminToken: String!
 }
@@ -870,6 +1239,7 @@ input GetLoginwithpaypalInput {
 }
 
 input CreateShopInput {
+    "What the shop starts from: a photo (with an optional description), a product link, or a Channel3 product to recommend."
     source: Source!
     "`source=photo`: the product photo, up to 8 MB."
     photo: String!
@@ -881,6 +1251,7 @@ input CreateShopInput {
     productId: String!
     "The link name you want. If omitted, the AI suggests one."
     slug: String!
+    "`physical` ships, `digital` is a file or an access code, `auto` lets the AI decide."
     type: Type!
     "For digital products. If omitted, the AI guesses."
     delivery: Delivery!
@@ -888,11 +1259,17 @@ input CreateShopInput {
     accessUrl: String!
     "USD. If omitted, the AI suggests a price."
     price: Float!
+    "Physical products: shipping per order, in USD. If omitted, the AI suggests it."
     shipping: Float!
+    "How many are for sale. Leave out for unlimited."
     stock: Int!
+    "Physical products: comma-separated ISO country codes to ship to. Empty means anywhere PayPal ships."
     shipCountries: String!
+    "The PayPal account that gets paid, if the seller doesn't connect one with `connectPayPal`."
     paypalEmail: String!
+    "Where order notifications go."
     sellerEmail: String!
+    "Digital products sold as a file: the file buyers download, up to 25 MB. Can also be added later with `uploadDigitalFile`."
     digitalFile: String!
     xAdminToken: String!
 }
@@ -903,8 +1280,11 @@ input GetShopInput {
     xAdminToken: String!
 }
 
+"One value of an option."
 input OptionValueInput {
+    "What the buyer sees and picks."
     label: String!
+    "A colour as `#rrggbb`."
     hex: String!
     "Colours: the shop photo (id) that shows this colour. See `matchColorPhotos`."
     photo: String!
@@ -912,30 +1292,47 @@ input OptionValueInput {
 
 "Something the buyer picks, such as a size or a colour. The shop still sells one product."
 input ShopOptionInput {
+    "What the buyer is choosing."
     name: String!
     "`color` shows swatches, and the photo of the picked colour."
     kind: Kind!
+    "The values to pick from."
     values: [OptionValueInput!]
 }
 
+"One answered question."
 input FactInput {
+    "The detail's label."
     label: String!
+    "The answer."
     value: String!
 }
 
+"The fields to change. Anything left out stays as it is."
 input ShopUpdateInput {
+    "A new link name. The old one keeps redirecting."
     slug: String!
+    "`live` publishes the shop; `draft` takes it down."
     status: Status!
     "`referral` only for shops created from Channel3."
     productType: ProductType!
+    "The price in USD."
     price: Float!
+    "Shipping per order, in USD."
     shipping: Float!
+    "How many are for sale; null for unlimited."
     stock: Int
+    "Comma-separated ISO country codes; null or empty means anywhere PayPal ships."
     shipCountries: String
+    "Digital products: `file` or `access_code`."
     delivery: Delivery1!
+    "Access-code products: where buyers enter their code."
     accessUrl: String
+    "The PayPal account paid when no account is connected."
     paypalEmail: String
+    "Where order notifications go."
     sellerEmail: String
+    "A Zapier Catch Hook for order events; null removes it."
     zapierHookUrl: String
     "Feature the shop at `/gallery` while it's live. Off by default."
     inGallery: Boolean!
@@ -951,11 +1348,14 @@ input UpdateShopInput {
     "The shop's link name (current or former)."
     slug: String!
     contentType: String!
+    "The fields to change; anything left out stays as it is."
     body: ShopUpdateInput!
     xAdminToken: String!
 }
 
+"The design change, in words."
 input ApiShopsRefineRequestInput {
+    "What to change, e.g. \"make it feel more premium\"."
     instruction: String!
 }
 
@@ -963,6 +1363,7 @@ input CreateRefineshopdesignInput {
     "The shop's link name (current or former)."
     slug: String!
     contentType: String!
+    "The design change, in words."
     body: ApiShopsRefineRequestInput!
     xAdminToken: String!
 }
@@ -989,6 +1390,7 @@ input AddPhotosInput {
     xAdminToken: String!
 }
 
+"The new photo order."
 input ApiShopsPhotosRequestInput {
     "Photo ids, in order."
     photos: [String!]
@@ -998,6 +1400,7 @@ input UpdateSetphotoorderInput {
     "The shop's link name (current or former)."
     slug: String!
     contentType: String!
+    "Every photo id, in the new order."
     body: ApiShopsPhotosRequestInput!
     xAdminToken: String!
 }
@@ -1008,12 +1411,17 @@ input CreateCheckmissingdetailsInput {
     xAdminToken: String!
 }
 
+"One colour."
 input ColorInput {
+    "The colour's name, as buyers see it."
     label: String!
+    "A colour as `#rrggbb`."
     hex: String!
 }
 
+"The colours to find photos for."
 input ApiShopsMatchPhotosRequestInput {
+    "The colour option's values."
     colors: [ColorInput!]
 }
 
@@ -1021,10 +1429,12 @@ input CreateMatchcolorphotosInput {
     "The shop's link name (current or former)."
     slug: String!
     contentType: String!
+    "The colour option's values."
     body: ApiShopsMatchPhotosRequestInput!
     xAdminToken: String!
 }
 
+"Which photo shows each colour."
 input ApiShopsColorPhotosRequestInput {
     "Colour label → photo id, or `null`."
     photos: String!
@@ -1034,10 +1444,12 @@ input UpdateSetcolorphotosInput {
     "The shop's link name (current or former)."
     slug: String!
     contentType: String!
+    "The photo for each colour."
     body: ApiShopsColorPhotosRequestInput!
     xAdminToken: String!
 }
 
+"Where to come back to."
 input ApiShopsPaypalRequestInput {
     "Platform key only. Where to send the seller after PayPal."
     returnUrl: String!
@@ -1047,6 +1459,7 @@ input CreateConnectpaypalInput {
     "The shop's link name (current or former)."
     slug: String!
     contentType: String!
+    "Platform keys only: where PayPal sends the seller back."
     body: ApiShopsPaypalRequestInput!
     xAdminToken: String!
 }
@@ -1079,7 +1492,9 @@ input GetPayPalClientTokenInput {
     xAdminToken: String!
 }
 
+"The shop to buy from and the buyer's pick."
 input ApiOrdersRequestInput {
+    "The shop's link name."
     slug: String!
     "The buyer's pick, one value per option, keyed by option name."
     options: String!
@@ -1087,6 +1502,7 @@ input ApiOrdersRequestInput {
 
 input CreateCheckoutOrderInput {
     contentType: String!
+    "The shop and the buyer's pick."
     body: ApiOrdersRequestInput!
     xAdminToken: String!
 }
@@ -1097,14 +1513,17 @@ input CreateCapturecheckoutorderInput {
     xAdminToken: String!
 }
 
+"The code to check, and which shop it's for."
 input ApiAccessVerifyRequestInput {
     "The shop's link name."
     shop: String!
+    "The access code the buyer entered. Case and dashes don't matter."
     code: String!
 }
 
 input CreateVerifyaccesscodeInput {
     contentType: String!
+    "The shop and the code to check."
     body: ApiAccessVerifyRequestInput!
     xAdminToken: String!
 }
@@ -1115,10 +1534,13 @@ input ListOrdersInput {
     xAdminToken: String!
 }
 
+"The shipment's tracking."
 input ApiShopsOrdersShipRequestInput {
+    "The carrier. `OTHER` needs `carrierName`."
     carrier: Carrier!
     "Required when `carrier` is `OTHER`."
     carrierName: String!
+    "The carrier's tracking number."
     trackingNumber: String!
 }
 
@@ -1128,10 +1550,12 @@ input CreateMarkordershippedInput {
     "OneThing's order id (`Order.id`)."
     orderId: String!
     contentType: String!
+    "The carrier and tracking number."
     body: ApiShopsOrdersShipRequestInput!
     xAdminToken: String!
 }
 
+"How to refund."
 input ApiShopsOrdersRefundRequestInput {
     "`true`: don't contact PayPal, just record that the seller refunded it themselves."
     record: Boolean!
@@ -1143,6 +1567,7 @@ input CreateRefundorderInput {
     "OneThing's order id (`Order.id`)."
     orderId: String!
     contentType: String!
+    "Optional. `record: true` records a refund made in PayPal."
     body: ApiShopsOrdersRefundRequestInput!
     xAdminToken: String!
 }
@@ -1209,13 +1634,14 @@ input GetAgentProductInput {
 
 input CreateCallmcpInput {
     contentType: String!
+    "A JSON-RPC 2.0 request or batch."
     body: String!
     xAdminToken: String!
 }
 
 input ListMyShopsInput {
     "Only shops with this status, e.g. `live` for a public catalog."
-    status: Status!
+    status: Status5!
     xAdminToken: String!
 }
 

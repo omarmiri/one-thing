@@ -2,6 +2,8 @@
 
 Source: /#/typescript/x-redirect/JTI0bSUyRkFwaSUyNTIwU2hvcHMlMjUyME9yZGVycyUyNTIwU2hpcCUyNTIwUmVzcG9uc2U
 
+The order is marked shipped.
+
 
 # Interface Name
 
@@ -12,7 +14,7 @@ Source: /#/typescript/x-redirect/JTI0bSUyRkFwaSUyNTIwU2hvcHMlMjUyME9yZGVycyUyNTI
 
 | Name | Type | Tags | Description |
 |  --- | --- | --- | --- |
-| `ok` | `boolean` | Required | - |
+| `ok` | `boolean` | Required | Always `true`. |
 | `synced` | `boolean` | Required | Whether PayPal accepted the tracking number. |
 
 
@@ -22,8 +24,8 @@ Source: /#/typescript/x-redirect/JTI0bSUyRkFwaSUyNTIwU2hvcHMlMjUyME9yZGVycyUyNTI
 import { ApiShopsOrdersShipResponse } from 'one-thing-sdk';
 
 const apiShopsOrdersShipResponse: ApiShopsOrdersShipResponse = {
-  ok: false,
-  synced: false,
+  ok: true,
+  synced: true,
 };
 ```
 

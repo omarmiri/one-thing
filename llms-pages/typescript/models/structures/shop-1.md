@@ -2,6 +2,8 @@
 
 Source: /#/typescript/x-redirect/JTI0bSUyRlNob3Ax
 
+The shop the order belongs to.
+
 
 # Interface Name
 
@@ -12,9 +14,9 @@ Source: /#/typescript/x-redirect/JTI0bSUyRlNob3Ax
 
 | Name | Type | Tags | Description |
 |  --- | --- | --- | --- |
-| `slug` | `string \| undefined` | Optional | - |
-| `name` | `string \| undefined` | Optional | - |
-| `url` | `string \| undefined` | Optional | - |
+| `slug` | `string \| undefined` | Optional | The shop's link name. |
+| `name` | `string \| undefined` | Optional | The product's name. |
+| `url` | `string \| undefined` | Optional | The shop page. |
 
 
 # Example
@@ -23,9 +25,9 @@ Source: /#/typescript/x-redirect/JTI0bSUyRlNob3Ax
 import { Shop1 } from 'one-thing-sdk';
 
 const shop1: Shop1 = {
-  slug: 'slug2',
-  name: 'name4',
-  url: 'url8',
+  slug: 'vintageskates',
+  name: 'Vintage Cream and Red Roller Skates',
+  url: 'https://one-thing-ash0.onrender.com/vintageskates',
 };
 ```
 

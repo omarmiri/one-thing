@@ -2,6 +2,8 @@
 
 Source: /#/http/x-redirect/JTI0bSUyRkFwaSUyNTIwT3JkZXJzJTI1MjBSZXNwb25zZQ
 
+The PayPal order to approve.
+
 
 # Fields
 
@@ -14,7 +16,7 @@ Source: /#/http/x-redirect/JTI0bSUyRkFwaSUyNTIwT3JkZXJzJTI1MjBSZXNwb25zZQ
 
 ```json
 {
-  "id": "id6"
+  "id": "5O190127TN364715T"
 }
 ```
 

@@ -33,7 +33,7 @@ GET /api/agent/shops/{slug}
 
 ```bash
 curl -X GET -G \
-  --url 'https://one-thing-ash0.onrender.com/api/agent/shops/raptorrush'  \
+  --url 'https://one-thing-ash0.onrender.com/api/agent/shops/vintageskates'  \
   -H 'Accept: application/json' \
   -d 'agent=ChatGPT' \
   -d 'view=json'
@@ -132,7 +132,7 @@ curl -X GET -G \
 
 | HTTP Status Code | Error Description | Exception Class |
 |  --- | --- | --- |
-| 404 | No live shop with that link name. | [`Error_ErrorException`](/llms-pages/http/models/exceptions/error-error.md) |
+| 404 | No live shop with that link name. | [`ErrorResponse_ErrorException`](/llms-pages/http/models/exceptions/error-response-error.md) |
 
 
 

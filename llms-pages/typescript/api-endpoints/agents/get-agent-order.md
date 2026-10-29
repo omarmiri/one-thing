@@ -61,7 +61,7 @@ try {
     console.log(error.headers);
     // Extracting response error body of type `string | Stream`.
     console.log(error.body);
-    if (error instanceof CustomError) {
+    if (error instanceof ErrorResponseError) {
       console.log(error.result);
     }
   }
@@ -96,7 +96,7 @@ try {
 
 | HTTP Status Code | Error Description | Exception Class |
 |  --- | --- | --- |
-| 404 | No order with that id. | [`CustomError`](/llms-pages/typescript/models/exceptions/error.md) |
+| 404 | No order with that id. | [`ErrorResponseError`](/llms-pages/typescript/models/exceptions/error-response.md) |
 
 
 

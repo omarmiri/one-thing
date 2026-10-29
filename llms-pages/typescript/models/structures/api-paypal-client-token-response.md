@@ -2,6 +2,8 @@
 
 Source: /#/typescript/x-redirect/JTI0bSUyRkFwaSUyNTIwUGF5cGFsJTI1MjBDbGllbnQlMjUyMFRva2VuJTI1MjBSZXNwb25zZQ
 
+The client token.
+
 
 # Interface Name
 
@@ -21,7 +23,7 @@ Source: /#/typescript/x-redirect/JTI0bSUyRkFwaSUyNTIwUGF5cGFsJTI1MjBDbGllbnQlMjU
 import { ApiPaypalClientTokenResponse } from 'one-thing-sdk';
 
 const apiPaypalClientTokenResponse: ApiPaypalClientTokenResponse = {
-  clientToken: 'clientToken6',
+  clientToken: 'eyJraWQiOiJFWEFNUExFIn0.example.client-token',
 };
 ```
 

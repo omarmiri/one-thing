@@ -2,6 +2,8 @@
 
 Source: /#/typescript/x-redirect/JTI0bSUyRkFwaSUyNTIwU2hvcHMlMjUyME9yZGVycyUyNTIwU2hpcCUyNTIwUmVxdWVzdA
 
+The shipment's tracking.
+
 
 # Interface Name
 
@@ -12,9 +14,9 @@ Source: /#/typescript/x-redirect/JTI0bSUyRkFwaSUyNTIwU2hvcHMlMjUyME9yZGVycyUyNTI
 
 | Name | Type | Tags | Description |
 |  --- | --- | --- | --- |
-| `carrier` | [`Carrier`](/llms-pages/typescript/models/enumerations/carrier.md) | Required | - |
+| `carrier` | [`Carrier`](/llms-pages/typescript/models/enumerations/carrier.md) | Required | The carrier. `OTHER` needs `carrierName`. |
 | `carrierName` | `string \| undefined` | Optional | Required when `carrier` is `OTHER`.<br><br>**Constraints**: *Maximum Length*: `60` |
-| `trackingNumber` | `string` | Required | **Constraints**: *Minimum Length*: `4`, *Maximum Length*: `64` |
+| `trackingNumber` | `string` | Required | The carrier's tracking number.<br><br>**Constraints**: *Minimum Length*: `4`, *Maximum Length*: `64` |
 
 
 # Example
@@ -23,9 +25,9 @@ Source: /#/typescript/x-redirect/JTI0bSUyRkFwaSUyNTIwU2hvcHMlMjUyME9yZGVycyUyNTI
 import { ApiShopsOrdersShipRequest, Carrier } from 'one-thing-sdk';
 
 const apiShopsOrdersShipRequest: ApiShopsOrdersShipRequest = {
-  carrier: Carrier.Dhl,
-  trackingNumber: 'trackingNumber4',
-  carrierName: 'carrierName4',
+  carrier: Carrier.Usps,
+  trackingNumber: '9400111899223197428490',
+  carrierName: 'Canada Post',
 };
 ```
 

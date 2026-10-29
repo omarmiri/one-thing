@@ -2,27 +2,29 @@
 
 Source: /#/http/x-redirect/JTI0bSUyRk9mZmVyMQ
 
+One store's offer.
+
 
 # Fields
 
 | Name | Type | Tags | Description |
 |  --- | --- | --- | --- |
-| `retailer` | `String` | Required | - |
-| `price` | `Decimal` | Required | - |
-| `currency` | `String` | Required | - |
-| `in_stock` | `Boolean` | Required | - |
-| `url` | `String` | Required | - |
+| `retailer` | `String` | Required | The store. |
+| `price` | `Decimal` | Required | The store's price. |
+| `currency` | `String` | Required | ISO 4217 currency code. |
+| `in_stock` | `Boolean` | Required | Whether the store has it in stock. |
+| `url` | `String` | Required | A tracked buy link at that store. |
 
 
 # Example (as JSON)
 
 ```json
 {
-  "retailer": "retailer2",
-  "price": 66.9,
-  "currency": "currency2",
-  "in_stock": false,
-  "url": "url6"
+  "retailer": "rei.com",
+  "price": 240,
+  "currency": "USD",
+  "in_stock": true,
+  "url": "https://buy.trychannel3.com/r/abc123"
 }
 ```
 

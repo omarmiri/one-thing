@@ -2,6 +2,8 @@
 
 Source: /#/python/x-redirect/JTI0bSUyRkFwaSUyNTIwU2hvcHMlMjUyMFBheXBhbCUyNTIwUmVzcG9uc2U
 
+The onboarding link.
+
 
 # Class Name
 
@@ -21,7 +23,7 @@ Source: /#/python/x-redirect/JTI0bSUyRkFwaSUyNTIwU2hvcHMlMjUyMFBheXBhbCUyNTIwUmV
 from onethingapi.models.api_shops_paypal_response import ApiShopsPaypalResponse
 
 api_shops_paypal_response = ApiShopsPaypalResponse(
-    url='url2'
+    url='https://www.sandbox.paypal.com/bizsignup/partner/entry?referralToken=EXAMPLE'
 )
 ```
 

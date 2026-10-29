@@ -77,7 +77,7 @@ Signs in with an email address or a phone number, creating the account the first
 
         Something in the request needs fixing; `error` says what.
 
-    + Attributes (Error)
+    + Attributes (ErrorResponse)
 
 
     + Body
@@ -113,7 +113,7 @@ A link for a browser, not for code: redirects to PayPal's sign-in page. PayPal s
 
         A path on this site to land on afterwards. Defaults to `/account`.
 
-        + Sample: /new
+        + Sample: /account
 
 + Response 302 
 
@@ -126,7 +126,7 @@ A link for a browser, not for code: redirects to PayPal's sign-in page. PayPal s
 
         Log in with PayPal isn't switched on for this server.
 
-    + Attributes (Error)
+    + Attributes (ErrorResponse)
 
 
 
@@ -160,6 +160,8 @@ platform's sellers, so it inherits nothing from the account: set `paypal_email` 
 + Attributes
     + source (enum[string], required)
 
+        What the shop starts from: a photo (with an optional description), a product link, or a Channel3 product to recommend.
+
         + Members
             + `photo` 
             + `link` 
@@ -173,19 +175,25 @@ platform's sellers, so it inherits nothing from the account: set `paypal_email` 
 
         `source=photo`: a sentence or two about the product. Required if there is no photo.
 
+        + Sample: Vintage cream and red quad roller skates with walnut burl heels.
     + url (string, optional)
 
         `source=link`: a product page, or your own app or game page.
 
+        + Sample: https://one-thing-ash0.onrender.com/vintageskates
     + productId (string, optional)
 
         `source=channel3`: a product id from `searchProducts`.
 
+        + Sample: ch3_7f2a9c1e
     + slug (string, optional)
 
         The link name you want. If omitted, the AI suggests one.
 
+        + Sample: vintageskates
     + type (enum[string], optional)
+
+        `physical` ships, `digital` is a file or an access code, `auto` lets the AI decide.
 
         + Default: auto
         + Members
@@ -205,21 +213,39 @@ platform's sellers, so it inherits nothing from the account: set `paypal_email` 
 
         Where buyers use an access code.
 
+        + Sample: https://www.miriogames.com/raptor-rush/
     + price (number, optional)
 
         USD. If omitted, the AI suggests a price.
 
+        + Sample: 240
     + shipping (number, optional)
 
+        Physical products: shipping per order, in USD. If omitted, the AI suggests it.
+
+        + Sample: 15
     + stock (number, optional)
 
+        How many are for sale. Leave out for unlimited.
+
+        + Sample: 7
     + ship_countries (string, optional)
+
+        Physical products: comma-separated ISO country codes to ship to. Empty means anywhere PayPal ships.
 
     + paypal_email (string, optional)
 
+        The PayPal account that gets paid, if the seller doesn't connect one with `connectPayPal`.
+
+        + Sample: seller@example.com
     + seller_email (string, optional)
 
+        Where order notifications go.
+
+        + Sample: seller@example.com
     + digital_file (string, optional)
+
+        Digital products sold as a file: the file buyers download, up to 25 MB. Can also be added later with `uploadDigitalFile`.
 
 
 + Request (multipart/form-data)
@@ -243,7 +269,7 @@ platform's sellers, so it inherits nothing from the account: set `paypal_email` 
 
         Something in the request needs fixing; `error` says what.
 
-    + Attributes (Error)
+    + Attributes (ErrorResponse)
 
 
     + Body
@@ -255,7 +281,7 @@ platform's sellers, so it inherits nothing from the account: set `paypal_email` 
 
         Taken or unavailable (a link name, or a sold-out product).
 
-    + Attributes (Error)
+    + Attributes (ErrorResponse)
 
 
     + Body
@@ -263,28 +289,28 @@ platform's sellers, so it inherits nothing from the account: set `paypal_email` 
             {"error":"Sold out."}
 
 
-+ Response 502 (application/json)
-
-        Gemini, PayPal or Channel3 failed or isn't configured.
-
-    + Attributes (Error)
-
-
-    + Body
-
-            {"error":"PayPal isn't configured on this server."}
-
-
 + Response 429 (application/json)
 
         Over this network's cap for the call (see **Limits**). Retry after `Retry-After` seconds.
 
-    + Attributes (Error)
+    + Attributes (ErrorResponse)
 
 
     + Body
 
             {"error":"Too many checkouts from your network. Try again in 7 min."}
+
+
++ Response 502 (application/json)
+
+        Gemini, PayPal or Channel3 failed or isn't configured.
+
+    + Attributes (ErrorResponse)
+
+
+    + Body
+
+            {"error":"PayPal isn't configured on this server."}
 
 
 
@@ -295,7 +321,7 @@ platform's sellers, so it inherits nothing from the account: set `paypal_email` 
 
         The shop's link name (current or former).
 
-        + Sample: raptorrush
+        + Sample: vintageskates
 
 ### getShop [GET]
 Everything about the shop, including the AI's design spec and guesses.
@@ -316,7 +342,7 @@ Everything about the shop, including the AI's design spec and guesses.
 
         No such shop, or the admin token or API key doesn't match it.
 
-    + Attributes (Error)
+    + Attributes (ErrorResponse)
 
 
     + Body
@@ -357,7 +383,7 @@ access codes, `access_url`) first.
 
         Something in the request needs fixing; `error` says what.
 
-    + Attributes (Error)
+    + Attributes (ErrorResponse)
 
 
     + Body
@@ -369,7 +395,7 @@ access codes, `access_url`) first.
 
         No such shop, or the admin token or API key doesn't match it.
 
-    + Attributes (Error)
+    + Attributes (ErrorResponse)
 
 
     + Body
@@ -385,7 +411,7 @@ access codes, `access_url`) first.
 
         The shop's link name (current or former).
 
-        + Sample: raptorrush
+        + Sample: vintageskates
 
 ### refineShopDesign [POST]
 "Make it warmer", "shorter copy", "more premium". Gemini edits the design spec.
@@ -418,7 +444,7 @@ access codes, `access_url`) first.
 
         Something in the request needs fixing; `error` says what.
 
-    + Attributes (Error)
+    + Attributes (ErrorResponse)
 
 
     + Body
@@ -430,7 +456,7 @@ access codes, `access_url`) first.
 
         No such shop, or the admin token or API key doesn't match it.
 
-    + Attributes (Error)
+    + Attributes (ErrorResponse)
 
 
     + Body
@@ -438,28 +464,28 @@ access codes, `access_url`) first.
             {"error":"Shop not found."}
 
 
-+ Response 502 (application/json)
-
-        Gemini, PayPal or Channel3 failed or isn't configured.
-
-    + Attributes (Error)
-
-
-    + Body
-
-            {"error":"PayPal isn't configured on this server."}
-
-
 + Response 429 (application/json)
 
         Over this network's cap for the call (see **Limits**). Retry after `Retry-After` seconds.
 
-    + Attributes (Error)
+    + Attributes (ErrorResponse)
 
 
     + Body
 
             {"error":"Too many checkouts from your network. Try again in 7 min."}
+
+
++ Response 502 (application/json)
+
+        Gemini, PayPal or Channel3 failed or isn't configured.
+
+    + Attributes (ErrorResponse)
+
+
+    + Body
+
+            {"error":"PayPal isn't configured on this server."}
 
 
 
@@ -470,7 +496,7 @@ access codes, `access_url`) first.
 
         The shop's link name (current or former).
 
-        + Sample: raptorrush
+        + Sample: vintageskates
 
 ### regenerateHeroArt [POST]
 Starts generation in the background. Poll `getShop` for `hero_status`.
@@ -491,7 +517,7 @@ Starts generation in the background. Poll `getShop` for `hero_status`.
 
         Something in the request needs fixing; `error` says what.
 
-    + Attributes (Error)
+    + Attributes (ErrorResponse)
 
 
     + Body
@@ -503,7 +529,7 @@ Starts generation in the background. Poll `getShop` for `hero_status`.
 
         No such shop, or the admin token or API key doesn't match it.
 
-    + Attributes (Error)
+    + Attributes (ErrorResponse)
 
 
     + Body
@@ -515,7 +541,7 @@ Starts generation in the background. Poll `getShop` for `hero_status`.
 
         Over this network's cap for the call (see **Limits**). Retry after `Retry-After` seconds.
 
-    + Attributes (Error)
+    + Attributes (ErrorResponse)
 
 
     + Body
@@ -531,7 +557,7 @@ Starts generation in the background. Poll `getShop` for `hero_status`.
 
         The shop's link name (current or former).
 
-        + Sample: raptorrush
+        + Sample: vintageskates
 
 ### uploadDigitalFile [POST]
 Uploads or replaces a digital product's file, up to 25 MB. Each paid order gets a download link for it.
@@ -562,7 +588,7 @@ Uploads or replaces a digital product's file, up to 25 MB. Each paid order gets 
 
         Something in the request needs fixing; `error` says what.
 
-    + Attributes (Error)
+    + Attributes (ErrorResponse)
 
 
     + Body
@@ -574,7 +600,7 @@ Uploads or replaces a digital product's file, up to 25 MB. Each paid order gets 
 
         No such shop, or the admin token or API key doesn't match it.
 
-    + Attributes (Error)
+    + Attributes (ErrorResponse)
 
 
     + Body
@@ -590,7 +616,7 @@ Uploads or replaces a digital product's file, up to 25 MB. Each paid order gets 
 
         The shop's link name (current or former).
 
-        + Sample: raptorrush
+        + Sample: vintageskates
 
 ### addPhotos [POST]
 Adds one or more photos after the cover. Each is turned upright, resized to at most 2000 px and stored as WebP. A shop holds up to 8 photos; buyers swipe through them on the shop page. Not for recommendations, which show the retailer's photos.
@@ -621,7 +647,7 @@ Adds one or more photos after the cover. Each is turned upright, resized to at m
 
         Something in the request needs fixing; `error` says what.
 
-    + Attributes (Error)
+    + Attributes (ErrorResponse)
 
 
     + Body
@@ -633,7 +659,7 @@ Adds one or more photos after the cover. Each is turned upright, resized to at m
 
         No such shop, or the admin token or API key doesn't match it.
 
-    + Attributes (Error)
+    + Attributes (ErrorResponse)
 
 
     + Body
@@ -676,7 +702,7 @@ Sets the photo order; the first becomes the cover. Leaving a photo out removes i
 
         Something in the request needs fixing; `error` says what.
 
-    + Attributes (Error)
+    + Attributes (ErrorResponse)
 
 
     + Body
@@ -688,7 +714,7 @@ Sets the photo order; the first becomes the cover. Leaving a photo out removes i
 
         No such shop, or the admin token or API key doesn't match it.
 
-    + Attributes (Error)
+    + Attributes (ErrorResponse)
 
 
     + Body
@@ -704,7 +730,7 @@ Sets the photo order; the first becomes the cover. Leaving a photo out removes i
 
         The shop's link name (current or former).
 
-        + Sample: raptorrush
+        + Sample: vintageskates
 
 ### checkMissingDetails [POST]
 Asks Gemini what buyers will want to choose (sizes, colours) and what they'll ask that the
@@ -730,7 +756,7 @@ Nothing changes on the shop page until the seller confirms: save options with `u
 
         Something in the request needs fixing; `error` says what.
 
-    + Attributes (Error)
+    + Attributes (ErrorResponse)
 
 
     + Body
@@ -742,7 +768,7 @@ Nothing changes on the shop page until the seller confirms: save options with `u
 
         No such shop, or the admin token or API key doesn't match it.
 
-    + Attributes (Error)
+    + Attributes (ErrorResponse)
 
 
     + Body
@@ -750,28 +776,28 @@ Nothing changes on the shop page until the seller confirms: save options with `u
             {"error":"Shop not found."}
 
 
-+ Response 502 (application/json)
-
-        Gemini, PayPal or Channel3 failed or isn't configured.
-
-    + Attributes (Error)
-
-
-    + Body
-
-            {"error":"PayPal isn't configured on this server."}
-
-
 + Response 429 (application/json)
 
         Over this network's cap for the call (see **Limits**). Retry after `Retry-After` seconds.
 
-    + Attributes (Error)
+    + Attributes (ErrorResponse)
 
 
     + Body
 
             {"error":"Too many checkouts from your network. Try again in 7 min."}
+
+
++ Response 502 (application/json)
+
+        Gemini, PayPal or Channel3 failed or isn't configured.
+
+    + Attributes (ErrorResponse)
+
+
+    + Body
+
+            {"error":"PayPal isn't configured on this server."}
 
 
 
@@ -782,7 +808,7 @@ Nothing changes on the shop page until the seller confirms: save options with `u
 
         The shop's link name (current or former).
 
-        + Sample: raptorrush
+        + Sample: vintageskates
 
 ### matchColorPhotos [POST]
 Gemini looks at the shop's photos and says which one shows each colour, so buyers who pick a colour see it. Suggests only; save the matches with `setColorPhotos`. Needs at least two photos.
@@ -824,7 +850,7 @@ Gemini looks at the shop's photos and says which one shows each colour, so buyer
 
         Something in the request needs fixing; `error` says what.
 
-    + Attributes (Error)
+    + Attributes (ErrorResponse)
 
 
     + Body
@@ -836,7 +862,7 @@ Gemini looks at the shop's photos and says which one shows each colour, so buyer
 
         No such shop, or the admin token or API key doesn't match it.
 
-    + Attributes (Error)
+    + Attributes (ErrorResponse)
 
 
     + Body
@@ -844,28 +870,28 @@ Gemini looks at the shop's photos and says which one shows each colour, so buyer
             {"error":"Shop not found."}
 
 
-+ Response 502 (application/json)
-
-        Gemini, PayPal or Channel3 failed or isn't configured.
-
-    + Attributes (Error)
-
-
-    + Body
-
-            {"error":"PayPal isn't configured on this server."}
-
-
 + Response 429 (application/json)
 
         Over this network's cap for the call (see **Limits**). Retry after `Retry-After` seconds.
 
-    + Attributes (Error)
+    + Attributes (ErrorResponse)
 
 
     + Body
 
             {"error":"Too many checkouts from your network. Try again in 7 min."}
+
+
++ Response 502 (application/json)
+
+        Gemini, PayPal or Channel3 failed or isn't configured.
+
+    + Attributes (ErrorResponse)
+
+
+    + Body
+
+            {"error":"PayPal isn't configured on this server."}
 
 
 
@@ -876,7 +902,7 @@ Gemini looks at the shop's photos and says which one shows each colour, so buyer
 
         The shop's link name (current or former).
 
-        + Sample: raptorrush
+        + Sample: vintageskates
 
 ### setColorPhotos [PUT]
 Saves which photo shows each colour, and nothing else about the shop. Only colours already saved in the shop's options change; `null` clears a colour's photo. A photo id that isn't one of the shop's photos is ignored.
@@ -912,7 +938,7 @@ Saves which photo shows each colour, and nothing else about the shop. Only colou
 
         Something in the request needs fixing; `error` says what.
 
-    + Attributes (Error)
+    + Attributes (ErrorResponse)
 
 
     + Body
@@ -924,7 +950,7 @@ Saves which photo shows each colour, and nothing else about the shop. Only colou
 
         No such shop, or the admin token or API key doesn't match it.
 
-    + Attributes (Error)
+    + Attributes (ErrorResponse)
 
 
     + Body
@@ -940,7 +966,7 @@ Saves which photo shows each colour, and nothing else about the shop. Only colou
 
         The shop's link name (current or former).
 
-        + Sample: raptorrush
+        + Sample: vintageskates
 
 ### connectPayPal [POST]
 Starts PayPal's seller onboarding (Partner Referrals). Send the seller's browser to the
@@ -982,7 +1008,7 @@ URL's origin must be one registered on the key.
 
         No such shop, or the admin token or API key doesn't match it.
 
-    + Attributes (Error)
+    + Attributes (ErrorResponse)
 
 
     + Body
@@ -994,7 +1020,7 @@ URL's origin must be one registered on the key.
 
         Gemini, PayPal or Channel3 failed or isn't configured.
 
-    + Attributes (Error)
+    + Attributes (ErrorResponse)
 
 
     + Body
@@ -1006,7 +1032,7 @@ URL's origin must be one registered on the key.
 
         Gemini, PayPal or Channel3 failed or isn't configured.
 
-    + Attributes (Error)
+    + Attributes (ErrorResponse)
 
 
     + Body
@@ -1033,7 +1059,7 @@ Asks PayPal where the seller's connection stands and saves it on the shop. Also 
 
         No such shop, or the admin token or API key doesn't match it.
 
-    + Attributes (Error)
+    + Attributes (ErrorResponse)
 
 
     + Body
@@ -1045,7 +1071,7 @@ Asks PayPal where the seller's connection stands and saves it on the shop. Also 
 
         Gemini, PayPal or Channel3 failed or isn't configured.
 
-    + Attributes (Error)
+    + Attributes (ErrorResponse)
 
 
     + Body
@@ -1057,7 +1083,7 @@ Asks PayPal where the seller's connection stands and saves it on the shop. Also 
 
         Gemini, PayPal or Channel3 failed or isn't configured.
 
-    + Attributes (Error)
+    + Attributes (ErrorResponse)
 
 
     + Body
@@ -1084,7 +1110,7 @@ Forgets the connected account. Sales go back to the shop's `paypal_email`.
 
         No such shop, or the admin token or API key doesn't match it.
 
-    + Attributes (Error)
+    + Attributes (ErrorResponse)
 
 
     + Body
@@ -1136,7 +1162,7 @@ Searches 100M+ products from 25k+ stores through Channel3. Pass a result's `id` 
 
         What to look for, in plain words.
 
-        + Sample: gifts for trail runners under $60
+        + Sample: trail running vest
 
 + Response 200 (application/json)
 
@@ -1154,7 +1180,7 @@ Searches 100M+ products from 25k+ stores through Channel3. Pass a result's `id` 
 
         Gemini, PayPal or Channel3 failed or isn't configured.
 
-    + Attributes (Error)
+    + Attributes (ErrorResponse)
 
 
     + Body
@@ -1166,7 +1192,7 @@ Searches 100M+ products from 25k+ stores through Channel3. Pass a result's `id` 
 
         Gemini, PayPal or Channel3 failed or isn't configured.
 
-    + Attributes (Error)
+    + Attributes (ErrorResponse)
 
 
     + Body
@@ -1203,7 +1229,7 @@ Shop pages call this before showing the PayPal button.
 
         Gemini, PayPal or Channel3 failed or isn't configured.
 
-    + Attributes (Error)
+    + Attributes (ErrorResponse)
 
 
     + Body
@@ -1215,7 +1241,7 @@ Shop pages call this before showing the PayPal button.
 
         Gemini, PayPal or Channel3 failed or isn't configured.
 
-    + Attributes (Error)
+    + Attributes (ErrorResponse)
 
 
     + Body
@@ -1260,7 +1286,7 @@ If the shop has buyer `options`, send one value for each. A sold-out combination
 
         Something in the request needs fixing; `error` says what.
 
-    + Attributes (Error)
+    + Attributes (ErrorResponse)
 
 
     + Body
@@ -1272,7 +1298,7 @@ If the shop has buyer `options`, send one value for each. A sold-out combination
 
         No such shop, or the admin token or API key doesn't match it.
 
-    + Attributes (Error)
+    + Attributes (ErrorResponse)
 
 
     + Body
@@ -1284,7 +1310,7 @@ If the shop has buyer `options`, send one value for each. A sold-out combination
 
         Taken or unavailable (a link name, or a sold-out product).
 
-    + Attributes (Error)
+    + Attributes (ErrorResponse)
 
 
     + Body
@@ -1292,11 +1318,23 @@ If the shop has buyer `options`, send one value for each. A sold-out combination
             {"error":"Sold out."}
 
 
++ Response 429 (application/json)
+
+        Over this network's cap for the call (see **Limits**). Retry after `Retry-After` seconds.
+
+    + Attributes (ErrorResponse)
+
+
+    + Body
+
+            {"error":"Too many checkouts from your network. Try again in 7 min."}
+
+
 + Response 502 (application/json)
 
         Gemini, PayPal or Channel3 failed or isn't configured.
 
-    + Attributes (Error)
+    + Attributes (ErrorResponse)
 
 
     + Body
@@ -1308,24 +1346,12 @@ If the shop has buyer `options`, send one value for each. A sold-out combination
 
         Gemini, PayPal or Channel3 failed or isn't configured.
 
-    + Attributes (Error)
+    + Attributes (ErrorResponse)
 
 
     + Body
 
             {"error":"PayPal isn't configured on this server."}
-
-
-+ Response 429 (application/json)
-
-        Over this network's cap for the call (see **Limits**). Retry after `Retry-After` seconds.
-
-    + Attributes (Error)
-
-
-    + Body
-
-            {"error":"Too many checkouts from your network. Try again in 7 min."}
 
 
 
@@ -1358,7 +1384,7 @@ Safe to call repeatedly: before approval it answers 409, so a page can poll it w
 
         Something in the request needs fixing; `error` says what.
 
-    + Attributes (Error)
+    + Attributes (ErrorResponse)
 
 
     + Body
@@ -1370,7 +1396,7 @@ Safe to call repeatedly: before approval it answers 409, so a page can poll it w
 
         No such shop, or the admin token or API key doesn't match it.
 
-    + Attributes (Error)
+    + Attributes (ErrorResponse)
 
 
     + Body
@@ -1390,7 +1416,7 @@ Safe to call repeatedly: before approval it answers 409, so a page can poll it w
 
         The last unit (or the last of the buyer's combination) sold while they were paying, or the PayPal checkout expired before they paid. The payment isn't captured, so the buyer isn't charged.
 
-    + Attributes (Error)
+    + Attributes (ErrorResponse)
 
 
 
@@ -1398,7 +1424,7 @@ Safe to call repeatedly: before approval it answers 409, so a page can poll it w
 
         The buyer's funding source was declined (`INSTRUMENT_DECLINED`); they can try another.
 
-    + Attributes (Error)
+    + Attributes (ErrorResponse)
 
 
 
@@ -1406,7 +1432,7 @@ Safe to call repeatedly: before approval it answers 409, so a page can poll it w
 
         Gemini, PayPal or Channel3 failed or isn't configured.
 
-    + Attributes (Error)
+    + Attributes (ErrorResponse)
 
 
     + Body
@@ -1465,7 +1491,7 @@ The seller's orders, fulfilment and PayPal webhook log.
 
         The shop's link name (current or former).
 
-        + Sample: raptorrush
+        + Sample: vintageskates
 
 ### listOrders [GET]
 Newest first. Checkouts that were never approved are left out.
@@ -1486,7 +1512,7 @@ Newest first. Checkouts that were never approved are left out.
 
         No such shop, or the admin token or API key doesn't match it.
 
-    + Attributes (Error)
+    + Attributes (ErrorResponse)
 
 
     + Body
@@ -1502,7 +1528,7 @@ Newest first. Checkouts that were never approved are left out.
 
         The shop's link name (current or former).
 
-        + Sample: raptorrush
+        + Sample: vintageskates
     + orderId (string, required)
 
         OneThing's order id (`Order.id`).
@@ -1541,7 +1567,7 @@ Saves the tracking number and pushes it to PayPal, so the buyer sees it in PayPa
 
         Something in the request needs fixing; `error` says what.
 
-    + Attributes (Error)
+    + Attributes (ErrorResponse)
 
 
     + Body
@@ -1553,7 +1579,7 @@ Saves the tracking number and pushes it to PayPal, so the buyer sees it in PayPa
 
         No such shop, or the admin token or API key doesn't match it.
 
-    + Attributes (Error)
+    + Attributes (ErrorResponse)
 
 
     + Body
@@ -1569,7 +1595,7 @@ Saves the tracking number and pushes it to PayPal, so the buyer sees it in PayPa
 
         The shop's link name (current or former).
 
-        + Sample: raptorrush
+        + Sample: vintageskates
     + orderId (string, required)
 
         OneThing's order id (`Order.id`).
@@ -1605,7 +1631,7 @@ Refunds the whole payment through PayPal and marks the order `refunded`. When Pa
 
         No such shop or order, or the token doesn't match the shop.
 
-    + Attributes (Error)
+    + Attributes (ErrorResponse)
 
 
     + Body
@@ -1633,7 +1659,7 @@ Refunds the whole payment through PayPal and marks the order `refunded`. When Pa
 
         The shop's link name (current or former).
 
-        + Sample: raptorrush
+        + Sample: vintageskates
 
 ### listWebhookEvents [GET]
 The last 50 PayPal webhook deliveries about this shop's orders, with signature results.
@@ -1654,7 +1680,7 @@ The last 50 PayPal webhook deliveries about this shop's orders, with signature r
 
         No such shop, or the admin token or API key doesn't match it.
 
-    + Attributes (Error)
+    + Attributes (ErrorResponse)
 
 
     + Body
@@ -1693,6 +1719,10 @@ A paid digital order's private link. Works 5 times within 14 days.
 
     + Attributes (string)
 
+
+    + Body
+
+            This download link has expired.
 
 
 
@@ -1755,6 +1785,10 @@ The `pay_url` an agent gives the buyer. It redirects to PayPal's payment page fo
     + Attributes (string)
 
 
+    + Body
+
+            Order not found.
+
 
 
 ## Api Agent Shops [/api/agent/shops{?q,limit}]
@@ -1794,7 +1828,7 @@ The gallery's live shops for a query: shops matching more of its words first, ne
 
         The shop's link name (current or former).
 
-        + Sample: raptorrush
+        + Sample: vintageskates
 
 ### orderByLink [GET]
 Orders one unit with a GET: the MCP `create_order` tool for AI assistants that can only
@@ -1851,7 +1885,7 @@ or unknown.
 
         A missing or unknown option value, or sold out. `error` names the valid values.
 
-    + Attributes (Error)
+    + Attributes (ErrorResponse)
 
 
     + Body
@@ -1863,7 +1897,7 @@ or unknown.
 
         A known crawler or link previewer. They don't place orders.
 
-    + Attributes (Error)
+    + Attributes (ErrorResponse)
 
 
     + Body
@@ -1875,7 +1909,7 @@ or unknown.
 
         No live shop with that link name.
 
-    + Attributes (Error)
+    + Attributes (ErrorResponse)
 
 
     + Body
@@ -1887,7 +1921,7 @@ or unknown.
 
         Over this network's cap for the call (see **Limits**). Retry after `Retry-After` seconds.
 
-    + Attributes (Error)
+    + Attributes (ErrorResponse)
 
 
     + Body
@@ -1937,7 +1971,7 @@ Where an order stands and, once paid, what the buyer got: the access code, the d
 
         No order with that id.
 
-    + Attributes (Error)
+    + Attributes (ErrorResponse)
 
 
 
@@ -1949,7 +1983,7 @@ Where an order stands and, once paid, what the buyer got: the access code, the d
 
         The shop's link name (current or former).
 
-        + Sample: raptorrush
+        + Sample: vintageskates
 
 ### getAgentProduct [GET]
 Everything an AI shopping agent needs to describe the product and decide to buy it: price, shipping, delivery, availability, options, images and FAQ. Public. Buying goes through the MCP server named in `mcp_server`, or the `order_url` links. Shop pages also carry the same facts as schema.org `Product` JSON-LD. A person clicking the link in a browser (`Sec-Fetch-User: ?1`) is redirected instead; known assistants and headless browsers always get JSON. It goes to the shop page, unless the link has `?view=json`.
@@ -1991,7 +2025,7 @@ Everything an AI shopping agent needs to describe the product and decide to buy 
 
         No live shop with that link name.
 
-    + Attributes (Error)
+    + Attributes (ErrorResponse)
 
 
 
@@ -2123,7 +2157,7 @@ Every shop the API key's account owns, newest first, with what a catalog page ne
 
         No API key, or it's wrong or revoked.
 
-    + Attributes (Error)
+    + Attributes (ErrorResponse)
 
 
 
@@ -2131,271 +2165,283 @@ Every shop the API key's account owns, newest first, with what a catalog page ne
 
 # Data Structures
 
-## Error (object)
-
+## ErrorResponse (object)
+An error reply.
 
 ### Properties
-+ `error` (string, required) - A sentence you can show to a person.
-+ `field` (string, optional) - The form field at fault, when there is one.
-+ `detail` (string, optional) - The upstream service's own message, for debugging.
++ `error`: `Order not found.` (string, required) - A sentence you can show to a person.
++ `field`: `price` (string, optional) - The form field at fault, when there is one.
++ `detail`: `INSTRUMENT_DECLINED` (string, optional) - The upstream service's own message, for debugging.
 
 
 ## CreateShopForm (object)
-
+What to make a shop from. Only `source` is required; the AI guesses the rest and the seller corrects it with `updateShop`.
 
 ### Properties
-+ `source` (enum[string], required) 
++ `source` (enum[string], required) - What the shop starts from: a photo (with an optional description), a product link, or a Channel3 product to recommend.
     + `photo`
     + `link`
     + `channel3`
 + `photo` (string, optional) - `source=photo`: the product photo, up to 8 MB.
-+ `description` (string, optional) - `source=photo`: a sentence or two about the product. Required if there is no photo.
-+ `url` (string, optional) - `source=link`: a product page, or your own app or game page.
-+ `productId` (string, optional) - `source=channel3`: a product id from `searchProducts`.
-+ `slug` (string, optional) - The link name you want. If omitted, the AI suggests one.
-+ `type` (enum[string], optional) 
++ `description`: `Vintage cream and red quad roller skates with walnut burl heels.` (string, optional) - `source=photo`: a sentence or two about the product. Required if there is no photo.
++ `url`: `https://one-thing-ash0.onrender.com/vintageskates` (string, optional) - `source=link`: a product page, or your own app or game page.
++ `productId`: `ch3_7f2a9c1e` (string, optional) - `source=channel3`: a product id from `searchProducts`.
++ `slug`: `vintageskates` (string, optional) - The link name you want. If omitted, the AI suggests one.
++ `type` (enum[string], optional) - `physical` ships, `digital` is a file or an access code, `auto` lets the AI decide.
     + `auto`
     + `physical`
     + `digital`
 + `delivery` (enum[string], optional) - For digital products. If omitted, the AI guesses.
     + `file`
     + `access_code`
-+ `access_url` (string, optional) - Where buyers use an access code.
-+ `price` (number, optional) - USD. If omitted, the AI suggests a price.
-+ `shipping` (number, optional) 
-+ `stock` (number, optional) 
-+ `ship_countries`: `US` (string, optional) 
-+ `paypal_email` (string, optional) 
-+ `seller_email` (string, optional) 
-+ `digital_file` (string, optional) 
++ `access_url`: `https://www.miriogames.com/raptor-rush/` (string, optional) - Where buyers use an access code.
++ `price`: `240` (number, optional) - USD. If omitted, the AI suggests a price.
++ `shipping`: `15` (number, optional) - Physical products: shipping per order, in USD. If omitted, the AI suggests it.
++ `stock`: `7` (number, optional) - How many are for sale. Leave out for unlimited.
++ `ship_countries`: `US` (string, optional) - Physical products: comma-separated ISO country codes to ship to. Empty means anywhere PayPal ships.
++ `paypal_email`: `seller@example.com` (string, optional) - The PayPal account that gets paid, if the seller doesn't connect one with `connectPayPal`.
++ `seller_email`: `seller@example.com` (string, optional) - Where order notifications go.
++ `digital_file` (string, optional) - Digital products sold as a file: the file buyers download, up to 25 MB. Can also be added later with `uploadDigitalFile`.
 
 
 ## CreatedShop (object)
-
+The new draft shop and the credentials to manage it.
 
 ### Properties
-+ `slug`: `dragonflight` (string, required) 
-+ `token` (string, required) - The admin token. Shown once; store it.
-+ `manageUrl` (string, required) - The seller's private manage page (contains the token).
++ `slug`: `dragonflight` (string, required) - The shop's link name: the page is `https://<host>/<slug>`.
++ `token`: `3fJ9xQm2LwP8vR1tZk7cN4bY6dHs0aEu` (string, required) - The admin token. Shown once; store it.
++ `manageUrl`: `/manage/vintageskates?token=3fJ9xQm2LwP8vR1tZk7cN4bY6dHs0aEu` (string, required) - The seller's private manage page (contains the token).
 
 
 ## ShopUpdate (object)
-
+The fields to change. Anything left out stays as it is.
 
 ### Properties
-+ `slug` (string, optional) 
-+ `status` (enum[string], optional) 
++ `slug`: `vintageskates` (string, optional) - A new link name. The old one keeps redirecting.
++ `status` (enum[string], optional) - `live` publishes the shop; `draft` takes it down.
     + `draft`
     + `live`
 + `product_type` (enum[string], optional) - `referral` only for shops created from Channel3.
     + `physical`
     + `digital`
     + `referral`
-+ `price` (number, optional) 
-+ `shipping` (number, optional) 
-+ `stock` (number, optional, nullable) 
-+ `ship_countries` (string, optional, nullable) 
-+ `delivery` (enum[string], optional) 
++ `price`: `240` (number, optional) - The price in USD.
++ `shipping`: `15` (number, optional) - Shipping per order, in USD.
++ `stock`: `7` (number, optional, nullable) - How many are for sale; null for unlimited.
++ `ship_countries`: `US,CA` (string, optional, nullable) - Comma-separated ISO country codes; null or empty means anywhere PayPal ships.
++ `delivery` (enum[string], optional) - Digital products: `file` or `access_code`.
     + `file`
     + `access_code`
-+ `access_url` (string, optional, nullable) 
-+ `paypal_email` (string, optional, nullable) 
-+ `seller_email` (string, optional, nullable) 
-+ `zapier_hook_url` (string, optional, nullable) 
-+ `in_gallery` (boolean, optional) - Feature the shop at `/gallery` while it's live. Off by default.
++ `access_url`: `https://www.miriogames.com/raptor-rush/` (string, optional, nullable) - Access-code products: where buyers enter their code.
++ `paypal_email`: `seller@example.com` (string, optional, nullable) - The PayPal account paid when no account is connected.
++ `seller_email`: `seller@example.com` (string, optional, nullable) - Where order notifications go.
++ `zapier_hook_url`: `https://hooks.zapier.com/hooks/catch/123456/abcdef/` (string, optional, nullable) - A Zapier Catch Hook for order events; null removes it.
++ `in_gallery`: `true` (boolean, optional) - Feature the shop at `/gallery` while it's live. Off by default.
 + `options` (array[ShopOption], optional) - What the buyer picks (physical products only), replacing the current options; `[]` removes them. With options, stock is counted per combination in `option_stock` and the shop's own `stock` is cleared. At most 60 combinations.
 + `option_stock`: `{"M / Black":4,"L / Black":0}` (number, optional) - Stock per combination, keyed by its values in option order joined with ` / ` (e.g. `M / Black`). A missing key or `null` means unlimited; `0` is sold out.
 + `facts` (array[Fact], optional) - Answers to the "buyers will ask" questions in `suggestions.missingFacts`. Each becomes a product detail on the page (replacing one with the same label) and drops off the list.
 
 
 ## Shop (object)
-
+A shop, as its seller sees it.
 
 ### Properties
-+ `id` (string, required) 
-+ `slug` (string, required) 
-+ `status` (enum[string], required) 
++ `id`: `shp_8Hc2LmQ4` (string, required) - OneThing's internal shop id.
++ `slug`: `vintageskates` (string, required) - The shop's link name.
++ `status` (enum[string], required) - `draft` until the seller goes live; only `live` shops take orders.
     + `draft`
     + `live`
-+ `product_type` (enum[string], required) 
++ `product_type` (enum[string], required) - `physical` ships, `digital` downloads or unlocks, `referral` recommends a Channel3 product.
     + `physical`
     + `digital`
     + `referral`
-+ `price_cents` (number, required) 
-+ `currency`: `USD` (string, required) 
-+ `shipping_cents` (number, optional) 
-+ `ship_countries` (string, optional, nullable) 
-+ `stock` (number, optional, nullable) 
-+ `delivery` (enum[string], optional) 
++ `price_cents`: `24000` (number, required) - The price in cents.
++ `currency`: `USD` (string, required) - ISO 4217 currency code.
++ `shipping_cents`: `1500` (number, optional) - Shipping per order, in cents.
++ `ship_countries`: `US,CA` (string, optional, nullable) - Comma-separated ISO country codes; null or empty means anywhere PayPal ships.
++ `stock`: `7` (number, optional, nullable) - How many are left; null for unlimited. With options, see `option_stock`.
++ `delivery` (enum[string], optional) - Digital products: `file` (a download) or `access_code` (a code that unlocks an app or game).
     + `file`
     + `access_code`
-+ `access_url` (string, optional, nullable) 
-+ `paypal_email` (string, optional, nullable) 
-+ `seller_email` (string, optional, nullable) 
-+ `paypal_merchant_id` (string, optional, nullable) - The connected PayPal account (`connectPayPal`). Sales go here when it can receive payments.
-+ `paypal_status` (PayPalStatus, optional, nullable) 
-+ `zapier_hook_url` (string, optional, nullable) 
-+ `in_gallery` (boolean, optional) 
-+ `account_id` (string, optional, nullable) - The seller account that owns the shop, if it was made while signed in.
-+ `options` (array[ShopOption], optional) 
++ `access_url`: `https://www.miriogames.com/raptor-rush/` (string, optional, nullable) - Access-code products: where buyers enter their code.
++ `paypal_email`: `seller@example.com` (string, optional, nullable) - The PayPal account paid when no account is connected.
++ `seller_email`: `seller@example.com` (string, optional, nullable) - Where order notifications go.
++ `paypal_merchant_id`: `7MZJ4QXN8K2LA` (string, optional, nullable) - The connected PayPal account (`connectPayPal`). Sales go here when it can receive payments.
++ `paypal_status` (PayPalStatus, optional, nullable) - What PayPal last said about the connected account; null when none is connected.
++ `zapier_hook_url`: `https://hooks.zapier.com/hooks/catch/123456/abcdef/` (string, optional, nullable) - A Zapier Catch Hook that gets an `OrderEvent` for each paid, shipped or refunded order.
++ `in_gallery`: `true` (boolean, optional) - Whether the shop is featured at `/gallery` while live.
++ `account_id`: `acc_Vq3nN8cT0bLx2YwE` (string, optional, nullable) - The seller account that owns the shop, if it was made while signed in.
++ `options` (array[ShopOption], optional) - What the buyer picks, such as size or colour.
 + `option_stock`: `{"M / Black":4,"L / Black":0}` (number, optional) - Stock per combination, keyed by its values in option order joined with ` / ` (e.g. `M / Black`). A missing key or `null` means unlimited; `0` is sold out.
-+ `suggestions` (Suggestions, optional, nullable) 
-+ `photo_blob` (string, optional, nullable) - Image id for `getImage`. The cover photo.
-+ `gallery_blobs` (array[string], optional) - The other photos, in order.
-+ `hero_blob` (string, optional, nullable) 
-+ `hero_status` (enum[string], optional) 
++ `suggestions` (Suggestions, optional, nullable) - What the AI thinks buyers will pick or ask; null once handled.
++ `photo_blob`: `LFRvGuTU3D8i334X` (string, optional, nullable) - Image id for `getImage`. The cover photo.
++ `gallery_blobs`: `["zrySajNyao6_j11x","SuqcgNv64HWN8H6e"]` (array[string], optional) - The other photos, in order.
++ `hero_blob`: `Hn2Kd8sQp4LmZ0vX` (string, optional, nullable) - Image id of the AI hero art, when there is one.
++ `hero_status` (enum[string], optional) - Hero art: `pending` while generating, then `ready` or `failed`; `none` if not requested.
     + `none`
     + `pending`
     + `ready`
     + `failed`
-+ `hero_error` (string, optional, nullable) 
-+ `ai_source` (enum[string], optional) 
++ `hero_error`: `No image model on this key returned an image.` (string, optional, nullable) - Why hero art failed, when it did.
++ `ai_source` (enum[string], optional) - Who designed the page: `gemini`, or `fallback` when Gemini wasn't available and a plain template was used.
     + `gemini`
     + `fallback`
-+ `source_url` (string, optional, nullable) 
-+ `referral` (Referral, optional, nullable) 
++ `source_url`: `https://example.com/products/roller-skates` (string, optional, nullable) - The product link the shop was made from, if any.
++ `referral` (Referral, optional, nullable) - Recommendation shops: the Channel3 product; null otherwise.
 + `spec` (DesignSpec, required) - What Gemini designed. OneThing's templates render it; Gemini never writes HTML.
-+ `created_at` (string, optional) 
++ `created_at`: `2026-10-22T02:41:37Z` (string, optional) - When the shop was made.
 
 
 ## DesignSpec (object)
 What Gemini designed. OneThing's templates render it; Gemini never writes HTML.
 
 ### Properties
-+ `productType` (enum[string], required) 
++ `productType` (enum[string], required) - What the AI decided the product is.
     + `digital`
     + `physical`
-+ `productName` (string, required) 
-+ `layout` (enum[string], required) 
++ `productName`: `Vintage Cream and Red Roller Skates` (string, required) - The product's name.
++ `layout` (enum[string], required) - The page template: `bold-hero` (image first, punchy), `editorial` (magazine), `minimal` (quiet, lots of space) or `playful`.
     + `bold-hero`
     + `editorial`
     + `minimal`
     + `playful`
-+ `palette` (Palette, required) 
-+ `fonts` (Fonts, required) 
-+ `eyebrow` (string, optional) 
-+ `headline` (string, required) 
-+ `subheadline` (string, optional) 
-+ `story` (string, optional) 
-+ `bullets` (array[string], required) 
-+ `details` (array[Detail], optional) 
-+ `faq` (array[Faq], required) 
-+ `ctaLabel` (string, required) 
-+ `suggestedPriceUsd` (number, optional) 
-+ `suggestedShippingUsd` (number, optional) 
-+ `imageAlt` (string, optional) 
-+ `heroPrompt` (string, optional) 
++ `palette` (Palette, required) - The page colours, taken from the photo. Text colours are checked for contrast.
++ `fonts` (Fonts, required) - Google Fonts for the page.
++ `eyebrow`: `One pair, restored` (string, optional) - A short label above the headline.
++ `headline`: `Classic quad skates crafted with walnut burl heels` (string, required) - The page's main headline.
++ `subheadline`: `A vintage pair of skates with cream leather, bold red trim and quad wheels.` (string, optional) - A line under the headline.
++ `story`: `Each pair combines soft cream leather with distinct red accents and a sculpted walnut burl heel base.` (string, optional) - A short paragraph about the product.
++ `bullets`: `["Walnut burl heels","Restored vintage leather"]` (array[string], required) - Short selling points.
++ `details` (array[Detail], optional) - Product facts shown on the page.
++ `faq` (array[Faq], required) - Questions buyers will ask, with answers.
++ `ctaLabel`: `Buy the skates` (string, required) - The buy button's text.
++ `suggestedPriceUsd`: `240` (number, optional) - The AI's price suggestion, in USD.
++ `suggestedShippingUsd`: `15` (number, optional) - The AI's shipping suggestion, in USD.
++ `imageAlt`: `Cream leather quad roller skates with red trim` (string, optional) - Alt text for the product photo.
++ `heroPrompt`: `Cream roller skates on a sunlit boardwalk, in warm cream and red tones` (string, optional) - The prompt used to generate hero art for the page.
 
 
 ## ShopOption (object)
 Something the buyer picks, such as a size or a colour. The shop still sells one product.
 
 ### Properties
-+ `name`: `Size` (string, required) 
++ `name`: `Size` (string, required) - What the buyer is choosing.
 + `kind` (enum[string], required) - `color` shows swatches, and the photo of the picked colour.
     + `size`
     + `color`
     + `other`
-+ `values` (array[OptionValue], required) 
++ `values` (array[OptionValue], required) - The values to pick from.
 
 
 ## OptionValue (object)
-
+One value of an option.
 
 ### Properties
-+ `label`: `M` (string, required) 
-+ `hex`: `#14171a` (string, optional) 
-+ `photo` (string, optional) - Colours: the shop photo (id) that shows this colour. See `matchColorPhotos`.
++ `label`: `M` (string, required) - What the buyer sees and picks.
++ `hex`: `#14171a` (string, optional) - A colour as `#rrggbb`.
++ `photo`: `zrySajNyao6_j11x` (string, optional) - Colours: the shop photo (id) that shows this colour. See `matchColorPhotos`.
 
 
 ## Suggestions (object)
 What Gemini thinks buyers will want to choose or ask. The seller confirms; nothing is applied on its own.
 
 ### Properties
-+ `oneOfAKind` (boolean, required) - A single item (vintage, handmade), so options and stock don't apply.
-+ `options` (array[Option], required) 
-+ `missingFacts` (array[MissingFact], required) 
++ `oneOfAKind`: `false` (boolean, required) - A single item (vintage, handmade), so options and stock don't apply.
++ `options` (array[Option], required) - Options buyers will likely want to pick.
++ `missingFacts` (array[MissingFact], required) - Questions buyers will ask that the listing doesn't answer yet.
 
 
 ## PayPalStatus (object)
 What PayPal last said about a connected seller account.
 
 ### Properties
-+ `receivable` (boolean, required) - The account can receive payments.
-+ `emailConfirmed` (boolean, required) - The seller has confirmed their email with PayPal.
-+ `checkedAt` (string, required) 
++ `receivable`: `true` (boolean, required) - The account can receive payments.
++ `emailConfirmed`: `true` (boolean, required) - The seller has confirmed their email with PayPal.
++ `checkedAt`: `2026-10-22T02:41:37Z` (string, required) - When OneThing last asked PayPal.
 
 
 ## AgentProduct (object)
 A live shop as an AI agent sees it. Recommendations have `offers`; everything else has `price` and is bought with `create_order`.
 
 ### Properties
-+ `show_buyer` (string, optional) - A suggested reply to the buyer, in Markdown with the links already written as links: the product and its options to pick from, the pay link, or what they got with a receipt link. Buyers have the best experience when agents show it as written.
-+ `agent_name` (string, optional) - Who this request was credited to in the seller's stats: a recognised user agent, else the name the agent gave itself (`?agent=`, or the MCP client's name), else the user agent's first word.
-+ `shop` (string, required) - The link name, which the MCP tools take as `shop`.
-+ `url` (string, required) 
-+ `name` (string, required) 
-+ `kind` (enum[string], required) 
++ `show_buyer`: `![Vintage Cream and Red Roller Skates](https://one-thing-ash0.onrender.com/api/blobs/LFRvGuTU3D8i334X)
+**Vintage Cream and Red Roller Skates**: $240.00. Classic quad skates crafted with walnut burl heels
+![Raptor Rush: Browser Edition](https://one-thing-ash0.onrender.com/api/blobs/R9tWc3yN6bJq1zUd)
+**Raptor Rush: Browser Edition**: $2.99. Grow from Tiny Hatchling to Giant Apex Predator
+Which one?` (string, optional) - A suggested reply to the buyer, in Markdown with the links already written as links: the product and its options to pick from, the pay link, or what they got with a receipt link. Buyers have the best experience when agents show it as written.
++ `agent_name`: `Grok` (string, optional) - Who this request was credited to in the seller's stats: a recognised user agent, else the name the agent gave itself (`?agent=`, or the MCP client's name), else the user agent's first word.
++ `shop`: `vintageskates` (string, required) - The link name, which the MCP tools take as `shop`.
++ `url`: `https://one-thing-ash0.onrender.com/vintageskates` (string, required) - The shop page, where a person can buy it too.
++ `name`: `Vintage Cream and Red Roller Skates` (string, required) - The product's name.
++ `kind` (enum[string], required) - `physical` ships, `digital` downloads or unlocks with a code, `referral` is bought at another store.
     + `physical`
     + `digital`
     + `referral`
-+ `headline` (string, required) 
-+ `description` (string, required) 
-+ `highlights` (array[string], required) 
-+ `details` (array[Detail], required) 
-+ `faq` (array[Faq], required) 
-+ `images` (array[string], required) 
-+ `price` (AgentMoney, optional) 
++ `headline`: `Classic quad skates crafted with walnut burl heels` (string, required) - The shop's one-line pitch.
++ `description`: `Vintage cream and red quad roller skates with walnut burl heels.` (string, required) - What the product is, in a few sentences.
++ `highlights`: `["Walnut burl heels","Restored vintage leather"]` (array[string], required) - The product's selling points, one per line.
++ `details` (array[Detail], required) - Product facts, such as size, material or format.
++ `faq` (array[Faq], required) - Questions buyers ask, answered by the seller's page.
++ `images`: `["https://one-thing-ash0.onrender.com/api/blobs/LFRvGuTU3D8i334X"]` (array[string], required) - Photo URLs, the cover first. Show these rather than generating or searching for images.
++ `price` (AgentMoney, optional) - An amount of money, as a number and as a label.
 + `shipping` (Shipping, optional, nullable) - Physical products only.
-+ `total` (AgentMoney, optional) 
-+ `delivery`: `Shipped. PayPal collects the buyer's address at checkout.` (string, optional) 
-+ `availability`: `in_stock` (string, optional) 
++ `total` (AgentMoney, optional) - An amount of money, as a number and as a label.
++ `delivery`: `Shipped. PayPal collects the buyer's address at checkout.` (string, optional) - How the buyer gets it, in plain words.
++ `availability`: `in_stock` (string, optional) - `in_stock`, `in_stock (N left)` or `sold_out`. With options, see `variants`.
 + `options` (array[Option1], optional) - Pass one value per option to `create_order`.
-+ `variants` (array[Variant], optional) 
-+ `order_url` (string, optional) - Products without options: `orderByLink`, which orders one unit with a GET. Left out when sold out. With options, each variant has its own.
++ `variants` (array[Variant], optional) - Products with options: each combination, its stock and its order link.
++ `order_url`: `https://one-thing-ash0.onrender.com/vintageskates/buy?Size=9` (string, optional) - Products without options: `orderByLink`, which orders one unit with a GET. Left out when sold out. With options, each variant has its own.
 + `offers` (array[Offer1], optional) - Recommendations only. Bought at the retailer.
-+ `how_to_buy` (string, required) 
-+ `mcp_server` (string, optional) - The MCP server to order through (`getAgentProduct` only).
++ `how_to_buy`: `Ask the buyer which size, then open that variant's order_url and show them pay_url.` (string, required) - How to buy it, written for an agent: which tool or link to use and what to ask the buyer.
++ `mcp_server`: `https://one-thing-ash0.onrender.com/api/mcp` (string, optional) - The MCP server to order through (`getAgentProduct` only).
 
 
 ## AgentShopSummary (object)
-
+A shop in search results.
 
 ### Properties
-+ `shop` (string, required) - The link name, for `getAgentProduct` and the MCP tools.
-+ `name` (string, required) 
-+ `kind` (enum[string], required) 
++ `shop`: `vintageskates` (string, required) - The link name, for `getAgentProduct` and the MCP tools.
++ `name`: `Vintage Cream and Red Roller Skates` (string, required) - The product's name.
++ `kind` (enum[string], required) - `physical`, `digital` or `referral`.
     + `physical`
     + `digital`
     + `referral`
-+ `headline` (string, required) 
-+ `price` (string, required, nullable) - The price label, e.g. `$2.99`; null for recommendations.
-+ `image` (string, required, nullable) - The cover photo's URL (WebP; the retailer's image for a recommendation), or null when there's none.
-+ `url` (string, required) - The shop page.
++ `headline`: `Classic quad skates crafted with walnut burl heels` (string, required) - The shop's one-line pitch.
++ `price`: `$240.00` (string, required, nullable) - The price label, e.g. `$2.99`; null for recommendations.
++ `image`: `https://one-thing-ash0.onrender.com/api/blobs/LFRvGuTU3D8i334X` (string, required, nullable) - The cover photo's URL (WebP; the retailer's image for a recommendation), or null when there's none.
++ `url`: `https://one-thing-ash0.onrender.com/vintageskates` (string, required) - The shop page.
 
 
 ## AgentCreatedOrder (object)
 A new order, as `create_order` and `orderByLink` return it.
 
 ### Properties
-+ `show_buyer` (string, optional) - A suggested reply to the buyer, in Markdown with the links already written as links: the product and its options to pick from, the pay link, or what they got with a receipt link. Buyers have the best experience when agents show it as written.
-+ `agent_name` (string, optional) - Who this request was credited to in the seller's stats: a recognised user agent, else the name the agent gave itself (`?agent=`, or the MCP client's name), else the user agent's first word.
-+ `order_id` (string, required) 
-+ `status`: `awaiting_buyer_approval` (string, required) 
-+ `total` (string, required) - The total with shipping, as a label.
++ `show_buyer`: `![Vintage Cream and Red Roller Skates](https://one-thing-ash0.onrender.com/api/blobs/LFRvGuTU3D8i334X)
+**Vintage Cream and Red Roller Skates**: $240.00. Classic quad skates crafted with walnut burl heels
+![Raptor Rush: Browser Edition](https://one-thing-ash0.onrender.com/api/blobs/R9tWc3yN6bJq1zUd)
+**Raptor Rush: Browser Edition**: $2.99. Grow from Tiny Hatchling to Giant Apex Predator
+Which one?` (string, optional) - A suggested reply to the buyer, in Markdown with the links already written as links: the product and its options to pick from, the pay link, or what they got with a receipt link. Buyers have the best experience when agents show it as written.
++ `agent_name`: `Grok` (string, optional) - Who this request was credited to in the seller's stats: a recognised user agent, else the name the agent gave itself (`?agent=`, or the MCP client's name), else the user agent's first word.
++ `order_id`: `pX4kR9tVb2nQ7sLe` (string, required) - The order's id, for `get_order` and `getAgentOrder`.
++ `status`: `awaiting_buyer_approval` (string, required) - Always `awaiting_buyer_approval`: nothing is charged until the buyer approves at PayPal.
++ `total`: `$255.00` (string, required) - The total with shipping, as a label.
 + `options`: `{"Size":"M","Color":"Black"}` (string, optional) - The buyer's pick, one value per option, keyed by option name.
-+ `pay_url` (string, required) - Where the buyer pays (redirects to PayPal). Safe to show in chat.
-+ `status_url` (string, required) - `getAgentOrder` for this order.
-+ `next_step` (string, required) 
++ `pay_url`: `https://one-thing-ash0.onrender.com/o/pX4kR9tVb2nQ7sLe` (string, required) - Where the buyer pays (redirects to PayPal). Safe to show in chat.
++ `status_url`: `https://one-thing-ash0.onrender.com/o/pX4kR9tVb2nQ7sLe/status` (string, required) - `getAgentOrder` for this order.
++ `next_step`: `Show pay_url to the buyer as a link. When they say they've paid, call get_order with order_id.` (string, required) - What the agent should do next, in plain words: show `pay_url`, then check `status_url` once the buyer says they've paid.
 
 
 ## AgentOrder (object)
 An order as `get_order` and `getAgentOrder` report it.
 
 ### Properties
-+ `show_buyer` (string, optional) - A suggested reply to the buyer, in Markdown with the links already written as links: the product and its options to pick from, the pay link, or what they got with a receipt link. Buyers have the best experience when agents show it as written.
-+ `agent_name` (string, optional) - Who this request was credited to in the seller's stats: a recognised user agent, else the name the agent gave itself (`?agent=`, or the MCP client's name), else the user agent's first word.
-+ `order_id` (string, required) 
++ `show_buyer`: `![Vintage Cream and Red Roller Skates](https://one-thing-ash0.onrender.com/api/blobs/LFRvGuTU3D8i334X)
+**Vintage Cream and Red Roller Skates**: $240.00. Classic quad skates crafted with walnut burl heels
+![Raptor Rush: Browser Edition](https://one-thing-ash0.onrender.com/api/blobs/R9tWc3yN6bJq1zUd)
+**Raptor Rush: Browser Edition**: $2.99. Grow from Tiny Hatchling to Giant Apex Predator
+Which one?` (string, optional) - A suggested reply to the buyer, in Markdown with the links already written as links: the product and its options to pick from, the pay link, or what they got with a receipt link. Buyers have the best experience when agents show it as written.
++ `agent_name`: `Grok` (string, optional) - Who this request was credited to in the seller's stats: a recognised user agent, else the name the agent gave itself (`?agent=`, or the MCP client's name), else the user agent's first word.
++ `order_id`: `pX4kR9tVb2nQ7sLe` (string, required) - The order's id.
 + `status` (enum[string], required) - `declined`: PayPal declined it, nothing charged, the buyer can open `pay_url` again. `sold_out`: it sold out before the payment was captured. `expired`: the PayPal checkout expired; create a new order. `failed`: PayPal couldn't be reached; ask again.
     + `awaiting_buyer_approval`
     + `paid`
@@ -2403,632 +2449,636 @@ An order as `get_order` and `getAgentOrder` report it.
     + `sold_out`
     + `expired`
     + `failed`
-+ `product` (string, required) 
++ `product`: `Vintage Cream and Red Roller Skates` (string, required) - The product's name.
 + `options`: `{"Size":"M","Color":"Black"}` (string, optional) - The buyer's pick, one value per option, keyed by option name.
-+ `amount` (Amount, required) 
-+ `total` (string, required) - The total as a label, e.g. `$255.00`.
-+ `pay_url` (string, optional) - Unpaid orders (waiting or declined). The buyer pays here; safe to show in chat.
-+ `next_step` (string, optional) - Unpaid orders. What the agent should do next, in plain words.
-+ `paid_at` (string, optional) 
-+ `receipt_url` (string, optional) - Paid orders. The buyer's thank-you page.
-+ `delivery` (string, optional) - Paid orders. What the buyer got.
++ `amount` (Amount, required) - What the order costs, as numbers.
++ `total`: `$255.00` (string, required) - The total as a label, e.g. `$255.00`.
++ `pay_url`: `https://one-thing-ash0.onrender.com/o/pX4kR9tVb2nQ7sLe` (string, optional) - Unpaid orders (waiting or declined). The buyer pays here; safe to show in chat.
++ `next_step`: `Show pay_url to the buyer as a link. When they say they've paid, call get_order with order_id.` (string, optional) - Unpaid orders. What the agent should do next, in plain words.
++ `paid_at`: `2026-10-22T02:41:37Z` (string, optional) - Paid orders. When PayPal captured the payment.
++ `receipt_url`: `https://one-thing-ash0.onrender.com/vintageskates/thanks?order=pX4kR9tVb2nQ7sLe` (string, optional) - Paid orders. The buyer's thank-you page.
++ `delivery`: `{"type":"access_code","access_code":"K7QF-M2XP-9HTD","start_url":"https://www.miriogames.com/raptor-rush/?code=K7QF-M2XP-9HTD"}` (string, optional) - Paid orders. What the buyer got.
 
 
 ## AgentDeliveryAccessCode (object)
 A digital product unlocked with an access code.
 
 ### Properties
-+ `type`: `access_code` (string, required) 
-+ `access_code` (string, required) 
-+ `start_url` (string, optional) - The seller's app with the code filled in.
++ `type`: `access_code` (string, required) - Always `access_code`.
++ `access_code`: `K7QF-M2XP-9HTD` (string, required) - The buyer's code, which unlocks the seller's app or game.
++ `start_url`: `https://www.miriogames.com/raptor-rush/?code=K7QF-M2XP-9HTD` (string, optional) - The seller's app with the code filled in.
 
 
 ## AgentDeliveryDownload (object)
 A digital file to download.
 
 ### Properties
-+ `type`: `download` (string, required) 
-+ `download_url` (string, required) 
-+ `note` (string, optional) 
++ `type`: `download` (string, required) - Always `download`.
++ `download_url`: `https://one-thing-ash0.onrender.com/api/download/dl_4mQ8sT2vX9` (string, required) - A private link to the file. It works 5 times over 14 days.
++ `note`: `Works 5 times over 14 days.` (string, optional) - How long the link lasts and how many downloads it allows, in words.
 
 
 ## AgentDeliveryShipping (object)
 A physical product shipped to the buyer.
 
 ### Properties
-+ `type`: `shipping` (string, required) 
-+ `ship_to` (ShipTo, optional, nullable) 
-+ `fulfillment` (enum[string], required) 
++ `type`: `shipping` (string, required) - Always `shipping`.
++ `ship_to` (ShipTo, optional, nullable) - Where it ships, from the buyer's PayPal checkout. Null if PayPal didn't share it.
++ `fulfillment` (enum[string], required) - `to_ship` until the seller adds tracking, then `shipped`.
     + `to_ship`
     + `shipped`
-+ `tracking` (Tracking, optional, nullable) 
++ `tracking` (Tracking, optional, nullable) - The carrier and tracking number once shipped; null before.
 
 
 ## PlatformShop (object)
-
+A shop as a platform API key lists it.
 
 ### Properties
-+ `slug` (string, required) 
-+ `status` (enum[string], required) 
++ `slug`: `vintageskates` (string, required) - The shop's link name.
++ `status` (enum[string], required) - `draft` until the seller goes live.
     + `draft`
     + `live`
-+ `name` (string, required) 
-+ `headline` (string, optional) 
-+ `product_type` (enum[string], required) 
++ `name`: `Vintage Cream and Red Roller Skates` (string, required) - The product's name.
++ `headline`: `Classic quad skates crafted with walnut burl heels` (string, optional) - The shop's one-line pitch.
++ `product_type` (enum[string], required) - `physical`, `digital` or `referral`.
     + `physical`
     + `digital`
     + `referral`
-+ `price` (AgentMoney, required) 
-+ `url` (string, required) - The shop page buyers pay on.
-+ `cover` (string, optional, nullable) - The cover image's URL.
-+ `paypal_connected` (boolean, required) - The seller connected a PayPal account that can be paid.
-+ `sales` (number, required) - Paid orders.
-+ `created_at` (string, required) 
++ `price` (AgentMoney, required) - An amount of money, as a number and as a label.
++ `url`: `https://one-thing-ash0.onrender.com/vintageskates` (string, required) - The shop page buyers pay on.
++ `cover`: `https://one-thing-ash0.onrender.com/api/blobs/LFRvGuTU3D8i334X` (string, optional, nullable) - The cover image's URL.
++ `paypal_connected`: `true` (boolean, required) - The seller connected a PayPal account that can be paid.
++ `sales`: `12` (number, required) - Paid orders.
++ `created_at`: `2026-10-22T02:41:37Z` (string, required) - When the shop was made.
 
 
 ## AgentMoney (object)
-
+An amount of money, as a number and as a label.
 
 ### Properties
-+ `amount`: `48.5` (number, required) 
-+ `currency`: `USD` (string, required) 
-+ `label`: `$48.50` (string, optional) 
++ `amount`: `48.5` (number, required) - The amount in the currency's main unit (dollars, not cents).
++ `currency`: `USD` (string, required) - ISO 4217 currency code.
++ `label`: `$48.50` (string, optional) - The amount formatted for people.
 
 
 ## JsonRpcRequest (object)
-
+A JSON-RPC 2.0 request to the MCP server.
 
 ### Properties
-+ `jsonrpc`: `2.0` (string, required) 
-+ `id` (string, optional, nullable) - Leave out for a notification.
-+ `method` (enum[string], required) 
++ `jsonrpc`: `2.0` (string, required) - Always `2.0`.
++ `id`: `1` (string, optional, nullable) - Leave out for a notification.
++ `method` (enum[string], required) - The MCP method. `tools/call` runs a tool; `tools/list` lists them.
     + `initialize`
     + `ping`
     + `tools/list`
     + `tools/call`
     + `notifications/initialized`
-+ `params` (object, optional) - For `tools/call`: `{ name, arguments }`.
++ `params`: `{"name":"get_product","arguments":{"shop":"vintageskates"}}` (object, optional) - For `tools/call`: `{ name, arguments }`.
 
 
 ## JsonRpcResponse (object)
-
+A JSON-RPC 2.0 reply from the MCP server.
 
 ### Properties
-+ `jsonrpc`: `2.0` (string, required) 
-+ `id` (string, required, nullable) 
-+ `result` (object, optional) - For `tools/call`: `content` (the answer as JSON text), `structuredContent` (the same object) and `isError`.
-+ `error` (Error1, optional) 
++ `jsonrpc`: `2.0` (string, required) - Always `2.0`.
++ `id`: `1` (string, required, nullable) - The request's `id`.
++ `result`: `{"isError":false}` (object, optional) - For `tools/call`: `content` (the answer as JSON text), `structuredContent` (the same object) and `isError`.
++ `error` (Error, optional) - Present when the call failed.
 
 
 ## Referral (object)
 A recommended Channel3 product. Buy links are Channel3-tracked, credited to this shop.
 
 ### Properties
-+ `productId` (string, required) 
-+ `title` (string, required) 
-+ `brand` (string, optional, nullable) 
-+ `image` (string, optional, nullable) 
-+ `offers` (array[Offer], required) 
++ `productId`: `ch3_7f2a9c1e` (string, required) - Channel3's product id.
++ `title`: `Trail Running Vest 5L` (string, required) - The product's name.
++ `brand`: `Salomon` (string, optional, nullable) - The brand, when known.
++ `image`: `https://images.example.com/vest.jpg` (string, optional, nullable) - The product image's URL.
++ `offers` (array[Offer], required) - Stores that sell it, with tracked links.
 
 
 ## ProductCard (object)
-
+A Channel3 product in search results.
 
 ### Properties
-+ `id` (string, required) 
-+ `title` (string, required) 
-+ `brand` (string, optional, nullable) 
-+ `image` (string, required) 
-+ `price` (number, required) 
-+ `currency` (string, required) 
-+ `retailer` (string, required) - The store with the best offer.
-+ `retailers` (number, required) 
-+ `commission` (number, required) - Best commission rate across offers, 0–1.
++ `id`: `ch3_7f2a9c1e` (string, required) - Channel3's product id: pass it to `createShop` as `productId`.
++ `title`: `Trail Running Vest 5L` (string, required) - The product's name.
++ `brand`: `Salomon` (string, optional, nullable) - The brand, when known.
++ `image`: `https://images.example.com/vest.jpg` (string, required) - The product image's URL.
++ `price`: `240` (number, required) - The best offer's price.
++ `currency`: `USD` (string, required) - ISO 4217 currency code.
++ `retailer`: `rei.com` (string, required) - The store with the best offer.
++ `retailers`: `4` (number, required) - How many stores sell it.
++ `commission`: `0.08` (number, required) - Best commission rate across offers, 0–1.
 
 
 ## Order (object)
-
+An order, as the seller sees it.
 
 ### Properties
-+ `id` (string, required) 
-+ `paypal_order_id` (string, optional, nullable) 
-+ `status` (enum[string], required) 
++ `id`: `pX4kR9tVb2nQ7sLe` (string, required) - OneThing's order id.
++ `paypal_order_id`: `5O190127TN364715T` (string, optional, nullable) - PayPal's order id.
++ `status` (enum[string], required) - `created` until paid; `failed` if PayPal declined; `refunded` after a refund.
     + `created`
     + `paid`
     + `failed`
     + `refunded`
-+ `amount_cents` (number, required) 
-+ `shipping_cents` (number, optional) 
-+ `currency` (string, required) 
-+ `buyer_email` (string, optional, nullable) 
-+ `buyer_name` (string, optional, nullable) 
-+ `shipping_address` (string, optional, nullable) 
-+ `capture_id` (string, optional, nullable) 
-+ `fulfillment_status` (enum[string], required) 
++ `amount_cents`: `25500` (number, required) - The total charged, shipping included, in cents.
++ `shipping_cents`: `1500` (number, optional) - The shipping part of `amount_cents`.
++ `currency`: `USD` (string, required) - ISO 4217 currency code.
++ `buyer_email`: `sam@example.com` (string, optional, nullable) - From PayPal, once paid.
++ `buyer_name`: `Sam Rivera` (string, optional, nullable) - From PayPal, once paid.
++ `shipping_address`: `{"address_line_1":"1 Main St","admin_area_2":"Springfield","admin_area_1":"IL","postal_code":"62701","country_code":"US"}` (string, optional, nullable) - Physical orders: the address from PayPal checkout, by field.
++ `capture_id`: `3C679366HH908993F` (string, optional, nullable) - PayPal's capture id, once paid. Refunds use it.
++ `fulfillment_status` (enum[string], required) - `to_ship` and `shipped` for physical orders, `digital_sent` for digital ones, `none` before payment.
     + `none`
     + `to_ship`
     + `shipped`
     + `digital_sent`
-+ `carrier` (string, optional, nullable) 
-+ `tracking_number` (string, optional, nullable) 
-+ `tracking_synced` (boolean, optional) 
-+ `downloads` (number, optional) 
-+ `access_code` (string, optional, nullable) 
-+ `code_uses` (number, optional) 
-+ `code_last_used_at` (string, optional, nullable) 
++ `carrier`: `USPS` (string, optional, nullable) - Shipped orders: the carrier.
++ `tracking_number`: `9400111899223197428490` (string, optional, nullable) - Shipped orders: the tracking number.
++ `tracking_synced`: `false` (boolean, optional) - Whether PayPal accepted the tracking number.
++ `downloads`: `0` (number, optional) - How many times the buyer downloaded the file.
++ `access_code`: `K7QF-M2XP-9HTD` (string, optional, nullable) - Access-code products: the code this buyer got.
++ `code_uses`: `0` (number, optional) - How many times the access code was checked.
++ `code_last_used_at`: `2026-10-22T02:41:37Z` (string, optional, nullable) - When the access code was last checked with `verifyAccessCode`.
 + `channel` (enum[string], optional) - `agent` for orders an AI agent placed (MCP or an order link).
     + `web`
     + `agent`
 + `agent`: `Grok` (string, optional, nullable) - The agent credited with an agent order, such as `Grok`.
-+ `refund_id` (string, optional, nullable) - PayPal's refund id, once refunded through OneThing.
-+ `refunded_at` (string, optional, nullable) 
-+ `options` (string, optional, nullable) - The buyer's pick, one value per option, keyed by option name (see `Choice`).
-+ `paid_at` (string, optional, nullable) 
-+ `created_at` (string, optional) 
++ `refund_id`: `1JU08902781691411` (string, optional, nullable) - PayPal's refund id, once refunded through OneThing.
++ `refunded_at`: `2026-10-22T02:41:37Z` (string, optional, nullable) - When the order was refunded.
++ `options`: `{"Size":"9"}` (string, optional, nullable) - The buyer's pick, one value per option, keyed by option name (see `Choice`).
++ `paid_at`: `2026-10-22T02:41:37Z` (string, optional, nullable) - When PayPal captured the payment.
++ `created_at`: `2026-10-22T02:41:37Z` (string, optional) - When the order was made.
 
 
 ## WebhookEvent (object)
-
+A PayPal webhook delivery for this shop's orders.
 
 ### Properties
-+ `id` (string, required) - PayPal's event id.
-+ `event_type`: `PAYMENT.CAPTURE.COMPLETED` (string, required) 
-+ `paypal_order_id` (string, optional, nullable) 
-+ `summary`: `2.99 USD` (string, optional, nullable) 
-+ `verified` (boolean, required) - Whether PayPal confirmed the delivery's signature.
-+ `outcome`: `Confirmed: order already paid` (string, required) 
-+ `received_at` (string, required) 
++ `id`: `WH-2WR32451HC0233532-67976317FL4543714` (string, required) - PayPal's event id.
++ `event_type`: `PAYMENT.CAPTURE.COMPLETED` (string, required) - PayPal's event type.
++ `paypal_order_id`: `5O190127TN364715T` (string, optional, nullable) - The PayPal order it was about.
++ `summary`: `2.99 USD` (string, optional, nullable) - The amount, or PayPal's summary.
++ `verified`: `true` (boolean, required) - Whether PayPal confirmed the delivery's signature.
++ `outcome`: `Confirmed: order already paid` (string, required) - What OneThing did with it.
++ `received_at`: `2026-10-22T02:41:37Z` (string, required) - When it arrived.
 
 
 ## OrderEvent (object)
-
+What OneThing posts to the seller's Zapier hook.
 
 ### Properties
-+ `event` (enum[string], required) 
++ `event` (enum[string], required) - What happened.
     + `order.paid`
     + `order.shipped`
     + `order.refunded`
-+ `shop` (Shop1, required) 
-+ `order` (Order1, required) 
++ `shop` (Shop1, required) - The shop the order belongs to.
++ `order` (Order1, required) - The order.
 
 
 ## Amount (object)
-
+What the order costs, as numbers.
 
 ### Properties
-+ `item` (number, required) 
-+ `shipping` (number, required) 
-+ `total` (number, required) 
-+ `currency` (string, required) 
++ `item`: `240` (number, required) - The product's price.
++ `shipping`: `15` (number, required) - Shipping; 0 for digital products.
++ `total`: `255` (number, required) - Product plus shipping: what the buyer pays.
++ `currency`: `USD` (string, required) - ISO 4217 currency code.
 
 
 ## Api Access Verify Request (object)
-
+The code to check, and which shop it's for.
 
 ### Properties
 + `shop`: `raptorrush` (string, required) - The shop's link name.
-+ `code`: `K7QF-M2XP-9HTD` (string, required) 
++ `code`: `K7QF-M2XP-9HTD` (string, required) - The access code the buyer entered. Case and dashes don't matter.
 
 
 ## Api Access Verify Response (object)
-
+Whether the code is valid.
 
 ### Properties
-+ `valid` (boolean, required) 
-+ `product` (string, optional) - The product name, when valid.
++ `valid`: `true` (boolean, required) - True if the code belongs to a paid, unrefunded order for this shop.
++ `product`: `Vintage Cream and Red Roller Skates` (string, optional) - The product name, when valid.
 
 
 ## Api Account Signin Request (object)
-
+Who is signing in.
 
 ### Properties
 + `identifier`: `maker@example.com` (string, required) - An email address, or a phone number (spaces, dashes and brackets are ignored; keep a leading +).
 
 
 ## Api Account Signin Response (object)
-
+The signed-in account.
 
 ### Properties
-+ `id` (string, required) 
-+ `email` (string, required, nullable) - Lower-cased.
-+ `phone` (string, required, nullable) - Digits, with a leading + if one was given.
++ `id`: `acc_Vq3nN8cT0bLx2YwE` (string, required) - The account's id.
++ `email`: `maker@example.com` (string, required, nullable) - Lower-cased.
++ `phone`: `+15555550123` (string, required, nullable) - Digits, with a leading + if one was given.
 
 
 ## Api Agent Shops Response (object)
-
+The matching shops, with a reply to show the buyer.
 
 ### Properties
-+ `show_buyer` (string, required) - A suggested reply to the buyer, in Markdown: each shop's cover photo as an image, its name, price and headline, then "Which one?". Chats that block images from other sites just leave the image lines out.
-+ `shops` (array[AgentShopSummary], required) 
-+ `matched` (boolean, required) - False when nothing matched the query and `shops` is the newest gallery shops instead; `show_buyer` then starts by saying so.
-+ `mcp_server` (string, required) - The MCP server to order through.
++ `show_buyer`: `![Vintage Cream and Red Roller Skates](https://one-thing-ash0.onrender.com/api/blobs/LFRvGuTU3D8i334X)
+**Vintage Cream and Red Roller Skates**: $240.00. Classic quad skates crafted with walnut burl heels
+![Raptor Rush: Browser Edition](https://one-thing-ash0.onrender.com/api/blobs/R9tWc3yN6bJq1zUd)
+**Raptor Rush: Browser Edition**: $2.99. Grow from Tiny Hatchling to Giant Apex Predator
+Which one?` (string, required) - A suggested reply to the buyer, in Markdown: each shop's cover photo as an image, its name, price and headline, then "Which one?". Chats that block images from other sites just leave the image lines out.
++ `shops` (array[AgentShopSummary], required) - Shops, best match first.
++ `matched`: `true` (boolean, required) - False when nothing matched the query and `shops` is the newest gallery shops instead; `show_buyer` then starts by saying so.
++ `mcp_server`: `https://one-thing-ash0.onrender.com/api/mcp` (string, required) - The MCP server to order through.
 
 
 ## Api Channel3 Search Response (object)
-
+The products found.
 
 ### Properties
-+ `products` (array[ProductCard], required) 
++ `products` (array[ProductCard], required) - Products, best match first.
 
 
 ## Api Orders Capture 409 Error1 (object)
-
+Not approved yet.
 
 ### Properties
-+ `status` (enum[string], optional) 
++ `status` (enum[string], optional) - `pending` until the buyer approves at PayPal.
     + `pending`
 
 
 ## Api Orders Capture Response (object)
-
+The paid order.
 
 ### Properties
-+ `orderId` (string, required) - OneThing's order id; the thank-you page is `/<slug>/thanks?order=<orderId>`.
-+ `status`: `paid` (string, required) 
++ `orderId`: `pX4kR9tVb2nQ7sLe` (string, required) - OneThing's order id; the thank-you page is `/<slug>/thanks?order=<orderId>`.
++ `status`: `paid` (string, required) - Always `paid`.
 
 
 ## Api Orders Request (object)
-
+The shop to buy from and the buyer's pick.
 
 ### Properties
-+ `slug` (string, required) 
++ `slug`: `vintageskates` (string, required) - The shop's link name.
 + `options`: `{"Size":"M","Color":"Black"}` (string, optional) - The buyer's pick, one value per option, keyed by option name.
 
 
 ## Api Orders Response (object)
-
+The PayPal order to approve.
 
 ### Properties
-+ `id` (string, required) - PayPal order id.
++ `id`: `5O190127TN364715T` (string, required) - PayPal order id.
 
 
 ## Api Paypal Client Token Response (object)
-
+The client token.
 
 ### Properties
-+ `clientToken` (string, required) - Pass to `createInstance` in the PayPal JavaScript SDK v6.
++ `clientToken`: `eyJraWQiOiJFWEFNUExFIn0.example.client-token` (string, required) - Pass to `createInstance` in the PayPal JavaScript SDK v6.
 
 
 ## Api Platform Shops Response (object)
-
+The account's shops.
 
 ### Properties
-+ `shops` (array[PlatformShop], required) 
++ `shops` (array[PlatformShop], required) - Shops, newest first.
 
 
 ## Api Shops Color Photos Request (object)
-
+Which photo shows each colour.
 
 ### Properties
-+ `photos` (string, required) - Colour label → photo id, or `null`.
++ `photos`: `{"Ice Blue":"zrySajNyao6_j11x","Amber":null}` (string, required) - Colour label → photo id, or `null`.
 
 
 ## Api Shops Color Photos Response (object)
-
+The colours that changed.
 
 ### Properties
-+ `saved` (array[string], required) 
++ `saved`: `["Ice Blue","Amber"]` (array[string], required) - Colour labels whose photo changed.
 
 
 ## Api Shops File Response (object)
-
+The uploaded file.
 
 ### Properties
-+ `ok` (boolean, required) 
-+ `filename` (string, required) 
++ `ok`: `true` (boolean, required) - Always `true`.
++ `filename`: `dragon-flight-presets.zip` (string, required) - The file's name, as buyers will download it.
 
 
 ## Api Shops Match Photos Request (object)
-
+The colours to find photos for.
 
 ### Properties
-+ `colors` (array[Color], required) 
++ `colors` (array[Color], required) - The colour option's values.
 
 
 ## Api Shops Match Photos Response (object)
-
+Gemini's matches.
 
 ### Properties
-+ `matches`: `{"Black":"b_8f2k1","Forest green":"b_q93md"}` (string, required) 
++ `matches`: `{"Black":"b_8f2k1","Forest green":"b_q93md"}` (string, required) - Colour label → photo id.
 
 
 ## Api Shops Orders Refund 409 Error1 (object)
-
+Why the order can't be refunded here.
 
 ### Properties
-+ `error` (string, required) - A sentence you can show to a person.
-+ `field` (string, optional) - The form field at fault, when there is one.
-+ `detail` (string, optional) - The upstream service's own message, for debugging.
-+ `refundInPayPal` (boolean, optional) - Refund it in PayPal yourself, then call again with `record: true`.
++ `error`: `Order not found.` (string, required) - A sentence you can show to a person.
++ `field`: `price` (string, optional) - The form field at fault, when there is one.
++ `detail`: `INSTRUMENT_DECLINED` (string, optional) - The upstream service's own message, for debugging.
++ `refundInPayPal`: `true` (boolean, optional) - Refund it in PayPal yourself, then call again with `record: true`.
 
 
 ## Api Shops Orders Refund Request (object)
-
+How to refund.
 
 ### Properties
 + `record`: `false` (boolean, optional) - `true`: don't contact PayPal, just record that the seller refunded it themselves.
 
 
 ## Api Shops Orders Refund Response (object)
-
+The refund.
 
 ### Properties
-+ `ok` (boolean, required) 
-+ `refundId` (string, optional, nullable) - PayPal's refund id; null when `record` was used.
++ `ok`: `true` (boolean, required) - Always `true`.
++ `refundId`: `1JU08902781691411` (string, optional, nullable) - PayPal's refund id; null when `record` was used.
 
 
 ## Api Shops Orders Ship Request (object)
-
+The shipment's tracking.
 
 ### Properties
-+ `carrier` (enum[string], required) 
++ `carrier` (enum[string], required) - The carrier. `OTHER` needs `carrierName`.
     + `USPS`
     + `UPS`
     + `FEDEX`
     + `DHL`
     + `OTHER`
-+ `carrierName` (string, optional) - Required when `carrier` is `OTHER`.
-+ `trackingNumber` (string, required) 
++ `carrierName`: `Canada Post` (string, optional) - Required when `carrier` is `OTHER`.
++ `trackingNumber`: `9400111899223197428490` (string, required) - The carrier's tracking number.
 
 
 ## Api Shops Orders Ship Response (object)
-
+The order is marked shipped.
 
 ### Properties
-+ `ok` (boolean, required) 
-+ `synced` (boolean, required) - Whether PayPal accepted the tracking number.
++ `ok`: `true` (boolean, required) - Always `true`.
++ `synced`: `true` (boolean, required) - Whether PayPal accepted the tracking number.
 
 
 ## Api Shops Paypal Request (object)
-
+Where to come back to.
 
 ### Properties
 + `returnUrl`: `https://www.miriogames.com/market/manage/?g=7Hq2` (string, optional) - Platform key only. Where to send the seller after PayPal.
 
 
 ## Api Shops Paypal Response (object)
-
+The onboarding link.
 
 ### Properties
-+ `url` (string, required) - PayPal's onboarding page for this shop.
++ `url`: `https://www.sandbox.paypal.com/bizsignup/partner/entry?referralToken=EXAMPLE` (string, required) - PayPal's onboarding page for this shop.
 
 
 ## Api Shops Paypal Response1 (object)
-
+The shop's PayPal connection.
 
 ### Properties
-+ `merchantId` (string, required, nullable) - The seller's PayPal merchant id.
-+ `status` (PayPalStatus, required, nullable) 
++ `merchantId`: `7MZJ4QXN8K2LA` (string, required, nullable) - The seller's PayPal merchant id.
++ `status` (PayPalStatus, required, nullable) - What PayPal last said; null when nothing is connected.
 
 
 ## Api Shops Photos Request (object)
-
+The new photo order.
 
 ### Properties
-+ `photos` (array[string], required) - Photo ids, in order.
++ `photos`: `["zrySajNyao6_j11x","LFRvGuTU3D8i334X"]` (array[string], required) - Photo ids, in order.
 
 
 ## Api Shops Refine Request (object)
-
+The design change, in words.
 
 ### Properties
-+ `instruction`: `Make it feel more premium` (string, required) 
++ `instruction`: `Make it feel more premium` (string, required) - What to change, e.g. "make it feel more premium".
 
 
 ## Api Shops Refine Response (object)
-
+The redesigned page.
 
 ### Properties
 + `spec` (DesignSpec, required) - What Gemini designed. OneThing's templates render it; Gemini never writes HTML.
 
 
 ## Api Shops Response (object)
-
+The shop was saved.
 
 ### Properties
-+ `ok` (boolean, required) 
-+ `slug` (string, required) - The shop's link name after this change.
++ `ok`: `true` (boolean, required) - Always `true`.
++ `slug`: `vintageskates` (string, required) - The shop's link name after this change.
 
 
 ## Api Slugs Check Response (object)
-
+Whether the link name can be used.
 
 ### Properties
-+ `slug` (string, required) 
-+ `available` (boolean, required) 
-+ `problem` (string, optional) - Why not, when unavailable.
++ `slug`: `vintageskates` (string, required) - The name, normalised.
++ `available`: `true` (boolean, required) - True if no other shop has it and it isn't reserved.
++ `problem`: `Taken. Try another name.` (string, optional) - Why not, when unavailable.
 
 
 ## Color (object)
-
+One colour.
 
 ### Properties
-+ `label`: `Forest green` (string, required) 
-+ `hex`: `#14171a` (string, optional) 
++ `label`: `Forest green` (string, required) - The colour's name, as buyers see it.
++ `hex`: `#14171a` (string, optional) - A colour as `#rrggbb`.
 
 
 ## Detail (object)
-
-
-### Properties
-+ `label` (string, required) 
-+ `value` (string, required) 
-
-
-## Error1 (object)
-
+One product fact.
 
 ### Properties
-+ `code`: `-32601` (number, required) 
-+ `message` (string, required) 
++ `label`: `Material` (string, required) - What the fact is about.
++ `value`: `Leather upper, walnut burl heel, rubber wheels` (string, required) - The fact.
+
+
+## Error (object)
+Present when the call failed.
+
+### Properties
++ `code`: `-32601` (number, required) - The JSON-RPC error code.
++ `message`: `Method not found` (string, required) - What went wrong.
 
 
 ## Fact (object)
-
+One answered question.
 
 ### Properties
-+ `label`: `Size` (string, required) 
-+ `value`: `US women's 8` (string, required) 
++ `label`: `Size` (string, required) - The detail's label.
++ `value`: `US women's 8` (string, required) - The answer.
 
 
 ## Faq (object)
-
+One question and its answer.
 
 ### Properties
-+ `q` (string, required) 
-+ `a` (string, required) 
++ `q`: `Are these suitable for outdoor skating?` (string, required) - The question.
++ `a`: `Yes, on indoor rink floors and paved outdoor paths.` (string, required) - The answer.
 
 
 ## Fonts (object)
-
+Google Fonts for the page.
 
 ### Properties
-+ `heading` (string, required) 
-+ `body` (string, required) 
++ `heading`: `Playfair Display` (string, required) - The headings font.
++ `body`: `Inter` (string, required) - The body text font.
 
 
 ## MissingFact (object)
-
+One question to answer.
 
 ### Properties
-+ `label`: `Size` (string, required) 
-+ `question`: `What size are the skates?` (string, required) 
-+ `placeholder`: `US women's 8` (string, required) 
++ `label`: `Size` (string, required) - The product detail it becomes.
++ `question`: `What size are the skates?` (string, required) - The question, for the seller.
++ `placeholder`: `US women's 8` (string, required) - An example answer.
 
 
 ## Offer (object)
-
+One store's offer.
 
 ### Properties
-+ `domain` (string, required) 
-+ `url` (string, required) 
-+ `price` (number, required) 
-+ `currency` (string, required) 
-+ `inStock` (boolean, required) 
-+ `commission` (number, required) - Maximum commission rate, 0–1 (0.08 = 8%).
++ `domain`: `rei.com` (string, required) - The store's domain.
++ `url`: `https://buy.trychannel3.com/r/abc123` (string, required) - A Channel3-tracked buy link, credited to this shop.
++ `price`: `240` (number, required) - The store's price.
++ `currency`: `USD` (string, required) - ISO 4217 currency code.
++ `inStock`: `true` (boolean, required) - Whether the store has it in stock.
++ `commission`: `0.08` (number, required) - Maximum commission rate, 0–1 (0.08 = 8%).
 
 
 ## Offer1 (object)
-
+One store's offer.
 
 ### Properties
-+ `retailer` (string, required) 
-+ `price` (number, required) 
-+ `currency` (string, required) 
-+ `in_stock` (boolean, required) 
-+ `url` (string, required) 
++ `retailer`: `rei.com` (string, required) - The store.
++ `price`: `240` (number, required) - The store's price.
++ `currency`: `USD` (string, required) - ISO 4217 currency code.
++ `in_stock`: `true` (boolean, required) - Whether the store has it in stock.
++ `url`: `https://buy.trychannel3.com/r/abc123` (string, required) - A tracked buy link at that store.
 
 
 ## Ok (object)
-
+Confirms the change.
 
 ### Properties
-+ `ok` (boolean, required) 
++ `ok`: `true` (boolean, required) - Always `true`.
 
 
 ## Option (object)
-
+A suggested option.
 
 ### Properties
-+ `name`: `Size` (string, required) 
++ `name`: `Size` (string, required) - What the buyer is choosing.
 + `kind` (enum[string], required) - `color` shows swatches, and the photo of the picked colour.
     + `size`
     + `color`
     + `other`
-+ `values` (array[OptionValue], required) 
-+ `fromSeller` (boolean, optional) - The seller's description or photo named these values; otherwise they're a guess.
++ `values` (array[OptionValue], required) - The values to pick from.
++ `fromSeller`: `false` (boolean, optional) - The seller's description or photo named these values; otherwise they're a guess.
 
 
 ## Option1 (object)
-
+One option and its values.
 
 ### Properties
-+ `name` (string, required) 
-+ `values` (array[string], required) 
++ `name`: `Vintage Cream and Red Roller Skates` (string, required) - The option's name, which is also its query parameter on `order_url`.
++ `values`: `["7","8","9"]` (array[string], required) - The values the buyer can pick.
 
 
 ## Order1 (object)
-
+The order.
 
 ### Properties
-+ `id` (string, optional) 
-+ `paypal_order_id` (string, optional, nullable) 
-+ `amount`: `2.99` (string, optional) 
-+ `currency` (string, optional) 
-+ `buyer_name` (string, optional, nullable) 
-+ `buyer_email` (string, optional, nullable) 
-+ `shipping_address` (object, optional, nullable) 
-+ `fulfillment_status` (string, optional) 
-+ `tracking_number` (string, optional, nullable) 
-+ `carrier` (string, optional, nullable) 
++ `id`: `pX4kR9tVb2nQ7sLe` (string, optional) - OneThing's order id.
++ `paypal_order_id`: `5O190127TN364715T` (string, optional, nullable) - PayPal's order id.
++ `amount`: `2.99` (string, optional) - The total, as a decimal string.
++ `currency`: `USD` (string, optional) - ISO 4217 currency code.
++ `buyer_name`: `Sam Rivera` (string, optional, nullable) - The buyer's name, from PayPal.
++ `buyer_email`: `sam@example.com` (string, optional, nullable) - The buyer's email, from PayPal.
++ `shipping_address`: `{"address_line_1":"1 Main St","admin_area_2":"Springfield","admin_area_1":"IL","postal_code":"62701","country_code":"US"}` (object, optional, nullable) - Physical orders: the address, by field.
++ `fulfillment_status`: `to_ship` (string, optional) - As in `Order.fulfillment_status`.
++ `tracking_number`: `9400111899223197428490` (string, optional, nullable) - The tracking number, once shipped.
++ `carrier`: `USPS` (string, optional, nullable) - The carrier, once shipped.
 
 
 ## Palette (object)
-
+The page colours, taken from the photo. Text colours are checked for contrast.
 
 ### Properties
-+ `background`: `#14171a` (string, required) 
-+ `surface`: `#14171a` (string, required) 
-+ `text`: `#14171a` (string, required) 
-+ `muted`: `#14171a` (string, required) 
-+ `accent`: `#14171a` (string, required) 
-+ `accentText`: `#14171a` (string, required) 
++ `background`: `#14171a` (string, required) - A colour as `#rrggbb`.
++ `surface`: `#14171a` (string, required) - A colour as `#rrggbb`.
++ `text`: `#14171a` (string, required) - A colour as `#rrggbb`.
++ `muted`: `#14171a` (string, required) - A colour as `#rrggbb`.
++ `accent`: `#14171a` (string, required) - A colour as `#rrggbb`.
++ `accentText`: `#14171a` (string, required) - A colour as `#rrggbb`.
 
 
 ## Photo (object)
-
+One photo.
 
 ### Properties
-+ `id` (string, required) 
-+ `url` (string, required) - Public image URL on this site.
++ `id`: `LFRvGuTU3D8i334X` (string, required) - The photo's id, for `getImage`, `setPhotoOrder` and colour matching.
++ `url`: `/api/blobs/LFRvGuTU3D8i334X` (string, required) - Public image URL on this site.
 
 
 ## Shipping (object)
-
+Shipping cost and destinations.
 
 ### Properties
-+ `amount` (number, required) 
-+ `currency` (string, required) 
-+ `ships_to` (array[string], required) - Country codes; empty means anywhere PayPal ships.
++ `amount`: `15` (number, required) - Shipping cost per order.
++ `currency`: `USD` (string, required) - ISO 4217 currency code.
++ `ships_to`: `["US","CA"]` (array[string], required) - Country codes; empty means anywhere PayPal ships.
 
 
 ## ShipTo (object)
-
+Where it ships, from the buyer's PayPal checkout. Null if PayPal didn't share it.
 
 ### Properties
-+ `name` (string, optional, nullable) 
-+ `address` (string, optional) 
++ `name`: `Sam Rivera` (string, optional, nullable) - The recipient's name.
++ `address`: `1 Main St, Springfield, IL, 62701, US` (string, optional) - The address on one line.
 
 
 ## Shop1 (object)
-
+The shop the order belongs to.
 
 ### Properties
-+ `slug` (string, optional) 
-+ `name` (string, optional) 
-+ `url` (string, optional) 
++ `slug`: `vintageskates` (string, optional) - The shop's link name.
++ `name`: `Vintage Cream and Red Roller Skates` (string, optional) - The product's name.
++ `url`: `https://one-thing-ash0.onrender.com/vintageskates` (string, optional) - The shop page.
 
 
 ## ShopPhotos (object)
-
+The shop's photos.
 
 ### Properties
-+ `photos` (array[Photo], required) 
++ `photos` (array[Photo], required) - Every photo, the cover first.
 
 
 ## Tracking (object)
-
+The carrier and tracking number once shipped; null before.
 
 ### Properties
-+ `carrier` (string, optional) 
-+ `number` (string, optional) 
++ `carrier`: `USPS` (string, optional) - The shipping carrier.
++ `number`: `9400111899223197428490` (string, optional) - The tracking number.
 
 
 ## Variant (object)
-
+One combination of option values.
 
 ### Properties
 + `choice`: `{"Size":"M","Color":"Black"}` (string, required) - The buyer's pick, one value per option, keyed by option name.
-+ `availability` (string, required) 
-+ `order_url` (string, optional) - `orderByLink` for this pick. Left out when it's sold out.
++ `availability`: `in_stock (3 left)` (string, required) - `in_stock`, `in_stock (N left)` or `sold_out`.
++ `order_url`: `https://one-thing-ash0.onrender.com/vintageskates/buy?Size=9` (string, optional) - `orderByLink` for this pick. Left out when it's sold out.
 

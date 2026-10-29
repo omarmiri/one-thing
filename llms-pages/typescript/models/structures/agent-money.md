@@ -2,6 +2,8 @@
 
 Source: /#/typescript/x-redirect/JTI0bSUyRkFnZW50TW9uZXk
 
+An amount of money, as a number and as a label.
+
 
 # Interface Name
 
@@ -12,9 +14,9 @@ Source: /#/typescript/x-redirect/JTI0bSUyRkFnZW50TW9uZXk
 
 | Name | Type | Tags | Description |
 |  --- | --- | --- | --- |
-| `amount` | `number` | Required | - |
-| `currency` | `string` | Required | - |
-| `label` | `string \| undefined` | Optional | - |
+| `amount` | `number` | Required | The amount in the currency's main unit (dollars, not cents). |
+| `currency` | `string` | Required | ISO 4217 currency code. |
+| `label` | `string \| undefined` | Optional | The amount formatted for people. |
 
 
 # Example
@@ -23,9 +25,9 @@ Source: /#/typescript/x-redirect/JTI0bSUyRkFnZW50TW9uZXk
 import { AgentMoney } from 'one-thing-sdk';
 
 const agentMoney: AgentMoney = {
-  amount: 48.5,
+  amount: 240,
   currency: 'USD',
-  label: '$48.50',
+  label: '$240.00',
 };
 ```
 

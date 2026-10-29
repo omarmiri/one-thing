@@ -11,16 +11,16 @@ What PayPal last said about a connected seller account.
 |  --- | --- | --- | --- |
 | `receivable` | `Boolean` | Required | The account can receive payments. |
 | `emailConfirmed` | `Boolean` | Required | The seller has confirmed their email with PayPal. |
-| `checkedAt` | `DateTime` | Required | - |
+| `checkedAt` | `DateTime` | Required | When OneThing last asked PayPal. |
 
 
 # Example (as JSON)
 
 ```json
 {
-  "receivable": false,
-  "emailConfirmed": false,
-  "checkedAt": "2016-03-13T12:52:32.123Z"
+  "receivable": true,
+  "emailConfirmed": true,
+  "checkedAt": "2026-10-22T02:41:37Z"
 }
 ```
 

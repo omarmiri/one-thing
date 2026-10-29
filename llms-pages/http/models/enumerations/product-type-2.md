@@ -2,6 +2,8 @@
 
 Source: /#/http/x-redirect/JTI0bSUyRlByb2R1Y3RUeXBlMg
 
+What the AI decided the product is.
+
 
 # Fields
 
@@ -9,6 +11,13 @@ Source: /#/http/x-redirect/JTI0bSUyRlByb2R1Y3RUeXBlMg
 |  --- |
 | `digital` |
 | `physical` |
+
+
+# Example
+
+```
+physical
+```
 
 
 

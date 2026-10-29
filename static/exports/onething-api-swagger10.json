@@ -23,7 +23,7 @@
             },
             {
               "name": "body",
-              "description": "",
+              "description": "The email or phone number to sign in with.",
               "paramType": "body",
               "required": true,
               "allowMultiple": false,
@@ -40,7 +40,7 @@
           "responseMessages": [
             {
               "code": 400,
-              "responseModel": "Error",
+              "responseModel": "ErrorResponse",
               "message": "Something in the request needs fixing; `error` says what."
             }
           ],
@@ -90,7 +90,7 @@
           "responseMessages": [
             {
               "code": 503,
-              "responseModel": "Error",
+              "responseModel": "ErrorResponse",
               "message": "Log in with PayPal isn't switched on for this server."
             }
           ],
@@ -109,7 +109,7 @@
           "parameters": [
             {
               "name": "source",
-              "description": "",
+              "description": "What the shop starts from: a photo (with an optional description), a product link, or a Channel3 product to recommend.",
               "paramType": "form",
               "required": true,
               "allowMultiple": false,
@@ -168,7 +168,7 @@
             },
             {
               "name": "type",
-              "description": "",
+              "description": "`physical` ships, `digital` is a file or an access code, `auto` lets the AI decide.",
               "paramType": "form",
               "required": false,
               "allowMultiple": false,
@@ -217,7 +217,7 @@
             },
             {
               "name": "shipping",
-              "description": "",
+              "description": "Physical products: shipping per order, in USD. If omitted, the AI suggests it.",
               "paramType": "form",
               "required": false,
               "allowMultiple": false,
@@ -229,7 +229,7 @@
             },
             {
               "name": "stock",
-              "description": "",
+              "description": "How many are for sale. Leave out for unlimited.",
               "paramType": "form",
               "required": false,
               "allowMultiple": false,
@@ -241,7 +241,7 @@
             },
             {
               "name": "ship_countries",
-              "description": "",
+              "description": "Physical products: comma-separated ISO country codes to ship to. Empty means anywhere PayPal ships.",
               "paramType": "form",
               "required": false,
               "allowMultiple": false,
@@ -250,7 +250,7 @@
             },
             {
               "name": "paypal_email",
-              "description": "",
+              "description": "The PayPal account that gets paid, if the seller doesn't connect one with `connectPayPal`.",
               "paramType": "form",
               "required": false,
               "allowMultiple": false,
@@ -259,7 +259,7 @@
             },
             {
               "name": "seller_email",
-              "description": "",
+              "description": "Where order notifications go.",
               "paramType": "form",
               "required": false,
               "allowMultiple": false,
@@ -268,7 +268,7 @@
             },
             {
               "name": "digital_file",
-              "description": "",
+              "description": "Digital products sold as a file: the file buyers download, up to 25 MB. Can also be added later with `uploadDigitalFile`.",
               "paramType": "form",
               "required": false,
               "allowMultiple": false,
@@ -286,23 +286,23 @@
           "responseMessages": [
             {
               "code": 400,
-              "responseModel": "Error",
+              "responseModel": "ErrorResponse",
               "message": "Something in the request needs fixing; `error` says what."
             },
             {
               "code": 409,
-              "responseModel": "Error",
+              "responseModel": "ErrorResponse",
               "message": "Taken or unavailable (a link name, or a sold-out product)."
             },
             {
-              "code": 502,
-              "responseModel": "Error",
-              "message": "Gemini, PayPal or Channel3 failed or isn't configured."
+              "code": 429,
+              "responseModel": "ErrorResponse",
+              "message": "Over this network's cap for the call (see **Limits**). Retry after `Retry-After` seconds."
             },
             {
-              "code": 429,
-              "responseModel": "Error",
-              "message": "Over this network's cap for the call (see **Limits**). Retry after `Retry-After` seconds."
+              "code": 502,
+              "responseModel": "ErrorResponse",
+              "message": "Gemini, PayPal or Channel3 failed or isn't configured."
             }
           ],
           "uniqueItems": false,
@@ -337,7 +337,7 @@
           "responseMessages": [
             {
               "code": 404,
-              "responseModel": "Error",
+              "responseModel": "ErrorResponse",
               "message": "No such shop, or the admin token or API key doesn't match it."
             }
           ],
@@ -370,7 +370,7 @@
             },
             {
               "name": "body",
-              "description": "",
+              "description": "The fields to change; anything left out stays as it is.",
               "paramType": "body",
               "required": true,
               "allowMultiple": false,
@@ -390,12 +390,12 @@
           "responseMessages": [
             {
               "code": 400,
-              "responseModel": "Error",
+              "responseModel": "ErrorResponse",
               "message": "Something in the request needs fixing; `error` says what."
             },
             {
               "code": 404,
-              "responseModel": "Error",
+              "responseModel": "ErrorResponse",
               "message": "No such shop, or the admin token or API key doesn't match it."
             }
           ],
@@ -433,7 +433,7 @@
             },
             {
               "name": "body",
-              "description": "",
+              "description": "The design change, in words.",
               "paramType": "body",
               "required": true,
               "allowMultiple": false,
@@ -453,23 +453,23 @@
           "responseMessages": [
             {
               "code": 400,
-              "responseModel": "Error",
+              "responseModel": "ErrorResponse",
               "message": "Something in the request needs fixing; `error` says what."
             },
             {
               "code": 404,
-              "responseModel": "Error",
+              "responseModel": "ErrorResponse",
               "message": "No such shop, or the admin token or API key doesn't match it."
             },
             {
-              "code": 502,
-              "responseModel": "Error",
-              "message": "Gemini, PayPal or Channel3 failed or isn't configured."
+              "code": 429,
+              "responseModel": "ErrorResponse",
+              "message": "Over this network's cap for the call (see **Limits**). Retry after `Retry-After` seconds."
             },
             {
-              "code": 429,
-              "responseModel": "Error",
-              "message": "Over this network's cap for the call (see **Limits**). Retry after `Retry-After` seconds."
+              "code": 502,
+              "responseModel": "ErrorResponse",
+              "message": "Gemini, PayPal or Channel3 failed or isn't configured."
             }
           ],
           "uniqueItems": false,
@@ -504,17 +504,17 @@
           "responseMessages": [
             {
               "code": 400,
-              "responseModel": "Error",
+              "responseModel": "ErrorResponse",
               "message": "Something in the request needs fixing; `error` says what."
             },
             {
               "code": 404,
-              "responseModel": "Error",
+              "responseModel": "ErrorResponse",
               "message": "No such shop, or the admin token or API key doesn't match it."
             },
             {
               "code": 429,
-              "responseModel": "Error",
+              "responseModel": "ErrorResponse",
               "message": "Over this network's cap for the call (see **Limits**). Retry after `Retry-After` seconds."
             }
           ],
@@ -562,12 +562,12 @@
           "responseMessages": [
             {
               "code": 400,
-              "responseModel": "Error",
+              "responseModel": "ErrorResponse",
               "message": "Something in the request needs fixing; `error` says what."
             },
             {
               "code": 404,
-              "responseModel": "Error",
+              "responseModel": "ErrorResponse",
               "message": "No such shop, or the admin token or API key doesn't match it."
             }
           ],
@@ -615,12 +615,12 @@
           "responseMessages": [
             {
               "code": 400,
-              "responseModel": "Error",
+              "responseModel": "ErrorResponse",
               "message": "Something in the request needs fixing; `error` says what."
             },
             {
               "code": 404,
-              "responseModel": "Error",
+              "responseModel": "ErrorResponse",
               "message": "No such shop, or the admin token or API key doesn't match it."
             }
           ],
@@ -653,7 +653,7 @@
             },
             {
               "name": "body",
-              "description": "",
+              "description": "Every photo id, in the new order.",
               "paramType": "body",
               "required": true,
               "allowMultiple": false,
@@ -673,12 +673,12 @@
           "responseMessages": [
             {
               "code": 400,
-              "responseModel": "Error",
+              "responseModel": "ErrorResponse",
               "message": "Something in the request needs fixing; `error` says what."
             },
             {
               "code": 404,
-              "responseModel": "Error",
+              "responseModel": "ErrorResponse",
               "message": "No such shop, or the admin token or API key doesn't match it."
             }
           ],
@@ -714,23 +714,23 @@
           "responseMessages": [
             {
               "code": 400,
-              "responseModel": "Error",
+              "responseModel": "ErrorResponse",
               "message": "Something in the request needs fixing; `error` says what."
             },
             {
               "code": 404,
-              "responseModel": "Error",
+              "responseModel": "ErrorResponse",
               "message": "No such shop, or the admin token or API key doesn't match it."
             },
             {
-              "code": 502,
-              "responseModel": "Error",
-              "message": "Gemini, PayPal or Channel3 failed or isn't configured."
+              "code": 429,
+              "responseModel": "ErrorResponse",
+              "message": "Over this network's cap for the call (see **Limits**). Retry after `Retry-After` seconds."
             },
             {
-              "code": 429,
-              "responseModel": "Error",
-              "message": "Over this network's cap for the call (see **Limits**). Retry after `Retry-After` seconds."
+              "code": 502,
+              "responseModel": "ErrorResponse",
+              "message": "Gemini, PayPal or Channel3 failed or isn't configured."
             }
           ],
           "uniqueItems": false,
@@ -767,7 +767,7 @@
             },
             {
               "name": "body",
-              "description": "",
+              "description": "The colour option's values.",
               "paramType": "body",
               "required": true,
               "allowMultiple": false,
@@ -787,23 +787,23 @@
           "responseMessages": [
             {
               "code": 400,
-              "responseModel": "Error",
+              "responseModel": "ErrorResponse",
               "message": "Something in the request needs fixing; `error` says what."
             },
             {
               "code": 404,
-              "responseModel": "Error",
+              "responseModel": "ErrorResponse",
               "message": "No such shop, or the admin token or API key doesn't match it."
             },
             {
-              "code": 502,
-              "responseModel": "Error",
-              "message": "Gemini, PayPal or Channel3 failed or isn't configured."
+              "code": 429,
+              "responseModel": "ErrorResponse",
+              "message": "Over this network's cap for the call (see **Limits**). Retry after `Retry-After` seconds."
             },
             {
-              "code": 429,
-              "responseModel": "Error",
-              "message": "Over this network's cap for the call (see **Limits**). Retry after `Retry-After` seconds."
+              "code": 502,
+              "responseModel": "ErrorResponse",
+              "message": "Gemini, PayPal or Channel3 failed or isn't configured."
             }
           ],
           "uniqueItems": false,
@@ -840,7 +840,7 @@
             },
             {
               "name": "body",
-              "description": "",
+              "description": "The photo for each colour.",
               "paramType": "body",
               "required": true,
               "allowMultiple": false,
@@ -860,12 +860,12 @@
           "responseMessages": [
             {
               "code": 400,
-              "responseModel": "Error",
+              "responseModel": "ErrorResponse",
               "message": "Something in the request needs fixing; `error` says what."
             },
             {
               "code": 404,
-              "responseModel": "Error",
+              "responseModel": "ErrorResponse",
               "message": "No such shop, or the admin token or API key doesn't match it."
             }
           ],
@@ -903,7 +903,7 @@
             },
             {
               "name": "body",
-              "description": "",
+              "description": "Platform keys only: where PayPal sends the seller back.",
               "paramType": "body",
               "required": false,
               "allowMultiple": false,
@@ -923,17 +923,17 @@
           "responseMessages": [
             {
               "code": 404,
-              "responseModel": "Error",
+              "responseModel": "ErrorResponse",
               "message": "No such shop, or the admin token or API key doesn't match it."
             },
             {
               "code": 502,
-              "responseModel": "Error",
+              "responseModel": "ErrorResponse",
               "message": "Gemini, PayPal or Channel3 failed or isn't configured."
             },
             {
               "code": 503,
-              "responseModel": "Error",
+              "responseModel": "ErrorResponse",
               "message": "Gemini, PayPal or Channel3 failed or isn't configured."
             }
           ],
@@ -964,17 +964,17 @@
           "responseMessages": [
             {
               "code": 404,
-              "responseModel": "Error",
+              "responseModel": "ErrorResponse",
               "message": "No such shop, or the admin token or API key doesn't match it."
             },
             {
               "code": 502,
-              "responseModel": "Error",
+              "responseModel": "ErrorResponse",
               "message": "Gemini, PayPal or Channel3 failed or isn't configured."
             },
             {
               "code": 503,
-              "responseModel": "Error",
+              "responseModel": "ErrorResponse",
               "message": "Gemini, PayPal or Channel3 failed or isn't configured."
             }
           ],
@@ -1005,7 +1005,7 @@
           "responseMessages": [
             {
               "code": 404,
-              "responseModel": "Error",
+              "responseModel": "ErrorResponse",
               "message": "No such shop, or the admin token or API key doesn't match it."
             }
           ],
@@ -1065,12 +1065,12 @@
           "responseMessages": [
             {
               "code": 502,
-              "responseModel": "Error",
+              "responseModel": "ErrorResponse",
               "message": "Gemini, PayPal or Channel3 failed or isn't configured."
             },
             {
               "code": 503,
-              "responseModel": "Error",
+              "responseModel": "ErrorResponse",
               "message": "Gemini, PayPal or Channel3 failed or isn't configured."
             }
           ],
@@ -1093,12 +1093,12 @@
           "responseMessages": [
             {
               "code": 502,
-              "responseModel": "Error",
+              "responseModel": "ErrorResponse",
               "message": "Gemini, PayPal or Channel3 failed or isn't configured."
             },
             {
               "code": 503,
-              "responseModel": "Error",
+              "responseModel": "ErrorResponse",
               "message": "Gemini, PayPal or Channel3 failed or isn't configured."
             }
           ],
@@ -1127,7 +1127,7 @@
             },
             {
               "name": "body",
-              "description": "",
+              "description": "The shop and the buyer's pick.",
               "paramType": "body",
               "required": true,
               "allowMultiple": false,
@@ -1144,33 +1144,33 @@
           "responseMessages": [
             {
               "code": 400,
-              "responseModel": "Error",
+              "responseModel": "ErrorResponse",
               "message": "Something in the request needs fixing; `error` says what."
             },
             {
               "code": 404,
-              "responseModel": "Error",
+              "responseModel": "ErrorResponse",
               "message": "No such shop, or the admin token or API key doesn't match it."
             },
             {
               "code": 409,
-              "responseModel": "Error",
+              "responseModel": "ErrorResponse",
               "message": "Taken or unavailable (a link name, or a sold-out product)."
             },
             {
+              "code": 429,
+              "responseModel": "ErrorResponse",
+              "message": "Over this network's cap for the call (see **Limits**). Retry after `Retry-After` seconds."
+            },
+            {
               "code": 502,
-              "responseModel": "Error",
+              "responseModel": "ErrorResponse",
               "message": "Gemini, PayPal or Channel3 failed or isn't configured."
             },
             {
               "code": 503,
-              "responseModel": "Error",
+              "responseModel": "ErrorResponse",
               "message": "Gemini, PayPal or Channel3 failed or isn't configured."
-            },
-            {
-              "code": 429,
-              "responseModel": "Error",
-              "message": "Over this network's cap for the call (see **Limits**). Retry after `Retry-After` seconds."
             }
           ],
           "uniqueItems": false,
@@ -1202,12 +1202,12 @@
           "responseMessages": [
             {
               "code": 402,
-              "responseModel": "Error",
+              "responseModel": "ErrorResponse",
               "message": "Something in the request needs fixing; `error` says what."
             },
             {
               "code": 404,
-              "responseModel": "Error",
+              "responseModel": "ErrorResponse",
               "message": "No such shop, or the admin token or API key doesn't match it."
             },
             {
@@ -1217,17 +1217,17 @@
             },
             {
               "code": 410,
-              "responseModel": "Error",
+              "responseModel": "ErrorResponse",
               "message": "The last unit (or the last of the buyer's combination) sold while they were paying, or the PayPal checkout expired before they paid. The payment isn't captured, so the buyer isn't charged."
             },
             {
               "code": 422,
-              "responseModel": "Error",
+              "responseModel": "ErrorResponse",
               "message": "The buyer's funding source was declined (`INSTRUMENT_DECLINED`); they can try another."
             },
             {
               "code": 502,
-              "responseModel": "Error",
+              "responseModel": "ErrorResponse",
               "message": "Gemini, PayPal or Channel3 failed or isn't configured."
             }
           ],
@@ -1256,7 +1256,7 @@
             },
             {
               "name": "body",
-              "description": "",
+              "description": "The shop and the code to check.",
               "paramType": "body",
               "required": true,
               "allowMultiple": false,
@@ -1303,7 +1303,7 @@
           "responseMessages": [
             {
               "code": 404,
-              "responseModel": "Error",
+              "responseModel": "ErrorResponse",
               "message": "No such shop, or the admin token or API key doesn't match it."
             }
           ],
@@ -1353,7 +1353,7 @@
             },
             {
               "name": "body",
-              "description": "",
+              "description": "The carrier and tracking number.",
               "paramType": "body",
               "required": true,
               "allowMultiple": false,
@@ -1373,12 +1373,12 @@
           "responseMessages": [
             {
               "code": 400,
-              "responseModel": "Error",
+              "responseModel": "ErrorResponse",
               "message": "Something in the request needs fixing; `error` says what."
             },
             {
               "code": 404,
-              "responseModel": "Error",
+              "responseModel": "ErrorResponse",
               "message": "No such shop, or the admin token or API key doesn't match it."
             }
           ],
@@ -1425,7 +1425,7 @@
             },
             {
               "name": "body",
-              "description": "",
+              "description": "Optional. `record: true` records a refund made in PayPal.",
               "paramType": "body",
               "required": false,
               "allowMultiple": false,
@@ -1445,7 +1445,7 @@
           "responseMessages": [
             {
               "code": 404,
-              "responseModel": "Error",
+              "responseModel": "ErrorResponse",
               "message": "No such shop or order, or the token doesn't match the shop."
             },
             {
@@ -1486,7 +1486,7 @@
           "responseMessages": [
             {
               "code": 404,
-              "responseModel": "Error",
+              "responseModel": "ErrorResponse",
               "message": "No such shop, or the admin token or API key doesn't match it."
             }
           ],
@@ -1677,22 +1677,22 @@
           "responseMessages": [
             {
               "code": 400,
-              "responseModel": "Error",
+              "responseModel": "ErrorResponse",
               "message": "A missing or unknown option value, or sold out. `error` names the valid values."
             },
             {
               "code": 403,
-              "responseModel": "Error",
+              "responseModel": "ErrorResponse",
               "message": "A known crawler or link previewer. They don't place orders."
             },
             {
               "code": 404,
-              "responseModel": "Error",
+              "responseModel": "ErrorResponse",
               "message": "No live shop with that link name."
             },
             {
               "code": 429,
-              "responseModel": "Error",
+              "responseModel": "ErrorResponse",
               "message": "Over this network's cap for the call (see **Limits**). Retry after `Retry-After` seconds."
             }
           ],
@@ -1734,7 +1734,7 @@
           "responseMessages": [
             {
               "code": 404,
-              "responseModel": "Error",
+              "responseModel": "ErrorResponse",
               "message": "No order with that id."
             }
           ],
@@ -1789,7 +1789,7 @@
           "responseMessages": [
             {
               "code": 404,
-              "responseModel": "Error",
+              "responseModel": "ErrorResponse",
               "message": "No live shop with that link name."
             }
           ],
@@ -1818,7 +1818,7 @@
             },
             {
               "name": "body",
-              "description": "",
+              "description": "A JSON-RPC 2.0 request or batch.",
               "paramType": "body",
               "required": true,
               "allowMultiple": false,
@@ -1876,7 +1876,7 @@
           "responseMessages": [
             {
               "code": 401,
-              "responseModel": "Error",
+              "responseModel": "ErrorResponse",
               "message": "No API key, or it's wrong or revoked."
             }
           ],
@@ -1887,8 +1887,9 @@
     }
   ],
   "models": {
-    "Error": {
-      "id": "Error",
+    "ErrorResponse": {
+      "id": "ErrorResponse",
+      "description": "An error reply.",
       "required": [
         "error"
       ],
@@ -1912,12 +1913,13 @@
     },
     "CreateShopForm": {
       "id": "CreateShopForm",
+      "description": "What to make a shop from. Only `source` is required; the AI guesses the rest and the seller corrects it with `updateShop`.",
       "required": [
         "source"
       ],
       "properties": {
         "source": {
-          "description": "",
+          "description": "What the shop starts from: a photo (with an optional description), a product link, or a Channel3 product to recommend.",
           "enum": [
             "photo",
             "link",
@@ -1952,7 +1954,7 @@
           "type": "string"
         },
         "type": {
-          "description": "",
+          "description": "`physical` ships, `digital` is a file or an access code, `auto` lets the AI decide.",
           "defaultValue": "auto",
           "enum": [
             "auto",
@@ -1985,7 +1987,7 @@
           "format": "double"
         },
         "shipping": {
-          "description": "",
+          "description": "Physical products: shipping per order, in USD. If omitted, the AI suggests it.",
           "minimum": "",
           "maximum": "",
           "uniqueItems": false,
@@ -1993,7 +1995,7 @@
           "format": "double"
         },
         "stock": {
-          "description": "",
+          "description": "How many are for sale. Leave out for unlimited.",
           "minimum": "",
           "maximum": "",
           "uniqueItems": false,
@@ -2001,22 +2003,22 @@
           "format": "int32"
         },
         "ship_countries": {
-          "description": "",
+          "description": "Physical products: comma-separated ISO country codes to ship to. Empty means anywhere PayPal ships.",
           "uniqueItems": false,
           "type": "string"
         },
         "paypal_email": {
-          "description": "",
+          "description": "The PayPal account that gets paid, if the seller doesn't connect one with `connectPayPal`.",
           "uniqueItems": false,
           "type": "string"
         },
         "seller_email": {
-          "description": "",
+          "description": "Where order notifications go.",
           "uniqueItems": false,
           "type": "string"
         },
         "digital_file": {
-          "description": "",
+          "description": "Digital products sold as a file: the file buyers download, up to 25 MB. Can also be added later with `uploadDigitalFile`.",
           "uniqueItems": false,
           "type": "object"
         }
@@ -2024,6 +2026,7 @@
     },
     "CreatedShop": {
       "id": "CreatedShop",
+      "description": "The new draft shop and the credentials to manage it.",
       "required": [
         "slug",
         "token",
@@ -2031,7 +2034,7 @@
       ],
       "properties": {
         "slug": {
-          "description": "",
+          "description": "The shop's link name: the page is `https://<host>/<slug>`.",
           "uniqueItems": false,
           "type": "string"
         },
@@ -2049,15 +2052,16 @@
     },
     "ShopUpdate": {
       "id": "ShopUpdate",
+      "description": "The fields to change. Anything left out stays as it is.",
       "required": [],
       "properties": {
         "slug": {
-          "description": "",
+          "description": "A new link name. The old one keeps redirecting.",
           "uniqueItems": false,
           "type": "string"
         },
         "status": {
-          "description": "",
+          "description": "`live` publishes the shop; `draft` takes it down.",
           "enum": [
             "draft",
             "live"
@@ -2076,7 +2080,7 @@
           "type": "string"
         },
         "price": {
-          "description": "",
+          "description": "The price in USD.",
           "minimum": "0.5",
           "maximum": "10000",
           "uniqueItems": false,
@@ -2084,7 +2088,7 @@
           "format": "double"
         },
         "shipping": {
-          "description": "",
+          "description": "Shipping per order, in USD.",
           "minimum": "0",
           "maximum": "500",
           "uniqueItems": false,
@@ -2092,7 +2096,7 @@
           "format": "double"
         },
         "stock": {
-          "description": "",
+          "description": "How many are for sale; null for unlimited.",
           "minimum": "0",
           "maximum": "",
           "uniqueItems": false,
@@ -2100,12 +2104,12 @@
           "format": "int32"
         },
         "ship_countries": {
-          "description": "",
+          "description": "Comma-separated ISO country codes; null or empty means anywhere PayPal ships.",
           "uniqueItems": false,
           "type": "string"
         },
         "delivery": {
-          "description": "",
+          "description": "Digital products: `file` or `access_code`.",
           "enum": [
             "file",
             "access_code"
@@ -2114,22 +2118,22 @@
           "type": "string"
         },
         "access_url": {
-          "description": "",
+          "description": "Access-code products: where buyers enter their code.",
           "uniqueItems": false,
           "type": "string"
         },
         "paypal_email": {
-          "description": "",
+          "description": "The PayPal account paid when no account is connected.",
           "uniqueItems": false,
           "type": "string"
         },
         "seller_email": {
-          "description": "",
+          "description": "Where order notifications go.",
           "uniqueItems": false,
           "type": "string"
         },
         "zapier_hook_url": {
-          "description": "",
+          "description": "A Zapier Catch Hook for order events; null removes it.",
           "uniqueItems": false,
           "type": "string"
         },
@@ -2166,6 +2170,7 @@
     },
     "Shop": {
       "id": "Shop",
+      "description": "A shop, as its seller sees it.",
       "required": [
         "id",
         "slug",
@@ -2177,17 +2182,17 @@
       ],
       "properties": {
         "id": {
-          "description": "",
+          "description": "OneThing's internal shop id.",
           "uniqueItems": false,
           "type": "string"
         },
         "slug": {
-          "description": "",
+          "description": "The shop's link name.",
           "uniqueItems": false,
           "type": "string"
         },
         "status": {
-          "description": "",
+          "description": "`draft` until the seller goes live; only `live` shops take orders.",
           "enum": [
             "draft",
             "live"
@@ -2196,7 +2201,7 @@
           "type": "string"
         },
         "product_type": {
-          "description": "",
+          "description": "`physical` ships, `digital` downloads or unlocks, `referral` recommends a Channel3 product.",
           "enum": [
             "physical",
             "digital",
@@ -2206,7 +2211,7 @@
           "type": "string"
         },
         "price_cents": {
-          "description": "",
+          "description": "The price in cents.",
           "minimum": "",
           "maximum": "",
           "uniqueItems": false,
@@ -2214,12 +2219,12 @@
           "format": "int32"
         },
         "currency": {
-          "description": "",
+          "description": "ISO 4217 currency code.",
           "uniqueItems": false,
           "type": "string"
         },
         "shipping_cents": {
-          "description": "",
+          "description": "Shipping per order, in cents.",
           "minimum": "",
           "maximum": "",
           "uniqueItems": false,
@@ -2227,12 +2232,12 @@
           "format": "int32"
         },
         "ship_countries": {
-          "description": "",
+          "description": "Comma-separated ISO country codes; null or empty means anywhere PayPal ships.",
           "uniqueItems": false,
           "type": "string"
         },
         "stock": {
-          "description": "",
+          "description": "How many are left; null for unlimited. With options, see `option_stock`.",
           "minimum": "",
           "maximum": "",
           "uniqueItems": false,
@@ -2240,7 +2245,7 @@
           "format": "int32"
         },
         "delivery": {
-          "description": "",
+          "description": "Digital products: `file` (a download) or `access_code` (a code that unlocks an app or game).",
           "enum": [
             "file",
             "access_code"
@@ -2249,17 +2254,17 @@
           "type": "string"
         },
         "access_url": {
-          "description": "",
+          "description": "Access-code products: where buyers enter their code.",
           "uniqueItems": false,
           "type": "string"
         },
         "paypal_email": {
-          "description": "",
+          "description": "The PayPal account paid when no account is connected.",
           "uniqueItems": false,
           "type": "string"
         },
         "seller_email": {
-          "description": "",
+          "description": "Where order notifications go.",
           "uniqueItems": false,
           "type": "string"
         },
@@ -2269,17 +2274,17 @@
           "type": "string"
         },
         "paypal_status": {
-          "description": "",
+          "description": "What PayPal last said about the connected account; null when none is connected.",
           "uniqueItems": false,
           "$ref": "PayPalStatus"
         },
         "zapier_hook_url": {
-          "description": "",
+          "description": "A Zapier Catch Hook that gets an `OrderEvent` for each paid, shipped or refunded order.",
           "uniqueItems": false,
           "type": "string"
         },
         "in_gallery": {
-          "description": "",
+          "description": "Whether the shop is featured at `/gallery` while live.",
           "uniqueItems": false,
           "type": "boolean"
         },
@@ -2289,7 +2294,7 @@
           "type": "string"
         },
         "options": {
-          "description": "",
+          "description": "What the buyer picks, such as size or colour.",
           "items": {
             "$ref": "ShopOption"
           },
@@ -2305,7 +2310,7 @@
           "format": "int32"
         },
         "suggestions": {
-          "description": "",
+          "description": "What the AI thinks buyers will pick or ask; null once handled.",
           "uniqueItems": false,
           "$ref": "Suggestions"
         },
@@ -2323,12 +2328,12 @@
           "type": "array"
         },
         "hero_blob": {
-          "description": "",
+          "description": "Image id of the AI hero art, when there is one.",
           "uniqueItems": false,
           "type": "string"
         },
         "hero_status": {
-          "description": "",
+          "description": "Hero art: `pending` while generating, then `ready` or `failed`; `none` if not requested.",
           "enum": [
             "none",
             "pending",
@@ -2339,12 +2344,12 @@
           "type": "string"
         },
         "hero_error": {
-          "description": "",
+          "description": "Why hero art failed, when it did.",
           "uniqueItems": false,
           "type": "string"
         },
         "ai_source": {
-          "description": "",
+          "description": "Who designed the page: `gemini`, or `fallback` when Gemini wasn't available and a plain template was used.",
           "enum": [
             "gemini",
             "fallback"
@@ -2353,12 +2358,12 @@
           "type": "string"
         },
         "source_url": {
-          "description": "",
+          "description": "The product link the shop was made from, if any.",
           "uniqueItems": false,
           "type": "string"
         },
         "referral": {
-          "description": "",
+          "description": "Recommendation shops: the Channel3 product; null otherwise.",
           "uniqueItems": false,
           "$ref": "Referral"
         },
@@ -2368,7 +2373,7 @@
           "$ref": "DesignSpec"
         },
         "created_at": {
-          "description": "",
+          "description": "When the shop was made.",
           "uniqueItems": false,
           "type": "string",
           "format": "date-time"
@@ -2391,7 +2396,7 @@
       ],
       "properties": {
         "productType": {
-          "description": "",
+          "description": "What the AI decided the product is.",
           "enum": [
             "digital",
             "physical"
@@ -2400,12 +2405,12 @@
           "type": "string"
         },
         "productName": {
-          "description": "",
+          "description": "The product's name.",
           "uniqueItems": false,
           "type": "string"
         },
         "layout": {
-          "description": "",
+          "description": "The page template: `bold-hero` (image first, punchy), `editorial` (magazine), `minimal` (quiet, lots of space) or `playful`.",
           "enum": [
             "bold-hero",
             "editorial",
@@ -2416,37 +2421,37 @@
           "type": "string"
         },
         "palette": {
-          "description": "",
+          "description": "The page colours, taken from the photo. Text colours are checked for contrast.",
           "uniqueItems": false,
           "$ref": "Palette"
         },
         "fonts": {
-          "description": "",
+          "description": "Google Fonts for the page.",
           "uniqueItems": false,
           "$ref": "Fonts"
         },
         "eyebrow": {
-          "description": "",
+          "description": "A short label above the headline.",
           "uniqueItems": false,
           "type": "string"
         },
         "headline": {
-          "description": "",
+          "description": "The page's main headline.",
           "uniqueItems": false,
           "type": "string"
         },
         "subheadline": {
-          "description": "",
+          "description": "A line under the headline.",
           "uniqueItems": false,
           "type": "string"
         },
         "story": {
-          "description": "",
+          "description": "A short paragraph about the product.",
           "uniqueItems": false,
           "type": "string"
         },
         "bullets": {
-          "description": "",
+          "description": "Short selling points.",
           "items": {
             "type": "string"
           },
@@ -2454,7 +2459,7 @@
           "type": "array"
         },
         "details": {
-          "description": "",
+          "description": "Product facts shown on the page.",
           "items": {
             "$ref": "Detail"
           },
@@ -2462,7 +2467,7 @@
           "type": "array"
         },
         "faq": {
-          "description": "",
+          "description": "Questions buyers will ask, with answers.",
           "items": {
             "$ref": "Faq"
           },
@@ -2470,12 +2475,12 @@
           "type": "array"
         },
         "ctaLabel": {
-          "description": "",
+          "description": "The buy button's text.",
           "uniqueItems": false,
           "type": "string"
         },
         "suggestedPriceUsd": {
-          "description": "",
+          "description": "The AI's price suggestion, in USD.",
           "minimum": "",
           "maximum": "",
           "uniqueItems": false,
@@ -2483,7 +2488,7 @@
           "format": "double"
         },
         "suggestedShippingUsd": {
-          "description": "",
+          "description": "The AI's shipping suggestion, in USD.",
           "minimum": "",
           "maximum": "",
           "uniqueItems": false,
@@ -2491,12 +2496,12 @@
           "format": "double"
         },
         "imageAlt": {
-          "description": "",
+          "description": "Alt text for the product photo.",
           "uniqueItems": false,
           "type": "string"
         },
         "heroPrompt": {
-          "description": "",
+          "description": "The prompt used to generate hero art for the page.",
           "uniqueItems": false,
           "type": "string"
         }
@@ -2512,7 +2517,7 @@
       ],
       "properties": {
         "name": {
-          "description": "",
+          "description": "What the buyer is choosing.",
           "uniqueItems": false,
           "type": "string"
         },
@@ -2527,7 +2532,7 @@
           "type": "string"
         },
         "values": {
-          "description": "",
+          "description": "The values to pick from.",
           "items": {
             "$ref": "OptionValue"
           },
@@ -2538,17 +2543,18 @@
     },
     "OptionValue": {
       "id": "OptionValue",
+      "description": "One value of an option.",
       "required": [
         "label"
       ],
       "properties": {
         "label": {
-          "description": "",
+          "description": "What the buyer sees and picks.",
           "uniqueItems": false,
           "type": "string"
         },
         "hex": {
-          "description": "",
+          "description": "A colour as `#rrggbb`.",
           "uniqueItems": false,
           "type": "string"
         },
@@ -2574,7 +2580,7 @@
           "type": "boolean"
         },
         "options": {
-          "description": "",
+          "description": "Options buyers will likely want to pick.",
           "items": {
             "$ref": "Option"
           },
@@ -2582,7 +2588,7 @@
           "type": "array"
         },
         "missingFacts": {
-          "description": "",
+          "description": "Questions buyers will ask that the listing doesn't answer yet.",
           "items": {
             "$ref": "MissingFact"
           },
@@ -2611,7 +2617,7 @@
           "type": "boolean"
         },
         "checkedAt": {
-          "description": "",
+          "description": "When OneThing last asked PayPal.",
           "uniqueItems": false,
           "type": "string",
           "format": "date-time"
@@ -2651,17 +2657,17 @@
           "type": "string"
         },
         "url": {
-          "description": "",
+          "description": "The shop page, where a person can buy it too.",
           "uniqueItems": false,
           "type": "string"
         },
         "name": {
-          "description": "",
+          "description": "The product's name.",
           "uniqueItems": false,
           "type": "string"
         },
         "kind": {
-          "description": "",
+          "description": "`physical` ships, `digital` downloads or unlocks with a code, `referral` is bought at another store.",
           "enum": [
             "physical",
             "digital",
@@ -2671,17 +2677,17 @@
           "type": "string"
         },
         "headline": {
-          "description": "",
+          "description": "The shop's one-line pitch.",
           "uniqueItems": false,
           "type": "string"
         },
         "description": {
-          "description": "",
+          "description": "What the product is, in a few sentences.",
           "uniqueItems": false,
           "type": "string"
         },
         "highlights": {
-          "description": "",
+          "description": "The product's selling points, one per line.",
           "items": {
             "type": "string"
           },
@@ -2689,7 +2695,7 @@
           "type": "array"
         },
         "details": {
-          "description": "",
+          "description": "Product facts, such as size, material or format.",
           "items": {
             "$ref": "Detail"
           },
@@ -2697,7 +2703,7 @@
           "type": "array"
         },
         "faq": {
-          "description": "",
+          "description": "Questions buyers ask, answered by the seller's page.",
           "items": {
             "$ref": "Faq"
           },
@@ -2705,7 +2711,7 @@
           "type": "array"
         },
         "images": {
-          "description": "",
+          "description": "Photo URLs, the cover first. Show these rather than generating or searching for images.",
           "items": {
             "type": "string"
           },
@@ -2713,7 +2719,7 @@
           "type": "array"
         },
         "price": {
-          "description": "",
+          "description": "An amount of money, as a number and as a label.",
           "uniqueItems": false,
           "$ref": "AgentMoney"
         },
@@ -2723,17 +2729,17 @@
           "$ref": "Shipping"
         },
         "total": {
-          "description": "",
+          "description": "An amount of money, as a number and as a label.",
           "uniqueItems": false,
           "$ref": "AgentMoney"
         },
         "delivery": {
-          "description": "",
+          "description": "How the buyer gets it, in plain words.",
           "uniqueItems": false,
           "type": "string"
         },
         "availability": {
-          "description": "",
+          "description": "`in_stock`, `in_stock (N left)` or `sold_out`. With options, see `variants`.",
           "uniqueItems": false,
           "type": "string"
         },
@@ -2746,7 +2752,7 @@
           "type": "array"
         },
         "variants": {
-          "description": "",
+          "description": "Products with options: each combination, its stock and its order link.",
           "items": {
             "$ref": "Variant"
           },
@@ -2767,7 +2773,7 @@
           "type": "array"
         },
         "how_to_buy": {
-          "description": "",
+          "description": "How to buy it, written for an agent: which tool or link to use and what to ask the buyer.",
           "uniqueItems": false,
           "type": "string"
         },
@@ -2780,6 +2786,7 @@
     },
     "AgentShopSummary": {
       "id": "AgentShopSummary",
+      "description": "A shop in search results.",
       "required": [
         "shop",
         "name",
@@ -2796,12 +2803,12 @@
           "type": "string"
         },
         "name": {
-          "description": "",
+          "description": "The product's name.",
           "uniqueItems": false,
           "type": "string"
         },
         "kind": {
-          "description": "",
+          "description": "`physical`, `digital` or `referral`.",
           "enum": [
             "physical",
             "digital",
@@ -2811,7 +2818,7 @@
           "type": "string"
         },
         "headline": {
-          "description": "",
+          "description": "The shop's one-line pitch.",
           "uniqueItems": false,
           "type": "string"
         },
@@ -2855,12 +2862,12 @@
           "type": "string"
         },
         "order_id": {
-          "description": "",
+          "description": "The order's id, for `get_order` and `getAgentOrder`.",
           "uniqueItems": false,
           "type": "string"
         },
         "status": {
-          "description": "",
+          "description": "Always `awaiting_buyer_approval`: nothing is charged until the buyer approves at PayPal.",
           "defaultValue": "awaiting_buyer_approval",
           "uniqueItems": false,
           "type": "string"
@@ -2886,7 +2893,7 @@
           "type": "string"
         },
         "next_step": {
-          "description": "",
+          "description": "What the agent should do next, in plain words: show `pay_url`, then check `status_url` once the buyer says they've paid.",
           "uniqueItems": false,
           "type": "string"
         }
@@ -2914,7 +2921,7 @@
           "type": "string"
         },
         "order_id": {
-          "description": "",
+          "description": "The order's id.",
           "uniqueItems": false,
           "type": "string"
         },
@@ -2932,7 +2939,7 @@
           "type": "string"
         },
         "product": {
-          "description": "",
+          "description": "The product's name.",
           "uniqueItems": false,
           "type": "string"
         },
@@ -2942,7 +2949,7 @@
           "type": "string"
         },
         "amount": {
-          "description": "",
+          "description": "What the order costs, as numbers.",
           "uniqueItems": false,
           "$ref": "Amount"
         },
@@ -2962,7 +2969,7 @@
           "type": "string"
         },
         "paid_at": {
-          "description": "",
+          "description": "Paid orders. When PayPal captured the payment.",
           "uniqueItems": false,
           "type": "string",
           "format": "date-time"
@@ -2988,13 +2995,13 @@
       ],
       "properties": {
         "type": {
-          "description": "",
+          "description": "Always `access_code`.",
           "defaultValue": "access_code",
           "uniqueItems": false,
           "type": "string"
         },
         "access_code": {
-          "description": "",
+          "description": "The buyer's code, which unlocks the seller's app or game.",
           "uniqueItems": false,
           "type": "string"
         },
@@ -3014,18 +3021,18 @@
       ],
       "properties": {
         "type": {
-          "description": "",
+          "description": "Always `download`.",
           "defaultValue": "download",
           "uniqueItems": false,
           "type": "string"
         },
         "download_url": {
-          "description": "",
+          "description": "A private link to the file. It works 5 times over 14 days.",
           "uniqueItems": false,
           "type": "string"
         },
         "note": {
-          "description": "",
+          "description": "How long the link lasts and how many downloads it allows, in words.",
           "uniqueItems": false,
           "type": "string"
         }
@@ -3040,18 +3047,18 @@
       ],
       "properties": {
         "type": {
-          "description": "",
+          "description": "Always `shipping`.",
           "defaultValue": "shipping",
           "uniqueItems": false,
           "type": "string"
         },
         "ship_to": {
-          "description": "",
+          "description": "Where it ships, from the buyer's PayPal checkout. Null if PayPal didn't share it.",
           "uniqueItems": false,
           "$ref": "ShipTo"
         },
         "fulfillment": {
-          "description": "",
+          "description": "`to_ship` until the seller adds tracking, then `shipped`.",
           "enum": [
             "to_ship",
             "shipped"
@@ -3060,7 +3067,7 @@
           "type": "string"
         },
         "tracking": {
-          "description": "",
+          "description": "The carrier and tracking number once shipped; null before.",
           "uniqueItems": false,
           "$ref": "Tracking"
         }
@@ -3068,6 +3075,7 @@
     },
     "PlatformShop": {
       "id": "PlatformShop",
+      "description": "A shop as a platform API key lists it.",
       "required": [
         "slug",
         "status",
@@ -3081,12 +3089,12 @@
       ],
       "properties": {
         "slug": {
-          "description": "",
+          "description": "The shop's link name.",
           "uniqueItems": false,
           "type": "string"
         },
         "status": {
-          "description": "",
+          "description": "`draft` until the seller goes live.",
           "enum": [
             "draft",
             "live"
@@ -3095,17 +3103,17 @@
           "type": "string"
         },
         "name": {
-          "description": "",
+          "description": "The product's name.",
           "uniqueItems": false,
           "type": "string"
         },
         "headline": {
-          "description": "",
+          "description": "The shop's one-line pitch.",
           "uniqueItems": false,
           "type": "string"
         },
         "product_type": {
-          "description": "",
+          "description": "`physical`, `digital` or `referral`.",
           "enum": [
             "physical",
             "digital",
@@ -3115,7 +3123,7 @@
           "type": "string"
         },
         "price": {
-          "description": "",
+          "description": "An amount of money, as a number and as a label.",
           "uniqueItems": false,
           "$ref": "AgentMoney"
         },
@@ -3143,7 +3151,7 @@
           "format": "int32"
         },
         "created_at": {
-          "description": "",
+          "description": "When the shop was made.",
           "uniqueItems": false,
           "type": "string",
           "format": "date-time"
@@ -3152,13 +3160,14 @@
     },
     "AgentMoney": {
       "id": "AgentMoney",
+      "description": "An amount of money, as a number and as a label.",
       "required": [
         "amount",
         "currency"
       ],
       "properties": {
         "amount": {
-          "description": "",
+          "description": "The amount in the currency's main unit (dollars, not cents).",
           "minimum": "",
           "maximum": "",
           "uniqueItems": false,
@@ -3166,12 +3175,12 @@
           "format": "double"
         },
         "currency": {
-          "description": "",
+          "description": "ISO 4217 currency code.",
           "uniqueItems": false,
           "type": "string"
         },
         "label": {
-          "description": "",
+          "description": "The amount formatted for people.",
           "uniqueItems": false,
           "type": "string"
         }
@@ -3179,13 +3188,14 @@
     },
     "JsonRpcRequest": {
       "id": "JsonRpcRequest",
+      "description": "A JSON-RPC 2.0 request to the MCP server.",
       "required": [
         "jsonrpc",
         "method"
       ],
       "properties": {
         "jsonrpc": {
-          "description": "",
+          "description": "Always `2.0`.",
           "defaultValue": "2.0",
           "uniqueItems": false,
           "type": "string"
@@ -3196,7 +3206,7 @@
           "type": "object"
         },
         "method": {
-          "description": "",
+          "description": "The MCP method. `tools/call` runs a tool; `tools/list` lists them.",
           "enum": [
             "initialize",
             "ping",
@@ -3216,19 +3226,20 @@
     },
     "JsonRpcResponse": {
       "id": "JsonRpcResponse",
+      "description": "A JSON-RPC 2.0 reply from the MCP server.",
       "required": [
         "jsonrpc",
         "id"
       ],
       "properties": {
         "jsonrpc": {
-          "description": "",
+          "description": "Always `2.0`.",
           "defaultValue": "2.0",
           "uniqueItems": false,
           "type": "string"
         },
         "id": {
-          "description": "",
+          "description": "The request's `id`.",
           "uniqueItems": false,
           "type": "object"
         },
@@ -3238,9 +3249,9 @@
           "type": "object"
         },
         "error": {
-          "description": "",
+          "description": "Present when the call failed.",
           "uniqueItems": false,
-          "$ref": "Error1"
+          "$ref": "Error"
         }
       }
     },
@@ -3254,27 +3265,27 @@
       ],
       "properties": {
         "productId": {
-          "description": "",
+          "description": "Channel3's product id.",
           "uniqueItems": false,
           "type": "string"
         },
         "title": {
-          "description": "",
+          "description": "The product's name.",
           "uniqueItems": false,
           "type": "string"
         },
         "brand": {
-          "description": "",
+          "description": "The brand, when known.",
           "uniqueItems": false,
           "type": "string"
         },
         "image": {
-          "description": "",
+          "description": "The product image's URL.",
           "uniqueItems": false,
           "type": "string"
         },
         "offers": {
-          "description": "",
+          "description": "Stores that sell it, with tracked links.",
           "items": {
             "$ref": "Offer"
           },
@@ -3285,6 +3296,7 @@
     },
     "ProductCard": {
       "id": "ProductCard",
+      "description": "A Channel3 product in search results.",
       "required": [
         "id",
         "title",
@@ -3297,27 +3309,27 @@
       ],
       "properties": {
         "id": {
-          "description": "",
+          "description": "Channel3's product id: pass it to `createShop` as `productId`.",
           "uniqueItems": false,
           "type": "string"
         },
         "title": {
-          "description": "",
+          "description": "The product's name.",
           "uniqueItems": false,
           "type": "string"
         },
         "brand": {
-          "description": "",
+          "description": "The brand, when known.",
           "uniqueItems": false,
           "type": "string"
         },
         "image": {
-          "description": "",
+          "description": "The product image's URL.",
           "uniqueItems": false,
           "type": "string"
         },
         "price": {
-          "description": "",
+          "description": "The best offer's price.",
           "minimum": "",
           "maximum": "",
           "uniqueItems": false,
@@ -3325,7 +3337,7 @@
           "format": "double"
         },
         "currency": {
-          "description": "",
+          "description": "ISO 4217 currency code.",
           "uniqueItems": false,
           "type": "string"
         },
@@ -3335,7 +3347,7 @@
           "type": "string"
         },
         "retailers": {
-          "description": "",
+          "description": "How many stores sell it.",
           "minimum": "",
           "maximum": "",
           "uniqueItems": false,
@@ -3354,6 +3366,7 @@
     },
     "Order": {
       "id": "Order",
+      "description": "An order, as the seller sees it.",
       "required": [
         "id",
         "status",
@@ -3363,17 +3376,17 @@
       ],
       "properties": {
         "id": {
-          "description": "",
+          "description": "OneThing's order id.",
           "uniqueItems": false,
           "type": "string"
         },
         "paypal_order_id": {
-          "description": "",
+          "description": "PayPal's order id.",
           "uniqueItems": false,
           "type": "string"
         },
         "status": {
-          "description": "",
+          "description": "`created` until paid; `failed` if PayPal declined; `refunded` after a refund.",
           "enum": [
             "created",
             "paid",
@@ -3384,7 +3397,7 @@
           "type": "string"
         },
         "amount_cents": {
-          "description": "",
+          "description": "The total charged, shipping included, in cents.",
           "minimum": "",
           "maximum": "",
           "uniqueItems": false,
@@ -3392,7 +3405,7 @@
           "format": "int32"
         },
         "shipping_cents": {
-          "description": "",
+          "description": "The shipping part of `amount_cents`.",
           "minimum": "",
           "maximum": "",
           "uniqueItems": false,
@@ -3400,32 +3413,32 @@
           "format": "int32"
         },
         "currency": {
-          "description": "",
+          "description": "ISO 4217 currency code.",
           "uniqueItems": false,
           "type": "string"
         },
         "buyer_email": {
-          "description": "",
+          "description": "From PayPal, once paid.",
           "uniqueItems": false,
           "type": "string"
         },
         "buyer_name": {
-          "description": "",
+          "description": "From PayPal, once paid.",
           "uniqueItems": false,
           "type": "string"
         },
         "shipping_address": {
-          "description": "",
+          "description": "Physical orders: the address from PayPal checkout, by field.",
           "uniqueItems": false,
           "type": "string"
         },
         "capture_id": {
-          "description": "",
+          "description": "PayPal's capture id, once paid. Refunds use it.",
           "uniqueItems": false,
           "type": "string"
         },
         "fulfillment_status": {
-          "description": "",
+          "description": "`to_ship` and `shipped` for physical orders, `digital_sent` for digital ones, `none` before payment.",
           "enum": [
             "none",
             "to_ship",
@@ -3436,22 +3449,22 @@
           "type": "string"
         },
         "carrier": {
-          "description": "",
+          "description": "Shipped orders: the carrier.",
           "uniqueItems": false,
           "type": "string"
         },
         "tracking_number": {
-          "description": "",
+          "description": "Shipped orders: the tracking number.",
           "uniqueItems": false,
           "type": "string"
         },
         "tracking_synced": {
-          "description": "",
+          "description": "Whether PayPal accepted the tracking number.",
           "uniqueItems": false,
           "type": "boolean"
         },
         "downloads": {
-          "description": "",
+          "description": "How many times the buyer downloaded the file.",
           "minimum": "",
           "maximum": "",
           "uniqueItems": false,
@@ -3459,12 +3472,12 @@
           "format": "int32"
         },
         "access_code": {
-          "description": "",
+          "description": "Access-code products: the code this buyer got.",
           "uniqueItems": false,
           "type": "string"
         },
         "code_uses": {
-          "description": "",
+          "description": "How many times the access code was checked.",
           "minimum": "",
           "maximum": "",
           "uniqueItems": false,
@@ -3472,7 +3485,7 @@
           "format": "int32"
         },
         "code_last_used_at": {
-          "description": "",
+          "description": "When the access code was last checked with `verifyAccessCode`.",
           "uniqueItems": false,
           "type": "string",
           "format": "date-time"
@@ -3497,7 +3510,7 @@
           "type": "string"
         },
         "refunded_at": {
-          "description": "",
+          "description": "When the order was refunded.",
           "uniqueItems": false,
           "type": "string",
           "format": "date-time"
@@ -3508,13 +3521,13 @@
           "type": "string"
         },
         "paid_at": {
-          "description": "",
+          "description": "When PayPal captured the payment.",
           "uniqueItems": false,
           "type": "string",
           "format": "date-time"
         },
         "created_at": {
-          "description": "",
+          "description": "When the order was made.",
           "uniqueItems": false,
           "type": "string",
           "format": "date-time"
@@ -3523,6 +3536,7 @@
     },
     "WebhookEvent": {
       "id": "WebhookEvent",
+      "description": "A PayPal webhook delivery for this shop's orders.",
       "required": [
         "id",
         "event_type",
@@ -3537,17 +3551,17 @@
           "type": "string"
         },
         "event_type": {
-          "description": "",
+          "description": "PayPal's event type.",
           "uniqueItems": false,
           "type": "string"
         },
         "paypal_order_id": {
-          "description": "",
+          "description": "The PayPal order it was about.",
           "uniqueItems": false,
           "type": "string"
         },
         "summary": {
-          "description": "",
+          "description": "The amount, or PayPal's summary.",
           "uniqueItems": false,
           "type": "string"
         },
@@ -3557,12 +3571,12 @@
           "type": "boolean"
         },
         "outcome": {
-          "description": "",
+          "description": "What OneThing did with it.",
           "uniqueItems": false,
           "type": "string"
         },
         "received_at": {
-          "description": "",
+          "description": "When it arrived.",
           "uniqueItems": false,
           "type": "string",
           "format": "date-time"
@@ -3571,6 +3585,7 @@
     },
     "OrderEvent": {
       "id": "OrderEvent",
+      "description": "What OneThing posts to the seller's Zapier hook.",
       "required": [
         "event",
         "shop",
@@ -3578,7 +3593,7 @@
       ],
       "properties": {
         "event": {
-          "description": "",
+          "description": "What happened.",
           "enum": [
             "order.paid",
             "order.shipped",
@@ -3588,12 +3603,12 @@
           "type": "string"
         },
         "shop": {
-          "description": "",
+          "description": "The shop the order belongs to.",
           "uniqueItems": false,
           "$ref": "Shop1"
         },
         "order": {
-          "description": "",
+          "description": "The order.",
           "uniqueItems": false,
           "$ref": "Order1"
         }
@@ -3601,6 +3616,7 @@
     },
     "Amount": {
       "id": "Amount",
+      "description": "What the order costs, as numbers.",
       "required": [
         "item",
         "shipping",
@@ -3609,7 +3625,7 @@
       ],
       "properties": {
         "item": {
-          "description": "",
+          "description": "The product's price.",
           "minimum": "",
           "maximum": "",
           "uniqueItems": false,
@@ -3617,7 +3633,7 @@
           "format": "double"
         },
         "shipping": {
-          "description": "",
+          "description": "Shipping; 0 for digital products.",
           "minimum": "",
           "maximum": "",
           "uniqueItems": false,
@@ -3625,7 +3641,7 @@
           "format": "double"
         },
         "total": {
-          "description": "",
+          "description": "Product plus shipping: what the buyer pays.",
           "minimum": "",
           "maximum": "",
           "uniqueItems": false,
@@ -3633,7 +3649,7 @@
           "format": "double"
         },
         "currency": {
-          "description": "",
+          "description": "ISO 4217 currency code.",
           "uniqueItems": false,
           "type": "string"
         }
@@ -3641,6 +3657,7 @@
     },
     "ApiAccessVerifyRequest": {
       "id": "ApiAccessVerifyRequest",
+      "description": "The code to check, and which shop it's for.",
       "required": [
         "shop",
         "code"
@@ -3652,7 +3669,7 @@
           "type": "string"
         },
         "code": {
-          "description": "",
+          "description": "The access code the buyer entered. Case and dashes don't matter.",
           "uniqueItems": false,
           "type": "string"
         }
@@ -3660,12 +3677,13 @@
     },
     "ApiAccessVerifyResponse": {
       "id": "ApiAccessVerifyResponse",
+      "description": "Whether the code is valid.",
       "required": [
         "valid"
       ],
       "properties": {
         "valid": {
-          "description": "",
+          "description": "True if the code belongs to a paid, unrefunded order for this shop.",
           "uniqueItems": false,
           "type": "boolean"
         },
@@ -3678,6 +3696,7 @@
     },
     "ApiAccountSigninRequest": {
       "id": "ApiAccountSigninRequest",
+      "description": "Who is signing in.",
       "required": [
         "identifier"
       ],
@@ -3691,6 +3710,7 @@
     },
     "ApiAccountSigninResponse": {
       "id": "ApiAccountSigninResponse",
+      "description": "The signed-in account.",
       "required": [
         "id",
         "email",
@@ -3698,7 +3718,7 @@
       ],
       "properties": {
         "id": {
-          "description": "",
+          "description": "The account's id.",
           "uniqueItems": false,
           "type": "string"
         },
@@ -3716,6 +3736,7 @@
     },
     "ApiAgentShopsResponse": {
       "id": "ApiAgentShopsResponse",
+      "description": "The matching shops, with a reply to show the buyer.",
       "required": [
         "show_buyer",
         "shops",
@@ -3729,7 +3750,7 @@
           "type": "string"
         },
         "shops": {
-          "description": "",
+          "description": "Shops, best match first.",
           "items": {
             "$ref": "AgentShopSummary"
           },
@@ -3750,12 +3771,13 @@
     },
     "ApiChannel3SearchResponse": {
       "id": "ApiChannel3SearchResponse",
+      "description": "The products found.",
       "required": [
         "products"
       ],
       "properties": {
         "products": {
-          "description": "",
+          "description": "Products, best match first.",
           "items": {
             "$ref": "ProductCard"
           },
@@ -3766,10 +3788,11 @@
     },
     "ApiOrdersCapture409Error1": {
       "id": "ApiOrdersCapture409Error1",
+      "description": "Not approved yet.",
       "required": [],
       "properties": {
         "status": {
-          "description": "",
+          "description": "`pending` until the buyer approves at PayPal.",
           "enum": [
             "pending"
           ],
@@ -3780,6 +3803,7 @@
     },
     "ApiOrdersCaptureResponse": {
       "id": "ApiOrdersCaptureResponse",
+      "description": "The paid order.",
       "required": [
         "orderId",
         "status"
@@ -3791,7 +3815,7 @@
           "type": "string"
         },
         "status": {
-          "description": "",
+          "description": "Always `paid`.",
           "defaultValue": "paid",
           "uniqueItems": false,
           "type": "string"
@@ -3800,12 +3824,13 @@
     },
     "ApiOrdersRequest": {
       "id": "ApiOrdersRequest",
+      "description": "The shop to buy from and the buyer's pick.",
       "required": [
         "slug"
       ],
       "properties": {
         "slug": {
-          "description": "",
+          "description": "The shop's link name.",
           "uniqueItems": false,
           "type": "string"
         },
@@ -3818,6 +3843,7 @@
     },
     "ApiOrdersResponse": {
       "id": "ApiOrdersResponse",
+      "description": "The PayPal order to approve.",
       "required": [
         "id"
       ],
@@ -3831,6 +3857,7 @@
     },
     "ApiPaypalClientTokenResponse": {
       "id": "ApiPaypalClientTokenResponse",
+      "description": "The client token.",
       "required": [
         "clientToken"
       ],
@@ -3844,12 +3871,13 @@
     },
     "ApiPlatformShopsResponse": {
       "id": "ApiPlatformShopsResponse",
+      "description": "The account's shops.",
       "required": [
         "shops"
       ],
       "properties": {
         "shops": {
-          "description": "",
+          "description": "Shops, newest first.",
           "items": {
             "$ref": "PlatformShop"
           },
@@ -3860,6 +3888,7 @@
     },
     "ApiShopsColorPhotosRequest": {
       "id": "ApiShopsColorPhotosRequest",
+      "description": "Which photo shows each colour.",
       "required": [
         "photos"
       ],
@@ -3873,12 +3902,13 @@
     },
     "ApiShopsColorPhotosResponse": {
       "id": "ApiShopsColorPhotosResponse",
+      "description": "The colours that changed.",
       "required": [
         "saved"
       ],
       "properties": {
         "saved": {
-          "description": "",
+          "description": "Colour labels whose photo changed.",
           "items": {
             "type": "string"
           },
@@ -3889,18 +3919,19 @@
     },
     "ApiShopsFileResponse": {
       "id": "ApiShopsFileResponse",
+      "description": "The uploaded file.",
       "required": [
         "ok",
         "filename"
       ],
       "properties": {
         "ok": {
-          "description": "",
+          "description": "Always `true`.",
           "uniqueItems": false,
           "type": "boolean"
         },
         "filename": {
-          "description": "",
+          "description": "The file's name, as buyers will download it.",
           "uniqueItems": false,
           "type": "string"
         }
@@ -3908,12 +3939,13 @@
     },
     "ApiShopsMatchPhotosRequest": {
       "id": "ApiShopsMatchPhotosRequest",
+      "description": "The colours to find photos for.",
       "required": [
         "colors"
       ],
       "properties": {
         "colors": {
-          "description": "",
+          "description": "The colour option's values.",
           "items": {
             "$ref": "Color"
           },
@@ -3924,12 +3956,13 @@
     },
     "ApiShopsMatchPhotosResponse": {
       "id": "ApiShopsMatchPhotosResponse",
+      "description": "Gemini's matches.",
       "required": [
         "matches"
       ],
       "properties": {
         "matches": {
-          "description": "",
+          "description": "Colour label → photo id.",
           "uniqueItems": false,
           "type": "string"
         }
@@ -3937,6 +3970,7 @@
     },
     "ApiShopsOrdersRefund409Error1": {
       "id": "ApiShopsOrdersRefund409Error1",
+      "description": "Why the order can't be refunded here.",
       "required": [
         "error"
       ],
@@ -3965,6 +3999,7 @@
     },
     "ApiShopsOrdersRefundRequest": {
       "id": "ApiShopsOrdersRefundRequest",
+      "description": "How to refund.",
       "required": [],
       "properties": {
         "record": {
@@ -3977,12 +4012,13 @@
     },
     "ApiShopsOrdersRefundResponse": {
       "id": "ApiShopsOrdersRefundResponse",
+      "description": "The refund.",
       "required": [
         "ok"
       ],
       "properties": {
         "ok": {
-          "description": "",
+          "description": "Always `true`.",
           "uniqueItems": false,
           "type": "boolean"
         },
@@ -3995,13 +4031,14 @@
     },
     "ApiShopsOrdersShipRequest": {
       "id": "ApiShopsOrdersShipRequest",
+      "description": "The shipment's tracking.",
       "required": [
         "carrier",
         "trackingNumber"
       ],
       "properties": {
         "carrier": {
-          "description": "",
+          "description": "The carrier. `OTHER` needs `carrierName`.",
           "enum": [
             "USPS",
             "UPS",
@@ -4018,7 +4055,7 @@
           "type": "string"
         },
         "trackingNumber": {
-          "description": "",
+          "description": "The carrier's tracking number.",
           "uniqueItems": false,
           "type": "string"
         }
@@ -4026,13 +4063,14 @@
     },
     "ApiShopsOrdersShipResponse": {
       "id": "ApiShopsOrdersShipResponse",
+      "description": "The order is marked shipped.",
       "required": [
         "ok",
         "synced"
       ],
       "properties": {
         "ok": {
-          "description": "",
+          "description": "Always `true`.",
           "uniqueItems": false,
           "type": "boolean"
         },
@@ -4045,6 +4083,7 @@
     },
     "ApiShopsPaypalRequest": {
       "id": "ApiShopsPaypalRequest",
+      "description": "Where to come back to.",
       "required": [],
       "properties": {
         "returnUrl": {
@@ -4056,6 +4095,7 @@
     },
     "ApiShopsPaypalResponse": {
       "id": "ApiShopsPaypalResponse",
+      "description": "The onboarding link.",
       "required": [
         "url"
       ],
@@ -4069,6 +4109,7 @@
     },
     "ApiShopsPaypalResponse1": {
       "id": "ApiShopsPaypalResponse1",
+      "description": "The shop's PayPal connection.",
       "required": [
         "merchantId",
         "status"
@@ -4080,7 +4121,7 @@
           "type": "string"
         },
         "status": {
-          "description": "",
+          "description": "What PayPal last said; null when nothing is connected.",
           "uniqueItems": false,
           "$ref": "PayPalStatus"
         }
@@ -4088,6 +4129,7 @@
     },
     "ApiShopsPhotosRequest": {
       "id": "ApiShopsPhotosRequest",
+      "description": "The new photo order.",
       "required": [
         "photos"
       ],
@@ -4104,12 +4146,13 @@
     },
     "ApiShopsRefineRequest": {
       "id": "ApiShopsRefineRequest",
+      "description": "The design change, in words.",
       "required": [
         "instruction"
       ],
       "properties": {
         "instruction": {
-          "description": "",
+          "description": "What to change, e.g. \"make it feel more premium\".",
           "uniqueItems": false,
           "type": "string"
         }
@@ -4117,6 +4160,7 @@
     },
     "ApiShopsRefineResponse": {
       "id": "ApiShopsRefineResponse",
+      "description": "The redesigned page.",
       "required": [
         "spec"
       ],
@@ -4130,13 +4174,14 @@
     },
     "ApiShopsResponse": {
       "id": "ApiShopsResponse",
+      "description": "The shop was saved.",
       "required": [
         "ok",
         "slug"
       ],
       "properties": {
         "ok": {
-          "description": "",
+          "description": "Always `true`.",
           "uniqueItems": false,
           "type": "boolean"
         },
@@ -4149,18 +4194,19 @@
     },
     "ApiSlugsCheckResponse": {
       "id": "ApiSlugsCheckResponse",
+      "description": "Whether the link name can be used.",
       "required": [
         "slug",
         "available"
       ],
       "properties": {
         "slug": {
-          "description": "",
+          "description": "The name, normalised.",
           "uniqueItems": false,
           "type": "string"
         },
         "available": {
-          "description": "",
+          "description": "True if no other shop has it and it isn't reserved.",
           "uniqueItems": false,
           "type": "boolean"
         },
@@ -4173,17 +4219,18 @@
     },
     "Color": {
       "id": "Color",
+      "description": "One colour.",
       "required": [
         "label"
       ],
       "properties": {
         "label": {
-          "description": "",
+          "description": "The colour's name, as buyers see it.",
           "uniqueItems": false,
           "type": "string"
         },
         "hex": {
-          "description": "",
+          "description": "A colour as `#rrggbb`.",
           "uniqueItems": false,
           "type": "string"
         }
@@ -4191,32 +4238,34 @@
     },
     "Detail": {
       "id": "Detail",
+      "description": "One product fact.",
       "required": [
         "label",
         "value"
       ],
       "properties": {
         "label": {
-          "description": "",
+          "description": "What the fact is about.",
           "uniqueItems": false,
           "type": "string"
         },
         "value": {
-          "description": "",
+          "description": "The fact.",
           "uniqueItems": false,
           "type": "string"
         }
       }
     },
-    "Error1": {
-      "id": "Error1",
+    "Error": {
+      "id": "Error",
+      "description": "Present when the call failed.",
       "required": [
         "code",
         "message"
       ],
       "properties": {
         "code": {
-          "description": "",
+          "description": "The JSON-RPC error code.",
           "minimum": "",
           "maximum": "",
           "uniqueItems": false,
@@ -4224,7 +4273,7 @@
           "format": "int32"
         },
         "message": {
-          "description": "",
+          "description": "What went wrong.",
           "uniqueItems": false,
           "type": "string"
         }
@@ -4232,18 +4281,19 @@
     },
     "Fact": {
       "id": "Fact",
+      "description": "One answered question.",
       "required": [
         "label",
         "value"
       ],
       "properties": {
         "label": {
-          "description": "",
+          "description": "The detail's label.",
           "uniqueItems": false,
           "type": "string"
         },
         "value": {
-          "description": "",
+          "description": "The answer.",
           "uniqueItems": false,
           "type": "string"
         }
@@ -4251,18 +4301,19 @@
     },
     "Faq": {
       "id": "Faq",
+      "description": "One question and its answer.",
       "required": [
         "q",
         "a"
       ],
       "properties": {
         "q": {
-          "description": "",
+          "description": "The question.",
           "uniqueItems": false,
           "type": "string"
         },
         "a": {
-          "description": "",
+          "description": "The answer.",
           "uniqueItems": false,
           "type": "string"
         }
@@ -4270,18 +4321,19 @@
     },
     "Fonts": {
       "id": "Fonts",
+      "description": "Google Fonts for the page.",
       "required": [
         "heading",
         "body"
       ],
       "properties": {
         "heading": {
-          "description": "",
+          "description": "The headings font.",
           "uniqueItems": false,
           "type": "string"
         },
         "body": {
-          "description": "",
+          "description": "The body text font.",
           "uniqueItems": false,
           "type": "string"
         }
@@ -4289,6 +4341,7 @@
     },
     "MissingFact": {
       "id": "MissingFact",
+      "description": "One question to answer.",
       "required": [
         "label",
         "question",
@@ -4296,17 +4349,17 @@
       ],
       "properties": {
         "label": {
-          "description": "",
+          "description": "The product detail it becomes.",
           "uniqueItems": false,
           "type": "string"
         },
         "question": {
-          "description": "",
+          "description": "The question, for the seller.",
           "uniqueItems": false,
           "type": "string"
         },
         "placeholder": {
-          "description": "",
+          "description": "An example answer.",
           "uniqueItems": false,
           "type": "string"
         }
@@ -4314,6 +4367,7 @@
     },
     "Offer": {
       "id": "Offer",
+      "description": "One store's offer.",
       "required": [
         "domain",
         "url",
@@ -4324,17 +4378,17 @@
       ],
       "properties": {
         "domain": {
-          "description": "",
+          "description": "The store's domain.",
           "uniqueItems": false,
           "type": "string"
         },
         "url": {
-          "description": "",
+          "description": "A Channel3-tracked buy link, credited to this shop.",
           "uniqueItems": false,
           "type": "string"
         },
         "price": {
-          "description": "",
+          "description": "The store's price.",
           "minimum": "",
           "maximum": "",
           "uniqueItems": false,
@@ -4342,12 +4396,12 @@
           "format": "double"
         },
         "currency": {
-          "description": "",
+          "description": "ISO 4217 currency code.",
           "uniqueItems": false,
           "type": "string"
         },
         "inStock": {
-          "description": "",
+          "description": "Whether the store has it in stock.",
           "uniqueItems": false,
           "type": "boolean"
         },
@@ -4363,6 +4417,7 @@
     },
     "Offer1": {
       "id": "Offer1",
+      "description": "One store's offer.",
       "required": [
         "retailer",
         "price",
@@ -4372,12 +4427,12 @@
       ],
       "properties": {
         "retailer": {
-          "description": "",
+          "description": "The store.",
           "uniqueItems": false,
           "type": "string"
         },
         "price": {
-          "description": "",
+          "description": "The store's price.",
           "minimum": "",
           "maximum": "",
           "uniqueItems": false,
@@ -4385,17 +4440,17 @@
           "format": "double"
         },
         "currency": {
-          "description": "",
+          "description": "ISO 4217 currency code.",
           "uniqueItems": false,
           "type": "string"
         },
         "in_stock": {
-          "description": "",
+          "description": "Whether the store has it in stock.",
           "uniqueItems": false,
           "type": "boolean"
         },
         "url": {
-          "description": "",
+          "description": "A tracked buy link at that store.",
           "uniqueItems": false,
           "type": "string"
         }
@@ -4403,12 +4458,13 @@
     },
     "Ok": {
       "id": "Ok",
+      "description": "Confirms the change.",
       "required": [
         "ok"
       ],
       "properties": {
         "ok": {
-          "description": "",
+          "description": "Always `true`.",
           "uniqueItems": false,
           "type": "boolean"
         }
@@ -4416,6 +4472,7 @@
     },
     "Option": {
       "id": "Option",
+      "description": "A suggested option.",
       "required": [
         "name",
         "kind",
@@ -4423,7 +4480,7 @@
       ],
       "properties": {
         "name": {
-          "description": "",
+          "description": "What the buyer is choosing.",
           "uniqueItems": false,
           "type": "string"
         },
@@ -4438,7 +4495,7 @@
           "type": "string"
         },
         "values": {
-          "description": "",
+          "description": "The values to pick from.",
           "items": {
             "$ref": "OptionValue"
           },
@@ -4454,18 +4511,19 @@
     },
     "Option1": {
       "id": "Option1",
+      "description": "One option and its values.",
       "required": [
         "name",
         "values"
       ],
       "properties": {
         "name": {
-          "description": "",
+          "description": "The option's name, which is also its query parameter on `order_url`.",
           "uniqueItems": false,
           "type": "string"
         },
         "values": {
-          "description": "",
+          "description": "The values the buyer can pick.",
           "items": {
             "type": "string"
           },
@@ -4476,55 +4534,56 @@
     },
     "Order1": {
       "id": "Order1",
+      "description": "The order.",
       "required": [],
       "properties": {
         "id": {
-          "description": "",
+          "description": "OneThing's order id.",
           "uniqueItems": false,
           "type": "string"
         },
         "paypal_order_id": {
-          "description": "",
+          "description": "PayPal's order id.",
           "uniqueItems": false,
           "type": "string"
         },
         "amount": {
-          "description": "",
+          "description": "The total, as a decimal string.",
           "uniqueItems": false,
           "type": "string"
         },
         "currency": {
-          "description": "",
+          "description": "ISO 4217 currency code.",
           "uniqueItems": false,
           "type": "string"
         },
         "buyer_name": {
-          "description": "",
+          "description": "The buyer's name, from PayPal.",
           "uniqueItems": false,
           "type": "string"
         },
         "buyer_email": {
-          "description": "",
+          "description": "The buyer's email, from PayPal.",
           "uniqueItems": false,
           "type": "string"
         },
         "shipping_address": {
-          "description": "",
+          "description": "Physical orders: the address, by field.",
           "uniqueItems": false,
           "type": "object"
         },
         "fulfillment_status": {
-          "description": "",
+          "description": "As in `Order.fulfillment_status`.",
           "uniqueItems": false,
           "type": "string"
         },
         "tracking_number": {
-          "description": "",
+          "description": "The tracking number, once shipped.",
           "uniqueItems": false,
           "type": "string"
         },
         "carrier": {
-          "description": "",
+          "description": "The carrier, once shipped.",
           "uniqueItems": false,
           "type": "string"
         }
@@ -4532,6 +4591,7 @@
     },
     "Palette": {
       "id": "Palette",
+      "description": "The page colours, taken from the photo. Text colours are checked for contrast.",
       "required": [
         "background",
         "surface",
@@ -4542,32 +4602,32 @@
       ],
       "properties": {
         "background": {
-          "description": "",
+          "description": "A colour as `#rrggbb`.",
           "uniqueItems": false,
           "type": "string"
         },
         "surface": {
-          "description": "",
+          "description": "A colour as `#rrggbb`.",
           "uniqueItems": false,
           "type": "string"
         },
         "text": {
-          "description": "",
+          "description": "A colour as `#rrggbb`.",
           "uniqueItems": false,
           "type": "string"
         },
         "muted": {
-          "description": "",
+          "description": "A colour as `#rrggbb`.",
           "uniqueItems": false,
           "type": "string"
         },
         "accent": {
-          "description": "",
+          "description": "A colour as `#rrggbb`.",
           "uniqueItems": false,
           "type": "string"
         },
         "accentText": {
-          "description": "",
+          "description": "A colour as `#rrggbb`.",
           "uniqueItems": false,
           "type": "string"
         }
@@ -4575,13 +4635,14 @@
     },
     "Photo": {
       "id": "Photo",
+      "description": "One photo.",
       "required": [
         "id",
         "url"
       ],
       "properties": {
         "id": {
-          "description": "",
+          "description": "The photo's id, for `getImage`, `setPhotoOrder` and colour matching.",
           "uniqueItems": false,
           "type": "string"
         },
@@ -4594,6 +4655,7 @@
     },
     "Shipping": {
       "id": "Shipping",
+      "description": "Shipping cost and destinations.",
       "required": [
         "amount",
         "currency",
@@ -4601,7 +4663,7 @@
       ],
       "properties": {
         "amount": {
-          "description": "",
+          "description": "Shipping cost per order.",
           "minimum": "",
           "maximum": "",
           "uniqueItems": false,
@@ -4609,7 +4671,7 @@
           "format": "double"
         },
         "currency": {
-          "description": "",
+          "description": "ISO 4217 currency code.",
           "uniqueItems": false,
           "type": "string"
         },
@@ -4625,15 +4687,16 @@
     },
     "ShipTo": {
       "id": "ShipTo",
+      "description": "Where it ships, from the buyer's PayPal checkout. Null if PayPal didn't share it.",
       "required": [],
       "properties": {
         "name": {
-          "description": "",
+          "description": "The recipient's name.",
           "uniqueItems": false,
           "type": "string"
         },
         "address": {
-          "description": "",
+          "description": "The address on one line.",
           "uniqueItems": false,
           "type": "string"
         }
@@ -4641,20 +4704,21 @@
     },
     "Shop1": {
       "id": "Shop1",
+      "description": "The shop the order belongs to.",
       "required": [],
       "properties": {
         "slug": {
-          "description": "",
+          "description": "The shop's link name.",
           "uniqueItems": false,
           "type": "string"
         },
         "name": {
-          "description": "",
+          "description": "The product's name.",
           "uniqueItems": false,
           "type": "string"
         },
         "url": {
-          "description": "",
+          "description": "The shop page.",
           "uniqueItems": false,
           "type": "string"
         }
@@ -4662,12 +4726,13 @@
     },
     "ShopPhotos": {
       "id": "ShopPhotos",
+      "description": "The shop's photos.",
       "required": [
         "photos"
       ],
       "properties": {
         "photos": {
-          "description": "",
+          "description": "Every photo, the cover first.",
           "items": {
             "$ref": "Photo"
           },
@@ -4678,15 +4743,16 @@
     },
     "Tracking": {
       "id": "Tracking",
+      "description": "The carrier and tracking number once shipped; null before.",
       "required": [],
       "properties": {
         "carrier": {
-          "description": "",
+          "description": "The shipping carrier.",
           "uniqueItems": false,
           "type": "string"
         },
         "number": {
-          "description": "",
+          "description": "The tracking number.",
           "uniqueItems": false,
           "type": "string"
         }
@@ -4694,6 +4760,7 @@
     },
     "Variant": {
       "id": "Variant",
+      "description": "One combination of option values.",
       "required": [
         "choice",
         "availability"
@@ -4705,7 +4772,7 @@
           "type": "string"
         },
         "availability": {
-          "description": "",
+          "description": "`in_stock`, `in_stock (N left)` or `sold_out`.",
           "uniqueItems": false,
           "type": "string"
         },

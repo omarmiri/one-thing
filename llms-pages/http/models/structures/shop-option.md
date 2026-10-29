@@ -9,9 +9,9 @@ Something the buyer picks, such as a size or a colour. The shop still sells one 
 
 | Name | Type | Tags | Description |
 |  --- | --- | --- | --- |
-| `name` | `String` | Required | **Constraints**: *Maximum Length*: `20` |
+| `name` | `String` | Required | What the buyer is choosing.<br><br>**Constraints**: *Maximum Length*: `20` |
 | `kind` | [`Kind`](/llms-pages/http/models/enumerations/kind.md) | Required | `color` shows swatches, and the photo of the picked colour. |
-| `values` | [`array<Option Value>`](/llms-pages/http/models/structures/option-value.md) | Required | **Constraints**: *Minimum Items*: `1`, *Maximum Items*: `12` |
+| `values` | [`array<Option Value>`](/llms-pages/http/models/structures/option-value.md) | Required | The values to pick from.<br><br>**Constraints**: *Minimum Items*: `1`, *Maximum Items*: `12` |
 
 
 # Example (as JSON)
@@ -19,12 +19,16 @@ Something the buyer picks, such as a size or a colour. The shop still sells one 
 ```json
 {
   "name": "Size",
-  "kind": "other",
+  "kind": "size",
   "values": [
     {
-      "label": "M",
-      "hex": "#14171a",
-      "photo": "photo6"
+      "label": "S"
+    },
+    {
+      "label": "M"
+    },
+    {
+      "label": "L"
     }
   ]
 }

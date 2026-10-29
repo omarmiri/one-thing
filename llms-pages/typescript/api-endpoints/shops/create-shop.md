@@ -53,22 +53,22 @@ This endpoint requires [PlatformKey](/llms-pages/typescript/getting-started/sdk-
 
 | Parameter | Type | Tags | Description |
 |  --- | --- | --- | --- |
-| `source` | [`Source`](/llms-pages/typescript/models/enumerations/source.md) | Form, Required | - |
+| `source` | [`Source`](/llms-pages/typescript/models/enumerations/source.md) | Form, Required | What the shop starts from: a photo (with an optional description), a product link, or a Channel3 product to recommend. |
 | `photo` | `FileWrapper \| undefined` | Form, Optional | `source=photo`: the product photo, up to 8 MB. |
 | `description` | `string \| undefined` | Form, Optional | `source=photo`: a sentence or two about the product. Required if there is no photo. |
 | `url` | `string \| undefined` | Form, Optional | `source=link`: a product page, or your own app or game page. |
 | `productId` | `string \| undefined` | Form, Optional | `source=channel3`: a product id from `searchProducts`. |
 | `slug` | `string \| undefined` | Form, Optional | The link name you want. If omitted, the AI suggests one. |
-| `type` | [`Type \| undefined`](/llms-pages/typescript/models/enumerations/type.md) | Form, Optional | **Default**: `Type.Auto` |
+| `type` | [`Type \| undefined`](/llms-pages/typescript/models/enumerations/type.md) | Form, Optional | `physical` ships, `digital` is a file or an access code, `auto` lets the AI decide.<br><br>**Default**: `Type.Auto` |
 | `delivery` | [`Delivery \| undefined`](/llms-pages/typescript/models/enumerations/delivery.md) | Form, Optional | For digital products. If omitted, the AI guesses. |
 | `accessUrl` | `string \| undefined` | Form, Optional | Where buyers use an access code. |
 | `price` | `number \| undefined` | Form, Optional | USD. If omitted, the AI suggests a price. |
-| `shipping` | `number \| undefined` | Form, Optional | - |
-| `stock` | `number \| undefined` | Form, Optional | - |
-| `shipCountries` | `string \| undefined` | Form, Optional | - |
-| `paypalEmail` | `string \| undefined` | Form, Optional | - |
-| `sellerEmail` | `string \| undefined` | Form, Optional | - |
-| `digitalFile` | `FileWrapper \| undefined` | Form, Optional | - |
+| `shipping` | `number \| undefined` | Form, Optional | Physical products: shipping per order, in USD. If omitted, the AI suggests it. |
+| `stock` | `number \| undefined` | Form, Optional | How many are for sale. Leave out for unlimited. |
+| `shipCountries` | `string \| undefined` | Form, Optional | Physical products: comma-separated ISO country codes to ship to. Empty means anywhere PayPal ships. |
+| `paypalEmail` | `string \| undefined` | Form, Optional | The PayPal account that gets paid, if the seller doesn't connect one with `connectPayPal`. |
+| `sellerEmail` | `string \| undefined` | Form, Optional | Where order notifications go. |
+| `digitalFile` | `FileWrapper \| undefined` | Form, Optional | Digital products sold as a file: the file buyers download, up to 25 MB. Can also be added later with `uploadDigitalFile`. |
 | `requestOptions` | `RequestOptions \| undefined` | Optional | Pass additional request options. |
 
 
@@ -84,34 +84,25 @@ This method returns an [`ApiResponse`](/llms-pages/typescript/sdk-infrastructure
 ```ts
 const source = Source.Photo;
 
-const description = 'Vintage cream and red quad roller skates with walnut burl heels.';
-
 const type = Type.Physical;
 
-const price = 240;
-
-const shipping = 15;
-
 const shipCountries = 'US';
-
-const paypalEmail = 'seller@example.com';
 
 try {
   const response = await shopsApi.createShop(
     source,
     undefined,
-    description,
+    undefined,
     undefined,
     undefined,
     undefined,
     type,
     undefined,
     undefined,
-    price,
-    shipping,
     undefined,
-    shipCountries,
-    paypalEmail
+    undefined,
+    undefined,
+    shipCountries
   );
 
   // Extracting fully parsed response body.
@@ -131,7 +122,7 @@ try {
     console.log(error.headers);
     // Extracting response error body of type `string | Stream`.
     console.log(error.body);
-    if (error instanceof CustomError) {
+    if (error instanceof ErrorResponseError) {
       console.log(error.result);
     }
   }
@@ -154,10 +145,10 @@ try {
 
 | HTTP Status Code | Error Description | Exception Class |
 |  --- | --- | --- |
-| 400 | Something in the request needs fixing; `error` says what. | [`CustomError`](/llms-pages/typescript/models/exceptions/error.md) |
-| 409 | Taken or unavailable (a link name, or a sold-out product). | [`CustomError`](/llms-pages/typescript/models/exceptions/error.md) |
-| 429 | Over this network's cap for the call (see **Limits**). Retry after `Retry-After` seconds. | [`CustomError`](/llms-pages/typescript/models/exceptions/error.md) |
-| 502 | Gemini, PayPal or Channel3 failed or isn't configured. | [`CustomError`](/llms-pages/typescript/models/exceptions/error.md) |
+| 400 | Something in the request needs fixing; `error` says what. | [`ErrorResponseError`](/llms-pages/typescript/models/exceptions/error-response.md) |
+| 409 | Taken or unavailable (a link name, or a sold-out product). | [`ErrorResponseError`](/llms-pages/typescript/models/exceptions/error-response.md) |
+| 429 | Over this network's cap for the call (see **Limits**). Retry after `Retry-After` seconds. | [`ErrorResponseError`](/llms-pages/typescript/models/exceptions/error-response.md) |
+| 502 | Gemini, PayPal or Channel3 failed or isn't configured. | [`ErrorResponseError`](/llms-pages/typescript/models/exceptions/error-response.md) |
 
 
 

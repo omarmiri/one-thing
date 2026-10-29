@@ -2,6 +2,8 @@
 
 Source: /#/typescript/x-redirect/JTI0bSUyRkFwaSUyNTIwU2hvcHMlMjUyMENvbG9yJTI1MjBQaG90b3MlMjUyMFJlc3BvbnNl
 
+The colours that changed.
+
 
 # Interface Name
 
@@ -12,7 +14,7 @@ Source: /#/typescript/x-redirect/JTI0bSUyRkFwaSUyNTIwU2hvcHMlMjUyMENvbG9yJTI1MjB
 
 | Name | Type | Tags | Description |
 |  --- | --- | --- | --- |
-| `saved` | `string[]` | Required | - |
+| `saved` | `string[]` | Required | Colour labels whose photo changed. |
 
 
 # Example
@@ -22,8 +24,8 @@ import { ApiShopsColorPhotosResponse } from 'one-thing-sdk';
 
 const apiShopsColorPhotosResponse: ApiShopsColorPhotosResponse = {
   saved: [
-    'saved5',
-    'saved6'
+    'Ice Blue',
+    'Amber'
   ],
 };
 ```

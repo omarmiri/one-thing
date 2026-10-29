@@ -32,7 +32,7 @@ This endpoint requires [AdminToken](/llms-pages/python/getting-started/sdk-quick
 # Example Usage
 
 ```python
-slug = 'raptorrush'
+slug = 'vintageskates'
 
 result = shops_api.regenerate_hero_art(slug)
 print(result)
@@ -52,9 +52,9 @@ print(result)
 
 | HTTP Status Code | Error Description | Exception Class |
 |  --- | --- | --- |
-| 400 | Something in the request needs fixing; `error` says what. | [`ErrorException`](/llms-pages/python/models/exceptions/error.md) |
-| 404 | No such shop, or the admin token or API key doesn't match it. | [`ErrorException`](/llms-pages/python/models/exceptions/error.md) |
-| 429 | Over this network's cap for the call (see **Limits**). Retry after `Retry-After` seconds. | [`ErrorException`](/llms-pages/python/models/exceptions/error.md) |
+| 400 | Something in the request needs fixing; `error` says what. | [`ErrorResponseException`](/llms-pages/python/models/exceptions/error-response.md) |
+| 404 | No such shop, or the admin token or API key doesn't match it. | [`ErrorResponseException`](/llms-pages/python/models/exceptions/error-response.md) |
+| 429 | Over this network's cap for the call (see **Limits**). Retry after `Retry-After` seconds. | [`ErrorResponseException`](/llms-pages/python/models/exceptions/error-response.md) |
 
 
 

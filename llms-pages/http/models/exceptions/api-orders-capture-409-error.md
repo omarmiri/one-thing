@@ -2,12 +2,14 @@
 
 Source: /#/http/x-redirect/JTI0bSUyRkFwaSUyNTIwT3JkZXJzJTI1MjBDYXB0dXJlJTI1MjA0MDklMjUyMEVycm9y
 
+Not approved yet.
+
 
 # Fields
 
 | Name | Type | Tags | Description |
 |  --- | --- | --- | --- |
-| `status` | [`Status 6`](/llms-pages/http/models/enumerations/status-6.md) | Optional | - |
+| `status` | [`Status 6`](/llms-pages/http/models/enumerations/status-6.md) | Optional | `pending` until the buyer approves at PayPal. |
 
 
 

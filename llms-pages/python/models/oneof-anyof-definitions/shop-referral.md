@@ -23,18 +23,20 @@ Source: /#/python/x-redirect/JTI0bSUyRlNob3BSZWZlcnJhbA
 
 ```python
 value = Referral(
-    product_id='productId0',
-    title='title2',
+    product_id='ch3_7f2a9c1e',
+    title='Trail Running Vest 5L',
     offers=[
         Offer(
-            domain='domain0',
-            url='url8',
-            price=134.28,
-            currency='currency4',
-            in_stock=False,
-            commission=2.62
+            domain='rei.com',
+            url='https://buy.trychannel3.com/r/abc123',
+            price=240,
+            currency='USD',
+            in_stock=True,
+            commission=0.08
         )
-    ]
+    ],
+    brand='Salomon',
+    image='https://images.example.com/vest.jpg'
 )
 ```
 

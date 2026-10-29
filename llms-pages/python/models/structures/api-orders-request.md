@@ -2,6 +2,8 @@
 
 Source: /#/python/x-redirect/JTI0bSUyRkFwaSUyNTIwT3JkZXJzJTI1MjBSZXF1ZXN0
 
+The shop to buy from and the buyer's pick.
+
 
 # Class Name
 
@@ -12,7 +14,7 @@ Source: /#/python/x-redirect/JTI0bSUyRkFwaSUyNTIwT3JkZXJzJTI1MjBSZXF1ZXN0
 
 | Name | Type | Tags | Description |
 |  --- | --- | --- | --- |
-| `slug` | `str` | Required | - |
+| `slug` | `str` | Required | The shop's link name. |
 | `options` | `Dict[str, str]` | Optional | The buyer's pick, one value per option, keyed by option name. |
 
 
@@ -22,7 +24,7 @@ Source: /#/python/x-redirect/JTI0bSUyRkFwaSUyNTIwT3JkZXJzJTI1MjBSZXF1ZXN0
 from onethingapi.models.api_orders_request import ApiOrdersRequest
 
 api_orders_request = ApiOrdersRequest(
-    slug='slug0',
+    slug='vintageskates',
     options={
         'Size': 'M',
         'Color': 'Black'

@@ -29,7 +29,7 @@ def log_in_with_pay_pal(self,
 # Example Usage
 
 ```python
-next = '/new'
+next = '/account'
 
 accounts_api.log_in_with_pay_pal(
     next=next
@@ -41,7 +41,7 @@ accounts_api.log_in_with_pay_pal(
 
 | HTTP Status Code | Error Description | Exception Class |
 |  --- | --- | --- |
-| 503 | Log in with PayPal isn't switched on for this server. | [`ErrorException`](/llms-pages/python/models/exceptions/error.md) |
+| 503 | Log in with PayPal isn't switched on for this server. | [`ErrorResponseException`](/llms-pages/python/models/exceptions/error-response.md) |
 
 
 

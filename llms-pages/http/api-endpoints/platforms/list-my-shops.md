@@ -18,7 +18,7 @@ This endpoint requires [PlatformKey](/llms-pages/http/getting-started/sdk-quicks
 
 | Parameter | Type | Tags | Description |
 |  --- | --- | --- | --- |
-| `status` | [`Status`](/llms-pages/http/models/enumerations/status.md) | Query, Optional | Only shops with this status, e.g. `live` for a public catalog. |
+| `status` | [`Status 5`](/llms-pages/http/models/enumerations/status-5.md) | Query, Optional | Only shops with this status, e.g. `live` for a public catalog. |
 
 
 # Response Type
@@ -69,7 +69,7 @@ curl -X GET -G \
 
 | HTTP Status Code | Error Description | Exception Class |
 |  --- | --- | --- |
-| 401 | No API key, or it's wrong or revoked. | [`Error_ErrorException`](/llms-pages/http/models/exceptions/error-error.md) |
+| 401 | No API key, or it's wrong or revoked. | [`ErrorResponse_ErrorException`](/llms-pages/http/models/exceptions/error-response-error.md) |
 
 
 

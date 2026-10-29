@@ -2,6 +2,8 @@
 
 Source: /#/python/x-redirect/JTI0bSUyRkFwaSUyNTIwQWNjZXNzJTI1MjBWZXJpZnklMjUyMFJlcXVlc3Q
 
+The code to check, and which shop it's for.
+
 
 # Class Name
 
@@ -13,7 +15,7 @@ Source: /#/python/x-redirect/JTI0bSUyRkFwaSUyNTIwQWNjZXNzJTI1MjBWZXJpZnklMjUyMFJ
 | Name | Type | Tags | Description |
 |  --- | --- | --- | --- |
 | `shop` | `str` | Required | The shop's link name. |
-| `code` | `str` | Required | - |
+| `code` | `str` | Required | The access code the buyer entered. Case and dashes don't matter. |
 
 
 # Example

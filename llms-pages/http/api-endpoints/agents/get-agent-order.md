@@ -65,7 +65,7 @@ curl -X GET -G \
 
 | HTTP Status Code | Error Description | Exception Class |
 |  --- | --- | --- |
-| 404 | No order with that id. | [`Error_ErrorException`](/llms-pages/http/models/exceptions/error-error.md) |
+| 404 | No order with that id. | [`ErrorResponse_ErrorException`](/llms-pages/http/models/exceptions/error-response-error.md) |
 
 
 

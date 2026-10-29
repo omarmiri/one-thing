@@ -2,6 +2,8 @@
 
 Source: /#/typescript/x-redirect/JTI0bSUyRkNhcnJpZXI
 
+The carrier. `OTHER` needs `carrierName`.
+
 
 # Enum Type Name
 

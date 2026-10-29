@@ -2,6 +2,8 @@
 
 Source: /#/typescript/x-redirect/JTI0bSUyRkFwaSUyNTIwT3JkZXJzJTI1MjBSZXNwb25zZQ
 
+The PayPal order to approve.
+
 
 # Interface Name
 
@@ -21,7 +23,7 @@ Source: /#/typescript/x-redirect/JTI0bSUyRkFwaSUyNTIwT3JkZXJzJTI1MjBSZXNwb25zZQ
 import { ApiOrdersResponse } from 'one-thing-sdk';
 
 const apiOrdersResponse: ApiOrdersResponse = {
-  id: 'id8',
+  id: '5O190127TN364715T',
 };
 ```
 

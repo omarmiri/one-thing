@@ -21,7 +21,7 @@ This endpoint requires [AdminToken](/llms-pages/python/getting-started/sdk-quick
 | Parameter | Type | Tags | Description |
 |  --- | --- | --- | --- |
 | `slug` | `str` | Template, Required | The shop's link name (current or former). |
-| `body` | [`ApiShopsColorPhotosRequest`](/llms-pages/python/models/structures/api-shops-color-photos-request.md) | Body, Required | - |
+| `body` | [`ApiShopsColorPhotosRequest`](/llms-pages/python/models/structures/api-shops-color-photos-request.md) | Body, Required | The photo for each colour. |
 
 
 # Response Type
@@ -34,12 +34,12 @@ This endpoint requires [AdminToken](/llms-pages/python/getting-started/sdk-quick
 # Example Usage
 
 ```python
-slug = 'raptorrush'
+slug = 'vintageskates'
 
 body = ApiShopsColorPhotosRequest(
     photos={
         'Cream': 'LFRvGuTU3D8i334X',
-        'Red': 'photos9'
+        'Red': None
     }
 )
 
@@ -67,8 +67,8 @@ print(result)
 
 | HTTP Status Code | Error Description | Exception Class |
 |  --- | --- | --- |
-| 400 | Something in the request needs fixing; `error` says what. | [`ErrorException`](/llms-pages/python/models/exceptions/error.md) |
-| 404 | No such shop, or the admin token or API key doesn't match it. | [`ErrorException`](/llms-pages/python/models/exceptions/error.md) |
+| 400 | Something in the request needs fixing; `error` says what. | [`ErrorResponseException`](/llms-pages/python/models/exceptions/error-response.md) |
+| 404 | No such shop, or the admin token or API key doesn't match it. | [`ErrorResponseException`](/llms-pages/python/models/exceptions/error-response.md) |
 
 
 

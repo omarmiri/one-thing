@@ -2,6 +2,8 @@
 
 Source: /#/http/x-redirect/JTI0bSUyRkFwaSUyNTIwUGF5cGFsJTI1MjBDbGllbnQlMjUyMFRva2VuJTI1MjBSZXNwb25zZQ
 
+The client token.
+
 
 # Fields
 
@@ -14,7 +16,7 @@ Source: /#/http/x-redirect/JTI0bSUyRkFwaSUyNTIwUGF5cGFsJTI1MjBDbGllbnQlMjUyMFRva
 
 ```json
 {
-  "clientToken": "clientToken2"
+  "clientToken": "eyJraWQiOiJFWEFNUExFIn0.example.client-token"
 }
 ```
 

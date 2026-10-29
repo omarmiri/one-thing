@@ -16,7 +16,7 @@ def sign_in(self,
 
 | Parameter | Type | Tags | Description |
 |  --- | --- | --- | --- |
-| `body` | [`ApiAccountSigninRequest`](/llms-pages/python/models/structures/api-account-signin-request.md) | Body, Required | - |
+| `body` | [`ApiAccountSigninRequest`](/llms-pages/python/models/structures/api-account-signin-request.md) | Body, Required | The email or phone number to sign in with. |
 
 
 # Response Type
@@ -53,7 +53,7 @@ print(result)
 
 | HTTP Status Code | Error Description | Exception Class |
 |  --- | --- | --- |
-| 400 | Something in the request needs fixing; `error` says what. | [`ErrorException`](/llms-pages/python/models/exceptions/error.md) |
+| 400 | Something in the request needs fixing; `error` says what. | [`ErrorResponseException`](/llms-pages/python/models/exceptions/error-response.md) |
 
 
 

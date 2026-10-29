@@ -32,7 +32,7 @@ This endpoint requires [AdminToken](/llms-pages/http/getting-started/sdk-quickst
 
 ```bash
 curl -X GET \
-  --url 'https://one-thing-ash0.onrender.com/api/shops/raptorrush/paypal'  \
+  --url 'https://one-thing-ash0.onrender.com/api/shops/vintageskates/paypal'  \
   -H 'Accept: application/json' \
   -H 'x-admin-token: x-admin-token' \
   -H 'Authorization: Bearer AccessToken'
@@ -57,9 +57,9 @@ curl -X GET \
 
 | HTTP Status Code | Error Description | Exception Class |
 |  --- | --- | --- |
-| 404 | No such shop, or the admin token or API key doesn't match it. | [`Error_ErrorException`](/llms-pages/http/models/exceptions/error-error.md) |
-| 502 | Gemini, PayPal or Channel3 failed or isn't configured. | [`Error_ErrorException`](/llms-pages/http/models/exceptions/error-error.md) |
-| 503 | Gemini, PayPal or Channel3 failed or isn't configured. | [`Error_ErrorException`](/llms-pages/http/models/exceptions/error-error.md) |
+| 404 | No such shop, or the admin token or API key doesn't match it. | [`ErrorResponse_ErrorException`](/llms-pages/http/models/exceptions/error-response-error.md) |
+| 502 | Gemini, PayPal or Channel3 failed or isn't configured. | [`ErrorResponse_ErrorException`](/llms-pages/http/models/exceptions/error-response-error.md) |
+| 503 | Gemini, PayPal or Channel3 failed or isn't configured. | [`ErrorResponse_ErrorException`](/llms-pages/http/models/exceptions/error-response-error.md) |
 
 
 

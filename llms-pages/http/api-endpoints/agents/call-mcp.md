@@ -53,7 +53,7 @@ POST /api/mcp
 
 | Parameter | Type | Tags | Description |
 |  --- | --- | --- | --- |
-| `body` | [`Json Rpc Request \| array<Json Rpc Request>`](/llms-pages/http/models/oneof-anyof-definitions/call-mcp-body.md) | Body, Required | - |
+| `body` | [`Json Rpc Request \| array<Json Rpc Request>`](/llms-pages/http/models/oneof-anyof-definitions/call-mcp-body.md) | Body, Required | A JSON-RPC 2.0 request or batch. |
 
 
 # Response Type

@@ -25,7 +25,8 @@ Source: /#/typescript/x-redirect/JTI0bSUyRkNhbGxNY3BSZXNwb25zZQ
 ```ts
 const value: CallMcpResponse = {
   jsonrpc: '2.0',
-  id: 'String9',
+  id: 1,
+  result: { 'content': [{ 'type': 'text', 'text': '{ \\'shop\\':  \\'vintageskates\\' }' }], 'isError': false },
 };
 ```
 
@@ -39,8 +40,9 @@ const value: CallMcpResponse = {
 ```ts
 const value: CallMcpResponse = [
   {
-  jsonrpc: 'jsonrpc0',
-  id: 'String9',
+  jsonrpc: '2.0',
+  id: 1,
+  result: { 'content': [{ 'type': 'text', 'text': '{ \\'shop\\':  \\'vintageskates\\' }' }], 'isError': false },
 }
 ];
 ```

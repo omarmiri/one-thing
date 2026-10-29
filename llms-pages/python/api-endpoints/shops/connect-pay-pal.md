@@ -30,7 +30,7 @@ This endpoint requires [AdminToken](/llms-pages/python/getting-started/sdk-quick
 | Parameter | Type | Tags | Description |
 |  --- | --- | --- | --- |
 | `slug` | `str` | Template, Required | The shop's link name (current or former). |
-| `body` | [`ApiShopsPaypalRequest`](/llms-pages/python/models/structures/api-shops-paypal-request.md) | Body, Optional | - |
+| `body` | [`ApiShopsPaypalRequest`](/llms-pages/python/models/structures/api-shops-paypal-request.md) | Body, Optional | Platform keys only: where PayPal sends the seller back. |
 
 
 # Response Type
@@ -43,7 +43,7 @@ This endpoint requires [AdminToken](/llms-pages/python/getting-started/sdk-quick
 # Example Usage
 
 ```python
-slug = 'raptorrush'
+slug = 'vintageskates'
 
 body = ApiShopsPaypalRequest(
     return_url='https://www.miriogames.com/market/manage/?g=7Hq2'
@@ -70,9 +70,9 @@ print(result)
 
 | HTTP Status Code | Error Description | Exception Class |
 |  --- | --- | --- |
-| 404 | No such shop, or the admin token or API key doesn't match it. | [`ErrorException`](/llms-pages/python/models/exceptions/error.md) |
-| 502 | Gemini, PayPal or Channel3 failed or isn't configured. | [`ErrorException`](/llms-pages/python/models/exceptions/error.md) |
-| 503 | Gemini, PayPal or Channel3 failed or isn't configured. | [`ErrorException`](/llms-pages/python/models/exceptions/error.md) |
+| 404 | No such shop, or the admin token or API key doesn't match it. | [`ErrorResponseException`](/llms-pages/python/models/exceptions/error-response.md) |
+| 502 | Gemini, PayPal or Channel3 failed or isn't configured. | [`ErrorResponseException`](/llms-pages/python/models/exceptions/error-response.md) |
+| 503 | Gemini, PayPal or Channel3 failed or isn't configured. | [`ErrorResponseException`](/llms-pages/python/models/exceptions/error-response.md) |
 
 
 

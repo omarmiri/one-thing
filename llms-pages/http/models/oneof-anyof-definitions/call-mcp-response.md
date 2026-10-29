@@ -25,7 +25,16 @@ Source: /#/http/x-redirect/JTI0bSUyRkNhbGxNY3BSZXNwb25zZQ
 ```bash
 {
   "jsonrpc": "2.0",
-  "id": "String9"
+  "id": 1,
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"shop\": \"vintageskates\"}"
+      }
+    ],
+    "isError": false
+  }
 }
 ```
 
@@ -39,8 +48,17 @@ Source: /#/http/x-redirect/JTI0bSUyRkNhbGxNY3BSZXNwb25zZQ
 ```bash
 [
   {
-    "jsonrpc": "jsonrpc0",
-    "id": "String9"
+    "jsonrpc": "2.0",
+    "id": 1,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"shop\": \"vintageskates\"}"
+        }
+      ],
+      "isError": false
+    }
   }
 ]
 ```

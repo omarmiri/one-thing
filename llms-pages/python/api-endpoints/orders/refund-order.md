@@ -23,7 +23,7 @@ This endpoint requires [AdminToken](/llms-pages/python/getting-started/sdk-quick
 |  --- | --- | --- | --- |
 | `slug` | `str` | Template, Required | The shop's link name (current or former). |
 | `order_id` | `str` | Template, Required | OneThing's order id (`Order.id`). |
-| `body` | [`ApiShopsOrdersRefundRequest`](/llms-pages/python/models/structures/api-shops-orders-refund-request.md) | Body, Optional | - |
+| `body` | [`ApiShopsOrdersRefundRequest`](/llms-pages/python/models/structures/api-shops-orders-refund-request.md) | Body, Optional | Optional. `record: true` records a refund made in PayPal. |
 
 
 # Response Type
@@ -36,7 +36,7 @@ This endpoint requires [AdminToken](/llms-pages/python/getting-started/sdk-quick
 # Example Usage
 
 ```python
-slug = 'raptorrush'
+slug = 'vintageskates'
 
 order_id = 'pX4kR9tVb2nQ7sLe'
 
@@ -65,7 +65,7 @@ print(result)
 
 | HTTP Status Code | Error Description | Exception Class |
 |  --- | --- | --- |
-| 404 | No such shop or order, or the token doesn't match the shop. | [`ErrorException`](/llms-pages/python/models/exceptions/error.md) |
+| 404 | No such shop or order, or the token doesn't match the shop. | [`ErrorResponseException`](/llms-pages/python/models/exceptions/error-response.md) |
 | 409 | Not refundable here; `error` says why. | [`ApiShopsOrdersRefund409ErrorException`](/llms-pages/python/models/exceptions/api-shops-orders-refund-409-error.md) |
 
 

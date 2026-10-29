@@ -73,13 +73,14 @@ paths:
       operationId: signIn
       parameters: []
       requestBody:
-        description: ''
+        description: The email or phone number to sign in with.
         content:
           application/json:
             schema:
               allOf:
               - $ref: '#/components/schemas/ApiAccountSigninRequest'
-              - example:
+              - description: The email or phone number to sign in with.
+                example:
                   identifier: maker@example.com
             examples:
               email:
@@ -109,7 +110,8 @@ paths:
               schema:
                 allOf:
                 - $ref: '#/components/schemas/ApiAccountSigninResponse'
-                - example:
+                - description: The signed-in account.
+                  example:
                     id: Vq3nN8cT0bLx2YwE
                     email: maker@example.com
                     phone: null
@@ -124,8 +126,9 @@ paths:
             application/json:
               schema:
                 allOf:
-                - $ref: '#/components/schemas/Error'
-                - example:
+                - $ref: '#/components/schemas/ErrorResponse'
+                - description: An error reply.
+                  example:
                     error: Choose a photo.
               example:
                 error: Choose a photo.
@@ -147,7 +150,8 @@ paths:
               schema:
                 allOf:
                 - $ref: '#/components/schemas/Ok'
-                - example:
+                - description: Confirms the change.
+                  example:
                     ok: true
               example:
                 ok: true
@@ -167,7 +171,7 @@ paths:
         explode: true
         schema:
           type: string
-          example: /new
+          example: /account
       responses:
         '302':
           description: To PayPal's sign-in page.
@@ -179,7 +183,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                allOf:
+                - $ref: '#/components/schemas/ErrorResponse'
+                - description: An error reply.
       deprecated: false
   /api/shops:
     post:
@@ -232,7 +238,7 @@ paths:
                 source:
                   allOf:
                   - $ref: '#/components/schemas/Source'
-                  - {}
+                  - description: 'What the shop starts from: a photo (with an optional description), a product link, or a Channel3 product to recommend.'
                 photo:
                   type: string
                   description: '`source=photo`: the product photo, up to 8 MB.'
@@ -240,20 +246,24 @@ paths:
                 description:
                   type: string
                   description: '`source=photo`: a sentence or two about the product. Required if there is no photo.'
+                  example: Vintage cream and red quad roller skates with walnut burl heels.
                 url:
                   type: string
                   description: '`source=link`: a product page, or your own app or game page.'
                   format: uri
+                  example: https://one-thing-ash0.onrender.com/vintageskates
                 productId:
                   type: string
                   description: '`source=channel3`: a product id from `searchProducts`.'
+                  example: ch3_7f2a9c1e
                 slug:
                   type: string
                   description: The link name you want. If omitted, the AI suggests one.
+                  example: vintageskates
                 type:
                   allOf:
                   - $ref: '#/components/schemas/Type'
-                  - {}
+                  - description: '`physical` ships, `digital` is a file or an access code, `auto` lets the AI decide.'
                 delivery:
                   allOf:
                   - $ref: '#/components/schemas/Delivery'
@@ -262,26 +272,38 @@ paths:
                   type: string
                   description: Where buyers use an access code.
                   format: uri
+                  example: https://www.miriogames.com/raptor-rush/
                 price:
                   type: number
                   description: USD. If omitted, the AI suggests a price.
                   format: double
+                  example: 240
                 shipping:
                   type: number
+                  description: 'Physical products: shipping per order, in USD. If omitted, the AI suggests it.'
                   format: double
+                  example: 15
                 stock:
                   type: integer
+                  description: How many are for sale. Leave out for unlimited.
                   format: int32
+                  example: 7
                 ship_countries:
                   type: string
+                  description: 'Physical products: comma-separated ISO country codes to ship to. Empty means anywhere PayPal ships.'
                 paypal_email:
                   type: string
+                  description: The PayPal account that gets paid, if the seller doesn't connect one with `connectPayPal`.
                   format: email
+                  example: seller@example.com
                 seller_email:
                   type: string
+                  description: Where order notifications go.
                   format: email
+                  example: seller@example.com
                 digital_file:
                   type: string
+                  description: 'Digital products sold as a file: the file buyers download, up to 25 MB. Can also be added later with `uploadDigitalFile`.'
                   format: binary
         required: false
       responses:
@@ -293,7 +315,8 @@ paths:
               schema:
                 allOf:
                 - $ref: '#/components/schemas/CreatedShop'
-                - example:
+                - description: The new draft shop and the credentials to manage it.
+                  example:
                     slug: vintageskates
                     token: 3fJ9xQm2LwP8vR1tZk7cN4bY6dHs0aEu
                     manageUrl: /manage/vintageskates?token=3fJ9xQm2LwP8vR1tZk7cN4bY6dHs0aEu
@@ -308,8 +331,9 @@ paths:
             application/json:
               schema:
                 allOf:
-                - $ref: '#/components/schemas/Error'
-                - example:
+                - $ref: '#/components/schemas/ErrorResponse'
+                - description: An error reply.
+                  example:
                     error: Choose a photo.
               example:
                 error: Choose a photo.
@@ -320,23 +344,12 @@ paths:
             application/json:
               schema:
                 allOf:
-                - $ref: '#/components/schemas/Error'
-                - example:
+                - $ref: '#/components/schemas/ErrorResponse'
+                - description: An error reply.
+                  example:
                     error: Sold out.
               example:
                 error: Sold out.
-        '502':
-          description: Gemini, PayPal or Channel3 failed or isn't configured.
-          headers: {}
-          content:
-            application/json:
-              schema:
-                allOf:
-                - $ref: '#/components/schemas/Error'
-                - example:
-                    error: PayPal isn't configured on this server.
-              example:
-                error: PayPal isn't configured on this server.
         '429':
           description: Over this network's cap for the call (see **Limits**). Retry after `Retry-After` seconds.
           headers:
@@ -354,11 +367,25 @@ paths:
             application/json:
               schema:
                 allOf:
-                - $ref: '#/components/schemas/Error'
-                - example:
+                - $ref: '#/components/schemas/ErrorResponse'
+                - description: An error reply.
+                  example:
                     error: Too many checkouts from your network. Try again in 7 min.
               example:
                 error: Too many checkouts from your network. Try again in 7 min.
+        '502':
+          description: Gemini, PayPal or Channel3 failed or isn't configured.
+          headers: {}
+          content:
+            application/json:
+              schema:
+                allOf:
+                - $ref: '#/components/schemas/ErrorResponse'
+                - description: An error reply.
+                  example:
+                    error: PayPal isn't configured on this server.
+              example:
+                error: PayPal isn't configured on this server.
       deprecated: false
       security:
       - {}
@@ -377,7 +404,7 @@ paths:
         required: true
         schema:
           type: string
-          example: raptorrush
+          example: vintageskates
       responses:
         '200':
           description: The shop.
@@ -387,7 +414,8 @@ paths:
               schema:
                 allOf:
                 - $ref: '#/components/schemas/Shop'
-                - example:
+                - description: A shop, as its seller sees it.
+                  example:
                     id: Hn2c8QvL0xTzR4pW
                     slug: vintageskates
                     status: live
@@ -546,8 +574,9 @@ paths:
             application/json:
               schema:
                 allOf:
-                - $ref: '#/components/schemas/Error'
-                - example:
+                - $ref: '#/components/schemas/ErrorResponse'
+                - description: An error reply.
+                  example:
                     error: Shop not found.
               example:
                 error: Shop not found.
@@ -573,15 +602,16 @@ paths:
         required: true
         schema:
           type: string
-          example: raptorrush
+          example: vintageskates
       requestBody:
-        description: ''
+        description: The fields to change; anything left out stays as it is.
         content:
           application/json:
             schema:
               allOf:
               - $ref: '#/components/schemas/ShopUpdate'
-              - example:
+              - description: The fields to change; anything left out stays as it is.
+                example:
                   status: live
             examples:
               golive:
@@ -625,7 +655,8 @@ paths:
               schema:
                 allOf:
                 - $ref: '#/components/schemas/ApiShopsResponse'
-                - example:
+                - description: The shop was saved.
+                  example:
                     ok: true
                     slug: vintageskates
               example:
@@ -638,8 +669,9 @@ paths:
             application/json:
               schema:
                 allOf:
-                - $ref: '#/components/schemas/Error'
-                - example:
+                - $ref: '#/components/schemas/ErrorResponse'
+                - description: An error reply.
+                  example:
                     error: Choose a photo.
               example:
                 error: Choose a photo.
@@ -650,8 +682,9 @@ paths:
             application/json:
               schema:
                 allOf:
-                - $ref: '#/components/schemas/Error'
-                - example:
+                - $ref: '#/components/schemas/ErrorResponse'
+                - description: An error reply.
+                  example:
                     error: Shop not found.
               example:
                 error: Shop not found.
@@ -673,15 +706,16 @@ paths:
         required: true
         schema:
           type: string
-          example: raptorrush
+          example: vintageskates
       requestBody:
-        description: ''
+        description: The design change, in words.
         content:
           application/json:
             schema:
               allOf:
               - $ref: '#/components/schemas/ApiShopsRefineRequest'
-              - example:
+              - description: The design change, in words.
+                example:
                   instruction: Make it feel more premium
             example:
               instruction: Make it feel more premium
@@ -695,7 +729,8 @@ paths:
               schema:
                 allOf:
                 - $ref: '#/components/schemas/ApiShopsRefineResponse'
-                - example:
+                - description: The redesigned page.
+                  example:
                     spec:
                       productType: physical
                       productName: Vintage Cream and Red Roller Skates
@@ -766,8 +801,9 @@ paths:
             application/json:
               schema:
                 allOf:
-                - $ref: '#/components/schemas/Error'
-                - example:
+                - $ref: '#/components/schemas/ErrorResponse'
+                - description: An error reply.
+                  example:
                     error: Choose a photo.
               example:
                 error: Choose a photo.
@@ -778,23 +814,12 @@ paths:
             application/json:
               schema:
                 allOf:
-                - $ref: '#/components/schemas/Error'
-                - example:
+                - $ref: '#/components/schemas/ErrorResponse'
+                - description: An error reply.
+                  example:
                     error: Shop not found.
               example:
                 error: Shop not found.
-        '502':
-          description: Gemini, PayPal or Channel3 failed or isn't configured.
-          headers: {}
-          content:
-            application/json:
-              schema:
-                allOf:
-                - $ref: '#/components/schemas/Error'
-                - example:
-                    error: PayPal isn't configured on this server.
-              example:
-                error: PayPal isn't configured on this server.
         '429':
           description: Over this network's cap for the call (see **Limits**). Retry after `Retry-After` seconds.
           headers:
@@ -812,11 +837,25 @@ paths:
             application/json:
               schema:
                 allOf:
-                - $ref: '#/components/schemas/Error'
-                - example:
+                - $ref: '#/components/schemas/ErrorResponse'
+                - description: An error reply.
+                  example:
                     error: Too many checkouts from your network. Try again in 7 min.
               example:
                 error: Too many checkouts from your network. Try again in 7 min.
+        '502':
+          description: Gemini, PayPal or Channel3 failed or isn't configured.
+          headers: {}
+          content:
+            application/json:
+              schema:
+                allOf:
+                - $ref: '#/components/schemas/ErrorResponse'
+                - description: An error reply.
+                  example:
+                    error: PayPal isn't configured on this server.
+              example:
+                error: PayPal isn't configured on this server.
       deprecated: false
       security:
       - AdminToken: []
@@ -835,7 +874,7 @@ paths:
         required: true
         schema:
           type: string
-          example: raptorrush
+          example: vintageskates
       responses:
         '200':
           description: Done.
@@ -845,7 +884,8 @@ paths:
               schema:
                 allOf:
                 - $ref: '#/components/schemas/Ok'
-                - example:
+                - description: Confirms the change.
+                  example:
                     ok: true
               example:
                 ok: true
@@ -856,8 +896,9 @@ paths:
             application/json:
               schema:
                 allOf:
-                - $ref: '#/components/schemas/Error'
-                - example:
+                - $ref: '#/components/schemas/ErrorResponse'
+                - description: An error reply.
+                  example:
                     error: Choose a photo.
               example:
                 error: Choose a photo.
@@ -868,8 +909,9 @@ paths:
             application/json:
               schema:
                 allOf:
-                - $ref: '#/components/schemas/Error'
-                - example:
+                - $ref: '#/components/schemas/ErrorResponse'
+                - description: An error reply.
+                  example:
                     error: Shop not found.
               example:
                 error: Shop not found.
@@ -890,8 +932,9 @@ paths:
             application/json:
               schema:
                 allOf:
-                - $ref: '#/components/schemas/Error'
-                - example:
+                - $ref: '#/components/schemas/ErrorResponse'
+                - description: An error reply.
+                  example:
                     error: Too many checkouts from your network. Try again in 7 min.
               example:
                 error: Too many checkouts from your network. Try again in 7 min.
@@ -913,7 +956,7 @@ paths:
         required: true
         schema:
           type: string
-          example: raptorrush
+          example: vintageskates
       requestBody:
         content:
           multipart/form-data:
@@ -937,7 +980,8 @@ paths:
               schema:
                 allOf:
                 - $ref: '#/components/schemas/ApiShopsFileResponse'
-                - example:
+                - description: The uploaded file.
+                  example:
                     ok: true
                     filename: raptor-rush-soundtrack.zip
               example:
@@ -950,8 +994,9 @@ paths:
             application/json:
               schema:
                 allOf:
-                - $ref: '#/components/schemas/Error'
-                - example:
+                - $ref: '#/components/schemas/ErrorResponse'
+                - description: An error reply.
+                  example:
                     error: Choose a photo.
               example:
                 error: Choose a photo.
@@ -962,8 +1007,9 @@ paths:
             application/json:
               schema:
                 allOf:
-                - $ref: '#/components/schemas/Error'
-                - example:
+                - $ref: '#/components/schemas/ErrorResponse'
+                - description: An error reply.
+                  example:
                     error: Shop not found.
               example:
                 error: Shop not found.
@@ -985,7 +1031,7 @@ paths:
         required: true
         schema:
           type: string
-          example: raptorrush
+          example: vintageskates
       requestBody:
         content:
           multipart/form-data:
@@ -1009,7 +1055,8 @@ paths:
               schema:
                 allOf:
                 - $ref: '#/components/schemas/ShopPhotos'
-                - example:
+                - description: The shop's photos.
+                  example:
                     photos:
                     - id: 'LFRvGuTU3D8i334X'
                       url: '/api/blobs/LFRvGuTU3D8i334X'
@@ -1028,8 +1075,9 @@ paths:
             application/json:
               schema:
                 allOf:
-                - $ref: '#/components/schemas/Error'
-                - example:
+                - $ref: '#/components/schemas/ErrorResponse'
+                - description: An error reply.
+                  example:
                     error: Choose a photo.
               example:
                 error: Choose a photo.
@@ -1040,8 +1088,9 @@ paths:
             application/json:
               schema:
                 allOf:
-                - $ref: '#/components/schemas/Error'
-                - example:
+                - $ref: '#/components/schemas/ErrorResponse'
+                - description: An error reply.
+                  example:
                     error: Shop not found.
               example:
                 error: Shop not found.
@@ -1062,15 +1111,16 @@ paths:
         required: true
         schema:
           type: string
-          example: raptorrush
+          example: vintageskates
       requestBody:
-        description: ''
+        description: Every photo id, in the new order.
         content:
           application/json:
             schema:
               allOf:
               - $ref: '#/components/schemas/ApiShopsPhotosRequest'
-              - example:
+              - description: Every photo id, in the new order.
+                example:
                   photos:
                   - zrySajNyao6_j11x
                   - 'LFRvGuTU3D8i334X'
@@ -1090,7 +1140,8 @@ paths:
               schema:
                 allOf:
                 - $ref: '#/components/schemas/ShopPhotos'
-                - example:
+                - description: The shop's photos.
+                  example:
                     photos:
                     - id: 'LFRvGuTU3D8i334X'
                       url: '/api/blobs/LFRvGuTU3D8i334X'
@@ -1109,8 +1160,9 @@ paths:
             application/json:
               schema:
                 allOf:
-                - $ref: '#/components/schemas/Error'
-                - example:
+                - $ref: '#/components/schemas/ErrorResponse'
+                - description: An error reply.
+                  example:
                     error: Choose a photo.
               example:
                 error: Choose a photo.
@@ -1121,8 +1173,9 @@ paths:
             application/json:
               schema:
                 allOf:
-                - $ref: '#/components/schemas/Error'
-                - example:
+                - $ref: '#/components/schemas/ErrorResponse'
+                - description: An error reply.
+                  example:
                     error: Shop not found.
               example:
                 error: Shop not found.
@@ -1154,7 +1207,7 @@ paths:
         required: true
         schema:
           type: string
-          example: raptorrush
+          example: vintageskates
       responses:
         '200':
           description: The suggestions.
@@ -1200,8 +1253,9 @@ paths:
             application/json:
               schema:
                 allOf:
-                - $ref: '#/components/schemas/Error'
-                - example:
+                - $ref: '#/components/schemas/ErrorResponse'
+                - description: An error reply.
+                  example:
                     error: Choose a photo.
               example:
                 error: Choose a photo.
@@ -1212,23 +1266,12 @@ paths:
             application/json:
               schema:
                 allOf:
-                - $ref: '#/components/schemas/Error'
-                - example:
+                - $ref: '#/components/schemas/ErrorResponse'
+                - description: An error reply.
+                  example:
                     error: Shop not found.
               example:
                 error: Shop not found.
-        '502':
-          description: Gemini, PayPal or Channel3 failed or isn't configured.
-          headers: {}
-          content:
-            application/json:
-              schema:
-                allOf:
-                - $ref: '#/components/schemas/Error'
-                - example:
-                    error: PayPal isn't configured on this server.
-              example:
-                error: PayPal isn't configured on this server.
         '429':
           description: Over this network's cap for the call (see **Limits**). Retry after `Retry-After` seconds.
           headers:
@@ -1246,11 +1289,25 @@ paths:
             application/json:
               schema:
                 allOf:
-                - $ref: '#/components/schemas/Error'
-                - example:
+                - $ref: '#/components/schemas/ErrorResponse'
+                - description: An error reply.
+                  example:
                     error: Too many checkouts from your network. Try again in 7 min.
               example:
                 error: Too many checkouts from your network. Try again in 7 min.
+        '502':
+          description: Gemini, PayPal or Channel3 failed or isn't configured.
+          headers: {}
+          content:
+            application/json:
+              schema:
+                allOf:
+                - $ref: '#/components/schemas/ErrorResponse'
+                - description: An error reply.
+                  example:
+                    error: PayPal isn't configured on this server.
+              example:
+                error: PayPal isn't configured on this server.
       deprecated: false
       security:
       - AdminToken: []
@@ -1269,15 +1326,16 @@ paths:
         required: true
         schema:
           type: string
-          example: raptorrush
+          example: vintageskates
       requestBody:
-        description: ''
+        description: The colour option's values.
         content:
           application/json:
             schema:
               allOf:
               - $ref: '#/components/schemas/ApiShopsMatchPhotosRequest'
-              - example:
+              - description: The colour option's values.
+                example:
                   colors:
                   - label: Cream
                     hex: '#f3e9d2'
@@ -1299,7 +1357,8 @@ paths:
               schema:
                 allOf:
                 - $ref: '#/components/schemas/ApiShopsMatchPhotosResponse'
-                - example:
+                - description: Gemini's matches.
+                  example:
                     matches:
                       Cream: 'LFRvGuTU3D8i334X'
                       Red: SuqcgNv64HWN8H6e
@@ -1314,8 +1373,9 @@ paths:
             application/json:
               schema:
                 allOf:
-                - $ref: '#/components/schemas/Error'
-                - example:
+                - $ref: '#/components/schemas/ErrorResponse'
+                - description: An error reply.
+                  example:
                     error: Choose a photo.
               example:
                 error: Choose a photo.
@@ -1326,23 +1386,12 @@ paths:
             application/json:
               schema:
                 allOf:
-                - $ref: '#/components/schemas/Error'
-                - example:
+                - $ref: '#/components/schemas/ErrorResponse'
+                - description: An error reply.
+                  example:
                     error: Shop not found.
               example:
                 error: Shop not found.
-        '502':
-          description: Gemini, PayPal or Channel3 failed or isn't configured.
-          headers: {}
-          content:
-            application/json:
-              schema:
-                allOf:
-                - $ref: '#/components/schemas/Error'
-                - example:
-                    error: PayPal isn't configured on this server.
-              example:
-                error: PayPal isn't configured on this server.
         '429':
           description: Over this network's cap for the call (see **Limits**). Retry after `Retry-After` seconds.
           headers:
@@ -1360,11 +1409,25 @@ paths:
             application/json:
               schema:
                 allOf:
-                - $ref: '#/components/schemas/Error'
-                - example:
+                - $ref: '#/components/schemas/ErrorResponse'
+                - description: An error reply.
+                  example:
                     error: Too many checkouts from your network. Try again in 7 min.
               example:
                 error: Too many checkouts from your network. Try again in 7 min.
+        '502':
+          description: Gemini, PayPal or Channel3 failed or isn't configured.
+          headers: {}
+          content:
+            application/json:
+              schema:
+                allOf:
+                - $ref: '#/components/schemas/ErrorResponse'
+                - description: An error reply.
+                  example:
+                    error: PayPal isn't configured on this server.
+              example:
+                error: PayPal isn't configured on this server.
       deprecated: false
       security:
       - AdminToken: []
@@ -1383,15 +1446,16 @@ paths:
         required: true
         schema:
           type: string
-          example: raptorrush
+          example: vintageskates
       requestBody:
-        description: ''
+        description: The photo for each colour.
         content:
           application/json:
             schema:
               allOf:
               - $ref: '#/components/schemas/ApiShopsColorPhotosRequest'
-              - example:
+              - description: The photo for each colour.
+                example:
                   photos:
                     Cream: 'LFRvGuTU3D8i334X'
                     Red: null
@@ -1409,7 +1473,8 @@ paths:
               schema:
                 allOf:
                 - $ref: '#/components/schemas/ApiShopsColorPhotosResponse'
-                - example:
+                - description: The colours that changed.
+                  example:
                     saved:
                     - Cream
                     - Red
@@ -1424,8 +1489,9 @@ paths:
             application/json:
               schema:
                 allOf:
-                - $ref: '#/components/schemas/Error'
-                - example:
+                - $ref: '#/components/schemas/ErrorResponse'
+                - description: An error reply.
+                  example:
                     error: Choose a photo.
               example:
                 error: Choose a photo.
@@ -1436,8 +1502,9 @@ paths:
             application/json:
               schema:
                 allOf:
-                - $ref: '#/components/schemas/Error'
-                - example:
+                - $ref: '#/components/schemas/ErrorResponse'
+                - description: An error reply.
+                  example:
                     error: Shop not found.
               example:
                 error: Shop not found.
@@ -1476,15 +1543,16 @@ paths:
         required: true
         schema:
           type: string
-          example: raptorrush
+          example: vintageskates
       requestBody:
-        description: ''
+        description: 'Platform keys only: where PayPal sends the seller back.'
         content:
           application/json:
             schema:
               allOf:
               - $ref: '#/components/schemas/ApiShopsPaypalRequest'
-              - example:
+              - description: 'Platform keys only: where PayPal sends the seller back.'
+                example:
                   returnUrl: https://www.miriogames.com/market/manage/?g=7Hq2
             example:
               returnUrl: https://www.miriogames.com/market/manage/?g=7Hq2
@@ -1498,7 +1566,8 @@ paths:
               schema:
                 allOf:
                 - $ref: '#/components/schemas/ApiShopsPaypalResponse'
-                - example:
+                - description: The onboarding link.
+                  example:
                     url: https://www.sandbox.paypal.com/bizsignup/partner/entry?referralToken=EXAMPLE
               example:
                 url: https://www.sandbox.paypal.com/bizsignup/partner/entry?referralToken=EXAMPLE
@@ -1509,8 +1578,9 @@ paths:
             application/json:
               schema:
                 allOf:
-                - $ref: '#/components/schemas/Error'
-                - example:
+                - $ref: '#/components/schemas/ErrorResponse'
+                - description: An error reply.
+                  example:
                     error: Shop not found.
               example:
                 error: Shop not found.
@@ -1521,8 +1591,9 @@ paths:
             application/json:
               schema:
                 allOf:
-                - $ref: '#/components/schemas/Error'
-                - example:
+                - $ref: '#/components/schemas/ErrorResponse'
+                - description: An error reply.
+                  example:
                     error: PayPal isn't configured on this server.
               example:
                 error: PayPal isn't configured on this server.
@@ -1533,8 +1604,9 @@ paths:
             application/json:
               schema:
                 allOf:
-                - $ref: '#/components/schemas/Error'
-                - example:
+                - $ref: '#/components/schemas/ErrorResponse'
+                - description: An error reply.
+                  example:
                     error: PayPal isn't configured on this server.
               example:
                 error: PayPal isn't configured on this server.
@@ -1555,7 +1627,7 @@ paths:
         required: true
         schema:
           type: string
-          example: raptorrush
+          example: vintageskates
       responses:
         '200':
           description: The connection, or nulls if there is none yet.
@@ -1565,7 +1637,8 @@ paths:
               schema:
                 allOf:
                 - $ref: '#/components/schemas/ApiShopsPaypalResponse1'
-                - example:
+                - description: The shop's PayPal connection.
+                  example:
                     merchantId: 7MZJ4QXN8K2LA
                     status:
                       receivable: true
@@ -1584,8 +1657,9 @@ paths:
             application/json:
               schema:
                 allOf:
-                - $ref: '#/components/schemas/Error'
-                - example:
+                - $ref: '#/components/schemas/ErrorResponse'
+                - description: An error reply.
+                  example:
                     error: Shop not found.
               example:
                 error: Shop not found.
@@ -1596,8 +1670,9 @@ paths:
             application/json:
               schema:
                 allOf:
-                - $ref: '#/components/schemas/Error'
-                - example:
+                - $ref: '#/components/schemas/ErrorResponse'
+                - description: An error reply.
+                  example:
                     error: PayPal isn't configured on this server.
               example:
                 error: PayPal isn't configured on this server.
@@ -1608,8 +1683,9 @@ paths:
             application/json:
               schema:
                 allOf:
-                - $ref: '#/components/schemas/Error'
-                - example:
+                - $ref: '#/components/schemas/ErrorResponse'
+                - description: An error reply.
+                  example:
                     error: PayPal isn't configured on this server.
               example:
                 error: PayPal isn't configured on this server.
@@ -1630,7 +1706,7 @@ paths:
         required: true
         schema:
           type: string
-          example: raptorrush
+          example: vintageskates
       responses:
         '200':
           description: Done.
@@ -1640,7 +1716,8 @@ paths:
               schema:
                 allOf:
                 - $ref: '#/components/schemas/Ok'
-                - example:
+                - description: Confirms the change.
+                  example:
                     ok: true
               example:
                 ok: true
@@ -1651,8 +1728,9 @@ paths:
             application/json:
               schema:
                 allOf:
-                - $ref: '#/components/schemas/Error'
-                - example:
+                - $ref: '#/components/schemas/ErrorResponse'
+                - description: An error reply.
+                  example:
                     error: Shop not found.
               example:
                 error: Shop not found.
@@ -1686,7 +1764,8 @@ paths:
               schema:
                 allOf:
                 - $ref: '#/components/schemas/ApiSlugsCheckResponse'
-                - example:
+                - description: Whether the link name can be used.
+                  example:
                     slug: raptor-rush
                     available: true
               examples:
@@ -1719,7 +1798,7 @@ paths:
         schema:
           maxLength: 200
           type: string
-          example: gifts for trail runners under $60
+          example: trail running vest
       responses:
         '200':
           description: Up to 12 products.
@@ -1729,7 +1808,8 @@ paths:
               schema:
                 allOf:
                 - $ref: '#/components/schemas/ApiChannel3SearchResponse'
-                - example:
+                - description: The products found.
+                  example:
                     products:
                     - id: ch3_7f2a9c1e
                       title: Trail Running Vest 5L
@@ -1758,8 +1838,9 @@ paths:
             application/json:
               schema:
                 allOf:
-                - $ref: '#/components/schemas/Error'
-                - example:
+                - $ref: '#/components/schemas/ErrorResponse'
+                - description: An error reply.
+                  example:
                     error: PayPal isn't configured on this server.
               example:
                 error: PayPal isn't configured on this server.
@@ -1770,8 +1851,9 @@ paths:
             application/json:
               schema:
                 allOf:
-                - $ref: '#/components/schemas/Error'
-                - example:
+                - $ref: '#/components/schemas/ErrorResponse'
+                - description: An error reply.
+                  example:
                     error: PayPal isn't configured on this server.
               example:
                 error: PayPal isn't configured on this server.
@@ -1798,7 +1880,8 @@ paths:
               schema:
                 allOf:
                 - $ref: '#/components/schemas/ApiPaypalClientTokenResponse'
-                - example:
+                - description: The client token.
+                  example:
                     clientToken: eyJraWQiOiJFWEFNUExFIn0.example.client-token
               example:
                 clientToken: eyJraWQiOiJFWEFNUExFIn0.example.client-token
@@ -1809,8 +1892,9 @@ paths:
             application/json:
               schema:
                 allOf:
-                - $ref: '#/components/schemas/Error'
-                - example:
+                - $ref: '#/components/schemas/ErrorResponse'
+                - description: An error reply.
+                  example:
                     error: PayPal isn't configured on this server.
               example:
                 error: PayPal isn't configured on this server.
@@ -1821,8 +1905,9 @@ paths:
             application/json:
               schema:
                 allOf:
-                - $ref: '#/components/schemas/Error'
-                - example:
+                - $ref: '#/components/schemas/ErrorResponse'
+                - description: An error reply.
+                  example:
                     error: PayPal isn't configured on this server.
               example:
                 error: PayPal isn't configured on this server.
@@ -1842,13 +1927,14 @@ paths:
       operationId: createCheckoutOrder
       parameters: []
       requestBody:
-        description: ''
+        description: The shop and the buyer's pick.
         content:
           application/json:
             schema:
               allOf:
               - $ref: '#/components/schemas/ApiOrdersRequest'
-              - example:
+              - description: The shop and the buyer's pick.
+                example:
                   slug: raptorrush
             examples:
               plain:
@@ -1871,7 +1957,8 @@ paths:
               schema:
                 allOf:
                 - $ref: '#/components/schemas/ApiOrdersResponse'
-                - example:
+                - description: The PayPal order to approve.
+                  example:
                     id: 5O190127TN364715T
               example:
                 id: 5O190127TN364715T
@@ -1882,8 +1969,9 @@ paths:
             application/json:
               schema:
                 allOf:
-                - $ref: '#/components/schemas/Error'
-                - example:
+                - $ref: '#/components/schemas/ErrorResponse'
+                - description: An error reply.
+                  example:
                     error: Choose a photo.
               example:
                 error: Choose a photo.
@@ -1894,8 +1982,9 @@ paths:
             application/json:
               schema:
                 allOf:
-                - $ref: '#/components/schemas/Error'
-                - example:
+                - $ref: '#/components/schemas/ErrorResponse'
+                - description: An error reply.
+                  example:
                     error: Shop not found.
               example:
                 error: Shop not found.
@@ -1906,35 +1995,12 @@ paths:
             application/json:
               schema:
                 allOf:
-                - $ref: '#/components/schemas/Error'
-                - example:
+                - $ref: '#/components/schemas/ErrorResponse'
+                - description: An error reply.
+                  example:
                     error: Sold out.
               example:
                 error: Sold out.
-        '502':
-          description: Gemini, PayPal or Channel3 failed or isn't configured.
-          headers: {}
-          content:
-            application/json:
-              schema:
-                allOf:
-                - $ref: '#/components/schemas/Error'
-                - example:
-                    error: PayPal isn't configured on this server.
-              example:
-                error: PayPal isn't configured on this server.
-        '503':
-          description: Gemini, PayPal or Channel3 failed or isn't configured.
-          headers: {}
-          content:
-            application/json:
-              schema:
-                allOf:
-                - $ref: '#/components/schemas/Error'
-                - example:
-                    error: PayPal isn't configured on this server.
-              example:
-                error: PayPal isn't configured on this server.
         '429':
           description: Over this network's cap for the call (see **Limits**). Retry after `Retry-After` seconds.
           headers:
@@ -1952,11 +2018,38 @@ paths:
             application/json:
               schema:
                 allOf:
-                - $ref: '#/components/schemas/Error'
-                - example:
+                - $ref: '#/components/schemas/ErrorResponse'
+                - description: An error reply.
+                  example:
                     error: Too many checkouts from your network. Try again in 7 min.
               example:
                 error: Too many checkouts from your network. Try again in 7 min.
+        '502':
+          description: Gemini, PayPal or Channel3 failed or isn't configured.
+          headers: {}
+          content:
+            application/json:
+              schema:
+                allOf:
+                - $ref: '#/components/schemas/ErrorResponse'
+                - description: An error reply.
+                  example:
+                    error: PayPal isn't configured on this server.
+              example:
+                error: PayPal isn't configured on this server.
+        '503':
+          description: Gemini, PayPal or Channel3 failed or isn't configured.
+          headers: {}
+          content:
+            application/json:
+              schema:
+                allOf:
+                - $ref: '#/components/schemas/ErrorResponse'
+                - description: An error reply.
+                  example:
+                    error: PayPal isn't configured on this server.
+              example:
+                error: PayPal isn't configured on this server.
       deprecated: false
   /api/orders/{paypalOrderId}/capture:
     post:
@@ -1985,7 +2078,8 @@ paths:
               schema:
                 allOf:
                 - $ref: '#/components/schemas/ApiOrdersCaptureResponse'
-                - example:
+                - description: The paid order.
+                  example:
                     orderId: pX4kR9tVb2nQ7sLe
                     status: paid
               example:
@@ -1998,8 +2092,9 @@ paths:
             application/json:
               schema:
                 allOf:
-                - $ref: '#/components/schemas/Error'
-                - example:
+                - $ref: '#/components/schemas/ErrorResponse'
+                - description: An error reply.
+                  example:
                     error: Choose a photo.
               example:
                 error: Choose a photo.
@@ -2010,8 +2105,9 @@ paths:
             application/json:
               schema:
                 allOf:
-                - $ref: '#/components/schemas/Error'
-                - example:
+                - $ref: '#/components/schemas/ErrorResponse'
+                - description: An error reply.
+                  example:
                     error: Shop not found.
               example:
                 error: Shop not found.
@@ -2021,21 +2117,27 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiOrdersCapture409Error1'
+                allOf:
+                - $ref: '#/components/schemas/ApiOrdersCapture409Error1'
+                - description: Not approved yet.
         '410':
           description: The last unit (or the last of the buyer's combination) sold while they were paying, or the PayPal checkout expired before they paid. The payment isn't captured, so the buyer isn't charged.
           headers: {}
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                allOf:
+                - $ref: '#/components/schemas/ErrorResponse'
+                - description: An error reply.
         '422':
           description: The buyer's funding source was declined (`INSTRUMENT_DECLINED`); they can try another.
           headers: {}
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                allOf:
+                - $ref: '#/components/schemas/ErrorResponse'
+                - description: An error reply.
         '502':
           description: Gemini, PayPal or Channel3 failed or isn't configured.
           headers: {}
@@ -2043,8 +2145,9 @@ paths:
             application/json:
               schema:
                 allOf:
-                - $ref: '#/components/schemas/Error'
-                - example:
+                - $ref: '#/components/schemas/ErrorResponse'
+                - description: An error reply.
+                  example:
                     error: PayPal isn't configured on this server.
               example:
                 error: PayPal isn't configured on this server.
@@ -2063,13 +2166,14 @@ paths:
       operationId: verifyAccessCode
       parameters: []
       requestBody:
-        description: ''
+        description: The shop and the code to check.
         content:
           application/json:
             schema:
               allOf:
               - $ref: '#/components/schemas/ApiAccessVerifyRequest'
-              - example:
+              - description: The shop and the code to check.
+                example:
                   shop: raptorrush
                   code: K7QF-M2XP-9HTD
             example:
@@ -2085,7 +2189,8 @@ paths:
               schema:
                 allOf:
                 - $ref: '#/components/schemas/ApiAccessVerifyResponse'
-                - example:
+                - description: Whether the code is valid.
+                  example:
                     valid: true
                     product: 'Raptor Rush: Browser Edition'
               examples:
@@ -2113,7 +2218,7 @@ paths:
         required: true
         schema:
           type: string
-          example: raptorrush
+          example: vintageskates
       responses:
         '200':
           description: Orders.
@@ -2124,7 +2229,7 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Order'
-                description: ''
+                description: Orders, newest first.
                 example:
                 - id: pX4kR9tVb2nQ7sLe
                   paypal_order_id: 5O190127TN364715T
@@ -2188,8 +2293,9 @@ paths:
             application/json:
               schema:
                 allOf:
-                - $ref: '#/components/schemas/Error'
-                - example:
+                - $ref: '#/components/schemas/ErrorResponse'
+                - description: An error reply.
+                  example:
                     error: Shop not found.
               example:
                 error: Shop not found.
@@ -2211,7 +2317,7 @@ paths:
         required: true
         schema:
           type: string
-          example: raptorrush
+          example: vintageskates
       - name: orderId
         in: path
         description: OneThing's order id (`Order.id`).
@@ -2220,13 +2326,14 @@ paths:
           type: string
           example: pX4kR9tVb2nQ7sLe
       requestBody:
-        description: ''
+        description: The carrier and tracking number.
         content:
           application/json:
             schema:
               allOf:
               - $ref: '#/components/schemas/ApiShopsOrdersShipRequest'
-              - example:
+              - description: The carrier and tracking number.
+                example:
                   carrier: USPS
                   trackingNumber: '9400111899223817362315'
             examples:
@@ -2251,7 +2358,8 @@ paths:
               schema:
                 allOf:
                 - $ref: '#/components/schemas/ApiShopsOrdersShipResponse'
-                - example:
+                - description: The order is marked shipped.
+                  example:
                     ok: true
                     synced: true
               example:
@@ -2264,8 +2372,9 @@ paths:
             application/json:
               schema:
                 allOf:
-                - $ref: '#/components/schemas/Error'
-                - example:
+                - $ref: '#/components/schemas/ErrorResponse'
+                - description: An error reply.
+                  example:
                     error: Choose a photo.
               example:
                 error: Choose a photo.
@@ -2276,8 +2385,9 @@ paths:
             application/json:
               schema:
                 allOf:
-                - $ref: '#/components/schemas/Error'
-                - example:
+                - $ref: '#/components/schemas/ErrorResponse'
+                - description: An error reply.
+                  example:
                     error: Shop not found.
               example:
                 error: Shop not found.
@@ -2299,7 +2409,7 @@ paths:
         required: true
         schema:
           type: string
-          example: raptorrush
+          example: vintageskates
       - name: orderId
         in: path
         description: OneThing's order id (`Order.id`).
@@ -2308,13 +2418,14 @@ paths:
           type: string
           example: pX4kR9tVb2nQ7sLe
       requestBody:
-        description: ''
+        description: 'Optional. `record: true` records a refund made in PayPal.'
         content:
           application/json:
             schema:
               allOf:
               - $ref: '#/components/schemas/ApiShopsOrdersRefundRequest'
-              - example: {}
+              - description: 'Optional. `record: true` records a refund made in PayPal.'
+                example: {}
             examples:
               refund:
                 summary: Refund through PayPal
@@ -2333,7 +2444,8 @@ paths:
               schema:
                 allOf:
                 - $ref: '#/components/schemas/ApiShopsOrdersRefundResponse'
-                - example:
+                - description: The refund.
+                  example:
                     ok: true
                     refundId: 1JU08902781691411
               example:
@@ -2346,8 +2458,9 @@ paths:
             application/json:
               schema:
                 allOf:
-                - $ref: '#/components/schemas/Error'
-                - example:
+                - $ref: '#/components/schemas/ErrorResponse'
+                - description: An error reply.
+                  example:
                     error: Order not found.
               example:
                 error: Order not found.
@@ -2359,7 +2472,8 @@ paths:
               schema:
                 allOf:
                 - $ref: '#/components/schemas/ApiShopsOrdersRefund409Error1'
-                - example:
+                - description: Why the order can't be refunded here.
+                  example:
                     error: Only paid orders can be refunded.
               examples:
                 notPaid:
@@ -2389,7 +2503,7 @@ paths:
         required: true
         schema:
           type: string
-          example: raptorrush
+          example: vintageskates
       responses:
         '200':
           description: Events, newest first.
@@ -2400,7 +2514,7 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/WebhookEvent'
-                description: ''
+                description: PayPal webhook deliveries, newest first.
                 example:
                 - id: WH-2WR32451HC0233532-67976317FL4543714
                   event_type: PAYMENT.CAPTURE.COMPLETED
@@ -2424,8 +2538,9 @@ paths:
             application/json:
               schema:
                 allOf:
-                - $ref: '#/components/schemas/Error'
-                - example:
+                - $ref: '#/components/schemas/ErrorResponse'
+                - description: An error reply.
+                  example:
                     error: Shop not found.
               example:
                 error: Shop not found.
@@ -2456,6 +2571,7 @@ paths:
             application/octet-stream:
               schema:
                 type: string
+                description: The file's bytes.
                 format: binary
         '410':
           description: Expired or used up.
@@ -2464,6 +2580,9 @@ paths:
             text/plain:
               schema:
                 type: string
+                description: Why the link no longer works.
+                example: This download link has expired.
+              example: This download link has expired.
       deprecated: false
   /api/blobs/{id}:
     get:
@@ -2486,7 +2605,8 @@ paths:
           headers: {}
           content:
             image/*:
-              schema: {}
+              schema:
+                description: The image bytes.
         '404':
           description: Not a public shop image.
           headers: {}
@@ -2519,6 +2639,9 @@ paths:
             text/plain:
               schema:
                 type: string
+                description: A short message.
+                example: Order not found.
+              example: Order not found.
       deprecated: false
   /api/agent/shops:
     get:
@@ -2558,7 +2681,8 @@ paths:
               schema:
                 allOf:
                 - $ref: '#/components/schemas/ApiAgentShopsResponse'
-                - example:
+                - description: The matching shops, with a reply to show the buyer.
+                  example:
                     show_buyer: '![Vintage Cream and Red Roller Skates](https://one-thing-ash0.onrender.com/api/blobs/LFRvGuTU3D8i334X)
 
 
@@ -2669,7 +2793,7 @@ paths:
         required: true
         schema:
           type: string
-          example: raptorrush
+          example: vintageskates
       - name: agent
         in: query
         description: "Optional: the agent's name (`ChatGPT`, `Gemini`, `my-shopping-bot`), so the seller's stats show which agent sent the buyer. Only used when the user agent doesn't already say."
@@ -2751,8 +2875,9 @@ paths:
             application/json:
               schema:
                 allOf:
-                - $ref: '#/components/schemas/Error'
-                - example:
+                - $ref: '#/components/schemas/ErrorResponse'
+                - description: An error reply.
+                  example:
                     error: 'Unknown Size "12". Size: one of 7, 8, 9.'
               example:
                 error: 'Unknown Size "12". Size: one of 7, 8, 9.'
@@ -2763,8 +2888,9 @@ paths:
             application/json:
               schema:
                 allOf:
-                - $ref: '#/components/schemas/Error'
-                - example:
+                - $ref: '#/components/schemas/ErrorResponse'
+                - description: An error reply.
+                  example:
                     error: Crawlers and link previews don't place orders. Read the product at the shop's page.
               example:
                 error: Crawlers and link previews don't place orders. Read the product at the shop's page.
@@ -2775,8 +2901,9 @@ paths:
             application/json:
               schema:
                 allOf:
-                - $ref: '#/components/schemas/Error'
-                - example:
+                - $ref: '#/components/schemas/ErrorResponse'
+                - description: An error reply.
+                  example:
                     error: No live shop called "skatez". Try search_shops.
               example:
                 error: No live shop called "skatez". Try search_shops.
@@ -2797,8 +2924,9 @@ paths:
             application/json:
               schema:
                 allOf:
-                - $ref: '#/components/schemas/Error'
-                - example:
+                - $ref: '#/components/schemas/ErrorResponse'
+                - description: An error reply.
+                  example:
                     error: Too many checkouts from your network. Try again in 7 min.
               example:
                 error: Too many checkouts from your network. Try again in 7 min.
@@ -2940,7 +3068,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                allOf:
+                - $ref: '#/components/schemas/ErrorResponse'
+                - description: An error reply.
       deprecated: false
   /api/agent/shops/{slug}:
     get:
@@ -2956,7 +3086,7 @@ paths:
         required: true
         schema:
           type: string
-          example: raptorrush
+          example: vintageskates
       - name: agent
         in: query
         description: "Optional: the agent's name (`ChatGPT`, `Gemini`, `my-shopping-bot`), so the seller's stats show which agent sent the buyer. Only used when the user agent doesn't already say."
@@ -3124,7 +3254,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                allOf:
+                - $ref: '#/components/schemas/ErrorResponse'
+                - description: An error reply.
       deprecated: false
   /api/mcp:
     post:
@@ -3206,15 +3338,33 @@ paths:
       operationId: callMcp
       parameters: []
       requestBody:
-        description: ''
+        description: A JSON-RPC 2.0 request or batch.
         content:
           application/json:
             schema:
               oneOf:
-              - $ref: '#/components/schemas/JsonRpcRequest'
+              - allOf:
+                - $ref: '#/components/schemas/JsonRpcRequest'
+                - example:
+                    jsonrpc: '2.0'
+                    id: 1
+                    method: tools/call
+                    params:
+                      name: get_product
+                      arguments:
+                        shop: vintageskates
               - type: array
                 items:
                   $ref: '#/components/schemas/JsonRpcRequest'
+                example:
+                - jsonrpc: '2.0'
+                  id: 1
+                  method: tools/call
+                  params:
+                    name: get_product
+                    arguments:
+                      shop: vintageskates
+              description: A JSON-RPC 2.0 request or batch.
               example:
                 jsonrpc: '2.0'
                 id: 1
@@ -3294,10 +3444,28 @@ paths:
             application/json:
               schema:
                 oneOf:
-                - $ref: '#/components/schemas/JsonRpcResponse'
+                - allOf:
+                  - $ref: '#/components/schemas/JsonRpcResponse'
+                  - example:
+                      jsonrpc: '2.0'
+                      id: 1
+                      result:
+                        content:
+                        - type: text
+                          text: '{"shop": "vintageskates"}'
+                        isError: false
                 - type: array
                   items:
                     $ref: '#/components/schemas/JsonRpcResponse'
+                  example:
+                  - jsonrpc: '2.0'
+                    id: 1
+                    result:
+                      content:
+                      - type: text
+                        text: '{"shop": "vintageskates"}'
+                      isError: false
+                description: One JSON-RPC reply, or a batch.
                 example:
                   jsonrpc: '2.0'
                   id: 1
@@ -3461,7 +3629,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JsonRpcResponse'
+                allOf:
+                - $ref: '#/components/schemas/JsonRpcResponse'
+                - description: A JSON-RPC 2.0 reply from the MCP server.
       deprecated: false
   /api/platform/shops:
     get:
@@ -3478,7 +3648,7 @@ paths:
         explode: true
         schema:
           allOf:
-          - $ref: '#/components/schemas/Status'
+          - $ref: '#/components/schemas/status5'
           - description: Only shops with this status, e.g. `live` for a public catalog.
             example: live
       responses:
@@ -3490,7 +3660,8 @@ paths:
               schema:
                 allOf:
                 - $ref: '#/components/schemas/ApiPlatformShopsResponse'
-                - example:
+                - description: The account's shops.
+                  example:
                     shops:
                     - slug: raptorrush
                       status: live
@@ -3526,14 +3697,16 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                allOf:
+                - $ref: '#/components/schemas/ErrorResponse'
+                - description: An error reply.
       deprecated: false
       security:
       - PlatformKey: []
 components:
   schemas:
-    Error:
-      title: Error
+    ErrorResponse:
+      title: ErrorResponse
       required:
       - error
       type: object
@@ -3541,12 +3714,19 @@ components:
         error:
           type: string
           description: A sentence you can show to a person.
+          example: Order not found.
         field:
           type: string
           description: The form field at fault, when there is one.
+          example: price
         detail:
           type: string
           description: The upstream service's own message, for debugging.
+          example: INSTRUMENT_DECLINED
+      description: An error reply.
+      example:
+        error: Choose a photo.
+        field: photo
     CreateShopForm:
       title: CreateShopForm
       required:
@@ -3554,7 +3734,10 @@ components:
       type: object
       properties:
         source:
-          $ref: '#/components/schemas/Source'
+          allOf:
+          - $ref: '#/components/schemas/Source'
+          - description: 'What the shop starts from: a photo (with an optional description), a product link, or a Channel3 product to recommend.'
+            example: photo
         photo:
           type: string
           description: '`source=photo`: the product photo, up to 8 MB.'
@@ -3562,46 +3745,81 @@ components:
         description:
           type: string
           description: '`source=photo`: a sentence or two about the product. Required if there is no photo.'
+          example: Vintage cream and red quad roller skates with walnut burl heels.
         url:
           type: string
           description: '`source=link`: a product page, or your own app or game page.'
           format: uri
+          example: https://one-thing-ash0.onrender.com/vintageskates
         productId:
           type: string
           description: '`source=channel3`: a product id from `searchProducts`.'
+          example: ch3_7f2a9c1e
         slug:
           type: string
           description: The link name you want. If omitted, the AI suggests one.
+          example: vintageskates
         type:
-          $ref: '#/components/schemas/Type'
+          allOf:
+          - $ref: '#/components/schemas/Type'
+          - description: '`physical` ships, `digital` is a file or an access code, `auto` lets the AI decide.'
         delivery:
           allOf:
           - $ref: '#/components/schemas/Delivery'
           - description: For digital products. If omitted, the AI guesses.
+            example: file
         access_url:
           type: string
           description: Where buyers use an access code.
           format: uri
+          example: https://www.miriogames.com/raptor-rush/
         price:
           type: number
           description: USD. If omitted, the AI suggests a price.
+          example: 240
         shipping:
           type: number
+          description: 'Physical products: shipping per order, in USD. If omitted, the AI suggests it.'
+          example: 15
         stock:
           type: integer
+          description: How many are for sale. Leave out for unlimited.
           format: int32
+          example: 7
         ship_countries:
           type: string
+          description: 'Physical products: comma-separated ISO country codes to ship to. Empty means anywhere PayPal ships.'
           example: US
         paypal_email:
           type: string
+          description: The PayPal account that gets paid, if the seller doesn't connect one with `connectPayPal`.
           format: email
+          example: seller@example.com
         seller_email:
           type: string
+          description: Where order notifications go.
           format: email
+          example: seller@example.com
         digital_file:
           type: string
+          description: 'Digital products sold as a file: the file buyers download, up to 25 MB. Can also be added later with `uploadDigitalFile`.'
           format: binary
+      description: What to make a shop from. Only `source` is required; the AI guesses the rest and the seller corrects it with `updateShop`.
+      example:
+        source: photo
+        description: Vintage cream and red quad roller skates with walnut burl heels.
+        url: https://one-thing-ash0.onrender.com/vintageskates
+        productId: ch3_7f2a9c1e
+        slug: vintageskates
+        type: auto
+        delivery: file
+        access_url: https://www.miriogames.com/raptor-rush/
+        price: 240
+        shipping: 15
+        stock: 7
+        ship_countries: US
+        paypal_email: seller@example.com
+        seller_email: seller@example.com
     CreatedShop:
       title: CreatedShop
       required:
@@ -3612,68 +3830,109 @@ components:
       properties:
         slug:
           type: string
+          description: "The shop's link name: the page is `https://<host>/<slug>`."
           example: dragonflight
         token:
           type: string
           description: The admin token. Shown once; store it.
+          example: 3fJ9xQm2LwP8vR1tZk7cN4bY6dHs0aEu
         manageUrl:
           type: string
           description: The seller's private manage page (contains the token).
+          example: /manage/vintageskates?token=3fJ9xQm2LwP8vR1tZk7cN4bY6dHs0aEu
+      description: The new draft shop and the credentials to manage it.
+      example:
+        slug: dragonflight
+        token: 3fJ9xQm2LwP8vR1tZk7cN4bY6dHs0aEu
+        manageUrl: /manage/vintageskates?token=3fJ9xQm2LwP8vR1tZk7cN4bY6dHs0aEu
     ShopUpdate:
       title: ShopUpdate
       type: object
       properties:
         slug:
           type: string
+          description: A new link name. The old one keeps redirecting.
+          example: vintageskates
         status:
-          $ref: '#/components/schemas/Status'
+          allOf:
+          - $ref: '#/components/schemas/Status'
+          - description: '`live` publishes the shop; `draft` takes it down.'
+            example: draft
         product_type:
           allOf:
           - $ref: '#/components/schemas/ProductType'
           - description: '`referral` only for shops created from Channel3.'
+            example: physical
         price:
           maximum: 10000
           minimum: 0.5
           type: number
+          description: The price in USD.
+          example: 240
         shipping:
           maximum: 500
           minimum: 0
           type: number
+          description: Shipping per order, in USD.
+          example: 15
         stock:
           minimum: 0
           type: integer
+          description: How many are for sale; null for unlimited.
           format: int32
           nullable: true
+          example: 7
         ship_countries:
           type: string
+          description: Comma-separated ISO country codes; null or empty means anywhere PayPal ships.
           nullable: true
+          example: US,CA
         delivery:
-          $ref: '#/components/schemas/Delivery1'
+          allOf:
+          - $ref: '#/components/schemas/Delivery1'
+          - description: 'Digital products: `file` or `access_code`.'
+            example: file
         access_url:
           type: string
+          description: 'Access-code products: where buyers enter their code.'
           format: uri
           nullable: true
+          example: https://www.miriogames.com/raptor-rush/
         paypal_email:
           type: string
+          description: The PayPal account paid when no account is connected.
           format: email
           nullable: true
+          example: seller@example.com
         seller_email:
           type: string
+          description: Where order notifications go.
           format: email
           nullable: true
+          example: seller@example.com
         zapier_hook_url:
           type: string
+          description: A Zapier Catch Hook for order events; null removes it.
           format: uri
           nullable: true
+          example: https://hooks.zapier.com/hooks/catch/123456/abcdef/
         in_gallery:
           type: boolean
           description: Feature the shop at `/gallery` while it's live. Off by default.
+          example: true
         options:
           maxItems: 3
           type: array
           items:
             $ref: '#/components/schemas/ShopOption'
           description: What the buyer picks (physical products only), replacing the current options; `[]` removes them. With options, stock is counted per combination in `option_stock` and the shop's own `stock` is cleared. At most 60 combinations.
+          example:
+          - name: Size
+            kind: size
+            values:
+            - label: S
+            - label: M
+            - label: L
         option_stock:
           minimum: 0
           type: object
@@ -3691,6 +3950,37 @@ components:
           items:
             $ref: '#/components/schemas/Fact'
           description: Answers to the "buyers will ask" questions in `suggestions.missingFacts`. Each becomes a product detail on the page (replacing one with the same label) and drops off the list.
+          example:
+          - label: Size
+            value: US women's 8
+      description: The fields to change. Anything left out stays as it is.
+      example:
+        slug: vintageskates
+        status: draft
+        product_type: physical
+        price: 240
+        shipping: 15
+        stock: 7
+        ship_countries: US,CA
+        delivery: file
+        access_url: https://www.miriogames.com/raptor-rush/
+        paypal_email: seller@example.com
+        seller_email: seller@example.com
+        zapier_hook_url: https://hooks.zapier.com/hooks/catch/123456/abcdef/
+        in_gallery: true
+        options:
+        - name: Size
+          kind: size
+          values:
+          - label: S
+          - label: M
+          - label: L
+        option_stock:
+          M / Black: 4
+          L / Black: 0
+        facts:
+        - label: Size
+          value: US women's 8
     Shop:
       title: Shop
       required:
@@ -3705,61 +3995,112 @@ components:
       properties:
         id:
           type: string
+          description: OneThing's internal shop id.
+          example: shp_8Hc2LmQ4
         slug:
           type: string
+          description: The shop's link name.
+          example: vintageskates
         status:
-          $ref: '#/components/schemas/Status'
+          allOf:
+          - $ref: '#/components/schemas/Status1'
+          - description: '`draft` until the seller goes live; only `live` shops take orders.'
+            example: draft
         product_type:
-          $ref: '#/components/schemas/ProductType1'
+          allOf:
+          - $ref: '#/components/schemas/ProductType1'
+          - description: '`physical` ships, `digital` downloads or unlocks, `referral` recommends a Channel3 product.'
+            example: physical
         price_cents:
           type: integer
+          description: The price in cents.
           format: int32
+          example: 24000
         currency:
           type: string
+          description: ISO 4217 currency code.
           example: USD
         shipping_cents:
           type: integer
+          description: Shipping per order, in cents.
           format: int32
+          example: 1500
         ship_countries:
           type: string
+          description: Comma-separated ISO country codes; null or empty means anywhere PayPal ships.
           nullable: true
+          example: US,CA
         stock:
           type: integer
+          description: How many are left; null for unlimited. With options, see `option_stock`.
           format: int32
           nullable: true
+          example: 7
         delivery:
-          $ref: '#/components/schemas/Delivery1'
+          allOf:
+          - $ref: '#/components/schemas/Delivery2'
+          - description: 'Digital products: `file` (a download) or `access_code` (a code that unlocks an app or game).'
+            example: file
         access_url:
           type: string
+          description: 'Access-code products: where buyers enter their code.'
           nullable: true
+          example: https://www.miriogames.com/raptor-rush/
         paypal_email:
           type: string
+          description: The PayPal account paid when no account is connected.
           nullable: true
+          example: seller@example.com
         seller_email:
           type: string
+          description: Where order notifications go.
           nullable: true
+          example: seller@example.com
         paypal_merchant_id:
           type: string
           description: The connected PayPal account (`connectPayPal`). Sales go here when it can receive payments.
           nullable: true
+          example: 7MZJ4QXN8K2LA
         paypal_status:
           oneOf:
-          - $ref: '#/components/schemas/PayPalStatus'
+          - allOf:
+            - $ref: '#/components/schemas/PayPalStatus'
+            - example:
+                receivable: true
+                emailConfirmed: true
+                checkedAt: 2026-10-22T02:41:37Z
           - nullable: true
+          description: What PayPal last said about the connected account; null when none is connected.
+          example:
+            receivable: true
+            emailConfirmed: true
+            checkedAt: 2026-10-22T02:41:37Z
         zapier_hook_url:
           type: string
+          description: A Zapier Catch Hook that gets an `OrderEvent` for each paid, shipped or refunded order.
           nullable: true
+          example: https://hooks.zapier.com/hooks/catch/123456/abcdef/
         in_gallery:
           type: boolean
+          description: Whether the shop is featured at `/gallery` while live.
+          example: true
         account_id:
           type: string
           description: The seller account that owns the shop, if it was made while signed in.
           nullable: true
+          example: acc_Vq3nN8cT0bLx2YwE
         options:
           type: array
           items:
             $ref: '#/components/schemas/ShopOption'
-          description: ''
+          description: What the buyer picks, such as size or colour.
+          example:
+          - name: Size
+            kind: size
+            values:
+            - label: S
+            - label: M
+            - label: L
         option_stock:
           minimum: 0
           type: object
@@ -3773,41 +4114,146 @@ components:
             L / Black: 0
         suggestions:
           oneOf:
-          - $ref: '#/components/schemas/Suggestions'
+          - allOf:
+            - $ref: '#/components/schemas/Suggestions'
+            - example:
+                oneOfAKind: false
+                options:
+                - name: Size
+                  kind: size
+                  values:
+                  - label: S
+                  - label: M
+                  - label: L
+                missingFacts:
+                - label: Size
+                  question: What size are the skates?
+                  placeholder: US women's 8
           - nullable: true
+          description: What the AI thinks buyers will pick or ask; null once handled.
+          example:
+            oneOfAKind: false
+            options:
+            - name: Size
+              kind: size
+              values:
+              - label: S
+              - label: M
+              - label: L
+            missingFacts:
+            - label: Size
+              question: What size are the skates?
+              placeholder: US women's 8
         photo_blob:
           type: string
           description: Image id for `getImage`. The cover photo.
           nullable: true
+          example: 'LFRvGuTU3D8i334X'
         gallery_blobs:
           type: array
           items:
             type: string
           description: The other photos, in order.
+          example:
+          - zrySajNyao6_j11x
+          - SuqcgNv64HWN8H6e
         hero_blob:
           type: string
+          description: Image id of the AI hero art, when there is one.
           nullable: true
+          example: Hn2Kd8sQp4LmZ0vX
         hero_status:
-          $ref: '#/components/schemas/HeroStatus'
+          allOf:
+          - $ref: '#/components/schemas/HeroStatus'
+          - description: 'Hero art: `pending` while generating, then `ready` or `failed`; `none` if not requested.'
+            example: none
         hero_error:
           type: string
+          description: Why hero art failed, when it did.
           nullable: true
+          example: No image model on this key returned an image.
         ai_source:
-          $ref: '#/components/schemas/AiSource'
+          allOf:
+          - $ref: '#/components/schemas/AiSource'
+          - description: "Who designed the page: `gemini`, or `fallback` when Gemini wasn't available and a plain template was used."
+            example: gemini
         source_url:
           type: string
+          description: The product link the shop was made from, if any.
           nullable: true
+          example: https://example.com/products/roller-skates
         referral:
           oneOf:
-          - $ref: '#/components/schemas/Referral'
+          - allOf:
+            - $ref: '#/components/schemas/Referral'
+            - example:
+                productId: ch3_7f2a9c1e
+                title: Trail Running Vest 5L
+                brand: Salomon
+                image: https://images.example.com/vest.jpg
+                offers:
+                - domain: rei.com
+                  url: https://buy.trychannel3.com/r/abc123
+                  price: 240
+                  currency: USD
+                  inStock: true
+                  commission: 0.08
           - nullable: true
+          description: 'Recommendation shops: the Channel3 product; null otherwise.'
+          example:
+            productId: ch3_7f2a9c1e
+            title: Trail Running Vest 5L
+            brand: Salomon
+            image: https://images.example.com/vest.jpg
+            offers:
+            - domain: rei.com
+              url: https://buy.trychannel3.com/r/abc123
+              price: 240
+              currency: USD
+              inStock: true
+              commission: 0.08
         spec:
           allOf:
           - $ref: '#/components/schemas/DesignSpec'
           - description: What Gemini designed. OneThing's templates render it; Gemini never writes HTML.
+            example:
+              productType: physical
+              productName: Vintage Cream and Red Roller Skates
+              layout: bold-hero
+              palette:
+                background: '#f7f1e8'
+                surface: '#ffffff'
+                text: '#1f1a17'
+                muted: '#6b625b'
+                accent: '#b3262d'
+                accentText: '#ffffff'
+              fonts:
+                heading: Playfair Display
+                body: Inter
+              eyebrow: One pair, restored
+              headline: Classic quad skates crafted with walnut burl heels
+              subheadline: A vintage pair of skates with cream leather, bold red trim and quad wheels.
+              story: Each pair combines soft cream leather with distinct red accents and a sculpted walnut burl heel base.
+              bullets:
+              - Walnut burl heels
+              - Restored vintage leather
+              details:
+              - label: Material
+                value: Leather upper, walnut burl heel, rubber wheels
+              faq:
+              - q: Are these suitable for outdoor skating?
+                a: Yes, on indoor rink floors and paved outdoor paths.
+              ctaLabel: Buy the skates
+              suggestedPriceUsd: 240
+              suggestedShippingUsd: 15
+              imageAlt: Cream leather quad roller skates with red trim
+              heroPrompt: Cream roller skates on a sunlit boardwalk, in warm cream and red tones
         created_at:
           type: string
+          description: When the shop was made.
           format: date-time
+          example: 2026-10-22T02:41:37Z
+      description: A shop, as its seller sees it.
     DesignSpec:
       title: DesignSpec
       required:
@@ -3823,49 +4269,130 @@ components:
       type: object
       properties:
         productType:
-          $ref: '#/components/schemas/ProductType2'
+          allOf:
+          - $ref: '#/components/schemas/ProductType2'
+          - description: What the AI decided the product is.
+            example: physical
         productName:
           type: string
+          description: The product's name.
+          example: Vintage Cream and Red Roller Skates
         layout:
-          $ref: '#/components/schemas/Layout'
+          allOf:
+          - $ref: '#/components/schemas/Layout'
+          - description: 'The page template: `bold-hero` (image first, punchy), `editorial` (magazine), `minimal` (quiet, lots of space) or `playful`.'
+            example: bold-hero
         palette:
-          $ref: '#/components/schemas/Palette'
+          allOf:
+          - $ref: '#/components/schemas/Palette'
+          - description: The page colours, taken from the photo. Text colours are checked for contrast.
+            example:
+              background: '#f7f1e8'
+              surface: '#ffffff'
+              text: '#1f1a17'
+              muted: '#6b625b'
+              accent: '#b3262d'
+              accentText: '#ffffff'
         fonts:
-          $ref: '#/components/schemas/Fonts'
+          allOf:
+          - $ref: '#/components/schemas/Fonts'
+          - description: Google Fonts for the page.
+            example:
+              heading: Playfair Display
+              body: Inter
         eyebrow:
           type: string
+          description: A short label above the headline.
+          example: One pair, restored
         headline:
           type: string
+          description: The page's main headline.
+          example: Classic quad skates crafted with walnut burl heels
         subheadline:
           type: string
+          description: A line under the headline.
+          example: A vintage pair of skates with cream leather, bold red trim and quad wheels.
         story:
           type: string
+          description: A short paragraph about the product.
+          example: Each pair combines soft cream leather with distinct red accents and a sculpted walnut burl heel base.
         bullets:
           type: array
           items:
             type: string
-          description: ''
+          description: Short selling points.
+          example:
+          - Walnut burl heels
+          - Restored vintage leather
         details:
           type: array
           items:
             $ref: '#/components/schemas/Detail'
-          description: ''
+          description: Product facts shown on the page.
+          example:
+          - label: Material
+            value: Leather upper, walnut burl heel, rubber wheels
         faq:
           type: array
           items:
             $ref: '#/components/schemas/Faq'
-          description: ''
+          description: Questions buyers will ask, with answers.
+          example:
+          - q: Are these suitable for outdoor skating?
+            a: Yes, on indoor rink floors and paved outdoor paths.
         ctaLabel:
           type: string
+          description: The buy button's text.
+          example: Buy the skates
         suggestedPriceUsd:
           type: number
+          description: The AI's price suggestion, in USD.
+          example: 240
         suggestedShippingUsd:
           type: number
+          description: The AI's shipping suggestion, in USD.
+          example: 15
         imageAlt:
           type: string
+          description: Alt text for the product photo.
+          example: Cream leather quad roller skates with red trim
         heroPrompt:
           type: string
+          description: The prompt used to generate hero art for the page.
+          example: Cream roller skates on a sunlit boardwalk, in warm cream and red tones
       description: What Gemini designed. OneThing's templates render it; Gemini never writes HTML.
+      example:
+        productType: physical
+        productName: Vintage Cream and Red Roller Skates
+        layout: bold-hero
+        palette:
+          background: '#f7f1e8'
+          surface: '#ffffff'
+          text: '#1f1a17'
+          muted: '#6b625b'
+          accent: '#b3262d'
+          accentText: '#ffffff'
+        fonts:
+          heading: Playfair Display
+          body: Inter
+        eyebrow: One pair, restored
+        headline: Classic quad skates crafted with walnut burl heels
+        subheadline: A vintage pair of skates with cream leather, bold red trim and quad wheels.
+        story: Each pair combines soft cream leather with distinct red accents and a sculpted walnut burl heel base.
+        bullets:
+        - Walnut burl heels
+        - Restored vintage leather
+        details:
+        - label: Material
+          value: Leather upper, walnut burl heel, rubber wheels
+        faq:
+        - q: Are these suitable for outdoor skating?
+          a: Yes, on indoor rink floors and paved outdoor paths.
+        ctaLabel: Buy the skates
+        suggestedPriceUsd: 240
+        suggestedShippingUsd: 15
+        imageAlt: Cream leather quad roller skates with red trim
+        heroPrompt: Cream roller skates on a sunlit boardwalk, in warm cream and red tones
     ShopOption:
       title: ShopOption
       required:
@@ -3877,19 +4404,32 @@ components:
         name:
           maxLength: 20
           type: string
+          description: What the buyer is choosing.
           example: Size
         kind:
           allOf:
           - $ref: '#/components/schemas/Kind'
           - description: '`color` shows swatches, and the photo of the picked colour.'
+            example: size
         values:
           maxItems: 12
           minItems: 1
           type: array
           items:
             $ref: '#/components/schemas/OptionValue'
-          description: ''
+          description: The values to pick from.
+          example:
+          - label: S
+          - label: M
+          - label: L
       description: Something the buyer picks, such as a size or a colour. The shop still sells one product.
+      example:
+        name: Size
+        kind: size
+        values:
+        - label: S
+        - label: M
+        - label: L
     OptionValue:
       title: OptionValue
       required:
@@ -3899,14 +4439,22 @@ components:
         label:
           maxLength: 30
           type: string
+          description: What the buyer sees and picks.
           example: M
         hex:
           pattern: ^#[0-9a-fA-F]{6}$
           type: string
+          description: A colour as `#rrggbb`.
           example: '#14171a'
         photo:
           type: string
           description: 'Colours: the shop photo (id) that shows this colour. See `matchColorPhotos`.'
+          example: zrySajNyao6_j11x
+      description: One value of an option.
+      example:
+        label: M
+        hex: '#14171a'
+        photo: zrySajNyao6_j11x
     Suggestions:
       title: Suggestions
       required:
@@ -3918,17 +4466,42 @@ components:
         oneOfAKind:
           type: boolean
           description: A single item (vintage, handmade), so options and stock don't apply.
+          example: false
         options:
           type: array
           items:
             $ref: '#/components/schemas/Option'
-          description: ''
+          description: Options buyers will likely want to pick.
+          example:
+          - name: Size
+            kind: size
+            values:
+            - label: S
+            - label: M
+            - label: L
         missingFacts:
           type: array
           items:
             $ref: '#/components/schemas/MissingFact'
-          description: ''
+          description: Questions buyers will ask that the listing doesn't answer yet.
+          example:
+          - label: Size
+            question: What size are the skates?
+            placeholder: US women's 8
       description: What Gemini thinks buyers will want to choose or ask. The seller confirms; nothing is applied on its own.
+      example:
+        oneOfAKind: false
+        options:
+        - name: Size
+          kind: size
+          values:
+          - label: S
+          - label: M
+          - label: L
+        missingFacts:
+        - label: Size
+          question: What size are the skates?
+          placeholder: US women's 8
     PayPalStatus:
       title: PayPalStatus
       required:
@@ -3940,13 +4513,21 @@ components:
         receivable:
           type: boolean
           description: The account can receive payments.
+          example: true
         emailConfirmed:
           type: boolean
           description: The seller has confirmed their email with PayPal.
+          example: true
         checkedAt:
           type: string
+          description: When OneThing last asked PayPal.
           format: date-time
+          example: 2026-10-22T02:41:37Z
       description: What PayPal last said about a connected seller account.
+      example:
+        receivable: true
+        emailConfirmed: true
+        checkedAt: 2026-10-22T02:41:37Z
     AgentProduct:
       title: AgentProduct
       required:
@@ -3966,81 +4547,236 @@ components:
         show_buyer:
           type: string
           description: 'A suggested reply to the buyer, in Markdown with the links already written as links: the product and its options to pick from, the pay link, or what they got with a receipt link. Buyers have the best experience when agents show it as written.'
+          example: '![Vintage Cream and Red Roller Skates](https://one-thing-ash0.onrender.com/api/blobs/LFRvGuTU3D8i334X)
+
+
+            **Vintage Cream and Red Roller Skates**: $240.00. Classic quad skates crafted with walnut burl heels
+
+
+            ![Raptor Rush: Browser Edition](https://one-thing-ash0.onrender.com/api/blobs/R9tWc3yN6bJq1zUd)
+
+
+            **Raptor Rush: Browser Edition**: $2.99. Grow from Tiny Hatchling to Giant Apex Predator
+
+
+            Which one?'
         agent_name:
           type: string
           description: "Who this request was credited to in the seller's stats: a recognised user agent, else the name the agent gave itself (`?agent=`, or the MCP client's name), else the user agent's first word."
+          example: Grok
         shop:
           type: string
           description: The link name, which the MCP tools take as `shop`.
+          example: vintageskates
         url:
           type: string
+          description: The shop page, where a person can buy it too.
+          example: https://one-thing-ash0.onrender.com/vintageskates
         name:
           type: string
+          description: The product's name.
+          example: Vintage Cream and Red Roller Skates
         kind:
-          $ref: '#/components/schemas/Kind1'
+          allOf:
+          - $ref: '#/components/schemas/Kind1'
+          - description: '`physical` ships, `digital` downloads or unlocks with a code, `referral` is bought at another store.'
+            example: physical
         headline:
           type: string
+          description: The shop's one-line pitch.
+          example: Classic quad skates crafted with walnut burl heels
         description:
           type: string
+          description: What the product is, in a few sentences.
+          example: Vintage cream and red quad roller skates with walnut burl heels.
         highlights:
           type: array
           items:
             type: string
-          description: ''
+          description: The product's selling points, one per line.
+          example:
+          - Walnut burl heels
+          - Restored vintage leather
         details:
           type: array
           items:
             $ref: '#/components/schemas/Detail'
-          description: ''
+          description: Product facts, such as size, material or format.
+          example:
+          - label: Material
+            value: Leather upper, walnut burl heel, rubber wheels
         faq:
           type: array
           items:
             $ref: '#/components/schemas/Faq'
-          description: ''
+          description: Questions buyers ask, answered by the seller's page.
+          example:
+          - q: Are these suitable for outdoor skating?
+            a: Yes, on indoor rink floors and paved outdoor paths.
         images:
           type: array
           items:
             type: string
-          description: ''
+          description: Photo URLs, the cover first. Show these rather than generating or searching for images.
+          example:
+          - 'https://one-thing-ash0.onrender.com/api/blobs/LFRvGuTU3D8i334X'
         price:
-          $ref: '#/components/schemas/AgentMoney'
+          allOf:
+          - $ref: '#/components/schemas/AgentMoney'
+          - description: An amount of money, as a number and as a label.
+            example:
+              amount: 240
+              currency: USD
+              label: $240.00
         shipping:
           oneOf:
-          - $ref: '#/components/schemas/Shipping'
+          - allOf:
+            - $ref: '#/components/schemas/Shipping'
+            - example:
+                amount: 15
+                currency: USD
+                ships_to:
+                - US
+                - CA
           - nullable: true
           description: Physical products only.
+          example:
+            amount: 15
+            currency: USD
+            ships_to:
+            - US
+            - CA
         total:
-          $ref: '#/components/schemas/AgentMoney'
+          allOf:
+          - $ref: '#/components/schemas/AgentMoney'
+          - description: An amount of money, as a number and as a label.
+            example:
+              amount: 240
+              currency: USD
+              label: $240.00
         delivery:
           type: string
+          description: How the buyer gets it, in plain words.
           example: Shipped. PayPal collects the buyer's address at checkout.
         availability:
           type: string
+          description: '`in_stock`, `in_stock (N left)` or `sold_out`. With options, see `variants`.'
           example: in_stock
         options:
           type: array
           items:
             $ref: '#/components/schemas/Option1'
           description: Pass one value per option to `create_order`.
+          example:
+          - name: Size
+            values:
+            - '7'
+            - '8'
+            - '9'
         variants:
           type: array
           items:
             $ref: '#/components/schemas/Variant'
-          description: ''
+          description: 'Products with options: each combination, its stock and its order link.'
+          example:
+          - choice:
+              Size: M
+              Color: Black
+            availability: in_stock (3 left)
+            order_url: https://one-thing-ash0.onrender.com/vintageskates/buy?Size=9
         order_url:
           type: string
           description: 'Products without options: `orderByLink`, which orders one unit with a GET. Left out when sold out. With options, each variant has its own.'
+          example: https://one-thing-ash0.onrender.com/vintageskates/buy?Size=9
         offers:
           type: array
           items:
             $ref: '#/components/schemas/Offer1'
           description: Recommendations only. Bought at the retailer.
+          example:
+          - retailer: rei.com
+            price: 240
+            currency: USD
+            in_stock: true
+            url: https://buy.trychannel3.com/r/abc123
         how_to_buy:
           type: string
+          description: 'How to buy it, written for an agent: which tool or link to use and what to ask the buyer.'
+          example: Ask the buyer which size, then open that variant's order_url and show them pay_url.
         mcp_server:
           type: string
           description: The MCP server to order through (`getAgentProduct` only).
+          example: https://one-thing-ash0.onrender.com/api/mcp
       description: A live shop as an AI agent sees it. Recommendations have `offers`; everything else has `price` and is bought with `create_order`.
+      example:
+        show_buyer: '![Vintage Cream and Red Roller Skates](https://one-thing-ash0.onrender.com/api/blobs/LFRvGuTU3D8i334X)
+
+
+          **Vintage Cream and Red Roller Skates**: $240.00. Classic quad skates crafted with walnut burl heels
+
+
+          ![Raptor Rush: Browser Edition](https://one-thing-ash0.onrender.com/api/blobs/R9tWc3yN6bJq1zUd)
+
+
+          **Raptor Rush: Browser Edition**: $2.99. Grow from Tiny Hatchling to Giant Apex Predator
+
+
+          Which one?'
+        agent_name: Grok
+        shop: vintageskates
+        url: https://one-thing-ash0.onrender.com/vintageskates
+        name: Vintage Cream and Red Roller Skates
+        kind: physical
+        headline: Classic quad skates crafted with walnut burl heels
+        description: Vintage cream and red quad roller skates with walnut burl heels.
+        highlights:
+        - Walnut burl heels
+        - Restored vintage leather
+        details:
+        - label: Material
+          value: Leather upper, walnut burl heel, rubber wheels
+        faq:
+        - q: Are these suitable for outdoor skating?
+          a: Yes, on indoor rink floors and paved outdoor paths.
+        images:
+        - 'https://one-thing-ash0.onrender.com/api/blobs/LFRvGuTU3D8i334X'
+        price:
+          amount: 240
+          currency: USD
+          label: $240.00
+        shipping:
+          amount: 15
+          currency: USD
+          ships_to:
+          - US
+          - CA
+        total:
+          amount: 240
+          currency: USD
+          label: $240.00
+        delivery: Shipped. PayPal collects the buyer's address at checkout.
+        availability: in_stock
+        options:
+        - name: Size
+          values:
+          - '7'
+          - '8'
+          - '9'
+        variants:
+        - choice:
+            Size: M
+            Color: Black
+          availability: in_stock (3 left)
+          order_url: https://one-thing-ash0.onrender.com/vintageskates/buy?Size=9
+        order_url: https://one-thing-ash0.onrender.com/vintageskates/buy?Size=9
+        offers:
+        - retailer: rei.com
+          price: 240
+          currency: USD
+          in_stock: true
+          url: https://buy.trychannel3.com/r/abc123
+        how_to_buy: Ask the buyer which size, then open that variant's order_url and show them pay_url.
+        mcp_server: https://one-thing-ash0.onrender.com/api/mcp
     AgentShopSummary:
       title: AgentShopSummary
       required:
@@ -4056,23 +4792,43 @@ components:
         shop:
           type: string
           description: The link name, for `getAgentProduct` and the MCP tools.
+          example: vintageskates
         name:
           type: string
+          description: The product's name.
+          example: Vintage Cream and Red Roller Skates
         kind:
-          $ref: '#/components/schemas/Kind1'
+          allOf:
+          - $ref: '#/components/schemas/Kind2'
+          - description: '`physical`, `digital` or `referral`.'
+            example: physical
         headline:
           type: string
+          description: The shop's one-line pitch.
+          example: Classic quad skates crafted with walnut burl heels
         price:
           type: string
           description: The price label, e.g. `$2.99`; null for recommendations.
           nullable: true
+          example: $240.00
         image:
           type: string
           description: The cover photo's URL (WebP; the retailer's image for a recommendation), or null when there's none.
           nullable: true
+          example: 'https://one-thing-ash0.onrender.com/api/blobs/LFRvGuTU3D8i334X'
         url:
           type: string
           description: The shop page.
+          example: https://one-thing-ash0.onrender.com/vintageskates
+      description: A shop in search results.
+      example:
+        shop: vintageskates
+        name: Vintage Cream and Red Roller Skates
+        kind: physical
+        headline: Classic quad skates crafted with walnut burl heels
+        price: $240.00
+        image: 'https://one-thing-ash0.onrender.com/api/blobs/LFRvGuTU3D8i334X'
+        url: https://one-thing-ash0.onrender.com/vintageskates
     AgentCreatedOrder:
       title: AgentCreatedOrder
       required:
@@ -4087,18 +4843,37 @@ components:
         show_buyer:
           type: string
           description: 'A suggested reply to the buyer, in Markdown with the links already written as links: the product and its options to pick from, the pay link, or what they got with a receipt link. Buyers have the best experience when agents show it as written.'
+          example: '![Vintage Cream and Red Roller Skates](https://one-thing-ash0.onrender.com/api/blobs/LFRvGuTU3D8i334X)
+
+
+            **Vintage Cream and Red Roller Skates**: $240.00. Classic quad skates crafted with walnut burl heels
+
+
+            ![Raptor Rush: Browser Edition](https://one-thing-ash0.onrender.com/api/blobs/R9tWc3yN6bJq1zUd)
+
+
+            **Raptor Rush: Browser Edition**: $2.99. Grow from Tiny Hatchling to Giant Apex Predator
+
+
+            Which one?'
         agent_name:
           type: string
           description: "Who this request was credited to in the seller's stats: a recognised user agent, else the name the agent gave itself (`?agent=`, or the MCP client's name), else the user agent's first word."
+          example: Grok
         order_id:
           type: string
+          description: The order's id, for `get_order` and `getAgentOrder`.
+          example: pX4kR9tVb2nQ7sLe
         status:
           enum:
           - awaiting_buyer_approval
           type: string
+          description: 'Always `awaiting_buyer_approval`: nothing is charged until the buyer approves at PayPal.'
+          example: awaiting_buyer_approval
         total:
           type: string
           description: The total with shipping, as a label.
+          example: $255.00
         options:
           type: object
           additionalProperties:
@@ -4110,12 +4885,40 @@ components:
         pay_url:
           type: string
           description: Where the buyer pays (redirects to PayPal). Safe to show in chat.
+          example: https://one-thing-ash0.onrender.com/o/pX4kR9tVb2nQ7sLe
         status_url:
           type: string
           description: '`getAgentOrder` for this order.'
+          example: https://one-thing-ash0.onrender.com/o/pX4kR9tVb2nQ7sLe/status
         next_step:
           type: string
+          description: "What the agent should do next, in plain words: show `pay_url`, then check `status_url` once the buyer says they've paid."
+          example: Show pay_url to the buyer as a link. When they say they've paid, call get_order with order_id.
       description: A new order, as `create_order` and `orderByLink` return it.
+      example:
+        show_buyer: '![Vintage Cream and Red Roller Skates](https://one-thing-ash0.onrender.com/api/blobs/LFRvGuTU3D8i334X)
+
+
+          **Vintage Cream and Red Roller Skates**: $240.00. Classic quad skates crafted with walnut burl heels
+
+
+          ![Raptor Rush: Browser Edition](https://one-thing-ash0.onrender.com/api/blobs/R9tWc3yN6bJq1zUd)
+
+
+          **Raptor Rush: Browser Edition**: $2.99. Grow from Tiny Hatchling to Giant Apex Predator
+
+
+          Which one?'
+        agent_name: Grok
+        order_id: pX4kR9tVb2nQ7sLe
+        status: awaiting_buyer_approval
+        total: $255.00
+        options:
+          Size: M
+          Color: Black
+        pay_url: https://one-thing-ash0.onrender.com/o/pX4kR9tVb2nQ7sLe
+        status_url: https://one-thing-ash0.onrender.com/o/pX4kR9tVb2nQ7sLe/status
+        next_step: Show pay_url to the buyer as a link. When they say they've paid, call get_order with order_id.
     AgentOrder:
       title: AgentOrder
       required:
@@ -4129,17 +4932,36 @@ components:
         show_buyer:
           type: string
           description: 'A suggested reply to the buyer, in Markdown with the links already written as links: the product and its options to pick from, the pay link, or what they got with a receipt link. Buyers have the best experience when agents show it as written.'
+          example: '![Vintage Cream and Red Roller Skates](https://one-thing-ash0.onrender.com/api/blobs/LFRvGuTU3D8i334X)
+
+
+            **Vintage Cream and Red Roller Skates**: $240.00. Classic quad skates crafted with walnut burl heels
+
+
+            ![Raptor Rush: Browser Edition](https://one-thing-ash0.onrender.com/api/blobs/R9tWc3yN6bJq1zUd)
+
+
+            **Raptor Rush: Browser Edition**: $2.99. Grow from Tiny Hatchling to Giant Apex Predator
+
+
+            Which one?'
         agent_name:
           type: string
           description: "Who this request was credited to in the seller's stats: a recognised user agent, else the name the agent gave itself (`?agent=`, or the MCP client's name), else the user agent's first word."
+          example: Grok
         order_id:
           type: string
+          description: The order's id.
+          example: pX4kR9tVb2nQ7sLe
         status:
           allOf:
           - $ref: '#/components/schemas/Status2'
           - description: "`declined`: PayPal declined it, nothing charged, the buyer can open `pay_url` again. `sold_out`: it sold out before the payment was captured. `expired`: the PayPal checkout expired; create a new order. `failed`: PayPal couldn't be reached; ask again."
+            example: awaiting_buyer_approval
         product:
           type: string
+          description: The product's name.
+          example: Vintage Cream and Red Roller Skates
         options:
           type: object
           additionalProperties:
@@ -4149,29 +4971,101 @@ components:
             Size: M
             Color: Black
         amount:
-          $ref: '#/components/schemas/Amount'
+          allOf:
+          - $ref: '#/components/schemas/Amount'
+          - description: What the order costs, as numbers.
+            example:
+              item: 240
+              shipping: 15
+              total: 255
+              currency: USD
         total:
           type: string
           description: The total as a label, e.g. `$255.00`.
+          example: $255.00
         pay_url:
           type: string
           description: Unpaid orders (waiting or declined). The buyer pays here; safe to show in chat.
+          example: https://one-thing-ash0.onrender.com/o/pX4kR9tVb2nQ7sLe
         next_step:
           type: string
           description: Unpaid orders. What the agent should do next, in plain words.
+          example: Show pay_url to the buyer as a link. When they say they've paid, call get_order with order_id.
         paid_at:
           type: string
+          description: Paid orders. When PayPal captured the payment.
           format: date-time
+          example: 2026-10-22T02:41:37Z
         receipt_url:
           type: string
           description: Paid orders. The buyer's thank-you page.
+          example: https://one-thing-ash0.onrender.com/vintageskates/thanks?order=pX4kR9tVb2nQ7sLe
         delivery:
           oneOf:
-          - $ref: '#/components/schemas/AgentDeliveryAccessCode'
-          - $ref: '#/components/schemas/AgentDeliveryDownload'
-          - $ref: '#/components/schemas/AgentDeliveryShipping'
+          - allOf:
+            - $ref: '#/components/schemas/AgentDeliveryAccessCode'
+            - example:
+                type: access_code
+                access_code: K7QF-M2XP-9HTD
+                start_url: https://www.miriogames.com/raptor-rush/?code=K7QF-M2XP-9HTD
+          - allOf:
+            - $ref: '#/components/schemas/AgentDeliveryDownload'
+            - example:
+                type: download
+                download_url: https://one-thing-ash0.onrender.com/api/download/dl_4mQ8sT2vX9
+                note: Works 5 times over 14 days.
+          - allOf:
+            - $ref: '#/components/schemas/AgentDeliveryShipping'
+            - example:
+                type: shipping
+                ship_to:
+                  name: Sam Rivera
+                  address: 1 Main St, Springfield, IL, 62701, US
+                fulfillment: to_ship
+                tracking:
+                  carrier: USPS
+                  number: '9400111899223197428490'
           description: Paid orders. What the buyer got.
+          example:
+            type: access_code
+            access_code: K7QF-M2XP-9HTD
+            start_url: https://www.miriogames.com/raptor-rush/?code=K7QF-M2XP-9HTD
       description: An order as `get_order` and `getAgentOrder` report it.
+      example:
+        show_buyer: '![Vintage Cream and Red Roller Skates](https://one-thing-ash0.onrender.com/api/blobs/LFRvGuTU3D8i334X)
+
+
+          **Vintage Cream and Red Roller Skates**: $240.00. Classic quad skates crafted with walnut burl heels
+
+
+          ![Raptor Rush: Browser Edition](https://one-thing-ash0.onrender.com/api/blobs/R9tWc3yN6bJq1zUd)
+
+
+          **Raptor Rush: Browser Edition**: $2.99. Grow from Tiny Hatchling to Giant Apex Predator
+
+
+          Which one?'
+        agent_name: Grok
+        order_id: pX4kR9tVb2nQ7sLe
+        status: awaiting_buyer_approval
+        product: Vintage Cream and Red Roller Skates
+        options:
+          Size: M
+          Color: Black
+        amount:
+          item: 240
+          shipping: 15
+          total: 255
+          currency: USD
+        total: $255.00
+        pay_url: https://one-thing-ash0.onrender.com/o/pX4kR9tVb2nQ7sLe
+        next_step: Show pay_url to the buyer as a link. When they say they've paid, call get_order with order_id.
+        paid_at: 2026-10-22T02:41:37Z
+        receipt_url: https://one-thing-ash0.onrender.com/vintageskates/thanks?order=pX4kR9tVb2nQ7sLe
+        delivery:
+          type: access_code
+          access_code: K7QF-M2XP-9HTD
+          start_url: https://www.miriogames.com/raptor-rush/?code=K7QF-M2XP-9HTD
     AgentDeliveryAccessCode:
       title: AgentDeliveryAccessCode
       required:
@@ -4183,12 +5077,21 @@ components:
           enum:
           - access_code
           type: string
+          description: Always `access_code`.
+          example: access_code
         access_code:
           type: string
+          description: The buyer's code, which unlocks the seller's app or game.
+          example: K7QF-M2XP-9HTD
         start_url:
           type: string
           description: The seller's app with the code filled in.
+          example: https://www.miriogames.com/raptor-rush/?code=K7QF-M2XP-9HTD
       description: A digital product unlocked with an access code.
+      example:
+        type: access_code
+        access_code: K7QF-M2XP-9HTD
+        start_url: https://www.miriogames.com/raptor-rush/?code=K7QF-M2XP-9HTD
     AgentDeliveryDownload:
       title: AgentDeliveryDownload
       required:
@@ -4200,11 +5103,21 @@ components:
           enum:
           - download
           type: string
+          description: Always `download`.
+          example: download
         download_url:
           type: string
+          description: A private link to the file. It works 5 times over 14 days.
+          example: https://one-thing-ash0.onrender.com/api/download/dl_4mQ8sT2vX9
         note:
           type: string
+          description: How long the link lasts and how many downloads it allows, in words.
+          example: Works 5 times over 14 days.
       description: A digital file to download.
+      example:
+        type: download
+        download_url: https://one-thing-ash0.onrender.com/api/download/dl_4mQ8sT2vX9
+        note: Works 5 times over 14 days.
     AgentDeliveryShipping:
       title: AgentDeliveryShipping
       required:
@@ -4216,21 +5129,41 @@ components:
           enum:
           - shipping
           type: string
+          description: Always `shipping`.
+          example: shipping
         ship_to:
           allOf:
           - oneOf:
             - nullable: true
             - $ref: '#/components/schemas/ShipTo'
-          - {}
+          - description: Where it ships, from the buyer's PayPal checkout. Null if PayPal didn't share it.
+            example:
+              name: Sam Rivera
+              address: 1 Main St, Springfield, IL, 62701, US
         fulfillment:
-          $ref: '#/components/schemas/Fulfillment'
+          allOf:
+          - $ref: '#/components/schemas/Fulfillment'
+          - description: '`to_ship` until the seller adds tracking, then `shipped`.'
+            example: to_ship
         tracking:
           allOf:
           - oneOf:
             - nullable: true
             - $ref: '#/components/schemas/Tracking'
-          - {}
+          - description: The carrier and tracking number once shipped; null before.
+            example:
+              carrier: USPS
+              number: '9400111899223197428490'
       description: A physical product shipped to the buyer.
+      example:
+        type: shipping
+        ship_to:
+          name: Sam Rivera
+          address: 1 Main St, Springfield, IL, 62701, US
+        fulfillment: to_ship
+        tracking:
+          carrier: USPS
+          number: '9400111899223197428490'
     PlatformShop:
       title: PlatformShop
       required:
@@ -4247,33 +5180,73 @@ components:
       properties:
         slug:
           type: string
+          description: The shop's link name.
+          example: vintageskates
         status:
-          $ref: '#/components/schemas/Status'
+          allOf:
+          - $ref: '#/components/schemas/Status3'
+          - description: '`draft` until the seller goes live.'
+            example: draft
         name:
           type: string
+          description: The product's name.
+          example: Vintage Cream and Red Roller Skates
         headline:
           type: string
+          description: The shop's one-line pitch.
+          example: Classic quad skates crafted with walnut burl heels
         product_type:
-          $ref: '#/components/schemas/ProductType1'
+          allOf:
+          - $ref: '#/components/schemas/ProductType3'
+          - description: '`physical`, `digital` or `referral`.'
+            example: physical
         price:
-          $ref: '#/components/schemas/AgentMoney'
+          allOf:
+          - $ref: '#/components/schemas/AgentMoney'
+          - description: An amount of money, as a number and as a label.
+            example:
+              amount: 240
+              currency: USD
+              label: $240.00
         url:
           type: string
           description: The shop page buyers pay on.
+          example: https://one-thing-ash0.onrender.com/vintageskates
         cover:
           type: string
           description: The cover image's URL.
           nullable: true
+          example: 'https://one-thing-ash0.onrender.com/api/blobs/LFRvGuTU3D8i334X'
         paypal_connected:
           type: boolean
           description: The seller connected a PayPal account that can be paid.
+          example: true
         sales:
           type: integer
           description: Paid orders.
           format: int32
+          example: 12
         created_at:
           type: string
+          description: When the shop was made.
           format: date-time
+          example: 2026-10-22T02:41:37Z
+      description: A shop as a platform API key lists it.
+      example:
+        slug: vintageskates
+        status: draft
+        name: Vintage Cream and Red Roller Skates
+        headline: Classic quad skates crafted with walnut burl heels
+        product_type: physical
+        price:
+          amount: 240
+          currency: USD
+          label: $240.00
+        url: https://one-thing-ash0.onrender.com/vintageskates
+        cover: 'https://one-thing-ash0.onrender.com/api/blobs/LFRvGuTU3D8i334X'
+        paypal_connected: true
+        sales: 12
+        created_at: 2026-10-22T02:41:37Z
     AgentMoney:
       title: AgentMoney
       required:
@@ -4283,13 +5256,21 @@ components:
       properties:
         amount:
           type: number
+          description: The amount in the currency's main unit (dollars, not cents).
           example: 48.5
         currency:
           type: string
+          description: ISO 4217 currency code.
           example: USD
         label:
           type: string
+          description: The amount formatted for people.
           example: $48.50
+      description: An amount of money, as a number and as a label.
+      example:
+        amount: 240
+        currency: USD
+        label: $240.00
     JsonRpcRequest:
       title: JsonRpcRequest
       required:
@@ -4301,6 +5282,8 @@ components:
           enum:
           - '2.0'
           type: string
+          description: Always `2.0`.
+          example: '2.0'
         id:
           oneOf:
           - type: string
@@ -4308,11 +5291,28 @@ components:
             format: int32
           - nullable: true
           description: Leave out for a notification.
+          example: '1'
         method:
-          $ref: '#/components/schemas/Method'
+          allOf:
+          - $ref: '#/components/schemas/Method'
+          - description: The MCP method. `tools/call` runs a tool; `tools/list` lists them.
+            example: tools/call
         params:
           type: object
           description: 'For `tools/call`: `{ name, arguments }`.'
+          example:
+            name: get_product
+            arguments:
+              shop: vintageskates
+      description: A JSON-RPC 2.0 request to the MCP server.
+      example:
+        jsonrpc: '2.0'
+        id: 1
+        method: tools/call
+        params:
+          name: get_product
+          arguments:
+            shop: vintageskates
     JsonRpcResponse:
       title: JsonRpcResponse
       required:
@@ -4324,17 +5324,37 @@ components:
           enum:
           - '2.0'
           type: string
+          description: Always `2.0`.
+          example: '2.0'
         id:
           oneOf:
           - type: string
           - type: integer
             format: int32
           - nullable: true
+          description: The request's `id`.
+          example: '1'
         result:
           type: object
           description: 'For `tools/call`: `content` (the answer as JSON text), `structuredContent` (the same object) and `isError`.'
+          example:
+            isError: false
         error:
-          $ref: '#/components/schemas/Error1'
+          allOf:
+          - $ref: '#/components/schemas/Error'
+          - description: Present when the call failed.
+            example:
+              code: -32601
+              message: Method not found
+      description: A JSON-RPC 2.0 reply from the MCP server.
+      example:
+        jsonrpc: '2.0'
+        id: 1
+        result:
+          content:
+          - type: text
+            text: '{"shop": "vintageskates"}'
+          isError: false
     Referral:
       title: Referral
       required:
@@ -4345,20 +5365,47 @@ components:
       properties:
         productId:
           type: string
+          description: Channel3's product id.
+          example: ch3_7f2a9c1e
         title:
           type: string
+          description: The product's name.
+          example: Trail Running Vest 5L
         brand:
           type: string
+          description: The brand, when known.
           nullable: true
+          example: Salomon
         image:
           type: string
+          description: The product image's URL.
           nullable: true
+          example: https://images.example.com/vest.jpg
         offers:
           type: array
           items:
             $ref: '#/components/schemas/Offer'
-          description: ''
+          description: Stores that sell it, with tracked links.
+          example:
+          - domain: rei.com
+            url: https://buy.trychannel3.com/r/abc123
+            price: 240
+            currency: USD
+            inStock: true
+            commission: 0.08
       description: A recommended Channel3 product. Buy links are Channel3-tracked, credited to this shop.
+      example:
+        productId: ch3_7f2a9c1e
+        title: Trail Running Vest 5L
+        brand: Salomon
+        image: https://images.example.com/vest.jpg
+        offers:
+        - domain: rei.com
+          url: https://buy.trychannel3.com/r/abc123
+          price: 240
+          currency: USD
+          inStock: true
+          commission: 0.08
     ProductCard:
       title: ProductCard
       required:
@@ -4374,26 +5421,53 @@ components:
       properties:
         id:
           type: string
+          description: "Channel3's product id: pass it to `createShop` as `productId`."
+          example: ch3_7f2a9c1e
         title:
           type: string
+          description: The product's name.
+          example: Trail Running Vest 5L
         brand:
           type: string
+          description: The brand, when known.
           nullable: true
+          example: Salomon
         image:
           type: string
+          description: The product image's URL.
+          example: https://images.example.com/vest.jpg
         price:
           type: number
+          description: The best offer's price.
+          example: 240
         currency:
           type: string
+          description: ISO 4217 currency code.
+          example: USD
         retailer:
           type: string
           description: The store with the best offer.
+          example: rei.com
         retailers:
           type: integer
+          description: How many stores sell it.
           format: int32
+          example: 4
         commission:
           type: number
           description: Best commission rate across offers, 0–1.
+          example: 0.08
+      description: A Channel3 product in search results.
+      example:
+        id: ch3_7f2a9c1e
+        title: Trail Running Vest 5L
+        brand: Salomon
+        image: https://images.example.com/vest.jpg
+        price: 240
+        currency: USD
+        retailer: rei.com
+        retailers: 4
+        commission: 0.08
     Order:
       title: Order
       required:
@@ -4406,60 +5480,104 @@ components:
       properties:
         id:
           type: string
+          description: OneThing's order id.
+          example: pX4kR9tVb2nQ7sLe
         paypal_order_id:
           type: string
+          description: PayPal's order id.
           nullable: true
+          example: 5O190127TN364715T
         status:
-          $ref: '#/components/schemas/Status4'
+          allOf:
+          - $ref: '#/components/schemas/Status4'
+          - description: '`created` until paid; `failed` if PayPal declined; `refunded` after a refund.'
+            example: created
         amount_cents:
           type: integer
+          description: The total charged, shipping included, in cents.
           format: int32
+          example: 25500
         shipping_cents:
           type: integer
+          description: The shipping part of `amount_cents`.
           format: int32
+          example: 1500
         currency:
           type: string
+          description: ISO 4217 currency code.
+          example: USD
         buyer_email:
           type: string
+          description: From PayPal, once paid.
           nullable: true
+          example: sam@example.com
         buyer_name:
           type: string
+          description: From PayPal, once paid.
           nullable: true
+          example: Sam Rivera
         shipping_address:
           type: object
           additionalProperties:
             type: string
+          description: 'Physical orders: the address from PayPal checkout, by field.'
           nullable: true
+          example:
+            address_line_1: 1 Main St
+            admin_area_2: Springfield
+            admin_area_1: IL
+            postal_code: '62701'
+            country_code: US
         capture_id:
           type: string
+          description: PayPal's capture id, once paid. Refunds use it.
           nullable: true
+          example: 3C679366HH908993F
         fulfillment_status:
-          $ref: '#/components/schemas/FulfillmentStatus'
+          allOf:
+          - $ref: '#/components/schemas/FulfillmentStatus'
+          - description: '`to_ship` and `shipped` for physical orders, `digital_sent` for digital ones, `none` before payment.'
+            example: none
         carrier:
           type: string
+          description: 'Shipped orders: the carrier.'
           nullable: true
+          example: USPS
         tracking_number:
           type: string
+          description: 'Shipped orders: the tracking number.'
           nullable: true
+          example: '9400111899223197428490'
         tracking_synced:
           type: boolean
+          description: Whether PayPal accepted the tracking number.
+          example: false
         downloads:
           type: integer
+          description: How many times the buyer downloaded the file.
           format: int32
+          example: 0
         access_code:
           type: string
+          description: 'Access-code products: the code this buyer got.'
           nullable: true
+          example: K7QF-M2XP-9HTD
         code_uses:
           type: integer
+          description: How many times the access code was checked.
           format: int32
+          example: 0
         code_last_used_at:
           type: string
+          description: When the access code was last checked with `verifyAccessCode`.
           format: date-time
           nullable: true
+          example: 2026-10-22T02:41:37Z
         channel:
           allOf:
           - $ref: '#/components/schemas/Channel'
           - description: '`agent` for orders an AI agent placed (MCP or an order link).'
+            example: web
         agent:
           type: string
           description: The agent credited with an agent order, such as `Grok`.
@@ -4469,23 +5587,65 @@ components:
           type: string
           description: PayPal's refund id, once refunded through OneThing.
           nullable: true
+          example: 1JU08902781691411
         refunded_at:
           type: string
+          description: When the order was refunded.
           format: date-time
           nullable: true
+          example: 2026-10-22T02:41:37Z
         options:
           type: object
           additionalProperties:
             type: string
           description: The buyer's pick, one value per option, keyed by option name (see `Choice`).
           nullable: true
+          example:
+            Size: '9'
         paid_at:
           type: string
+          description: When PayPal captured the payment.
           format: date-time
           nullable: true
+          example: 2026-10-22T02:41:37Z
         created_at:
           type: string
+          description: When the order was made.
           format: date-time
+          example: 2026-10-22T02:41:37Z
+      description: An order, as the seller sees it.
+      example:
+        id: pX4kR9tVb2nQ7sLe
+        paypal_order_id: 5O190127TN364715T
+        status: created
+        amount_cents: 25500
+        shipping_cents: 1500
+        currency: USD
+        buyer_email: sam@example.com
+        buyer_name: Sam Rivera
+        shipping_address:
+          address_line_1: 1 Main St
+          admin_area_2: Springfield
+          admin_area_1: IL
+          postal_code: '62701'
+          country_code: US
+        capture_id: 3C679366HH908993F
+        fulfillment_status: none
+        carrier: USPS
+        tracking_number: '9400111899223197428490'
+        tracking_synced: false
+        downloads: 0
+        access_code: K7QF-M2XP-9HTD
+        code_uses: 0
+        code_last_used_at: 2026-10-22T02:41:37Z
+        channel: web
+        agent: Grok
+        refund_id: 1JU08902781691411
+        refunded_at: 2026-10-22T02:41:37Z
+        options:
+          Size: '9'
+        paid_at: 2026-10-22T02:41:37Z
+        created_at: 2026-10-22T02:41:37Z
     WebhookEvent:
       title: WebhookEvent
       required:
@@ -4499,25 +5659,43 @@ components:
         id:
           type: string
           description: PayPal's event id.
+          example: WH-2WR32451HC0233532-67976317FL4543714
         event_type:
           type: string
+          description: PayPal's event type.
           example: PAYMENT.CAPTURE.COMPLETED
         paypal_order_id:
           type: string
+          description: The PayPal order it was about.
           nullable: true
+          example: 5O190127TN364715T
         summary:
           type: string
+          description: The amount, or PayPal's summary.
           nullable: true
           example: 2.99 USD
         verified:
           type: boolean
           description: Whether PayPal confirmed the delivery's signature.
+          example: true
         outcome:
           type: string
+          description: What OneThing did with it.
           example: 'Confirmed: order already paid'
         received_at:
           type: string
+          description: When it arrived.
           format: date-time
+          example: 2026-10-22T02:41:37Z
+      description: A PayPal webhook delivery for this shop's orders.
+      example:
+        id: WH-2WR32451HC0233532-67976317FL4543714
+        event_type: PAYMENT.CAPTURE.COMPLETED
+        paypal_order_id: 5O190127TN364715T
+        summary: 2.99 USD
+        verified: true
+        outcome: 'Confirmed: order already paid'
+        received_at: 2026-10-22T02:41:37Z
     OrderEvent:
       title: OrderEvent
       required:
@@ -4527,17 +5705,69 @@ components:
       type: object
       properties:
         event:
-          $ref: '#/components/schemas/Event'
+          allOf:
+          - $ref: '#/components/schemas/Event'
+          - description: What happened.
+            example: order.paid
         shop:
-          $ref: '#/components/schemas/Shop1'
+          allOf:
+          - $ref: '#/components/schemas/Shop1'
+          - description: The shop the order belongs to.
+            example:
+              slug: vintageskates
+              name: Vintage Cream and Red Roller Skates
+              url: https://one-thing-ash0.onrender.com/vintageskates
         order:
-          $ref: '#/components/schemas/Order1'
+          allOf:
+          - $ref: '#/components/schemas/Order1'
+          - description: The order.
+            example:
+              id: pX4kR9tVb2nQ7sLe
+              paypal_order_id: 5O190127TN364715T
+              amount: '255.00'
+              currency: USD
+              buyer_name: Sam Rivera
+              buyer_email: sam@example.com
+              shipping_address:
+                address_line_1: 1 Main St
+                admin_area_2: Springfield
+                admin_area_1: IL
+                postal_code: '62701'
+                country_code: US
+              fulfillment_status: to_ship
+              tracking_number: '9400111899223197428490'
+              carrier: USPS
+      description: What OneThing posts to the seller's Zapier hook.
+      example:
+        event: order.paid
+        shop:
+          slug: vintageskates
+          name: Vintage Cream and Red Roller Skates
+          url: https://one-thing-ash0.onrender.com/vintageskates
+        order:
+          id: pX4kR9tVb2nQ7sLe
+          paypal_order_id: 5O190127TN364715T
+          amount: '255.00'
+          currency: USD
+          buyer_name: Sam Rivera
+          buyer_email: sam@example.com
+          shipping_address:
+            address_line_1: 1 Main St
+            admin_area_2: Springfield
+            admin_area_1: IL
+            postal_code: '62701'
+            country_code: US
+          fulfillment_status: to_ship
+          tracking_number: '9400111899223197428490'
+          carrier: USPS
     AiSource:
       title: AiSource
       enum:
       - gemini
       - fallback
       type: string
+      description: "Who designed the page: `gemini`, or `fallback` when Gemini wasn't available and a plain template was used."
+      example: gemini
     Amount:
       title: Amount
       required:
@@ -4549,12 +5779,26 @@ components:
       properties:
         item:
           type: number
+          description: The product's price.
+          example: 240
         shipping:
           type: number
+          description: Shipping; 0 for digital products.
+          example: 15
         total:
           type: number
+          description: 'Product plus shipping: what the buyer pays.'
+          example: 255
         currency:
           type: string
+          description: ISO 4217 currency code.
+          example: USD
+      description: What the order costs, as numbers.
+      example:
+        item: 240
+        shipping: 15
+        total: 255
+        currency: USD
     ApiAccessVerifyRequest:
       title: ApiAccessVerifyRequest
       required:
@@ -4568,7 +5812,9 @@ components:
           example: raptorrush
         code:
           type: string
+          description: The access code the buyer entered. Case and dashes don't matter.
           example: K7QF-M2XP-9HTD
+      description: The code to check, and which shop it's for.
     ApiAccessVerifyResponse:
       title: ApiAccessVerifyResponse
       required:
@@ -4577,9 +5823,13 @@ components:
       properties:
         valid:
           type: boolean
+          description: True if the code belongs to a paid, unrefunded order for this shop.
+          example: true
         product:
           type: string
           description: The product name, when valid.
+          example: Vintage Cream and Red Roller Skates
+      description: Whether the code is valid.
     ApiAccountSigninRequest:
       title: ApiAccountSigninRequest
       required:
@@ -4590,6 +5840,7 @@ components:
           type: string
           description: An email address, or a phone number (spaces, dashes and brackets are ignored; keep a leading +).
           example: maker@example.com
+      description: Who is signing in.
     ApiAccountSigninResponse:
       title: ApiAccountSigninResponse
       required:
@@ -4600,14 +5851,19 @@ components:
       properties:
         id:
           type: string
+          description: The account's id.
+          example: acc_Vq3nN8cT0bLx2YwE
         email:
           type: string
           description: Lower-cased.
           nullable: true
+          example: maker@example.com
         phone:
           type: string
           description: Digits, with a leading + if one was given.
           nullable: true
+          example: '+15555550123'
+      description: The signed-in account.
     ApiAgentShopsResponse:
       title: ApiAgentShopsResponse
       required:
@@ -4620,17 +5876,41 @@ components:
         show_buyer:
           type: string
           description: "A suggested reply to the buyer, in Markdown: each shop's cover photo as an image, its name, price and headline, then \"Which one?\". Chats that block images from other sites just leave the image lines out."
+          example: '![Vintage Cream and Red Roller Skates](https://one-thing-ash0.onrender.com/api/blobs/LFRvGuTU3D8i334X)
+
+
+            **Vintage Cream and Red Roller Skates**: $240.00. Classic quad skates crafted with walnut burl heels
+
+
+            ![Raptor Rush: Browser Edition](https://one-thing-ash0.onrender.com/api/blobs/R9tWc3yN6bJq1zUd)
+
+
+            **Raptor Rush: Browser Edition**: $2.99. Grow from Tiny Hatchling to Giant Apex Predator
+
+
+            Which one?'
         shops:
           type: array
           items:
             $ref: '#/components/schemas/AgentShopSummary'
-          description: ''
+          description: Shops, best match first.
+          example:
+          - shop: vintageskates
+            name: Vintage Cream and Red Roller Skates
+            kind: physical
+            headline: Classic quad skates crafted with walnut burl heels
+            price: $240.00
+            image: 'https://one-thing-ash0.onrender.com/api/blobs/LFRvGuTU3D8i334X'
+            url: https://one-thing-ash0.onrender.com/vintageskates
         matched:
           type: boolean
           description: False when nothing matched the query and `shops` is the newest gallery shops instead; `show_buyer` then starts by saying so.
+          example: true
         mcp_server:
           type: string
           description: The MCP server to order through.
+          example: https://one-thing-ash0.onrender.com/api/mcp
+      description: The matching shops, with a reply to show the buyer.
     ApiChannel3SearchResponse:
       title: ApiChannel3SearchResponse
       required:
@@ -4641,13 +5921,30 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ProductCard'
-          description: ''
+          description: Products, best match first.
+          example:
+          - id: ch3_7f2a9c1e
+            title: Trail Running Vest 5L
+            brand: Salomon
+            image: https://images.example.com/vest.jpg
+            price: 240
+            currency: USD
+            retailer: rei.com
+            retailers: 4
+            commission: 0.08
+      description: The products found.
     ApiOrdersCapture409Error1:
       title: ApiOrdersCapture409Error1
       type: object
       properties:
         status:
-          $ref: '#/components/schemas/Status6'
+          allOf:
+          - $ref: '#/components/schemas/Status6'
+          - description: '`pending` until the buyer approves at PayPal.'
+            example: pending
+      description: Not approved yet.
+      example:
+        status: pending
     ApiOrdersCaptureResponse:
       title: ApiOrdersCaptureResponse
       required:
@@ -4658,10 +5955,14 @@ components:
         orderId:
           type: string
           description: OneThing's order id; the thank-you page is `/<slug>/thanks?order=<orderId>`.
+          example: pX4kR9tVb2nQ7sLe
         status:
           enum:
           - paid
           type: string
+          description: Always `paid`.
+          example: paid
+      description: The paid order.
     ApiOrdersRequest:
       title: ApiOrdersRequest
       required:
@@ -4670,6 +5971,8 @@ components:
       properties:
         slug:
           type: string
+          description: The shop's link name.
+          example: vintageskates
         options:
           type: object
           additionalProperties:
@@ -4678,6 +5981,7 @@ components:
           example:
             Size: M
             Color: Black
+      description: The shop to buy from and the buyer's pick.
     ApiOrdersResponse:
       title: ApiOrdersResponse
       required:
@@ -4687,6 +5991,8 @@ components:
         id:
           type: string
           description: PayPal order id.
+          example: 5O190127TN364715T
+      description: The PayPal order to approve.
     ApiPaypalClientTokenResponse:
       title: ApiPaypalClientTokenResponse
       required:
@@ -4696,6 +6002,8 @@ components:
         clientToken:
           type: string
           description: Pass to `createInstance` in the PayPal JavaScript SDK v6.
+          example: eyJraWQiOiJFWEFNUExFIn0.example.client-token
+      description: The client token.
     ApiPlatformShopsResponse:
       title: ApiPlatformShopsResponse
       required:
@@ -4706,7 +6014,23 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/PlatformShop'
-          description: ''
+          description: Shops, newest first.
+          example:
+          - slug: vintageskates
+            status: draft
+            name: Vintage Cream and Red Roller Skates
+            headline: Classic quad skates crafted with walnut burl heels
+            product_type: physical
+            price:
+              amount: 240
+              currency: USD
+              label: $240.00
+            url: https://one-thing-ash0.onrender.com/vintageskates
+            cover: 'https://one-thing-ash0.onrender.com/api/blobs/LFRvGuTU3D8i334X'
+            paypal_connected: true
+            sales: 12
+            created_at: 2026-10-22T02:41:37Z
+      description: The account's shops.
     ApiShopsColorPhotosRequest:
       title: ApiShopsColorPhotosRequest
       required:
@@ -4719,6 +6043,10 @@ components:
             type: string
             nullable: true
           description: Colour label → photo id, or `null`.
+          example:
+            Ice Blue: zrySajNyao6_j11x
+            Amber: null
+      description: Which photo shows each colour.
     ApiShopsColorPhotosResponse:
       title: ApiShopsColorPhotosResponse
       required:
@@ -4729,7 +6057,11 @@ components:
           type: array
           items:
             type: string
-          description: ''
+          description: Colour labels whose photo changed.
+          example:
+          - Ice Blue
+          - Amber
+      description: The colours that changed.
     ApiShopsFileResponse:
       title: ApiShopsFileResponse
       required:
@@ -4739,8 +6071,13 @@ components:
       properties:
         ok:
           type: boolean
+          description: Always `true`.
+          example: true
         filename:
           type: string
+          description: The file's name, as buyers will download it.
+          example: dragon-flight-presets.zip
+      description: The uploaded file.
     ApiShopsMatchPhotosRequest:
       title: ApiShopsMatchPhotosRequest
       required:
@@ -4753,7 +6090,11 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Color'
-          description: ''
+          description: The colour option's values.
+          example:
+          - label: Ice Blue
+            hex: '#9fd3e6'
+      description: The colours to find photos for.
     ApiShopsMatchPhotosResponse:
       title: ApiShopsMatchPhotosResponse
       required:
@@ -4764,9 +6105,11 @@ components:
           type: object
           additionalProperties:
             type: string
+          description: Colour label → photo id.
           example:
             Black: b_8f2k1
             Forest green: b_q93md
+      description: Gemini's matches.
     ApiShopsOrdersRefund409Error1:
       title: ApiShopsOrdersRefund409Error1
       required:
@@ -4776,15 +6119,20 @@ components:
         error:
           type: string
           description: A sentence you can show to a person.
+          example: Order not found.
         field:
           type: string
           description: The form field at fault, when there is one.
+          example: price
         detail:
           type: string
           description: The upstream service's own message, for debugging.
+          example: INSTRUMENT_DECLINED
         refundInPayPal:
           type: boolean
           description: 'Refund it in PayPal yourself, then call again with `record: true`.'
+          example: true
+      description: Why the order can't be refunded here.
     ApiShopsOrdersRefundRequest:
       title: ApiShopsOrdersRefundRequest
       type: object
@@ -4793,6 +6141,7 @@ components:
           type: boolean
           description: "`true`: don't contact PayPal, just record that the seller refunded it themselves."
           default: false
+      description: How to refund.
     ApiShopsOrdersRefundResponse:
       title: ApiShopsOrdersRefundResponse
       required:
@@ -4801,10 +6150,14 @@ components:
       properties:
         ok:
           type: boolean
+          description: Always `true`.
+          example: true
         refundId:
           type: string
           description: PayPal's refund id; null when `record` was used.
           nullable: true
+          example: 1JU08902781691411
+      description: The refund.
     ApiShopsOrdersShipRequest:
       title: ApiShopsOrdersShipRequest
       required:
@@ -4813,15 +6166,22 @@ components:
       type: object
       properties:
         carrier:
-          $ref: '#/components/schemas/Carrier'
+          allOf:
+          - $ref: '#/components/schemas/Carrier'
+          - description: The carrier. `OTHER` needs `carrierName`.
+            example: USPS
         carrierName:
           maxLength: 60
           type: string
           description: Required when `carrier` is `OTHER`.
+          example: Canada Post
         trackingNumber:
           maxLength: 64
           minLength: 4
           type: string
+          description: The carrier's tracking number.
+          example: '9400111899223197428490'
+      description: The shipment's tracking.
     ApiShopsOrdersShipResponse:
       title: ApiShopsOrdersShipResponse
       required:
@@ -4831,9 +6191,13 @@ components:
       properties:
         ok:
           type: boolean
+          description: Always `true`.
+          example: true
         synced:
           type: boolean
           description: Whether PayPal accepted the tracking number.
+          example: true
+      description: The order is marked shipped.
     ApiShopsPaypalRequest:
       title: ApiShopsPaypalRequest
       type: object
@@ -4843,6 +6207,7 @@ components:
           description: Platform key only. Where to send the seller after PayPal.
           format: uri
           example: https://www.miriogames.com/market/manage/?g=7Hq2
+      description: Where to come back to.
     ApiShopsPaypalResponse:
       title: ApiShopsPaypalResponse
       required:
@@ -4852,6 +6217,8 @@ components:
         url:
           type: string
           description: PayPal's onboarding page for this shop.
+          example: https://www.sandbox.paypal.com/bizsignup/partner/entry?referralToken=EXAMPLE
+      description: The onboarding link.
     ApiShopsPaypalResponse1:
       title: ApiShopsPaypalResponse1
       required:
@@ -4863,10 +6230,22 @@ components:
           type: string
           description: The seller's PayPal merchant id.
           nullable: true
+          example: 7MZJ4QXN8K2LA
         status:
           oneOf:
-          - $ref: '#/components/schemas/PayPalStatus'
+          - allOf:
+            - $ref: '#/components/schemas/PayPalStatus'
+            - example:
+                receivable: true
+                emailConfirmed: true
+                checkedAt: 2026-10-22T02:41:37Z
           - nullable: true
+          description: What PayPal last said; null when nothing is connected.
+          example:
+            receivable: true
+            emailConfirmed: true
+            checkedAt: 2026-10-22T02:41:37Z
+      description: The shop's PayPal connection.
     ApiShopsPhotosRequest:
       title: ApiShopsPhotosRequest
       required:
@@ -4879,6 +6258,10 @@ components:
           items:
             type: string
           description: Photo ids, in order.
+          example:
+          - zrySajNyao6_j11x
+          - 'LFRvGuTU3D8i334X'
+      description: The new photo order.
     ApiShopsRefineRequest:
       title: ApiShopsRefineRequest
       required:
@@ -4888,7 +6271,9 @@ components:
         instruction:
           maxLength: 500
           type: string
+          description: What to change, e.g. "make it feel more premium".
           example: Make it feel more premium
+      description: The design change, in words.
     ApiShopsRefineResponse:
       title: ApiShopsRefineResponse
       required:
@@ -4899,6 +6284,39 @@ components:
           allOf:
           - $ref: '#/components/schemas/DesignSpec'
           - description: What Gemini designed. OneThing's templates render it; Gemini never writes HTML.
+            example:
+              productType: physical
+              productName: Vintage Cream and Red Roller Skates
+              layout: bold-hero
+              palette:
+                background: '#f7f1e8'
+                surface: '#ffffff'
+                text: '#1f1a17'
+                muted: '#6b625b'
+                accent: '#b3262d'
+                accentText: '#ffffff'
+              fonts:
+                heading: Playfair Display
+                body: Inter
+              eyebrow: One pair, restored
+              headline: Classic quad skates crafted with walnut burl heels
+              subheadline: A vintage pair of skates with cream leather, bold red trim and quad wheels.
+              story: Each pair combines soft cream leather with distinct red accents and a sculpted walnut burl heel base.
+              bullets:
+              - Walnut burl heels
+              - Restored vintage leather
+              details:
+              - label: Material
+                value: Leather upper, walnut burl heel, rubber wheels
+              faq:
+              - q: Are these suitable for outdoor skating?
+                a: Yes, on indoor rink floors and paved outdoor paths.
+              ctaLabel: Buy the skates
+              suggestedPriceUsd: 240
+              suggestedShippingUsd: 15
+              imageAlt: Cream leather quad roller skates with red trim
+              heroPrompt: Cream roller skates on a sunlit boardwalk, in warm cream and red tones
+      description: The redesigned page.
     ApiShopsResponse:
       title: ApiShopsResponse
       required:
@@ -4908,9 +6326,13 @@ components:
       properties:
         ok:
           type: boolean
+          description: Always `true`.
+          example: true
         slug:
           type: string
           description: The shop's link name after this change.
+          example: vintageskates
+      description: The shop was saved.
     ApiSlugsCheckResponse:
       title: ApiSlugsCheckResponse
       required:
@@ -4920,11 +6342,17 @@ components:
       properties:
         slug:
           type: string
+          description: The name, normalised.
+          example: vintageskates
         available:
           type: boolean
+          description: True if no other shop has it and it isn't reserved.
+          example: true
         problem:
           type: string
           description: Why not, when unavailable.
+          example: Taken. Try another name.
+      description: Whether the link name can be used.
     Carrier:
       title: Carrier
       enum:
@@ -4934,6 +6362,8 @@ components:
       - DHL
       - OTHER
       type: string
+      description: The carrier. `OTHER` needs `carrierName`.
+      example: USPS
     Channel:
       title: Channel
       enum:
@@ -4941,6 +6371,7 @@ components:
       - agent
       type: string
       description: '`agent` for orders an AI agent placed (MCP or an order link).'
+      example: web
     Color:
       title: Color
       required:
@@ -4950,11 +6381,17 @@ components:
         label:
           maxLength: 30
           type: string
+          description: The colour's name, as buyers see it.
           example: Forest green
         hex:
           pattern: ^#[0-9a-fA-F]{6}$
           type: string
+          description: A colour as `#rrggbb`.
           example: '#14171a'
+      description: One colour.
+      example:
+        label: Ice Blue
+        hex: '#9fd3e6'
     Delivery:
       title: Delivery
       enum:
@@ -4962,12 +6399,23 @@ components:
       - access_code
       type: string
       description: For digital products. If omitted, the AI guesses.
+      example: file
     Delivery1:
       title: Delivery1
       enum:
       - file
       - access_code
       type: string
+      description: 'Digital products: `file` or `access_code`.'
+      example: file
+    Delivery2:
+      title: Delivery2
+      enum:
+      - file
+      - access_code
+      type: string
+      description: 'Digital products: `file` (a download) or `access_code` (a code that unlocks an app or game).'
+      example: file
     Detail:
       title: Detail
       required:
@@ -4977,10 +6425,18 @@ components:
       properties:
         label:
           type: string
+          description: What the fact is about.
+          example: Material
         value:
           type: string
-    Error1:
-      title: Error1
+          description: The fact.
+          example: Leather upper, walnut burl heel, rubber wheels
+      description: One product fact.
+      example:
+        label: Material
+        value: Leather upper, walnut burl heel, rubber wheels
+    Error:
+      title: Error
       required:
       - code
       - message
@@ -4988,10 +6444,17 @@ components:
       properties:
         code:
           type: integer
+          description: The JSON-RPC error code.
           format: int32
           example: -32601
         message:
           type: string
+          description: What went wrong.
+          example: Method not found
+      description: Present when the call failed.
+      example:
+        code: -32601
+        message: Method not found
     Event:
       title: Event
       enum:
@@ -4999,6 +6462,8 @@ components:
       - order.shipped
       - order.refunded
       type: string
+      description: What happened.
+      example: order.paid
     Fact:
       title: Fact
       required:
@@ -5009,11 +6474,17 @@ components:
         label:
           maxLength: 30
           type: string
+          description: The detail's label.
           example: Size
         value:
           maxLength: 100
           type: string
+          description: The answer.
           example: US women's 8
+      description: One answered question.
+      example:
+        label: Size
+        value: US women's 8
     Faq:
       title: Faq
       required:
@@ -5023,8 +6494,16 @@ components:
       properties:
         q:
           type: string
+          description: The question.
+          example: Are these suitable for outdoor skating?
         a:
           type: string
+          description: The answer.
+          example: Yes, on indoor rink floors and paved outdoor paths.
+      description: One question and its answer.
+      example:
+        q: Are these suitable for outdoor skating?
+        a: Yes, on indoor rink floors and paved outdoor paths.
     Fonts:
       title: Fonts
       required:
@@ -5034,14 +6513,24 @@ components:
       properties:
         heading:
           type: string
+          description: The headings font.
+          example: Playfair Display
         body:
           type: string
+          description: The body text font.
+          example: Inter
+      description: Google Fonts for the page.
+      example:
+        heading: Playfair Display
+        body: Inter
     Fulfillment:
       title: Fulfillment
       enum:
       - to_ship
       - shipped
       type: string
+      description: '`to_ship` until the seller adds tracking, then `shipped`.'
+      example: to_ship
     FulfillmentStatus:
       title: FulfillmentStatus
       enum:
@@ -5050,6 +6539,8 @@ components:
       - shipped
       - digital_sent
       type: string
+      description: '`to_ship` and `shipped` for physical orders, `digital_sent` for digital ones, `none` before payment.'
+      example: none
     HeroStatus:
       title: HeroStatus
       enum:
@@ -5058,6 +6549,8 @@ components:
       - ready
       - failed
       type: string
+      description: 'Hero art: `pending` while generating, then `ready` or `failed`; `none` if not requested.'
+      example: none
     Kind:
       title: Kind
       enum:
@@ -5066,6 +6559,7 @@ components:
       - other
       type: string
       description: '`color` shows swatches, and the photo of the picked colour.'
+      example: size
     Kind1:
       title: Kind1
       enum:
@@ -5073,6 +6567,17 @@ components:
       - digital
       - referral
       type: string
+      description: '`physical` ships, `digital` downloads or unlocks with a code, `referral` is bought at another store.'
+      example: physical
+    Kind2:
+      title: Kind2
+      enum:
+      - physical
+      - digital
+      - referral
+      type: string
+      description: '`physical`, `digital` or `referral`.'
+      example: physical
     Layout:
       title: Layout
       enum:
@@ -5081,6 +6586,8 @@ components:
       - minimal
       - playful
       type: string
+      description: 'The page template: `bold-hero` (image first, punchy), `editorial` (magazine), `minimal` (quiet, lots of space) or `playful`.'
+      example: bold-hero
     Method:
       title: Method
       enum:
@@ -5090,6 +6597,8 @@ components:
       - tools/call
       - notifications/initialized
       type: string
+      description: The MCP method. `tools/call` runs a tool; `tools/list` lists them.
+      example: tools/call
     MissingFact:
       title: MissingFact
       required:
@@ -5100,13 +6609,21 @@ components:
       properties:
         label:
           type: string
+          description: The product detail it becomes.
           example: Size
         question:
           type: string
+          description: The question, for the seller.
           example: What size are the skates?
         placeholder:
           type: string
+          description: An example answer.
           example: US women's 8
+      description: One question to answer.
+      example:
+        label: Size
+        question: What size are the skates?
+        placeholder: US women's 8
     Offer:
       title: Offer
       required:
@@ -5120,17 +6637,36 @@ components:
       properties:
         domain:
           type: string
+          description: The store's domain.
+          example: rei.com
         url:
           type: string
+          description: A Channel3-tracked buy link, credited to this shop.
+          example: https://buy.trychannel3.com/r/abc123
         price:
           type: number
+          description: The store's price.
+          example: 240
         currency:
           type: string
+          description: ISO 4217 currency code.
+          example: USD
         inStock:
           type: boolean
+          description: Whether the store has it in stock.
+          example: true
         commission:
           type: number
           description: Maximum commission rate, 0–1 (0.08 = 8%).
+          example: 0.08
+      description: One store's offer.
+      example:
+        domain: rei.com
+        url: https://buy.trychannel3.com/r/abc123
+        price: 240
+        currency: USD
+        inStock: true
+        commission: 0.08
     Offer1:
       title: Offer1
       required:
@@ -5143,14 +6679,31 @@ components:
       properties:
         retailer:
           type: string
+          description: The store.
+          example: rei.com
         price:
           type: number
+          description: The store's price.
+          example: 240
         currency:
           type: string
+          description: ISO 4217 currency code.
+          example: USD
         in_stock:
           type: boolean
+          description: Whether the store has it in stock.
+          example: true
         url:
           type: string
+          description: A tracked buy link at that store.
+          example: https://buy.trychannel3.com/r/abc123
+      description: One store's offer.
+      example:
+        retailer: rei.com
+        price: 240
+        currency: USD
+        in_stock: true
+        url: https://buy.trychannel3.com/r/abc123
     Ok:
       title: Ok
       required:
@@ -5159,6 +6712,9 @@ components:
       properties:
         ok:
           type: boolean
+          description: Always `true`.
+          example: true
+      description: Confirms the change.
     Option:
       title: Option
       required:
@@ -5170,21 +6726,36 @@ components:
         name:
           maxLength: 20
           type: string
+          description: What the buyer is choosing.
           example: Size
         kind:
           allOf:
           - $ref: '#/components/schemas/Kind'
           - description: '`color` shows swatches, and the photo of the picked colour.'
+            example: size
         values:
           maxItems: 12
           minItems: 1
           type: array
           items:
             $ref: '#/components/schemas/OptionValue'
-          description: ''
+          description: The values to pick from.
+          example:
+          - label: S
+          - label: M
+          - label: L
         fromSeller:
           type: boolean
           description: The seller's description or photo named these values; otherwise they're a guess.
+          example: false
+      description: A suggested option.
+      example:
+        name: Size
+        kind: size
+        values:
+        - label: S
+        - label: M
+        - label: L
     Option1:
       title: Option1
       required:
@@ -5194,42 +6765,96 @@ components:
       properties:
         name:
           type: string
+          description: The option's name, which is also its query parameter on `order_url`.
+          example: Vintage Cream and Red Roller Skates
         values:
           type: array
           items:
             type: string
-          description: ''
+          description: The values the buyer can pick.
+          example:
+          - '7'
+          - '8'
+          - '9'
+      description: One option and its values.
+      example:
+        name: Size
+        values:
+        - '7'
+        - '8'
+        - '9'
     Order1:
       title: Order1
       type: object
       properties:
         id:
           type: string
+          description: OneThing's order id.
+          example: pX4kR9tVb2nQ7sLe
         paypal_order_id:
           type: string
+          description: PayPal's order id.
           nullable: true
+          example: 5O190127TN364715T
         amount:
           type: string
+          description: The total, as a decimal string.
           example: '2.99'
         currency:
           type: string
+          description: ISO 4217 currency code.
+          example: USD
         buyer_name:
           type: string
+          description: The buyer's name, from PayPal.
           nullable: true
+          example: Sam Rivera
         buyer_email:
           type: string
+          description: The buyer's email, from PayPal.
           nullable: true
+          example: sam@example.com
         shipping_address:
           type: object
+          description: 'Physical orders: the address, by field.'
           nullable: true
+          example:
+            address_line_1: 1 Main St
+            admin_area_2: Springfield
+            admin_area_1: IL
+            postal_code: '62701'
+            country_code: US
         fulfillment_status:
           type: string
+          description: As in `Order.fulfillment_status`.
+          example: to_ship
         tracking_number:
           type: string
+          description: The tracking number, once shipped.
           nullable: true
+          example: '9400111899223197428490'
         carrier:
           type: string
+          description: The carrier, once shipped.
           nullable: true
+          example: USPS
+      description: The order.
+      example:
+        id: pX4kR9tVb2nQ7sLe
+        paypal_order_id: 5O190127TN364715T
+        amount: '255.00'
+        currency: USD
+        buyer_name: Sam Rivera
+        buyer_email: sam@example.com
+        shipping_address:
+          address_line_1: 1 Main St
+          admin_area_2: Springfield
+          admin_area_1: IL
+          postal_code: '62701'
+          country_code: US
+        fulfillment_status: to_ship
+        tracking_number: '9400111899223197428490'
+        carrier: USPS
     Palette:
       title: Palette
       required:
@@ -5244,27 +6869,41 @@ components:
         background:
           pattern: ^#[0-9a-fA-F]{6}$
           type: string
+          description: A colour as `#rrggbb`.
           example: '#14171a'
         surface:
           pattern: ^#[0-9a-fA-F]{6}$
           type: string
+          description: A colour as `#rrggbb`.
           example: '#14171a'
         text:
           pattern: ^#[0-9a-fA-F]{6}$
           type: string
+          description: A colour as `#rrggbb`.
           example: '#14171a'
         muted:
           pattern: ^#[0-9a-fA-F]{6}$
           type: string
+          description: A colour as `#rrggbb`.
           example: '#14171a'
         accent:
           pattern: ^#[0-9a-fA-F]{6}$
           type: string
+          description: A colour as `#rrggbb`.
           example: '#14171a'
         accentText:
           pattern: ^#[0-9a-fA-F]{6}$
           type: string
+          description: A colour as `#rrggbb`.
           example: '#14171a'
+      description: The page colours, taken from the photo. Text colours are checked for contrast.
+      example:
+        background: '#f7f1e8'
+        surface: '#ffffff'
+        text: '#1f1a17'
+        muted: '#6b625b'
+        accent: '#b3262d'
+        accentText: '#ffffff'
     Photo:
       title: Photo
       required:
@@ -5274,9 +6913,16 @@ components:
       properties:
         id:
           type: string
+          description: The photo's id, for `getImage`, `setPhotoOrder` and colour matching.
+          example: 'LFRvGuTU3D8i334X'
         url:
           type: string
           description: Public image URL on this site.
+          example: '/api/blobs/LFRvGuTU3D8i334X'
+      description: One photo.
+      example:
+        id: 'LFRvGuTU3D8i334X'
+        url: '/api/blobs/LFRvGuTU3D8i334X'
     ProductType:
       title: ProductType
       enum:
@@ -5285,6 +6931,7 @@ components:
       - referral
       type: string
       description: '`referral` only for shops created from Channel3.'
+      example: physical
     ProductType1:
       title: ProductType1
       enum:
@@ -5292,12 +6939,25 @@ components:
       - digital
       - referral
       type: string
+      description: '`physical` ships, `digital` downloads or unlocks, `referral` recommends a Channel3 product.'
+      example: physical
     ProductType2:
       title: ProductType2
       enum:
       - digital
       - physical
       type: string
+      description: What the AI decided the product is.
+      example: physical
+    ProductType3:
+      title: ProductType3
+      enum:
+      - physical
+      - digital
+      - referral
+      type: string
+      description: '`physical`, `digital` or `referral`.'
+      example: physical
     Shipping:
       title: Shipping
       required:
@@ -5308,32 +6968,65 @@ components:
       properties:
         amount:
           type: number
+          description: Shipping cost per order.
+          example: 15
         currency:
           type: string
+          description: ISO 4217 currency code.
+          example: USD
         ships_to:
           type: array
           items:
             type: string
           description: Country codes; empty means anywhere PayPal ships.
+          example:
+          - US
+          - CA
+      description: Shipping cost and destinations.
+      example:
+        amount: 15
+        currency: USD
+        ships_to:
+        - US
+        - CA
     ShipTo:
       title: ShipTo
       type: object
       properties:
         name:
           type: string
+          description: The recipient's name.
           nullable: true
+          example: Sam Rivera
         address:
           type: string
+          description: The address on one line.
+          example: 1 Main St, Springfield, IL, 62701, US
+      description: Where it ships, from the buyer's PayPal checkout. Null if PayPal didn't share it.
+      example:
+        name: Sam Rivera
+        address: 1 Main St, Springfield, IL, 62701, US
     Shop1:
       title: Shop1
       type: object
       properties:
         slug:
           type: string
+          description: The shop's link name.
+          example: vintageskates
         name:
           type: string
+          description: The product's name.
+          example: Vintage Cream and Red Roller Skates
         url:
           type: string
+          description: The shop page.
+          example: https://one-thing-ash0.onrender.com/vintageskates
+      description: The shop the order belongs to.
+      example:
+        slug: vintageskates
+        name: Vintage Cream and Red Roller Skates
+        url: https://one-thing-ash0.onrender.com/vintageskates
     ShopPhotos:
       title: ShopPhotos
       required:
@@ -5344,7 +7037,11 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Photo'
-          description: ''
+          description: Every photo, the cover first.
+          example:
+          - id: 'LFRvGuTU3D8i334X'
+            url: '/api/blobs/LFRvGuTU3D8i334X'
+      description: The shop's photos.
     Source:
       title: Source
       enum:
@@ -5352,12 +7049,24 @@ components:
       - link
       - channel3
       type: string
+      description: 'What the shop starts from: a photo (with an optional description), a product link, or a Channel3 product to recommend.'
+      example: photo
     Status:
       title: Status
       enum:
       - draft
       - live
       type: string
+      description: '`live` publishes the shop; `draft` takes it down.'
+      example: draft
+    Status1:
+      title: Status1
+      enum:
+      - draft
+      - live
+      type: string
+      description: '`draft` until the seller goes live; only `live` shops take orders.'
+      example: draft
     Status2:
       title: Status2
       enum:
@@ -5369,6 +7078,15 @@ components:
       - failed
       type: string
       description: "`declined`: PayPal declined it, nothing charged, the buyer can open `pay_url` again. `sold_out`: it sold out before the payment was captured. `expired`: the PayPal checkout expired; create a new order. `failed`: PayPal couldn't be reached; ask again."
+      example: awaiting_buyer_approval
+    Status3:
+      title: Status3
+      enum:
+      - draft
+      - live
+      type: string
+      description: '`draft` until the seller goes live.'
+      example: draft
     Status4:
       title: Status4
       enum:
@@ -5377,19 +7095,38 @@ components:
       - failed
       - refunded
       type: string
+      description: '`created` until paid; `failed` if PayPal declined; `refunded` after a refund.'
+      example: created
+    status5:
+      title: status5
+      enum:
+      - draft
+      - live
+      type: string
+      description: Only shops with this status, e.g. `live` for a public catalog.
     Status6:
       title: Status6
       enum:
       - pending
       type: string
+      description: '`pending` until the buyer approves at PayPal.'
+      example: pending
     Tracking:
       title: Tracking
       type: object
       properties:
         carrier:
           type: string
+          description: The shipping carrier.
+          example: USPS
         number:
           type: string
+          description: The tracking number.
+          example: '9400111899223197428490'
+      description: The carrier and tracking number once shipped; null before.
+      example:
+        carrier: USPS
+        number: '9400111899223197428490'
     Type:
       title: Type
       enum:
@@ -5397,6 +7134,7 @@ components:
       - physical
       - digital
       type: string
+      description: '`physical` ships, `digital` is a file or an access code, `auto` lets the AI decide.'
     Variant:
       title: Variant
       required:
@@ -5414,14 +7152,25 @@ components:
             Color: Black
         availability:
           type: string
+          description: '`in_stock`, `in_stock (N left)` or `sold_out`.'
+          example: in_stock (3 left)
         order_url:
           type: string
           description: "`orderByLink` for this pick. Left out when it's sold out."
+          example: https://one-thing-ash0.onrender.com/vintageskates/buy?Size=9
+      description: One combination of option values.
+      example:
+        choice:
+          Size: M
+          Color: Black
+        availability: in_stock (3 left)
+        order_url: https://one-thing-ash0.onrender.com/vintageskates/buy?Size=9
     view:
       title: view
       enum:
       - json
       type: string
+      description: '`json` keeps the JSON for a person opening the link in a browser.'
   securitySchemes:
     AdminToken:
       type: apiKey

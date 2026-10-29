@@ -2,13 +2,15 @@
 
 Source: /#/http/x-redirect/JTI0bSUyRlNoaXBwaW5n
 
+Shipping cost and destinations.
+
 
 # Fields
 
 | Name | Type | Tags | Description |
 |  --- | --- | --- | --- |
-| `amount` | `Decimal` | Required | - |
-| `currency` | `String` | Required | - |
+| `amount` | `Decimal` | Required | Shipping cost per order. |
+| `currency` | `String` | Required | ISO 4217 currency code. |
 | `ships_to` | `array<String>` | Required | Country codes; empty means anywhere PayPal ships. |
 
 
@@ -16,12 +18,11 @@ Source: /#/http/x-redirect/JTI0bSUyRlNoaXBwaW5n
 
 ```json
 {
-  "amount": 194.54,
-  "currency": "currency2",
+  "amount": 15,
+  "currency": "USD",
   "ships_to": [
-    "ships_to5",
-    "ships_to6",
-    "ships_to7"
+    "US",
+    "CA"
   ]
 }
 ```

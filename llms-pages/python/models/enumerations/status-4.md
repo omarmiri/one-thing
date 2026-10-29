@@ -2,6 +2,8 @@
 
 Source: /#/python/x-redirect/JTI0bSUyRlN0YXR1czQ
 
+`created` until paid; `failed` if PayPal declined; `refunded` after a refund.
+
 
 # Enum Type Name
 

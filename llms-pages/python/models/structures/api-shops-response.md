@@ -2,6 +2,8 @@
 
 Source: /#/python/x-redirect/JTI0bSUyRkFwaSUyNTIwU2hvcHMlMjUyMFJlc3BvbnNl
 
+The shop was saved.
+
 
 # Class Name
 
@@ -12,7 +14,7 @@ Source: /#/python/x-redirect/JTI0bSUyRkFwaSUyNTIwU2hvcHMlMjUyMFJlc3BvbnNl
 
 | Name | Type | Tags | Description |
 |  --- | --- | --- | --- |
-| `ok` | `bool` | Required | - |
+| `ok` | `bool` | Required | Always `true`. |
 | `slug` | `str` | Required | The shop's link name after this change. |
 
 
@@ -22,8 +24,8 @@ Source: /#/python/x-redirect/JTI0bSUyRkFwaSUyNTIwU2hvcHMlMjUyMFJlc3BvbnNl
 from onethingapi.models.api_shops_response import ApiShopsResponse
 
 api_shops_response = ApiShopsResponse(
-    ok=False,
-    slug='slug6'
+    ok=True,
+    slug='vintageskates'
 )
 ```
 

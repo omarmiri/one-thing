@@ -2,6 +2,8 @@
 
 Source: /#/typescript/x-redirect/JTI0bSUyRk9mZmVy
 
+One store's offer.
+
 
 # Interface Name
 
@@ -12,11 +14,11 @@ Source: /#/typescript/x-redirect/JTI0bSUyRk9mZmVy
 
 | Name | Type | Tags | Description |
 |  --- | --- | --- | --- |
-| `domain` | `string` | Required | - |
-| `url` | `string` | Required | - |
-| `price` | `number` | Required | - |
-| `currency` | `string` | Required | - |
-| `inStock` | `boolean` | Required | - |
+| `domain` | `string` | Required | The store's domain. |
+| `url` | `string` | Required | A Channel3-tracked buy link, credited to this shop. |
+| `price` | `number` | Required | The store's price. |
+| `currency` | `string` | Required | ISO 4217 currency code. |
+| `inStock` | `boolean` | Required | Whether the store has it in stock. |
 | `commission` | `number` | Required | Maximum commission rate, 0–1 (0.08 = 8%). |
 
 
@@ -26,12 +28,12 @@ Source: /#/typescript/x-redirect/JTI0bSUyRk9mZmVy
 import { Offer } from 'one-thing-sdk';
 
 const offer: Offer = {
-  domain: 'domain0',
-  url: 'url8',
-  price: 136.68,
-  currency: 'currency6',
-  inStock: false,
-  commission: 5.02,
+  domain: 'rei.com',
+  url: 'https://buy.trychannel3.com/r/abc123',
+  price: 240,
+  currency: 'USD',
+  inStock: true,
+  commission: 0.08,
 };
 ```
 

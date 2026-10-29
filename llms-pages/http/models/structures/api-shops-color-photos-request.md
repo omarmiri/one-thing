@@ -2,6 +2,8 @@
 
 Source: /#/http/x-redirect/JTI0bSUyRkFwaSUyNTIwU2hvcHMlMjUyMENvbG9yJTI1MjBQaG90b3MlMjUyMFJlcXVlc3Q
 
+Which photo shows each colour.
+
 
 # Fields
 
@@ -15,9 +17,8 @@ Source: /#/http/x-redirect/JTI0bSUyRkFwaSUyNTIwU2hvcHMlMjUyMENvbG9yJTI1MjBQaG90b
 ```json
 {
   "photos": {
-    "key0": "photos2",
-    "key1": "photos1",
-    "key2": "photos0"
+    "Ice Blue": "zrySajNyao6_j11x",
+    "Amber": null
   }
 }
 ```

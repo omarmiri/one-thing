@@ -41,8 +41,8 @@ print(result)
 
 | HTTP Status Code | Error Description | Exception Class |
 |  --- | --- | --- |
-| 502 | Gemini, PayPal or Channel3 failed or isn't configured. | [`ErrorException`](/llms-pages/python/models/exceptions/error.md) |
-| 503 | Gemini, PayPal or Channel3 failed or isn't configured. | [`ErrorException`](/llms-pages/python/models/exceptions/error.md) |
+| 502 | Gemini, PayPal or Channel3 failed or isn't configured. | [`ErrorResponseException`](/llms-pages/python/models/exceptions/error-response.md) |
+| 503 | Gemini, PayPal or Channel3 failed or isn't configured. | [`ErrorResponseException`](/llms-pages/python/models/exceptions/error-response.md) |
 
 
 

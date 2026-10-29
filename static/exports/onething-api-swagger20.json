@@ -60,7 +60,7 @@
             "name": "body",
             "in": "body",
             "required": true,
-            "description": "",
+            "description": "The email or phone number to sign in with.",
             "schema": {
               "$ref": "#/definitions/ApiAccountSigninRequest"
             }
@@ -89,7 +89,7 @@
           "400": {
             "description": "Something in the request needs fixing; `error` says what.",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/ErrorResponse"
             },
             "examples": {
               "application/json": {
@@ -159,7 +159,7 @@
           "503": {
             "description": "Log in with PayPal isn't switched on for this server.",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/ErrorResponse"
             },
             "headers": {}
           }
@@ -191,7 +191,8 @@
               "link",
               "channel3"
             ],
-            "type": "string"
+            "type": "string",
+            "description": "What the shop starts from: a photo (with an optional description), a product link, or a Channel3 product to recommend."
           },
           {
             "name": "photo",
@@ -240,7 +241,8 @@
               "digital"
             ],
             "default": "auto",
-            "type": "string"
+            "type": "string",
+            "description": "`physical` ships, `digital` is a file or an access code, `auto` lets the AI decide."
           },
           {
             "name": "delivery",
@@ -275,7 +277,7 @@
             "required": false,
             "type": "number",
             "format": "double",
-            "description": ""
+            "description": "Physical products: shipping per order, in USD. If omitted, the AI suggests it."
           },
           {
             "name": "stock",
@@ -283,14 +285,14 @@
             "required": false,
             "type": "integer",
             "format": "int32",
-            "description": ""
+            "description": "How many are for sale. Leave out for unlimited."
           },
           {
             "name": "ship_countries",
             "in": "formData",
             "required": false,
             "type": "string",
-            "description": ""
+            "description": "Physical products: comma-separated ISO country codes to ship to. Empty means anywhere PayPal ships."
           },
           {
             "name": "paypal_email",
@@ -298,7 +300,7 @@
             "required": false,
             "type": "string",
             "format": "email",
-            "description": ""
+            "description": "The PayPal account that gets paid, if the seller doesn't connect one with `connectPayPal`."
           },
           {
             "name": "seller_email",
@@ -306,7 +308,7 @@
             "required": false,
             "type": "string",
             "format": "email",
-            "description": ""
+            "description": "Where order notifications go."
           },
           {
             "name": "digital_file",
@@ -314,7 +316,7 @@
             "required": false,
             "type": "file",
             "format": "file",
-            "description": ""
+            "description": "Digital products sold as a file: the file buyers download, up to 25 MB. Can also be added later with `uploadDigitalFile`."
           }
         ],
         "responses": {
@@ -335,7 +337,7 @@
           "400": {
             "description": "Something in the request needs fixing; `error` says what.",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/ErrorResponse"
             },
             "examples": {
               "application/json": {
@@ -347,7 +349,7 @@
           "409": {
             "description": "Taken or unavailable (a link name, or a sold-out product).",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/ErrorResponse"
             },
             "examples": {
               "application/json": {
@@ -356,22 +358,10 @@
             },
             "headers": {}
           },
-          "502": {
-            "description": "Gemini, PayPal or Channel3 failed or isn't configured.",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "error": "PayPal isn't configured on this server."
-              }
-            },
-            "headers": {}
-          },
           "429": {
             "description": "Over this network's cap for the call (see **Limits**). Retry after `Retry-After` seconds.",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/ErrorResponse"
             },
             "examples": {
               "application/json": {
@@ -384,6 +374,18 @@
                 "type": "string"
               }
             }
+          },
+          "502": {
+            "description": "Gemini, PayPal or Channel3 failed or isn't configured.",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            },
+            "examples": {
+              "application/json": {
+                "error": "PayPal isn't configured on this server."
+              }
+            },
+            "headers": {}
           }
         },
         "security": [
@@ -528,7 +530,7 @@
           "404": {
             "description": "No such shop, or the admin token or API key doesn't match it.",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/ErrorResponse"
             },
             "examples": {
               "application/json": {
@@ -583,7 +585,7 @@
             "name": "body",
             "in": "body",
             "required": true,
-            "description": "",
+            "description": "The fields to change; anything left out stays as it is.",
             "schema": {
               "$ref": "#/definitions/ShopUpdate"
             }
@@ -606,7 +608,7 @@
           "400": {
             "description": "Something in the request needs fixing; `error` says what.",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/ErrorResponse"
             },
             "examples": {
               "application/json": {
@@ -618,7 +620,7 @@
           "404": {
             "description": "No such shop, or the admin token or API key doesn't match it.",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/ErrorResponse"
             },
             "examples": {
               "application/json": {
@@ -675,7 +677,7 @@
             "name": "body",
             "in": "body",
             "required": true,
-            "description": "",
+            "description": "The design change, in words.",
             "schema": {
               "$ref": "#/definitions/ApiShopsRefineRequest"
             }
@@ -737,7 +739,7 @@
           "400": {
             "description": "Something in the request needs fixing; `error` says what.",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/ErrorResponse"
             },
             "examples": {
               "application/json": {
@@ -749,7 +751,7 @@
           "404": {
             "description": "No such shop, or the admin token or API key doesn't match it.",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/ErrorResponse"
             },
             "examples": {
               "application/json": {
@@ -758,22 +760,10 @@
             },
             "headers": {}
           },
-          "502": {
-            "description": "Gemini, PayPal or Channel3 failed or isn't configured.",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "error": "PayPal isn't configured on this server."
-              }
-            },
-            "headers": {}
-          },
           "429": {
             "description": "Over this network's cap for the call (see **Limits**). Retry after `Retry-After` seconds.",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/ErrorResponse"
             },
             "examples": {
               "application/json": {
@@ -786,6 +776,18 @@
                 "type": "string"
               }
             }
+          },
+          "502": {
+            "description": "Gemini, PayPal or Channel3 failed or isn't configured.",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            },
+            "examples": {
+              "application/json": {
+                "error": "PayPal isn't configured on this server."
+              }
+            },
+            "headers": {}
           }
         },
         "security": [
@@ -835,7 +837,7 @@
           "400": {
             "description": "Something in the request needs fixing; `error` says what.",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/ErrorResponse"
             },
             "examples": {
               "application/json": {
@@ -847,7 +849,7 @@
           "404": {
             "description": "No such shop, or the admin token or API key doesn't match it.",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/ErrorResponse"
             },
             "examples": {
               "application/json": {
@@ -859,7 +861,7 @@
           "429": {
             "description": "Over this network's cap for the call (see **Limits**). Retry after `Retry-After` seconds.",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/ErrorResponse"
             },
             "examples": {
               "application/json": {
@@ -933,7 +935,7 @@
           "400": {
             "description": "Something in the request needs fixing; `error` says what.",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/ErrorResponse"
             },
             "examples": {
               "application/json": {
@@ -945,7 +947,7 @@
           "404": {
             "description": "No such shop, or the admin token or API key doesn't match it.",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/ErrorResponse"
             },
             "examples": {
               "application/json": {
@@ -1022,7 +1024,7 @@
           "400": {
             "description": "Something in the request needs fixing; `error` says what.",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/ErrorResponse"
             },
             "examples": {
               "application/json": {
@@ -1034,7 +1036,7 @@
           "404": {
             "description": "No such shop, or the admin token or API key doesn't match it.",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/ErrorResponse"
             },
             "examples": {
               "application/json": {
@@ -1089,7 +1091,7 @@
             "name": "body",
             "in": "body",
             "required": true,
-            "description": "",
+            "description": "Every photo id, in the new order.",
             "schema": {
               "$ref": "#/definitions/ApiShopsPhotosRequest"
             }
@@ -1120,7 +1122,7 @@
           "400": {
             "description": "Something in the request needs fixing; `error` says what.",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/ErrorResponse"
             },
             "examples": {
               "application/json": {
@@ -1132,7 +1134,7 @@
           "404": {
             "description": "No such shop, or the admin token or API key doesn't match it.",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/ErrorResponse"
             },
             "examples": {
               "application/json": {
@@ -1214,7 +1216,7 @@
           "400": {
             "description": "Something in the request needs fixing; `error` says what.",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/ErrorResponse"
             },
             "examples": {
               "application/json": {
@@ -1226,7 +1228,7 @@
           "404": {
             "description": "No such shop, or the admin token or API key doesn't match it.",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/ErrorResponse"
             },
             "examples": {
               "application/json": {
@@ -1235,22 +1237,10 @@
             },
             "headers": {}
           },
-          "502": {
-            "description": "Gemini, PayPal or Channel3 failed or isn't configured.",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "error": "PayPal isn't configured on this server."
-              }
-            },
-            "headers": {}
-          },
           "429": {
             "description": "Over this network's cap for the call (see **Limits**). Retry after `Retry-After` seconds.",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/ErrorResponse"
             },
             "examples": {
               "application/json": {
@@ -1263,6 +1253,18 @@
                 "type": "string"
               }
             }
+          },
+          "502": {
+            "description": "Gemini, PayPal or Channel3 failed or isn't configured.",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            },
+            "examples": {
+              "application/json": {
+                "error": "PayPal isn't configured on this server."
+              }
+            },
+            "headers": {}
           }
         },
         "security": [
@@ -1312,7 +1314,7 @@
             "name": "body",
             "in": "body",
             "required": true,
-            "description": "",
+            "description": "The colour option's values.",
             "schema": {
               "$ref": "#/definitions/ApiShopsMatchPhotosRequest"
             }
@@ -1337,7 +1339,7 @@
           "400": {
             "description": "Something in the request needs fixing; `error` says what.",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/ErrorResponse"
             },
             "examples": {
               "application/json": {
@@ -1349,7 +1351,7 @@
           "404": {
             "description": "No such shop, or the admin token or API key doesn't match it.",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/ErrorResponse"
             },
             "examples": {
               "application/json": {
@@ -1358,22 +1360,10 @@
             },
             "headers": {}
           },
-          "502": {
-            "description": "Gemini, PayPal or Channel3 failed or isn't configured.",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "error": "PayPal isn't configured on this server."
-              }
-            },
-            "headers": {}
-          },
           "429": {
             "description": "Over this network's cap for the call (see **Limits**). Retry after `Retry-After` seconds.",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/ErrorResponse"
             },
             "examples": {
               "application/json": {
@@ -1386,6 +1376,18 @@
                 "type": "string"
               }
             }
+          },
+          "502": {
+            "description": "Gemini, PayPal or Channel3 failed or isn't configured.",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            },
+            "examples": {
+              "application/json": {
+                "error": "PayPal isn't configured on this server."
+              }
+            },
+            "headers": {}
           }
         },
         "security": [
@@ -1435,7 +1437,7 @@
             "name": "body",
             "in": "body",
             "required": true,
-            "description": "",
+            "description": "The photo for each colour.",
             "schema": {
               "$ref": "#/definitions/ApiShopsColorPhotosRequest"
             }
@@ -1460,7 +1462,7 @@
           "400": {
             "description": "Something in the request needs fixing; `error` says what.",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/ErrorResponse"
             },
             "examples": {
               "application/json": {
@@ -1472,7 +1474,7 @@
           "404": {
             "description": "No such shop, or the admin token or API key doesn't match it.",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/ErrorResponse"
             },
             "examples": {
               "application/json": {
@@ -1529,7 +1531,7 @@
             "name": "body",
             "in": "body",
             "required": false,
-            "description": "",
+            "description": "Platform keys only: where PayPal sends the seller back.",
             "schema": {
               "$ref": "#/definitions/ApiShopsPaypalRequest"
             }
@@ -1551,7 +1553,7 @@
           "404": {
             "description": "No such shop, or the admin token or API key doesn't match it.",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/ErrorResponse"
             },
             "examples": {
               "application/json": {
@@ -1563,7 +1565,7 @@
           "502": {
             "description": "Gemini, PayPal or Channel3 failed or isn't configured.",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/ErrorResponse"
             },
             "examples": {
               "application/json": {
@@ -1575,7 +1577,7 @@
           "503": {
             "description": "Gemini, PayPal or Channel3 failed or isn't configured.",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/ErrorResponse"
             },
             "examples": {
               "application/json": {
@@ -1635,7 +1637,7 @@
           "404": {
             "description": "No such shop, or the admin token or API key doesn't match it.",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/ErrorResponse"
             },
             "examples": {
               "application/json": {
@@ -1647,7 +1649,7 @@
           "502": {
             "description": "Gemini, PayPal or Channel3 failed or isn't configured.",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/ErrorResponse"
             },
             "examples": {
               "application/json": {
@@ -1659,7 +1661,7 @@
           "503": {
             "description": "Gemini, PayPal or Channel3 failed or isn't configured.",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/ErrorResponse"
             },
             "examples": {
               "application/json": {
@@ -1714,7 +1716,7 @@
           "404": {
             "description": "No such shop, or the admin token or API key doesn't match it.",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/ErrorResponse"
             },
             "examples": {
               "application/json": {
@@ -1822,7 +1824,7 @@
           "502": {
             "description": "Gemini, PayPal or Channel3 failed or isn't configured.",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/ErrorResponse"
             },
             "examples": {
               "application/json": {
@@ -1834,7 +1836,7 @@
           "503": {
             "description": "Gemini, PayPal or Channel3 failed or isn't configured.",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/ErrorResponse"
             },
             "examples": {
               "application/json": {
@@ -1875,7 +1877,7 @@
           "502": {
             "description": "Gemini, PayPal or Channel3 failed or isn't configured.",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/ErrorResponse"
             },
             "examples": {
               "application/json": {
@@ -1887,7 +1889,7 @@
           "503": {
             "description": "Gemini, PayPal or Channel3 failed or isn't configured.",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/ErrorResponse"
             },
             "examples": {
               "application/json": {
@@ -1929,7 +1931,7 @@
             "name": "body",
             "in": "body",
             "required": true,
-            "description": "",
+            "description": "The shop and the buyer's pick.",
             "schema": {
               "$ref": "#/definitions/ApiOrdersRequest"
             }
@@ -1951,7 +1953,7 @@
           "400": {
             "description": "Something in the request needs fixing; `error` says what.",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/ErrorResponse"
             },
             "examples": {
               "application/json": {
@@ -1963,7 +1965,7 @@
           "404": {
             "description": "No such shop, or the admin token or API key doesn't match it.",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/ErrorResponse"
             },
             "examples": {
               "application/json": {
@@ -1975,7 +1977,7 @@
           "409": {
             "description": "Taken or unavailable (a link name, or a sold-out product).",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/ErrorResponse"
             },
             "examples": {
               "application/json": {
@@ -1984,34 +1986,10 @@
             },
             "headers": {}
           },
-          "502": {
-            "description": "Gemini, PayPal or Channel3 failed or isn't configured.",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "error": "PayPal isn't configured on this server."
-              }
-            },
-            "headers": {}
-          },
-          "503": {
-            "description": "Gemini, PayPal or Channel3 failed or isn't configured.",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            },
-            "examples": {
-              "application/json": {
-                "error": "PayPal isn't configured on this server."
-              }
-            },
-            "headers": {}
-          },
           "429": {
             "description": "Over this network's cap for the call (see **Limits**). Retry after `Retry-After` seconds.",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/ErrorResponse"
             },
             "examples": {
               "application/json": {
@@ -2024,6 +2002,30 @@
                 "type": "string"
               }
             }
+          },
+          "502": {
+            "description": "Gemini, PayPal or Channel3 failed or isn't configured.",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            },
+            "examples": {
+              "application/json": {
+                "error": "PayPal isn't configured on this server."
+              }
+            },
+            "headers": {}
+          },
+          "503": {
+            "description": "Gemini, PayPal or Channel3 failed or isn't configured.",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            },
+            "examples": {
+              "application/json": {
+                "error": "PayPal isn't configured on this server."
+              }
+            },
+            "headers": {}
           }
         }
       }
@@ -2066,7 +2068,7 @@
           "402": {
             "description": "Something in the request needs fixing; `error` says what.",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/ErrorResponse"
             },
             "examples": {
               "application/json": {
@@ -2078,7 +2080,7 @@
           "404": {
             "description": "No such shop, or the admin token or API key doesn't match it.",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/ErrorResponse"
             },
             "examples": {
               "application/json": {
@@ -2097,21 +2099,21 @@
           "410": {
             "description": "The last unit (or the last of the buyer's combination) sold while they were paying, or the PayPal checkout expired before they paid. The payment isn't captured, so the buyer isn't charged.",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/ErrorResponse"
             },
             "headers": {}
           },
           "422": {
             "description": "The buyer's funding source was declined (`INSTRUMENT_DECLINED`); they can try another.",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/ErrorResponse"
             },
             "headers": {}
           },
           "502": {
             "description": "Gemini, PayPal or Channel3 failed or isn't configured.",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/ErrorResponse"
             },
             "examples": {
               "application/json": {
@@ -2153,7 +2155,7 @@
             "name": "body",
             "in": "body",
             "required": true,
-            "description": "",
+            "description": "The shop and the code to check.",
             "schema": {
               "$ref": "#/definitions/ApiAccessVerifyRequest"
             }
@@ -2246,7 +2248,7 @@
           "404": {
             "description": "No such shop, or the admin token or API key doesn't match it.",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/ErrorResponse"
             },
             "examples": {
               "application/json": {
@@ -2310,7 +2312,7 @@
             "name": "body",
             "in": "body",
             "required": true,
-            "description": "",
+            "description": "The carrier and tracking number.",
             "schema": {
               "$ref": "#/definitions/ApiShopsOrdersShipRequest"
             }
@@ -2333,7 +2335,7 @@
           "400": {
             "description": "Something in the request needs fixing; `error` says what.",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/ErrorResponse"
             },
             "examples": {
               "application/json": {
@@ -2345,7 +2347,7 @@
           "404": {
             "description": "No such shop, or the admin token or API key doesn't match it.",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/ErrorResponse"
             },
             "examples": {
               "application/json": {
@@ -2409,7 +2411,7 @@
             "name": "body",
             "in": "body",
             "required": false,
-            "description": "",
+            "description": "Optional. `record: true` records a refund made in PayPal.",
             "schema": {
               "$ref": "#/definitions/ApiShopsOrdersRefundRequest"
             }
@@ -2432,7 +2434,7 @@
           "404": {
             "description": "No such shop or order, or the token doesn't match the shop.",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/ErrorResponse"
             },
             "examples": {
               "application/json": {
@@ -2512,7 +2514,7 @@
           "404": {
             "description": "No such shop, or the admin token or API key doesn't match it.",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/ErrorResponse"
             },
             "examples": {
               "application/json": {
@@ -2567,6 +2569,9 @@
             "description": "Expired or used up.",
             "schema": {
               "type": "string"
+            },
+            "examples": {
+              "text/plain": "This download link has expired."
             },
             "headers": {}
           }
@@ -2637,6 +2642,9 @@
             "description": "No order with that id.",
             "schema": {
               "type": "string"
+            },
+            "examples": {
+              "text/plain": "Order not found."
             },
             "headers": {}
           }
@@ -2786,7 +2794,7 @@
           "400": {
             "description": "A missing or unknown option value, or sold out. `error` names the valid values.",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/ErrorResponse"
             },
             "examples": {
               "application/json": {
@@ -2798,7 +2806,7 @@
           "403": {
             "description": "A known crawler or link previewer. They don't place orders.",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/ErrorResponse"
             },
             "examples": {
               "application/json": {
@@ -2810,7 +2818,7 @@
           "404": {
             "description": "No live shop with that link name.",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/ErrorResponse"
             },
             "examples": {
               "application/json": {
@@ -2822,7 +2830,7 @@
           "429": {
             "description": "Over this network's cap for the call (see **Limits**). Retry after `Retry-After` seconds.",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/ErrorResponse"
             },
             "examples": {
               "application/json": {
@@ -2902,7 +2910,7 @@
           "404": {
             "description": "No order with that id.",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/ErrorResponse"
             },
             "headers": {}
           }
@@ -3047,7 +3055,7 @@
           "404": {
             "description": "No live shop with that link name.",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/ErrorResponse"
             },
             "headers": {}
           }
@@ -3084,7 +3092,7 @@
             "name": "body",
             "in": "body",
             "required": true,
-            "description": "",
+            "description": "A JSON-RPC 2.0 request or batch.",
             "schema": {
               "example": {
                 "jsonrpc": "2.0",
@@ -3208,7 +3216,7 @@
           "401": {
             "description": "No API key, or it's wrong or revoked.",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/ErrorResponse"
             },
             "headers": {}
           }
@@ -3222,20 +3230,28 @@
     }
   },
   "definitions": {
-    "Error": {
-      "title": "Error",
+    "ErrorResponse": {
+      "title": "ErrorResponse",
+      "description": "An error reply.",
+      "example": {
+        "error": "Choose a photo.",
+        "field": "photo"
+      },
       "type": "object",
       "properties": {
         "error": {
           "description": "A sentence you can show to a person.",
+          "example": "Order not found.",
           "type": "string"
         },
         "field": {
           "description": "The form field at fault, when there is one.",
+          "example": "price",
           "type": "string"
         },
         "detail": {
           "description": "The upstream service's own message, for debugging.",
+          "example": "INSTRUMENT_DECLINED",
           "type": "string"
         }
       },
@@ -3245,10 +3261,36 @@
     },
     "CreateShopForm": {
       "title": "CreateShopForm",
+      "description": "What to make a shop from. Only `source` is required; the AI guesses the rest and the seller corrects it with `updateShop`.",
+      "example": {
+        "source": "photo",
+        "description": "Vintage cream and red quad roller skates with walnut burl heels.",
+        "url": "https://one-thing-ash0.onrender.com/vintageskates",
+        "productId": "ch3_7f2a9c1e",
+        "slug": "vintageskates",
+        "type": "auto",
+        "delivery": "file",
+        "access_url": "https://www.miriogames.com/raptor-rush/",
+        "price": 240,
+        "shipping": 15,
+        "stock": 7,
+        "ship_countries": "US",
+        "paypal_email": "seller@example.com",
+        "seller_email": "seller@example.com"
+      },
       "type": "object",
       "properties": {
         "source": {
-          "$ref": "#/definitions/Source"
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Source"
+            },
+            {
+              "description": "What the shop starts from: a photo (with an optional description), a product link, or a Channel3 product to recommend.",
+              "example": "photo"
+            }
+          ]
         },
         "photo": {
           "description": "`source=photo`: the product photo, up to 8 MB.",
@@ -3257,19 +3299,23 @@
         },
         "description": {
           "description": "`source=photo`: a sentence or two about the product. Required if there is no photo.",
+          "example": "Vintage cream and red quad roller skates with walnut burl heels.",
           "type": "string"
         },
         "url": {
           "description": "`source=link`: a product page, or your own app or game page.",
+          "example": "https://one-thing-ash0.onrender.com/vintageskates",
           "type": "string",
           "format": "uri"
         },
         "productId": {
           "description": "`source=channel3`: a product id from `searchProducts`.",
+          "example": "ch3_7f2a9c1e",
           "type": "string"
         },
         "slug": {
           "description": "The link name you want. If omitted, the AI suggests one.",
+          "example": "vintageskates",
           "type": "string"
         },
         "type": {
@@ -3279,6 +3325,7 @@
               "$ref": "#/definitions/Type"
             },
             {
+              "description": "`physical` ships, `digital` is a file or an access code, `auto` lets the AI decide.",
               "default": "auto"
             }
           ]
@@ -3290,41 +3337,54 @@
               "$ref": "#/definitions/Delivery"
             },
             {
-              "description": "For digital products. If omitted, the AI guesses."
+              "description": "For digital products. If omitted, the AI guesses.",
+              "example": "file"
             }
           ]
         },
         "access_url": {
           "description": "Where buyers use an access code.",
+          "example": "https://www.miriogames.com/raptor-rush/",
           "type": "string",
           "format": "uri"
         },
         "price": {
           "description": "USD. If omitted, the AI suggests a price.",
+          "example": 240,
           "type": "number",
           "format": "double"
         },
         "shipping": {
+          "description": "Physical products: shipping per order, in USD. If omitted, the AI suggests it.",
+          "example": 15,
           "type": "number",
           "format": "double"
         },
         "stock": {
+          "description": "How many are for sale. Leave out for unlimited.",
+          "example": 7,
           "type": "integer",
           "format": "int32"
         },
         "ship_countries": {
+          "description": "Physical products: comma-separated ISO country codes to ship to. Empty means anywhere PayPal ships.",
           "example": "US",
           "type": "string"
         },
         "paypal_email": {
+          "description": "The PayPal account that gets paid, if the seller doesn't connect one with `connectPayPal`.",
+          "example": "seller@example.com",
           "type": "string",
           "format": "email"
         },
         "seller_email": {
+          "description": "Where order notifications go.",
+          "example": "seller@example.com",
           "type": "string",
           "format": "email"
         },
         "digital_file": {
+          "description": "Digital products sold as a file: the file buyers download, up to 25 MB. Can also be added later with `uploadDigitalFile`.",
           "type": "string",
           "format": "binary"
         }
@@ -3335,18 +3395,27 @@
     },
     "CreatedShop": {
       "title": "CreatedShop",
+      "description": "The new draft shop and the credentials to manage it.",
+      "example": {
+        "slug": "dragonflight",
+        "token": "3fJ9xQm2LwP8vR1tZk7cN4bY6dHs0aEu",
+        "manageUrl": "/manage/vintageskates?token=3fJ9xQm2LwP8vR1tZk7cN4bY6dHs0aEu"
+      },
       "type": "object",
       "properties": {
         "slug": {
+          "description": "The shop's link name: the page is `https://<host>/<slug>`.",
           "example": "dragonflight",
           "type": "string"
         },
         "token": {
           "description": "The admin token. Shown once; store it.",
+          "example": "3fJ9xQm2LwP8vR1tZk7cN4bY6dHs0aEu",
           "type": "string"
         },
         "manageUrl": {
           "description": "The seller's private manage page (contains the token).",
+          "example": "/manage/vintageskates?token=3fJ9xQm2LwP8vR1tZk7cN4bY6dHs0aEu",
           "type": "string"
         }
       },
@@ -3358,13 +3427,67 @@
     },
     "ShopUpdate": {
       "title": "ShopUpdate",
+      "description": "The fields to change. Anything left out stays as it is.",
+      "example": {
+        "slug": "vintageskates",
+        "status": "draft",
+        "product_type": "physical",
+        "price": 240,
+        "shipping": 15,
+        "stock": 7,
+        "ship_countries": "US,CA",
+        "delivery": "file",
+        "access_url": "https://www.miriogames.com/raptor-rush/",
+        "paypal_email": "seller@example.com",
+        "seller_email": "seller@example.com",
+        "zapier_hook_url": "https://hooks.zapier.com/hooks/catch/123456/abcdef/",
+        "in_gallery": true,
+        "options": [
+          {
+            "name": "Size",
+            "kind": "size",
+            "values": [
+              {
+                "label": "S"
+              },
+              {
+                "label": "M"
+              },
+              {
+                "label": "L"
+              }
+            ]
+          }
+        ],
+        "option_stock": {
+          "M / Black": 4,
+          "L / Black": 0
+        },
+        "facts": [
+          {
+            "label": "Size",
+            "value": "US women's 8"
+          }
+        ]
+      },
       "type": "object",
       "properties": {
         "slug": {
+          "description": "A new link name. The old one keeps redirecting.",
+          "example": "vintageskates",
           "type": "string"
         },
         "status": {
-          "$ref": "#/definitions/Status"
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Status"
+            },
+            {
+              "description": "`live` publishes the shop; `draft` takes it down.",
+              "example": "draft"
+            }
+          ]
         },
         "product_type": {
           "type": "object",
@@ -3373,55 +3496,99 @@
               "$ref": "#/definitions/ProductType"
             },
             {
-              "description": "`referral` only for shops created from Channel3."
+              "description": "`referral` only for shops created from Channel3.",
+              "example": "physical"
             }
           ]
         },
         "price": {
+          "description": "The price in USD.",
+          "example": 240,
           "type": "number",
           "minimum": 0.5,
           "maximum": 10000.0,
           "format": "double"
         },
         "shipping": {
+          "description": "Shipping per order, in USD.",
+          "example": 15,
           "type": "number",
           "minimum": 0.0,
           "maximum": 500.0,
           "format": "double"
         },
         "stock": {
+          "description": "How many are for sale; null for unlimited.",
+          "example": 7,
           "type": "integer",
           "minimum": 0.0,
           "format": "int32"
         },
         "ship_countries": {
+          "description": "Comma-separated ISO country codes; null or empty means anywhere PayPal ships.",
+          "example": "US,CA",
           "type": "string"
         },
         "delivery": {
-          "$ref": "#/definitions/Delivery1"
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Delivery1"
+            },
+            {
+              "description": "Digital products: `file` or `access_code`.",
+              "example": "file"
+            }
+          ]
         },
         "access_url": {
+          "description": "Access-code products: where buyers enter their code.",
+          "example": "https://www.miriogames.com/raptor-rush/",
           "type": "string",
           "format": "uri"
         },
         "paypal_email": {
+          "description": "The PayPal account paid when no account is connected.",
+          "example": "seller@example.com",
           "type": "string",
           "format": "email"
         },
         "seller_email": {
+          "description": "Where order notifications go.",
+          "example": "seller@example.com",
           "type": "string",
           "format": "email"
         },
         "zapier_hook_url": {
+          "description": "A Zapier Catch Hook for order events; null removes it.",
+          "example": "https://hooks.zapier.com/hooks/catch/123456/abcdef/",
           "type": "string",
           "format": "uri"
         },
         "in_gallery": {
           "description": "Feature the shop at `/gallery` while it's live. Off by default.",
+          "example": true,
           "type": "boolean"
         },
         "options": {
           "description": "What the buyer picks (physical products only), replacing the current options; `[]` removes them. With options, stock is counted per combination in `option_stock` and the shop's own `stock` is cleared. At most 60 combinations.",
+          "example": [
+            {
+              "name": "Size",
+              "kind": "size",
+              "values": [
+                {
+                  "label": "S"
+                },
+                {
+                  "label": "M"
+                },
+                {
+                  "label": "L"
+                }
+              ]
+            }
+          ],
           "type": "array",
           "items": {
             "$ref": "#/definitions/ShopOption"
@@ -3443,6 +3610,12 @@
         },
         "facts": {
           "description": "Answers to the \"buyers will ask\" questions in `suggestions.missingFacts`. Each becomes a product detail on the page (replacing one with the same label) and drops off the list.",
+          "example": [
+            {
+              "label": "Size",
+              "value": "US women's 8"
+            }
+          ],
           "type": "array",
           "items": {
             "$ref": "#/definitions/Fact"
@@ -3453,69 +3626,153 @@
     },
     "Shop": {
       "title": "Shop",
+      "description": "A shop, as its seller sees it.",
       "type": "object",
       "properties": {
         "id": {
+          "description": "OneThing's internal shop id.",
+          "example": "shp_8Hc2LmQ4",
           "type": "string"
         },
         "slug": {
+          "description": "The shop's link name.",
+          "example": "vintageskates",
           "type": "string"
         },
         "status": {
-          "$ref": "#/definitions/Status"
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Status1"
+            },
+            {
+              "description": "`draft` until the seller goes live; only `live` shops take orders.",
+              "example": "draft"
+            }
+          ]
         },
         "product_type": {
-          "$ref": "#/definitions/ProductType1"
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/definitions/ProductType1"
+            },
+            {
+              "description": "`physical` ships, `digital` downloads or unlocks, `referral` recommends a Channel3 product.",
+              "example": "physical"
+            }
+          ]
         },
         "price_cents": {
+          "description": "The price in cents.",
+          "example": 24000,
           "type": "integer",
           "format": "int32"
         },
         "currency": {
+          "description": "ISO 4217 currency code.",
           "example": "USD",
           "type": "string"
         },
         "shipping_cents": {
+          "description": "Shipping per order, in cents.",
+          "example": 1500,
           "type": "integer",
           "format": "int32"
         },
         "ship_countries": {
+          "description": "Comma-separated ISO country codes; null or empty means anywhere PayPal ships.",
+          "example": "US,CA",
           "type": "string"
         },
         "stock": {
+          "description": "How many are left; null for unlimited. With options, see `option_stock`.",
+          "example": 7,
           "type": "integer",
           "format": "int32"
         },
         "delivery": {
-          "$ref": "#/definitions/Delivery1"
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Delivery2"
+            },
+            {
+              "description": "Digital products: `file` (a download) or `access_code` (a code that unlocks an app or game).",
+              "example": "file"
+            }
+          ]
         },
         "access_url": {
+          "description": "Access-code products: where buyers enter their code.",
+          "example": "https://www.miriogames.com/raptor-rush/",
           "type": "string"
         },
         "paypal_email": {
+          "description": "The PayPal account paid when no account is connected.",
+          "example": "seller@example.com",
           "type": "string"
         },
         "seller_email": {
+          "description": "Where order notifications go.",
+          "example": "seller@example.com",
           "type": "string"
         },
         "paypal_merchant_id": {
           "description": "The connected PayPal account (`connectPayPal`). Sales go here when it can receive payments.",
+          "example": "7MZJ4QXN8K2LA",
           "type": "string"
         },
         "paypal_status": {
-          "$ref": "#/definitions/PayPalStatus"
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/definitions/PayPalStatus"
+            },
+            {
+              "description": "What PayPal last said about the connected account; null when none is connected.",
+              "example": {
+                "receivable": true,
+                "emailConfirmed": true,
+                "checkedAt": "2026-10-22T02:41:37Z"
+              }
+            }
+          ]
         },
         "zapier_hook_url": {
+          "description": "A Zapier Catch Hook that gets an `OrderEvent` for each paid, shipped or refunded order.",
+          "example": "https://hooks.zapier.com/hooks/catch/123456/abcdef/",
           "type": "string"
         },
         "in_gallery": {
+          "description": "Whether the shop is featured at `/gallery` while live.",
+          "example": true,
           "type": "boolean"
         },
         "account_id": {
           "description": "The seller account that owns the shop, if it was made while signed in.",
+          "example": "acc_Vq3nN8cT0bLx2YwE",
           "type": "string"
         },
         "options": {
+          "description": "What the buyer picks, such as size or colour.",
+          "example": [
+            {
+              "name": "Size",
+              "kind": "size",
+              "values": [
+                {
+                  "label": "S"
+                },
+                {
+                  "label": "M"
+                },
+                {
+                  "label": "L"
+                }
+              ]
+            }
+          ],
           "type": "array",
           "items": {
             "$ref": "#/definitions/ShopOption"
@@ -3535,36 +3792,124 @@
           "minimum": 0.0
         },
         "suggestions": {
-          "$ref": "#/definitions/Suggestions"
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Suggestions"
+            },
+            {
+              "description": "What the AI thinks buyers will pick or ask; null once handled.",
+              "example": {
+                "oneOfAKind": false,
+                "options": [
+                  {
+                    "name": "Size",
+                    "kind": "size",
+                    "values": [
+                      {
+                        "label": "S"
+                      },
+                      {
+                        "label": "M"
+                      },
+                      {
+                        "label": "L"
+                      }
+                    ]
+                  }
+                ],
+                "missingFacts": [
+                  {
+                    "label": "Size",
+                    "question": "What size are the skates?",
+                    "placeholder": "US women's 8"
+                  }
+                ]
+              }
+            }
+          ]
         },
         "photo_blob": {
           "description": "Image id for `getImage`. The cover photo.",
+          "example": "LFRvGuTU3D8i334X",
           "type": "string"
         },
         "gallery_blobs": {
           "description": "The other photos, in order.",
+          "example": [
+            "zrySajNyao6_j11x",
+            "SuqcgNv64HWN8H6e"
+          ],
           "type": "array",
           "items": {
             "type": "string"
           }
         },
         "hero_blob": {
+          "description": "Image id of the AI hero art, when there is one.",
+          "example": "Hn2Kd8sQp4LmZ0vX",
           "type": "string"
         },
         "hero_status": {
-          "$ref": "#/definitions/HeroStatus"
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/definitions/HeroStatus"
+            },
+            {
+              "description": "Hero art: `pending` while generating, then `ready` or `failed`; `none` if not requested.",
+              "example": "none"
+            }
+          ]
         },
         "hero_error": {
+          "description": "Why hero art failed, when it did.",
+          "example": "No image model on this key returned an image.",
           "type": "string"
         },
         "ai_source": {
-          "$ref": "#/definitions/AiSource"
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/definitions/AiSource"
+            },
+            {
+              "description": "Who designed the page: `gemini`, or `fallback` when Gemini wasn't available and a plain template was used.",
+              "example": "gemini"
+            }
+          ]
         },
         "source_url": {
+          "description": "The product link the shop was made from, if any.",
+          "example": "https://example.com/products/roller-skates",
           "type": "string"
         },
         "referral": {
-          "$ref": "#/definitions/Referral"
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Referral"
+            },
+            {
+              "description": "Recommendation shops: the Channel3 product; null otherwise.",
+              "example": {
+                "productId": "ch3_7f2a9c1e",
+                "title": "Trail Running Vest 5L",
+                "brand": "Salomon",
+                "image": "https://images.example.com/vest.jpg",
+                "offers": [
+                  {
+                    "domain": "rei.com",
+                    "url": "https://buy.trychannel3.com/r/abc123",
+                    "price": 240,
+                    "currency": "USD",
+                    "inStock": true,
+                    "commission": 0.08
+                  }
+                ]
+              }
+            }
+          ]
         },
         "spec": {
           "type": "object",
@@ -3573,11 +3918,55 @@
               "$ref": "#/definitions/DesignSpec"
             },
             {
-              "description": "What Gemini designed. OneThing's templates render it; Gemini never writes HTML."
+              "description": "What Gemini designed. OneThing's templates render it; Gemini never writes HTML.",
+              "example": {
+                "productType": "physical",
+                "productName": "Vintage Cream and Red Roller Skates",
+                "layout": "bold-hero",
+                "palette": {
+                  "background": "#f7f1e8",
+                  "surface": "#ffffff",
+                  "text": "#1f1a17",
+                  "muted": "#6b625b",
+                  "accent": "#b3262d",
+                  "accentText": "#ffffff"
+                },
+                "fonts": {
+                  "heading": "Playfair Display",
+                  "body": "Inter"
+                },
+                "eyebrow": "One pair, restored",
+                "headline": "Classic quad skates crafted with walnut burl heels",
+                "subheadline": "A vintage pair of skates with cream leather, bold red trim and quad wheels.",
+                "story": "Each pair combines soft cream leather with distinct red accents and a sculpted walnut burl heel base.",
+                "bullets": [
+                  "Walnut burl heels",
+                  "Restored vintage leather"
+                ],
+                "details": [
+                  {
+                    "label": "Material",
+                    "value": "Leather upper, walnut burl heel, rubber wheels"
+                  }
+                ],
+                "faq": [
+                  {
+                    "q": "Are these suitable for outdoor skating?",
+                    "a": "Yes, on indoor rink floors and paved outdoor paths."
+                  }
+                ],
+                "ctaLabel": "Buy the skates",
+                "suggestedPriceUsd": 240,
+                "suggestedShippingUsd": 15,
+                "imageAlt": "Cream leather quad roller skates with red trim",
+                "heroPrompt": "Cream roller skates on a sunlit boardwalk, in warm cream and red tones"
+              }
             }
           ]
         },
         "created_at": {
+          "description": "When the shop was made.",
+          "example": "2026-10-22T02:41:37Z",
           "type": "string",
           "format": "date-time"
         }
@@ -3595,68 +3984,195 @@
     "DesignSpec": {
       "title": "DesignSpec",
       "description": "What Gemini designed. OneThing's templates render it; Gemini never writes HTML.",
+      "example": {
+        "productType": "physical",
+        "productName": "Vintage Cream and Red Roller Skates",
+        "layout": "bold-hero",
+        "palette": {
+          "background": "#f7f1e8",
+          "surface": "#ffffff",
+          "text": "#1f1a17",
+          "muted": "#6b625b",
+          "accent": "#b3262d",
+          "accentText": "#ffffff"
+        },
+        "fonts": {
+          "heading": "Playfair Display",
+          "body": "Inter"
+        },
+        "eyebrow": "One pair, restored",
+        "headline": "Classic quad skates crafted with walnut burl heels",
+        "subheadline": "A vintage pair of skates with cream leather, bold red trim and quad wheels.",
+        "story": "Each pair combines soft cream leather with distinct red accents and a sculpted walnut burl heel base.",
+        "bullets": [
+          "Walnut burl heels",
+          "Restored vintage leather"
+        ],
+        "details": [
+          {
+            "label": "Material",
+            "value": "Leather upper, walnut burl heel, rubber wheels"
+          }
+        ],
+        "faq": [
+          {
+            "q": "Are these suitable for outdoor skating?",
+            "a": "Yes, on indoor rink floors and paved outdoor paths."
+          }
+        ],
+        "ctaLabel": "Buy the skates",
+        "suggestedPriceUsd": 240,
+        "suggestedShippingUsd": 15,
+        "imageAlt": "Cream leather quad roller skates with red trim",
+        "heroPrompt": "Cream roller skates on a sunlit boardwalk, in warm cream and red tones"
+      },
       "type": "object",
       "properties": {
         "productType": {
-          "$ref": "#/definitions/ProductType2"
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/definitions/ProductType2"
+            },
+            {
+              "description": "What the AI decided the product is.",
+              "example": "physical"
+            }
+          ]
         },
         "productName": {
+          "description": "The product's name.",
+          "example": "Vintage Cream and Red Roller Skates",
           "type": "string"
         },
         "layout": {
-          "$ref": "#/definitions/Layout"
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Layout"
+            },
+            {
+              "description": "The page template: `bold-hero` (image first, punchy), `editorial` (magazine), `minimal` (quiet, lots of space) or `playful`.",
+              "example": "bold-hero"
+            }
+          ]
         },
         "palette": {
-          "$ref": "#/definitions/Palette"
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Palette"
+            },
+            {
+              "description": "The page colours, taken from the photo. Text colours are checked for contrast.",
+              "example": {
+                "background": "#f7f1e8",
+                "surface": "#ffffff",
+                "text": "#1f1a17",
+                "muted": "#6b625b",
+                "accent": "#b3262d",
+                "accentText": "#ffffff"
+              }
+            }
+          ]
         },
         "fonts": {
-          "$ref": "#/definitions/Fonts"
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Fonts"
+            },
+            {
+              "description": "Google Fonts for the page.",
+              "example": {
+                "heading": "Playfair Display",
+                "body": "Inter"
+              }
+            }
+          ]
         },
         "eyebrow": {
+          "description": "A short label above the headline.",
+          "example": "One pair, restored",
           "type": "string"
         },
         "headline": {
+          "description": "The page's main headline.",
+          "example": "Classic quad skates crafted with walnut burl heels",
           "type": "string"
         },
         "subheadline": {
+          "description": "A line under the headline.",
+          "example": "A vintage pair of skates with cream leather, bold red trim and quad wheels.",
           "type": "string"
         },
         "story": {
+          "description": "A short paragraph about the product.",
+          "example": "Each pair combines soft cream leather with distinct red accents and a sculpted walnut burl heel base.",
           "type": "string"
         },
         "bullets": {
+          "description": "Short selling points.",
+          "example": [
+            "Walnut burl heels",
+            "Restored vintage leather"
+          ],
           "type": "array",
           "items": {
             "type": "string"
           }
         },
         "details": {
+          "description": "Product facts shown on the page.",
+          "example": [
+            {
+              "label": "Material",
+              "value": "Leather upper, walnut burl heel, rubber wheels"
+            }
+          ],
           "type": "array",
           "items": {
             "$ref": "#/definitions/Detail"
           }
         },
         "faq": {
+          "description": "Questions buyers will ask, with answers.",
+          "example": [
+            {
+              "q": "Are these suitable for outdoor skating?",
+              "a": "Yes, on indoor rink floors and paved outdoor paths."
+            }
+          ],
           "type": "array",
           "items": {
             "$ref": "#/definitions/Faq"
           }
         },
         "ctaLabel": {
+          "description": "The buy button's text.",
+          "example": "Buy the skates",
           "type": "string"
         },
         "suggestedPriceUsd": {
+          "description": "The AI's price suggestion, in USD.",
+          "example": 240,
           "type": "number",
           "format": "double"
         },
         "suggestedShippingUsd": {
+          "description": "The AI's shipping suggestion, in USD.",
+          "example": 15,
           "type": "number",
           "format": "double"
         },
         "imageAlt": {
+          "description": "Alt text for the product photo.",
+          "example": "Cream leather quad roller skates with red trim",
           "type": "string"
         },
         "heroPrompt": {
+          "description": "The prompt used to generate hero art for the page.",
+          "example": "Cream roller skates on a sunlit boardwalk, in warm cream and red tones",
           "type": "string"
         }
       },
@@ -3675,9 +4191,25 @@
     "ShopOption": {
       "title": "ShopOption",
       "description": "Something the buyer picks, such as a size or a colour. The shop still sells one product.",
+      "example": {
+        "name": "Size",
+        "kind": "size",
+        "values": [
+          {
+            "label": "S"
+          },
+          {
+            "label": "M"
+          },
+          {
+            "label": "L"
+          }
+        ]
+      },
       "type": "object",
       "properties": {
         "name": {
+          "description": "What the buyer is choosing.",
           "example": "Size",
           "type": "string",
           "maxLength": 20
@@ -3689,11 +4221,24 @@
               "$ref": "#/definitions/Kind"
             },
             {
-              "description": "`color` shows swatches, and the photo of the picked colour."
+              "description": "`color` shows swatches, and the photo of the picked colour.",
+              "example": "size"
             }
           ]
         },
         "values": {
+          "description": "The values to pick from.",
+          "example": [
+            {
+              "label": "S"
+            },
+            {
+              "label": "M"
+            },
+            {
+              "label": "L"
+            }
+          ],
           "type": "array",
           "items": {
             "$ref": "#/definitions/OptionValue"
@@ -3710,20 +4255,29 @@
     },
     "OptionValue": {
       "title": "OptionValue",
+      "description": "One value of an option.",
+      "example": {
+        "label": "M",
+        "hex": "#14171a",
+        "photo": "zrySajNyao6_j11x"
+      },
       "type": "object",
       "properties": {
         "label": {
+          "description": "What the buyer sees and picks.",
           "example": "M",
           "type": "string",
           "maxLength": 30
         },
         "hex": {
+          "description": "A colour as `#rrggbb`.",
           "example": "#14171a",
           "type": "string",
           "pattern": "^#[0-9a-fA-F]{6}$"
         },
         "photo": {
           "description": "Colours: the shop photo (id) that shows this colour. See `matchColorPhotos`.",
+          "example": "zrySajNyao6_j11x",
           "type": "string"
         }
       },
@@ -3734,19 +4288,73 @@
     "Suggestions": {
       "title": "Suggestions",
       "description": "What Gemini thinks buyers will want to choose or ask. The seller confirms; nothing is applied on its own.",
+      "example": {
+        "oneOfAKind": false,
+        "options": [
+          {
+            "name": "Size",
+            "kind": "size",
+            "values": [
+              {
+                "label": "S"
+              },
+              {
+                "label": "M"
+              },
+              {
+                "label": "L"
+              }
+            ]
+          }
+        ],
+        "missingFacts": [
+          {
+            "label": "Size",
+            "question": "What size are the skates?",
+            "placeholder": "US women's 8"
+          }
+        ]
+      },
       "type": "object",
       "properties": {
         "oneOfAKind": {
           "description": "A single item (vintage, handmade), so options and stock don't apply.",
+          "example": false,
           "type": "boolean"
         },
         "options": {
+          "description": "Options buyers will likely want to pick.",
+          "example": [
+            {
+              "name": "Size",
+              "kind": "size",
+              "values": [
+                {
+                  "label": "S"
+                },
+                {
+                  "label": "M"
+                },
+                {
+                  "label": "L"
+                }
+              ]
+            }
+          ],
           "type": "array",
           "items": {
             "$ref": "#/definitions/Option"
           }
         },
         "missingFacts": {
+          "description": "Questions buyers will ask that the listing doesn't answer yet.",
+          "example": [
+            {
+              "label": "Size",
+              "question": "What size are the skates?",
+              "placeholder": "US women's 8"
+            }
+          ],
           "type": "array",
           "items": {
             "$ref": "#/definitions/MissingFact"
@@ -3762,17 +4370,26 @@
     "PayPalStatus": {
       "title": "PayPalStatus",
       "description": "What PayPal last said about a connected seller account.",
+      "example": {
+        "receivable": true,
+        "emailConfirmed": true,
+        "checkedAt": "2026-10-22T02:41:37Z"
+      },
       "type": "object",
       "properties": {
         "receivable": {
           "description": "The account can receive payments.",
+          "example": true,
           "type": "boolean"
         },
         "emailConfirmed": {
           "description": "The seller has confirmed their email with PayPal.",
+          "example": true,
           "type": "boolean"
         },
         "checkedAt": {
+          "description": "When OneThing last asked PayPal.",
+          "example": "2026-10-22T02:41:37Z",
           "type": "string",
           "format": "date-time"
         }
@@ -3786,61 +4403,198 @@
     "AgentProduct": {
       "title": "AgentProduct",
       "description": "A live shop as an AI agent sees it. Recommendations have `offers`; everything else has `price` and is bought with `create_order`.",
+      "example": {
+        "show_buyer": "![Vintage Cream and Red Roller Skates](https://one-thing-ash0.onrender.com/api/blobs/LFRvGuTU3D8i334X)\n\n**Vintage Cream and Red Roller Skates**: $240.00. Classic quad skates crafted with walnut burl heels\n\n![Raptor Rush: Browser Edition](https://one-thing-ash0.onrender.com/api/blobs/R9tWc3yN6bJq1zUd)\n\n**Raptor Rush: Browser Edition**: $2.99. Grow from Tiny Hatchling to Giant Apex Predator\n\nWhich one?",
+        "agent_name": "Grok",
+        "shop": "vintageskates",
+        "url": "https://one-thing-ash0.onrender.com/vintageskates",
+        "name": "Vintage Cream and Red Roller Skates",
+        "kind": "physical",
+        "headline": "Classic quad skates crafted with walnut burl heels",
+        "description": "Vintage cream and red quad roller skates with walnut burl heels.",
+        "highlights": [
+          "Walnut burl heels",
+          "Restored vintage leather"
+        ],
+        "details": [
+          {
+            "label": "Material",
+            "value": "Leather upper, walnut burl heel, rubber wheels"
+          }
+        ],
+        "faq": [
+          {
+            "q": "Are these suitable for outdoor skating?",
+            "a": "Yes, on indoor rink floors and paved outdoor paths."
+          }
+        ],
+        "images": [
+          "https://one-thing-ash0.onrender.com/api/blobs/LFRvGuTU3D8i334X"
+        ],
+        "price": {
+          "amount": 240,
+          "currency": "USD",
+          "label": "$240.00"
+        },
+        "shipping": {
+          "amount": 15,
+          "currency": "USD",
+          "ships_to": [
+            "US",
+            "CA"
+          ]
+        },
+        "total": {
+          "amount": 240,
+          "currency": "USD",
+          "label": "$240.00"
+        },
+        "delivery": "Shipped. PayPal collects the buyer's address at checkout.",
+        "availability": "in_stock",
+        "options": [
+          {
+            "name": "Size",
+            "values": [
+              "7",
+              "8",
+              "9"
+            ]
+          }
+        ],
+        "variants": [
+          {
+            "choice": {
+              "Size": "M",
+              "Color": "Black"
+            },
+            "availability": "in_stock (3 left)",
+            "order_url": "https://one-thing-ash0.onrender.com/vintageskates/buy?Size=9"
+          }
+        ],
+        "order_url": "https://one-thing-ash0.onrender.com/vintageskates/buy?Size=9",
+        "offers": [
+          {
+            "retailer": "rei.com",
+            "price": 240,
+            "currency": "USD",
+            "in_stock": true,
+            "url": "https://buy.trychannel3.com/r/abc123"
+          }
+        ],
+        "how_to_buy": "Ask the buyer which size, then open that variant's order_url and show them pay_url.",
+        "mcp_server": "https://one-thing-ash0.onrender.com/api/mcp"
+      },
       "type": "object",
       "properties": {
         "show_buyer": {
           "description": "A suggested reply to the buyer, in Markdown with the links already written as links: the product and its options to pick from, the pay link, or what they got with a receipt link. Buyers have the best experience when agents show it as written.",
+          "example": "![Vintage Cream and Red Roller Skates](https://one-thing-ash0.onrender.com/api/blobs/LFRvGuTU3D8i334X)\n\n**Vintage Cream and Red Roller Skates**: $240.00. Classic quad skates crafted with walnut burl heels\n\n![Raptor Rush: Browser Edition](https://one-thing-ash0.onrender.com/api/blobs/R9tWc3yN6bJq1zUd)\n\n**Raptor Rush: Browser Edition**: $2.99. Grow from Tiny Hatchling to Giant Apex Predator\n\nWhich one?",
           "type": "string"
         },
         "agent_name": {
           "description": "Who this request was credited to in the seller's stats: a recognised user agent, else the name the agent gave itself (`?agent=`, or the MCP client's name), else the user agent's first word.",
+          "example": "Grok",
           "type": "string"
         },
         "shop": {
           "description": "The link name, which the MCP tools take as `shop`.",
+          "example": "vintageskates",
           "type": "string"
         },
         "url": {
+          "description": "The shop page, where a person can buy it too.",
+          "example": "https://one-thing-ash0.onrender.com/vintageskates",
           "type": "string"
         },
         "name": {
+          "description": "The product's name.",
+          "example": "Vintage Cream and Red Roller Skates",
           "type": "string"
         },
         "kind": {
-          "$ref": "#/definitions/Kind1"
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Kind1"
+            },
+            {
+              "description": "`physical` ships, `digital` downloads or unlocks with a code, `referral` is bought at another store.",
+              "example": "physical"
+            }
+          ]
         },
         "headline": {
+          "description": "The shop's one-line pitch.",
+          "example": "Classic quad skates crafted with walnut burl heels",
           "type": "string"
         },
         "description": {
+          "description": "What the product is, in a few sentences.",
+          "example": "Vintage cream and red quad roller skates with walnut burl heels.",
           "type": "string"
         },
         "highlights": {
+          "description": "The product's selling points, one per line.",
+          "example": [
+            "Walnut burl heels",
+            "Restored vintage leather"
+          ],
           "type": "array",
           "items": {
             "type": "string"
           }
         },
         "details": {
+          "description": "Product facts, such as size, material or format.",
+          "example": [
+            {
+              "label": "Material",
+              "value": "Leather upper, walnut burl heel, rubber wheels"
+            }
+          ],
           "type": "array",
           "items": {
             "$ref": "#/definitions/Detail"
           }
         },
         "faq": {
+          "description": "Questions buyers ask, answered by the seller's page.",
+          "example": [
+            {
+              "q": "Are these suitable for outdoor skating?",
+              "a": "Yes, on indoor rink floors and paved outdoor paths."
+            }
+          ],
           "type": "array",
           "items": {
             "$ref": "#/definitions/Faq"
           }
         },
         "images": {
+          "description": "Photo URLs, the cover first. Show these rather than generating or searching for images.",
+          "example": [
+            "https://one-thing-ash0.onrender.com/api/blobs/LFRvGuTU3D8i334X"
+          ],
           "type": "array",
           "items": {
             "type": "string"
           }
         },
         "price": {
-          "$ref": "#/definitions/AgentMoney"
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/definitions/AgentMoney"
+            },
+            {
+              "description": "An amount of money, as a number and as a label.",
+              "example": {
+                "amount": 240,
+                "currency": "USD",
+                "label": "$240.00"
+              }
+            }
+          ]
         },
         "shipping": {
           "type": "object",
@@ -3849,29 +4603,73 @@
               "$ref": "#/definitions/Shipping"
             },
             {
-              "description": "Physical products only."
+              "description": "Physical products only.",
+              "example": {
+                "amount": 15,
+                "currency": "USD",
+                "ships_to": [
+                  "US",
+                  "CA"
+                ]
+              }
             }
           ]
         },
         "total": {
-          "$ref": "#/definitions/AgentMoney"
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/definitions/AgentMoney"
+            },
+            {
+              "description": "An amount of money, as a number and as a label.",
+              "example": {
+                "amount": 240,
+                "currency": "USD",
+                "label": "$240.00"
+              }
+            }
+          ]
         },
         "delivery": {
+          "description": "How the buyer gets it, in plain words.",
           "example": "Shipped. PayPal collects the buyer's address at checkout.",
           "type": "string"
         },
         "availability": {
+          "description": "`in_stock`, `in_stock (N left)` or `sold_out`. With options, see `variants`.",
           "example": "in_stock",
           "type": "string"
         },
         "options": {
           "description": "Pass one value per option to `create_order`.",
+          "example": [
+            {
+              "name": "Size",
+              "values": [
+                "7",
+                "8",
+                "9"
+              ]
+            }
+          ],
           "type": "array",
           "items": {
             "$ref": "#/definitions/Option1"
           }
         },
         "variants": {
+          "description": "Products with options: each combination, its stock and its order link.",
+          "example": [
+            {
+              "choice": {
+                "Size": "M",
+                "Color": "Black"
+              },
+              "availability": "in_stock (3 left)",
+              "order_url": "https://one-thing-ash0.onrender.com/vintageskates/buy?Size=9"
+            }
+          ],
           "type": "array",
           "items": {
             "$ref": "#/definitions/Variant"
@@ -3879,20 +4677,33 @@
         },
         "order_url": {
           "description": "Products without options: `orderByLink`, which orders one unit with a GET. Left out when sold out. With options, each variant has its own.",
+          "example": "https://one-thing-ash0.onrender.com/vintageskates/buy?Size=9",
           "type": "string"
         },
         "offers": {
           "description": "Recommendations only. Bought at the retailer.",
+          "example": [
+            {
+              "retailer": "rei.com",
+              "price": 240,
+              "currency": "USD",
+              "in_stock": true,
+              "url": "https://buy.trychannel3.com/r/abc123"
+            }
+          ],
           "type": "array",
           "items": {
             "$ref": "#/definitions/Offer1"
           }
         },
         "how_to_buy": {
+          "description": "How to buy it, written for an agent: which tool or link to use and what to ask the buyer.",
+          "example": "Ask the buyer which size, then open that variant's order_url and show them pay_url.",
           "type": "string"
         },
         "mcp_server": {
           "description": "The MCP server to order through (`getAgentProduct` only).",
+          "example": "https://one-thing-ash0.onrender.com/api/mcp",
           "type": "string"
         }
       },
@@ -3912,31 +4723,58 @@
     },
     "AgentShopSummary": {
       "title": "AgentShopSummary",
+      "description": "A shop in search results.",
+      "example": {
+        "shop": "vintageskates",
+        "name": "Vintage Cream and Red Roller Skates",
+        "kind": "physical",
+        "headline": "Classic quad skates crafted with walnut burl heels",
+        "price": "$240.00",
+        "image": "https://one-thing-ash0.onrender.com/api/blobs/LFRvGuTU3D8i334X",
+        "url": "https://one-thing-ash0.onrender.com/vintageskates"
+      },
       "type": "object",
       "properties": {
         "shop": {
           "description": "The link name, for `getAgentProduct` and the MCP tools.",
+          "example": "vintageskates",
           "type": "string"
         },
         "name": {
+          "description": "The product's name.",
+          "example": "Vintage Cream and Red Roller Skates",
           "type": "string"
         },
         "kind": {
-          "$ref": "#/definitions/Kind1"
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Kind2"
+            },
+            {
+              "description": "`physical`, `digital` or `referral`.",
+              "example": "physical"
+            }
+          ]
         },
         "headline": {
+          "description": "The shop's one-line pitch.",
+          "example": "Classic quad skates crafted with walnut burl heels",
           "type": "string"
         },
         "price": {
           "description": "The price label, e.g. `$2.99`; null for recommendations.",
+          "example": "$240.00",
           "type": "string"
         },
         "image": {
           "description": "The cover photo's URL (WebP; the retailer's image for a recommendation), or null when there's none.",
+          "example": "https://one-thing-ash0.onrender.com/api/blobs/LFRvGuTU3D8i334X",
           "type": "string"
         },
         "url": {
           "description": "The shop page.",
+          "example": "https://one-thing-ash0.onrender.com/vintageskates",
           "type": "string"
         }
       },
@@ -3953,25 +4791,46 @@
     "AgentCreatedOrder": {
       "title": "AgentCreatedOrder",
       "description": "A new order, as `create_order` and `orderByLink` return it.",
+      "example": {
+        "show_buyer": "![Vintage Cream and Red Roller Skates](https://one-thing-ash0.onrender.com/api/blobs/LFRvGuTU3D8i334X)\n\n**Vintage Cream and Red Roller Skates**: $240.00. Classic quad skates crafted with walnut burl heels\n\n![Raptor Rush: Browser Edition](https://one-thing-ash0.onrender.com/api/blobs/R9tWc3yN6bJq1zUd)\n\n**Raptor Rush: Browser Edition**: $2.99. Grow from Tiny Hatchling to Giant Apex Predator\n\nWhich one?",
+        "agent_name": "Grok",
+        "order_id": "pX4kR9tVb2nQ7sLe",
+        "status": "awaiting_buyer_approval",
+        "total": "$255.00",
+        "options": {
+          "Size": "M",
+          "Color": "Black"
+        },
+        "pay_url": "https://one-thing-ash0.onrender.com/o/pX4kR9tVb2nQ7sLe",
+        "status_url": "https://one-thing-ash0.onrender.com/o/pX4kR9tVb2nQ7sLe/status",
+        "next_step": "Show pay_url to the buyer as a link. When they say they've paid, call get_order with order_id."
+      },
       "type": "object",
       "properties": {
         "show_buyer": {
           "description": "A suggested reply to the buyer, in Markdown with the links already written as links: the product and its options to pick from, the pay link, or what they got with a receipt link. Buyers have the best experience when agents show it as written.",
+          "example": "![Vintage Cream and Red Roller Skates](https://one-thing-ash0.onrender.com/api/blobs/LFRvGuTU3D8i334X)\n\n**Vintage Cream and Red Roller Skates**: $240.00. Classic quad skates crafted with walnut burl heels\n\n![Raptor Rush: Browser Edition](https://one-thing-ash0.onrender.com/api/blobs/R9tWc3yN6bJq1zUd)\n\n**Raptor Rush: Browser Edition**: $2.99. Grow from Tiny Hatchling to Giant Apex Predator\n\nWhich one?",
           "type": "string"
         },
         "agent_name": {
           "description": "Who this request was credited to in the seller's stats: a recognised user agent, else the name the agent gave itself (`?agent=`, or the MCP client's name), else the user agent's first word.",
+          "example": "Grok",
           "type": "string"
         },
         "order_id": {
+          "description": "The order's id, for `get_order` and `getAgentOrder`.",
+          "example": "pX4kR9tVb2nQ7sLe",
           "type": "string"
         },
         "status": {
+          "description": "Always `awaiting_buyer_approval`: nothing is charged until the buyer approves at PayPal.",
+          "example": "awaiting_buyer_approval",
           "type": "string",
           "default": "awaiting_buyer_approval"
         },
         "total": {
           "description": "The total with shipping, as a label.",
+          "example": "$255.00",
           "type": "string"
         },
         "options": {
@@ -3987,13 +4846,17 @@
         },
         "pay_url": {
           "description": "Where the buyer pays (redirects to PayPal). Safe to show in chat.",
+          "example": "https://one-thing-ash0.onrender.com/o/pX4kR9tVb2nQ7sLe",
           "type": "string"
         },
         "status_url": {
           "description": "`getAgentOrder` for this order.",
+          "example": "https://one-thing-ash0.onrender.com/o/pX4kR9tVb2nQ7sLe/status",
           "type": "string"
         },
         "next_step": {
+          "description": "What the agent should do next, in plain words: show `pay_url`, then check `status_url` once the buyer says they've paid.",
+          "example": "Show pay_url to the buyer as a link. When they say they've paid, call get_order with order_id.",
           "type": "string"
         }
       },
@@ -4009,17 +4872,48 @@
     "AgentOrder": {
       "title": "AgentOrder",
       "description": "An order as `get_order` and `getAgentOrder` report it.",
+      "example": {
+        "show_buyer": "![Vintage Cream and Red Roller Skates](https://one-thing-ash0.onrender.com/api/blobs/LFRvGuTU3D8i334X)\n\n**Vintage Cream and Red Roller Skates**: $240.00. Classic quad skates crafted with walnut burl heels\n\n![Raptor Rush: Browser Edition](https://one-thing-ash0.onrender.com/api/blobs/R9tWc3yN6bJq1zUd)\n\n**Raptor Rush: Browser Edition**: $2.99. Grow from Tiny Hatchling to Giant Apex Predator\n\nWhich one?",
+        "agent_name": "Grok",
+        "order_id": "pX4kR9tVb2nQ7sLe",
+        "status": "awaiting_buyer_approval",
+        "product": "Vintage Cream and Red Roller Skates",
+        "options": {
+          "Size": "M",
+          "Color": "Black"
+        },
+        "amount": {
+          "item": 240,
+          "shipping": 15,
+          "total": 255,
+          "currency": "USD"
+        },
+        "total": "$255.00",
+        "pay_url": "https://one-thing-ash0.onrender.com/o/pX4kR9tVb2nQ7sLe",
+        "next_step": "Show pay_url to the buyer as a link. When they say they've paid, call get_order with order_id.",
+        "paid_at": "2026-10-22T02:41:37Z",
+        "receipt_url": "https://one-thing-ash0.onrender.com/vintageskates/thanks?order=pX4kR9tVb2nQ7sLe",
+        "delivery": {
+          "type": "access_code",
+          "access_code": "K7QF-M2XP-9HTD",
+          "start_url": "https://www.miriogames.com/raptor-rush/?code=K7QF-M2XP-9HTD"
+        }
+      },
       "type": "object",
       "properties": {
         "show_buyer": {
           "description": "A suggested reply to the buyer, in Markdown with the links already written as links: the product and its options to pick from, the pay link, or what they got with a receipt link. Buyers have the best experience when agents show it as written.",
+          "example": "![Vintage Cream and Red Roller Skates](https://one-thing-ash0.onrender.com/api/blobs/LFRvGuTU3D8i334X)\n\n**Vintage Cream and Red Roller Skates**: $240.00. Classic quad skates crafted with walnut burl heels\n\n![Raptor Rush: Browser Edition](https://one-thing-ash0.onrender.com/api/blobs/R9tWc3yN6bJq1zUd)\n\n**Raptor Rush: Browser Edition**: $2.99. Grow from Tiny Hatchling to Giant Apex Predator\n\nWhich one?",
           "type": "string"
         },
         "agent_name": {
           "description": "Who this request was credited to in the seller's stats: a recognised user agent, else the name the agent gave itself (`?agent=`, or the MCP client's name), else the user agent's first word.",
+          "example": "Grok",
           "type": "string"
         },
         "order_id": {
+          "description": "The order's id.",
+          "example": "pX4kR9tVb2nQ7sLe",
           "type": "string"
         },
         "status": {
@@ -4029,11 +4923,14 @@
               "$ref": "#/definitions/Status2"
             },
             {
-              "description": "`declined`: PayPal declined it, nothing charged, the buyer can open `pay_url` again. `sold_out`: it sold out before the payment was captured. `expired`: the PayPal checkout expired; create a new order. `failed`: PayPal couldn't be reached; ask again."
+              "description": "`declined`: PayPal declined it, nothing charged, the buyer can open `pay_url` again. `sold_out`: it sold out before the payment was captured. `expired`: the PayPal checkout expired; create a new order. `failed`: PayPal couldn't be reached; ask again.",
+              "example": "awaiting_buyer_approval"
             }
           ]
         },
         "product": {
+          "description": "The product's name.",
+          "example": "Vintage Cream and Red Roller Skates",
           "type": "string"
         },
         "options": {
@@ -4048,30 +4945,55 @@
           }
         },
         "amount": {
-          "$ref": "#/definitions/Amount"
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Amount"
+            },
+            {
+              "description": "What the order costs, as numbers.",
+              "example": {
+                "item": 240,
+                "shipping": 15,
+                "total": 255,
+                "currency": "USD"
+              }
+            }
+          ]
         },
         "total": {
           "description": "The total as a label, e.g. `$255.00`.",
+          "example": "$255.00",
           "type": "string"
         },
         "pay_url": {
           "description": "Unpaid orders (waiting or declined). The buyer pays here; safe to show in chat.",
+          "example": "https://one-thing-ash0.onrender.com/o/pX4kR9tVb2nQ7sLe",
           "type": "string"
         },
         "next_step": {
           "description": "Unpaid orders. What the agent should do next, in plain words.",
+          "example": "Show pay_url to the buyer as a link. When they say they've paid, call get_order with order_id.",
           "type": "string"
         },
         "paid_at": {
+          "description": "Paid orders. When PayPal captured the payment.",
+          "example": "2026-10-22T02:41:37Z",
           "type": "string",
           "format": "date-time"
         },
         "receipt_url": {
           "description": "Paid orders. The buyer's thank-you page.",
+          "example": "https://one-thing-ash0.onrender.com/vintageskates/thanks?order=pX4kR9tVb2nQ7sLe",
           "type": "string"
         },
         "delivery": {
-          "description": "Paid orders. What the buyer got."
+          "description": "Paid orders. What the buyer got.",
+          "example": {
+            "type": "access_code",
+            "access_code": "K7QF-M2XP-9HTD",
+            "start_url": "https://www.miriogames.com/raptor-rush/?code=K7QF-M2XP-9HTD"
+          }
         }
       },
       "required": [
@@ -4085,17 +5007,27 @@
     "AgentDeliveryAccessCode": {
       "title": "AgentDeliveryAccessCode",
       "description": "A digital product unlocked with an access code.",
+      "example": {
+        "type": "access_code",
+        "access_code": "K7QF-M2XP-9HTD",
+        "start_url": "https://www.miriogames.com/raptor-rush/?code=K7QF-M2XP-9HTD"
+      },
       "type": "object",
       "properties": {
         "type": {
+          "description": "Always `access_code`.",
+          "example": "access_code",
           "type": "string",
           "default": "access_code"
         },
         "access_code": {
+          "description": "The buyer's code, which unlocks the seller's app or game.",
+          "example": "K7QF-M2XP-9HTD",
           "type": "string"
         },
         "start_url": {
           "description": "The seller's app with the code filled in.",
+          "example": "https://www.miriogames.com/raptor-rush/?code=K7QF-M2XP-9HTD",
           "type": "string"
         }
       },
@@ -4107,16 +5039,27 @@
     "AgentDeliveryDownload": {
       "title": "AgentDeliveryDownload",
       "description": "A digital file to download.",
+      "example": {
+        "type": "download",
+        "download_url": "https://one-thing-ash0.onrender.com/api/download/dl_4mQ8sT2vX9",
+        "note": "Works 5 times over 14 days."
+      },
       "type": "object",
       "properties": {
         "type": {
+          "description": "Always `download`.",
+          "example": "download",
           "type": "string",
           "default": "download"
         },
         "download_url": {
+          "description": "A private link to the file. It works 5 times over 14 days.",
+          "example": "https://one-thing-ash0.onrender.com/api/download/dl_4mQ8sT2vX9",
           "type": "string"
         },
         "note": {
+          "description": "How long the link lasts and how many downloads it allows, in words.",
+          "example": "Works 5 times over 14 days.",
           "type": "string"
         }
       },
@@ -4128,20 +5071,67 @@
     "AgentDeliveryShipping": {
       "title": "AgentDeliveryShipping",
       "description": "A physical product shipped to the buyer.",
+      "example": {
+        "type": "shipping",
+        "ship_to": {
+          "name": "Sam Rivera",
+          "address": "1 Main St, Springfield, IL, 62701, US"
+        },
+        "fulfillment": "to_ship",
+        "tracking": {
+          "carrier": "USPS",
+          "number": "9400111899223197428490"
+        }
+      },
       "type": "object",
       "properties": {
         "type": {
+          "description": "Always `shipping`.",
+          "example": "shipping",
           "type": "string",
           "default": "shipping"
         },
         "ship_to": {
-          "$ref": "#/definitions/ShipTo"
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/definitions/ShipTo"
+            },
+            {
+              "description": "Where it ships, from the buyer's PayPal checkout. Null if PayPal didn't share it.",
+              "example": {
+                "name": "Sam Rivera",
+                "address": "1 Main St, Springfield, IL, 62701, US"
+              }
+            }
+          ]
         },
         "fulfillment": {
-          "$ref": "#/definitions/Fulfillment"
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Fulfillment"
+            },
+            {
+              "description": "`to_ship` until the seller adds tracking, then `shipped`.",
+              "example": "to_ship"
+            }
+          ]
         },
         "tracking": {
-          "$ref": "#/definitions/Tracking"
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Tracking"
+            },
+            {
+              "description": "The carrier and tracking number once shipped; null before.",
+              "example": {
+                "carrier": "USPS",
+                "number": "9400111899223197428490"
+              }
+            }
+          ]
         }
       },
       "required": [
@@ -4151,44 +5141,105 @@
     },
     "PlatformShop": {
       "title": "PlatformShop",
+      "description": "A shop as a platform API key lists it.",
+      "example": {
+        "slug": "vintageskates",
+        "status": "draft",
+        "name": "Vintage Cream and Red Roller Skates",
+        "headline": "Classic quad skates crafted with walnut burl heels",
+        "product_type": "physical",
+        "price": {
+          "amount": 240,
+          "currency": "USD",
+          "label": "$240.00"
+        },
+        "url": "https://one-thing-ash0.onrender.com/vintageskates",
+        "cover": "https://one-thing-ash0.onrender.com/api/blobs/LFRvGuTU3D8i334X",
+        "paypal_connected": true,
+        "sales": 12,
+        "created_at": "2026-10-22T02:41:37Z"
+      },
       "type": "object",
       "properties": {
         "slug": {
+          "description": "The shop's link name.",
+          "example": "vintageskates",
           "type": "string"
         },
         "status": {
-          "$ref": "#/definitions/Status"
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Status3"
+            },
+            {
+              "description": "`draft` until the seller goes live.",
+              "example": "draft"
+            }
+          ]
         },
         "name": {
+          "description": "The product's name.",
+          "example": "Vintage Cream and Red Roller Skates",
           "type": "string"
         },
         "headline": {
+          "description": "The shop's one-line pitch.",
+          "example": "Classic quad skates crafted with walnut burl heels",
           "type": "string"
         },
         "product_type": {
-          "$ref": "#/definitions/ProductType1"
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/definitions/ProductType3"
+            },
+            {
+              "description": "`physical`, `digital` or `referral`.",
+              "example": "physical"
+            }
+          ]
         },
         "price": {
-          "$ref": "#/definitions/AgentMoney"
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/definitions/AgentMoney"
+            },
+            {
+              "description": "An amount of money, as a number and as a label.",
+              "example": {
+                "amount": 240,
+                "currency": "USD",
+                "label": "$240.00"
+              }
+            }
+          ]
         },
         "url": {
           "description": "The shop page buyers pay on.",
+          "example": "https://one-thing-ash0.onrender.com/vintageskates",
           "type": "string"
         },
         "cover": {
           "description": "The cover image's URL.",
+          "example": "https://one-thing-ash0.onrender.com/api/blobs/LFRvGuTU3D8i334X",
           "type": "string"
         },
         "paypal_connected": {
           "description": "The seller connected a PayPal account that can be paid.",
+          "example": true,
           "type": "boolean"
         },
         "sales": {
           "description": "Paid orders.",
+          "example": 12,
           "type": "integer",
           "format": "int32"
         },
         "created_at": {
+          "description": "When the shop was made.",
+          "example": "2026-10-22T02:41:37Z",
           "type": "string",
           "format": "date-time"
         }
@@ -4207,18 +5258,27 @@
     },
     "AgentMoney": {
       "title": "AgentMoney",
+      "description": "An amount of money, as a number and as a label.",
+      "example": {
+        "amount": 240,
+        "currency": "USD",
+        "label": "$240.00"
+      },
       "type": "object",
       "properties": {
         "amount": {
+          "description": "The amount in the currency's main unit (dollars, not cents).",
           "example": 48.5,
           "type": "number",
           "format": "double"
         },
         "currency": {
+          "description": "ISO 4217 currency code.",
           "example": "USD",
           "type": "string"
         },
         "label": {
+          "description": "The amount formatted for people.",
           "example": "$48.50",
           "type": "string"
         }
@@ -4230,20 +5290,50 @@
     },
     "JsonRpcRequest": {
       "title": "JsonRpcRequest",
+      "description": "A JSON-RPC 2.0 request to the MCP server.",
+      "example": {
+        "jsonrpc": "2.0",
+        "id": 1,
+        "method": "tools/call",
+        "params": {
+          "name": "get_product",
+          "arguments": {
+            "shop": "vintageskates"
+          }
+        }
+      },
       "type": "object",
       "properties": {
         "jsonrpc": {
+          "description": "Always `2.0`.",
+          "example": "2.0",
           "type": "string",
           "default": "2.0"
         },
         "id": {
-          "description": "Leave out for a notification."
+          "description": "Leave out for a notification.",
+          "example": "1"
         },
         "method": {
-          "$ref": "#/definitions/Method"
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Method"
+            },
+            {
+              "description": "The MCP method. `tools/call` runs a tool; `tools/list` lists them.",
+              "example": "tools/call"
+            }
+          ]
         },
         "params": {
           "description": "For `tools/call`: `{ name, arguments }`.",
+          "example": {
+            "name": "get_product",
+            "arguments": {
+              "shop": "vintageskates"
+            }
+          },
           "type": "object"
         }
       },
@@ -4254,19 +5344,53 @@
     },
     "JsonRpcResponse": {
       "title": "JsonRpcResponse",
+      "description": "A JSON-RPC 2.0 reply from the MCP server.",
+      "example": {
+        "jsonrpc": "2.0",
+        "id": 1,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"shop\": \"vintageskates\"}"
+            }
+          ],
+          "isError": false
+        }
+      },
       "type": "object",
       "properties": {
         "jsonrpc": {
+          "description": "Always `2.0`.",
+          "example": "2.0",
           "type": "string",
           "default": "2.0"
         },
-        "id": {},
+        "id": {
+          "description": "The request's `id`.",
+          "example": "1"
+        },
         "result": {
           "description": "For `tools/call`: `content` (the answer as JSON text), `structuredContent` (the same object) and `isError`.",
+          "example": {
+            "isError": false
+          },
           "type": "object"
         },
         "error": {
-          "$ref": "#/definitions/Error1"
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Error"
+            },
+            {
+              "description": "Present when the call failed.",
+              "example": {
+                "code": -32601,
+                "message": "Method not found"
+              }
+            }
+          ]
         }
       },
       "required": [
@@ -4277,21 +5401,56 @@
     "Referral": {
       "title": "Referral",
       "description": "A recommended Channel3 product. Buy links are Channel3-tracked, credited to this shop.",
+      "example": {
+        "productId": "ch3_7f2a9c1e",
+        "title": "Trail Running Vest 5L",
+        "brand": "Salomon",
+        "image": "https://images.example.com/vest.jpg",
+        "offers": [
+          {
+            "domain": "rei.com",
+            "url": "https://buy.trychannel3.com/r/abc123",
+            "price": 240,
+            "currency": "USD",
+            "inStock": true,
+            "commission": 0.08
+          }
+        ]
+      },
       "type": "object",
       "properties": {
         "productId": {
+          "description": "Channel3's product id.",
+          "example": "ch3_7f2a9c1e",
           "type": "string"
         },
         "title": {
+          "description": "The product's name.",
+          "example": "Trail Running Vest 5L",
           "type": "string"
         },
         "brand": {
+          "description": "The brand, when known.",
+          "example": "Salomon",
           "type": "string"
         },
         "image": {
+          "description": "The product image's URL.",
+          "example": "https://images.example.com/vest.jpg",
           "type": "string"
         },
         "offers": {
+          "description": "Stores that sell it, with tracked links.",
+          "example": [
+            {
+              "domain": "rei.com",
+              "url": "https://buy.trychannel3.com/r/abc123",
+              "price": 240,
+              "currency": "USD",
+              "inStock": true,
+              "commission": 0.08
+            }
+          ],
           "type": "array",
           "items": {
             "$ref": "#/definitions/Offer"
@@ -4306,37 +5465,65 @@
     },
     "ProductCard": {
       "title": "ProductCard",
+      "description": "A Channel3 product in search results.",
+      "example": {
+        "id": "ch3_7f2a9c1e",
+        "title": "Trail Running Vest 5L",
+        "brand": "Salomon",
+        "image": "https://images.example.com/vest.jpg",
+        "price": 240,
+        "currency": "USD",
+        "retailer": "rei.com",
+        "retailers": 4,
+        "commission": 0.08
+      },
       "type": "object",
       "properties": {
         "id": {
+          "description": "Channel3's product id: pass it to `createShop` as `productId`.",
+          "example": "ch3_7f2a9c1e",
           "type": "string"
         },
         "title": {
+          "description": "The product's name.",
+          "example": "Trail Running Vest 5L",
           "type": "string"
         },
         "brand": {
+          "description": "The brand, when known.",
+          "example": "Salomon",
           "type": "string"
         },
         "image": {
+          "description": "The product image's URL.",
+          "example": "https://images.example.com/vest.jpg",
           "type": "string"
         },
         "price": {
+          "description": "The best offer's price.",
+          "example": 240,
           "type": "number",
           "format": "double"
         },
         "currency": {
+          "description": "ISO 4217 currency code.",
+          "example": "USD",
           "type": "string"
         },
         "retailer": {
           "description": "The store with the best offer.",
+          "example": "rei.com",
           "type": "string"
         },
         "retailers": {
+          "description": "How many stores sell it.",
+          "example": 4,
           "type": "integer",
           "format": "int32"
         },
         "commission": {
           "description": "Best commission rate across offers, 0–1.",
+          "example": 0.08,
           "type": "number",
           "format": "double"
         }
@@ -4354,67 +5541,159 @@
     },
     "Order": {
       "title": "Order",
+      "description": "An order, as the seller sees it.",
+      "example": {
+        "id": "pX4kR9tVb2nQ7sLe",
+        "paypal_order_id": "5O190127TN364715T",
+        "status": "created",
+        "amount_cents": 25500,
+        "shipping_cents": 1500,
+        "currency": "USD",
+        "buyer_email": "sam@example.com",
+        "buyer_name": "Sam Rivera",
+        "shipping_address": {
+          "address_line_1": "1 Main St",
+          "admin_area_2": "Springfield",
+          "admin_area_1": "IL",
+          "postal_code": "62701",
+          "country_code": "US"
+        },
+        "capture_id": "3C679366HH908993F",
+        "fulfillment_status": "none",
+        "carrier": "USPS",
+        "tracking_number": "9400111899223197428490",
+        "tracking_synced": false,
+        "downloads": 0,
+        "access_code": "K7QF-M2XP-9HTD",
+        "code_uses": 0,
+        "code_last_used_at": "2026-10-22T02:41:37Z",
+        "channel": "web",
+        "agent": "Grok",
+        "refund_id": "1JU08902781691411",
+        "refunded_at": "2026-10-22T02:41:37Z",
+        "options": {
+          "Size": "9"
+        },
+        "paid_at": "2026-10-22T02:41:37Z",
+        "created_at": "2026-10-22T02:41:37Z"
+      },
       "type": "object",
       "properties": {
         "id": {
+          "description": "OneThing's order id.",
+          "example": "pX4kR9tVb2nQ7sLe",
           "type": "string"
         },
         "paypal_order_id": {
+          "description": "PayPal's order id.",
+          "example": "5O190127TN364715T",
           "type": "string"
         },
         "status": {
-          "$ref": "#/definitions/Status4"
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Status4"
+            },
+            {
+              "description": "`created` until paid; `failed` if PayPal declined; `refunded` after a refund.",
+              "example": "created"
+            }
+          ]
         },
         "amount_cents": {
+          "description": "The total charged, shipping included, in cents.",
+          "example": 25500,
           "type": "integer",
           "format": "int32"
         },
         "shipping_cents": {
+          "description": "The shipping part of `amount_cents`.",
+          "example": 1500,
           "type": "integer",
           "format": "int32"
         },
         "currency": {
+          "description": "ISO 4217 currency code.",
+          "example": "USD",
           "type": "string"
         },
         "buyer_email": {
+          "description": "From PayPal, once paid.",
+          "example": "sam@example.com",
           "type": "string"
         },
         "buyer_name": {
+          "description": "From PayPal, once paid.",
+          "example": "Sam Rivera",
           "type": "string"
         },
         "shipping_address": {
+          "description": "Physical orders: the address from PayPal checkout, by field.",
+          "example": {
+            "address_line_1": "1 Main St",
+            "admin_area_2": "Springfield",
+            "admin_area_1": "IL",
+            "postal_code": "62701",
+            "country_code": "US"
+          },
           "type": "object",
           "additionalProperties": {
             "type": "string"
           }
         },
         "capture_id": {
+          "description": "PayPal's capture id, once paid. Refunds use it.",
+          "example": "3C679366HH908993F",
           "type": "string"
         },
         "fulfillment_status": {
-          "$ref": "#/definitions/FulfillmentStatus"
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/definitions/FulfillmentStatus"
+            },
+            {
+              "description": "`to_ship` and `shipped` for physical orders, `digital_sent` for digital ones, `none` before payment.",
+              "example": "none"
+            }
+          ]
         },
         "carrier": {
+          "description": "Shipped orders: the carrier.",
+          "example": "USPS",
           "type": "string"
         },
         "tracking_number": {
+          "description": "Shipped orders: the tracking number.",
+          "example": "9400111899223197428490",
           "type": "string"
         },
         "tracking_synced": {
+          "description": "Whether PayPal accepted the tracking number.",
+          "example": false,
           "type": "boolean"
         },
         "downloads": {
+          "description": "How many times the buyer downloaded the file.",
+          "example": 0,
           "type": "integer",
           "format": "int32"
         },
         "access_code": {
+          "description": "Access-code products: the code this buyer got.",
+          "example": "K7QF-M2XP-9HTD",
           "type": "string"
         },
         "code_uses": {
+          "description": "How many times the access code was checked.",
+          "example": 0,
           "type": "integer",
           "format": "int32"
         },
         "code_last_used_at": {
+          "description": "When the access code was last checked with `verifyAccessCode`.",
+          "example": "2026-10-22T02:41:37Z",
           "type": "string",
           "format": "date-time"
         },
@@ -4425,7 +5704,8 @@
               "$ref": "#/definitions/Channel"
             },
             {
-              "description": "`agent` for orders an AI agent placed (MCP or an order link)."
+              "description": "`agent` for orders an AI agent placed (MCP or an order link).",
+              "example": "web"
             }
           ]
         },
@@ -4436,24 +5716,34 @@
         },
         "refund_id": {
           "description": "PayPal's refund id, once refunded through OneThing.",
+          "example": "1JU08902781691411",
           "type": "string"
         },
         "refunded_at": {
+          "description": "When the order was refunded.",
+          "example": "2026-10-22T02:41:37Z",
           "type": "string",
           "format": "date-time"
         },
         "options": {
           "description": "The buyer's pick, one value per option, keyed by option name (see `Choice`).",
+          "example": {
+            "Size": "9"
+          },
           "type": "object",
           "additionalProperties": {
             "type": "string"
           }
         },
         "paid_at": {
+          "description": "When PayPal captured the payment.",
+          "example": "2026-10-22T02:41:37Z",
           "type": "string",
           "format": "date-time"
         },
         "created_at": {
+          "description": "When the order was made.",
+          "example": "2026-10-22T02:41:37Z",
           "type": "string",
           "format": "date-time"
         }
@@ -4468,32 +5758,51 @@
     },
     "WebhookEvent": {
       "title": "WebhookEvent",
+      "description": "A PayPal webhook delivery for this shop's orders.",
+      "example": {
+        "id": "WH-2WR32451HC0233532-67976317FL4543714",
+        "event_type": "PAYMENT.CAPTURE.COMPLETED",
+        "paypal_order_id": "5O190127TN364715T",
+        "summary": "2.99 USD",
+        "verified": true,
+        "outcome": "Confirmed: order already paid",
+        "received_at": "2026-10-22T02:41:37Z"
+      },
       "type": "object",
       "properties": {
         "id": {
           "description": "PayPal's event id.",
+          "example": "WH-2WR32451HC0233532-67976317FL4543714",
           "type": "string"
         },
         "event_type": {
+          "description": "PayPal's event type.",
           "example": "PAYMENT.CAPTURE.COMPLETED",
           "type": "string"
         },
         "paypal_order_id": {
+          "description": "The PayPal order it was about.",
+          "example": "5O190127TN364715T",
           "type": "string"
         },
         "summary": {
+          "description": "The amount, or PayPal's summary.",
           "example": "2.99 USD",
           "type": "string"
         },
         "verified": {
           "description": "Whether PayPal confirmed the delivery's signature.",
+          "example": true,
           "type": "boolean"
         },
         "outcome": {
+          "description": "What OneThing did with it.",
           "example": "Confirmed: order already paid",
           "type": "string"
         },
         "received_at": {
+          "description": "When it arrived.",
+          "example": "2026-10-22T02:41:37Z",
           "type": "string",
           "format": "date-time"
         }
@@ -4508,16 +5817,91 @@
     },
     "OrderEvent": {
       "title": "OrderEvent",
+      "description": "What OneThing posts to the seller's Zapier hook.",
+      "example": {
+        "event": "order.paid",
+        "shop": {
+          "slug": "vintageskates",
+          "name": "Vintage Cream and Red Roller Skates",
+          "url": "https://one-thing-ash0.onrender.com/vintageskates"
+        },
+        "order": {
+          "id": "pX4kR9tVb2nQ7sLe",
+          "paypal_order_id": "5O190127TN364715T",
+          "amount": "255.00",
+          "currency": "USD",
+          "buyer_name": "Sam Rivera",
+          "buyer_email": "sam@example.com",
+          "shipping_address": {
+            "address_line_1": "1 Main St",
+            "admin_area_2": "Springfield",
+            "admin_area_1": "IL",
+            "postal_code": "62701",
+            "country_code": "US"
+          },
+          "fulfillment_status": "to_ship",
+          "tracking_number": "9400111899223197428490",
+          "carrier": "USPS"
+        }
+      },
       "type": "object",
       "properties": {
         "event": {
-          "$ref": "#/definitions/Event"
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Event"
+            },
+            {
+              "description": "What happened.",
+              "example": "order.paid"
+            }
+          ]
         },
         "shop": {
-          "$ref": "#/definitions/Shop1"
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Shop1"
+            },
+            {
+              "description": "The shop the order belongs to.",
+              "example": {
+                "slug": "vintageskates",
+                "name": "Vintage Cream and Red Roller Skates",
+                "url": "https://one-thing-ash0.onrender.com/vintageskates"
+              }
+            }
+          ]
         },
         "order": {
-          "$ref": "#/definitions/Order1"
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Order1"
+            },
+            {
+              "description": "The order.",
+              "example": {
+                "id": "pX4kR9tVb2nQ7sLe",
+                "paypal_order_id": "5O190127TN364715T",
+                "amount": "255.00",
+                "currency": "USD",
+                "buyer_name": "Sam Rivera",
+                "buyer_email": "sam@example.com",
+                "shipping_address": {
+                  "address_line_1": "1 Main St",
+                  "admin_area_2": "Springfield",
+                  "admin_area_1": "IL",
+                  "postal_code": "62701",
+                  "country_code": "US"
+                },
+                "fulfillment_status": "to_ship",
+                "tracking_number": "9400111899223197428490",
+                "carrier": "USPS"
+              }
+            }
+          ]
         }
       },
       "required": [
@@ -4528,6 +5912,8 @@
     },
     "AiSource": {
       "title": "AiSource",
+      "description": "Who designed the page: `gemini`, or `fallback` when Gemini wasn't available and a plain template was used.",
+      "example": "gemini",
       "type": "string",
       "enum": [
         "gemini",
@@ -4536,21 +5922,36 @@
     },
     "Amount": {
       "title": "Amount",
+      "description": "What the order costs, as numbers.",
+      "example": {
+        "item": 240,
+        "shipping": 15,
+        "total": 255,
+        "currency": "USD"
+      },
       "type": "object",
       "properties": {
         "item": {
+          "description": "The product's price.",
+          "example": 240,
           "type": "number",
           "format": "double"
         },
         "shipping": {
+          "description": "Shipping; 0 for digital products.",
+          "example": 15,
           "type": "number",
           "format": "double"
         },
         "total": {
+          "description": "Product plus shipping: what the buyer pays.",
+          "example": 255,
           "type": "number",
           "format": "double"
         },
         "currency": {
+          "description": "ISO 4217 currency code.",
+          "example": "USD",
           "type": "string"
         }
       },
@@ -4563,6 +5964,7 @@
     },
     "ApiAccessVerifyRequest": {
       "title": "ApiAccessVerifyRequest",
+      "description": "The code to check, and which shop it's for.",
       "type": "object",
       "properties": {
         "shop": {
@@ -4571,6 +5973,7 @@
           "type": "string"
         },
         "code": {
+          "description": "The access code the buyer entered. Case and dashes don't matter.",
           "example": "K7QF-M2XP-9HTD",
           "type": "string"
         }
@@ -4582,13 +5985,17 @@
     },
     "ApiAccessVerifyResponse": {
       "title": "ApiAccessVerifyResponse",
+      "description": "Whether the code is valid.",
       "type": "object",
       "properties": {
         "valid": {
+          "description": "True if the code belongs to a paid, unrefunded order for this shop.",
+          "example": true,
           "type": "boolean"
         },
         "product": {
           "description": "The product name, when valid.",
+          "example": "Vintage Cream and Red Roller Skates",
           "type": "string"
         }
       },
@@ -4598,6 +6005,7 @@
     },
     "ApiAccountSigninRequest": {
       "title": "ApiAccountSigninRequest",
+      "description": "Who is signing in.",
       "type": "object",
       "properties": {
         "identifier": {
@@ -4612,17 +6020,22 @@
     },
     "ApiAccountSigninResponse": {
       "title": "ApiAccountSigninResponse",
+      "description": "The signed-in account.",
       "type": "object",
       "properties": {
         "id": {
+          "description": "The account's id.",
+          "example": "acc_Vq3nN8cT0bLx2YwE",
           "type": "string"
         },
         "email": {
           "description": "Lower-cased.",
+          "example": "maker@example.com",
           "type": "string"
         },
         "phone": {
           "description": "Digits, with a leading + if one was given.",
+          "example": "+15555550123",
           "type": "string"
         }
       },
@@ -4634,13 +6047,27 @@
     },
     "ApiAgentShopsResponse": {
       "title": "ApiAgentShopsResponse",
+      "description": "The matching shops, with a reply to show the buyer.",
       "type": "object",
       "properties": {
         "show_buyer": {
           "description": "A suggested reply to the buyer, in Markdown: each shop's cover photo as an image, its name, price and headline, then \"Which one?\". Chats that block images from other sites just leave the image lines out.",
+          "example": "![Vintage Cream and Red Roller Skates](https://one-thing-ash0.onrender.com/api/blobs/LFRvGuTU3D8i334X)\n\n**Vintage Cream and Red Roller Skates**: $240.00. Classic quad skates crafted with walnut burl heels\n\n![Raptor Rush: Browser Edition](https://one-thing-ash0.onrender.com/api/blobs/R9tWc3yN6bJq1zUd)\n\n**Raptor Rush: Browser Edition**: $2.99. Grow from Tiny Hatchling to Giant Apex Predator\n\nWhich one?",
           "type": "string"
         },
         "shops": {
+          "description": "Shops, best match first.",
+          "example": [
+            {
+              "shop": "vintageskates",
+              "name": "Vintage Cream and Red Roller Skates",
+              "kind": "physical",
+              "headline": "Classic quad skates crafted with walnut burl heels",
+              "price": "$240.00",
+              "image": "https://one-thing-ash0.onrender.com/api/blobs/LFRvGuTU3D8i334X",
+              "url": "https://one-thing-ash0.onrender.com/vintageskates"
+            }
+          ],
           "type": "array",
           "items": {
             "$ref": "#/definitions/AgentShopSummary"
@@ -4648,10 +6075,12 @@
         },
         "matched": {
           "description": "False when nothing matched the query and `shops` is the newest gallery shops instead; `show_buyer` then starts by saying so.",
+          "example": true,
           "type": "boolean"
         },
         "mcp_server": {
           "description": "The MCP server to order through.",
+          "example": "https://one-thing-ash0.onrender.com/api/mcp",
           "type": "string"
         }
       },
@@ -4664,9 +6093,24 @@
     },
     "ApiChannel3SearchResponse": {
       "title": "ApiChannel3SearchResponse",
+      "description": "The products found.",
       "type": "object",
       "properties": {
         "products": {
+          "description": "Products, best match first.",
+          "example": [
+            {
+              "id": "ch3_7f2a9c1e",
+              "title": "Trail Running Vest 5L",
+              "brand": "Salomon",
+              "image": "https://images.example.com/vest.jpg",
+              "price": 240,
+              "currency": "USD",
+              "retailer": "rei.com",
+              "retailers": 4,
+              "commission": 0.08
+            }
+          ],
           "type": "array",
           "items": {
             "$ref": "#/definitions/ProductCard"
@@ -4679,22 +6123,39 @@
     },
     "ApiOrdersCapture409Error1": {
       "title": "ApiOrdersCapture409Error1",
+      "description": "Not approved yet.",
+      "example": {
+        "status": "pending"
+      },
       "type": "object",
       "properties": {
         "status": {
-          "$ref": "#/definitions/Status6"
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Status6"
+            },
+            {
+              "description": "`pending` until the buyer approves at PayPal.",
+              "example": "pending"
+            }
+          ]
         }
       }
     },
     "ApiOrdersCaptureResponse": {
       "title": "ApiOrdersCaptureResponse",
+      "description": "The paid order.",
       "type": "object",
       "properties": {
         "orderId": {
           "description": "OneThing's order id; the thank-you page is `/<slug>/thanks?order=<orderId>`.",
+          "example": "pX4kR9tVb2nQ7sLe",
           "type": "string"
         },
         "status": {
+          "description": "Always `paid`.",
+          "example": "paid",
           "type": "string",
           "default": "paid"
         }
@@ -4706,9 +6167,12 @@
     },
     "ApiOrdersRequest": {
       "title": "ApiOrdersRequest",
+      "description": "The shop to buy from and the buyer's pick.",
       "type": "object",
       "properties": {
         "slug": {
+          "description": "The shop's link name.",
+          "example": "vintageskates",
           "type": "string"
         },
         "options": {
@@ -4729,10 +6193,12 @@
     },
     "ApiOrdersResponse": {
       "title": "ApiOrdersResponse",
+      "description": "The PayPal order to approve.",
       "type": "object",
       "properties": {
         "id": {
           "description": "PayPal order id.",
+          "example": "5O190127TN364715T",
           "type": "string"
         }
       },
@@ -4742,10 +6208,12 @@
     },
     "ApiPaypalClientTokenResponse": {
       "title": "ApiPaypalClientTokenResponse",
+      "description": "The client token.",
       "type": "object",
       "properties": {
         "clientToken": {
           "description": "Pass to `createInstance` in the PayPal JavaScript SDK v6.",
+          "example": "eyJraWQiOiJFWEFNUExFIn0.example.client-token",
           "type": "string"
         }
       },
@@ -4755,9 +6223,30 @@
     },
     "ApiPlatformShopsResponse": {
       "title": "ApiPlatformShopsResponse",
+      "description": "The account's shops.",
       "type": "object",
       "properties": {
         "shops": {
+          "description": "Shops, newest first.",
+          "example": [
+            {
+              "slug": "vintageskates",
+              "status": "draft",
+              "name": "Vintage Cream and Red Roller Skates",
+              "headline": "Classic quad skates crafted with walnut burl heels",
+              "product_type": "physical",
+              "price": {
+                "amount": 240,
+                "currency": "USD",
+                "label": "$240.00"
+              },
+              "url": "https://one-thing-ash0.onrender.com/vintageskates",
+              "cover": "https://one-thing-ash0.onrender.com/api/blobs/LFRvGuTU3D8i334X",
+              "paypal_connected": true,
+              "sales": 12,
+              "created_at": "2026-10-22T02:41:37Z"
+            }
+          ],
           "type": "array",
           "items": {
             "$ref": "#/definitions/PlatformShop"
@@ -4770,10 +6259,15 @@
     },
     "ApiShopsColorPhotosRequest": {
       "title": "ApiShopsColorPhotosRequest",
+      "description": "Which photo shows each colour.",
       "type": "object",
       "properties": {
         "photos": {
           "description": "Colour label → photo id, or `null`.",
+          "example": {
+            "Ice Blue": "zrySajNyao6_j11x",
+            "Amber": null
+          },
           "type": "object",
           "additionalProperties": {
             "type": "string"
@@ -4786,9 +6280,15 @@
     },
     "ApiShopsColorPhotosResponse": {
       "title": "ApiShopsColorPhotosResponse",
+      "description": "The colours that changed.",
       "type": "object",
       "properties": {
         "saved": {
+          "description": "Colour labels whose photo changed.",
+          "example": [
+            "Ice Blue",
+            "Amber"
+          ],
           "type": "array",
           "items": {
             "type": "string"
@@ -4801,12 +6301,17 @@
     },
     "ApiShopsFileResponse": {
       "title": "ApiShopsFileResponse",
+      "description": "The uploaded file.",
       "type": "object",
       "properties": {
         "ok": {
+          "description": "Always `true`.",
+          "example": true,
           "type": "boolean"
         },
         "filename": {
+          "description": "The file's name, as buyers will download it.",
+          "example": "dragon-flight-presets.zip",
           "type": "string"
         }
       },
@@ -4817,9 +6322,17 @@
     },
     "ApiShopsMatchPhotosRequest": {
       "title": "ApiShopsMatchPhotosRequest",
+      "description": "The colours to find photos for.",
       "type": "object",
       "properties": {
         "colors": {
+          "description": "The colour option's values.",
+          "example": [
+            {
+              "label": "Ice Blue",
+              "hex": "#9fd3e6"
+            }
+          ],
           "type": "array",
           "items": {
             "$ref": "#/definitions/Color"
@@ -4834,9 +6347,11 @@
     },
     "ApiShopsMatchPhotosResponse": {
       "title": "ApiShopsMatchPhotosResponse",
+      "description": "Gemini's matches.",
       "type": "object",
       "properties": {
         "matches": {
+          "description": "Colour label → photo id.",
           "example": {
             "Black": "b_8f2k1",
             "Forest green": "b_q93md"
@@ -4853,22 +6368,27 @@
     },
     "ApiShopsOrdersRefund409Error1": {
       "title": "ApiShopsOrdersRefund409Error1",
+      "description": "Why the order can't be refunded here.",
       "type": "object",
       "properties": {
         "error": {
           "description": "A sentence you can show to a person.",
+          "example": "Order not found.",
           "type": "string"
         },
         "field": {
           "description": "The form field at fault, when there is one.",
+          "example": "price",
           "type": "string"
         },
         "detail": {
           "description": "The upstream service's own message, for debugging.",
+          "example": "INSTRUMENT_DECLINED",
           "type": "string"
         },
         "refundInPayPal": {
           "description": "Refund it in PayPal yourself, then call again with `record: true`.",
+          "example": true,
           "type": "boolean"
         }
       },
@@ -4878,6 +6398,7 @@
     },
     "ApiShopsOrdersRefundRequest": {
       "title": "ApiShopsOrdersRefundRequest",
+      "description": "How to refund.",
       "type": "object",
       "properties": {
         "record": {
@@ -4889,13 +6410,17 @@
     },
     "ApiShopsOrdersRefundResponse": {
       "title": "ApiShopsOrdersRefundResponse",
+      "description": "The refund.",
       "type": "object",
       "properties": {
         "ok": {
+          "description": "Always `true`.",
+          "example": true,
           "type": "boolean"
         },
         "refundId": {
           "description": "PayPal's refund id; null when `record` was used.",
+          "example": "1JU08902781691411",
           "type": "string"
         }
       },
@@ -4905,17 +6430,30 @@
     },
     "ApiShopsOrdersShipRequest": {
       "title": "ApiShopsOrdersShipRequest",
+      "description": "The shipment's tracking.",
       "type": "object",
       "properties": {
         "carrier": {
-          "$ref": "#/definitions/Carrier"
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Carrier"
+            },
+            {
+              "description": "The carrier. `OTHER` needs `carrierName`.",
+              "example": "USPS"
+            }
+          ]
         },
         "carrierName": {
           "description": "Required when `carrier` is `OTHER`.",
+          "example": "Canada Post",
           "type": "string",
           "maxLength": 60
         },
         "trackingNumber": {
+          "description": "The carrier's tracking number.",
+          "example": "9400111899223197428490",
           "type": "string",
           "minLength": 4,
           "maxLength": 64
@@ -4928,13 +6466,17 @@
     },
     "ApiShopsOrdersShipResponse": {
       "title": "ApiShopsOrdersShipResponse",
+      "description": "The order is marked shipped.",
       "type": "object",
       "properties": {
         "ok": {
+          "description": "Always `true`.",
+          "example": true,
           "type": "boolean"
         },
         "synced": {
           "description": "Whether PayPal accepted the tracking number.",
+          "example": true,
           "type": "boolean"
         }
       },
@@ -4945,6 +6487,7 @@
     },
     "ApiShopsPaypalRequest": {
       "title": "ApiShopsPaypalRequest",
+      "description": "Where to come back to.",
       "type": "object",
       "properties": {
         "returnUrl": {
@@ -4957,10 +6500,12 @@
     },
     "ApiShopsPaypalResponse": {
       "title": "ApiShopsPaypalResponse",
+      "description": "The onboarding link.",
       "type": "object",
       "properties": {
         "url": {
           "description": "PayPal's onboarding page for this shop.",
+          "example": "https://www.sandbox.paypal.com/bizsignup/partner/entry?referralToken=EXAMPLE",
           "type": "string"
         }
       },
@@ -4970,14 +6515,29 @@
     },
     "ApiShopsPaypalResponse1": {
       "title": "ApiShopsPaypalResponse1",
+      "description": "The shop's PayPal connection.",
       "type": "object",
       "properties": {
         "merchantId": {
           "description": "The seller's PayPal merchant id.",
+          "example": "7MZJ4QXN8K2LA",
           "type": "string"
         },
         "status": {
-          "$ref": "#/definitions/PayPalStatus"
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/definitions/PayPalStatus"
+            },
+            {
+              "description": "What PayPal last said; null when nothing is connected.",
+              "example": {
+                "receivable": true,
+                "emailConfirmed": true,
+                "checkedAt": "2026-10-22T02:41:37Z"
+              }
+            }
+          ]
         }
       },
       "required": [
@@ -4987,10 +6547,15 @@
     },
     "ApiShopsPhotosRequest": {
       "title": "ApiShopsPhotosRequest",
+      "description": "The new photo order.",
       "type": "object",
       "properties": {
         "photos": {
           "description": "Photo ids, in order.",
+          "example": [
+            "zrySajNyao6_j11x",
+            "LFRvGuTU3D8i334X"
+          ],
           "type": "array",
           "items": {
             "type": "string"
@@ -5004,9 +6569,11 @@
     },
     "ApiShopsRefineRequest": {
       "title": "ApiShopsRefineRequest",
+      "description": "The design change, in words.",
       "type": "object",
       "properties": {
         "instruction": {
+          "description": "What to change, e.g. \"make it feel more premium\".",
           "example": "Make it feel more premium",
           "type": "string",
           "maxLength": 500
@@ -5018,6 +6585,7 @@
     },
     "ApiShopsRefineResponse": {
       "title": "ApiShopsRefineResponse",
+      "description": "The redesigned page.",
       "type": "object",
       "properties": {
         "spec": {
@@ -5027,7 +6595,49 @@
               "$ref": "#/definitions/DesignSpec"
             },
             {
-              "description": "What Gemini designed. OneThing's templates render it; Gemini never writes HTML."
+              "description": "What Gemini designed. OneThing's templates render it; Gemini never writes HTML.",
+              "example": {
+                "productType": "physical",
+                "productName": "Vintage Cream and Red Roller Skates",
+                "layout": "bold-hero",
+                "palette": {
+                  "background": "#f7f1e8",
+                  "surface": "#ffffff",
+                  "text": "#1f1a17",
+                  "muted": "#6b625b",
+                  "accent": "#b3262d",
+                  "accentText": "#ffffff"
+                },
+                "fonts": {
+                  "heading": "Playfair Display",
+                  "body": "Inter"
+                },
+                "eyebrow": "One pair, restored",
+                "headline": "Classic quad skates crafted with walnut burl heels",
+                "subheadline": "A vintage pair of skates with cream leather, bold red trim and quad wheels.",
+                "story": "Each pair combines soft cream leather with distinct red accents and a sculpted walnut burl heel base.",
+                "bullets": [
+                  "Walnut burl heels",
+                  "Restored vintage leather"
+                ],
+                "details": [
+                  {
+                    "label": "Material",
+                    "value": "Leather upper, walnut burl heel, rubber wheels"
+                  }
+                ],
+                "faq": [
+                  {
+                    "q": "Are these suitable for outdoor skating?",
+                    "a": "Yes, on indoor rink floors and paved outdoor paths."
+                  }
+                ],
+                "ctaLabel": "Buy the skates",
+                "suggestedPriceUsd": 240,
+                "suggestedShippingUsd": 15,
+                "imageAlt": "Cream leather quad roller skates with red trim",
+                "heroPrompt": "Cream roller skates on a sunlit boardwalk, in warm cream and red tones"
+              }
             }
           ]
         }
@@ -5038,13 +6648,17 @@
     },
     "ApiShopsResponse": {
       "title": "ApiShopsResponse",
+      "description": "The shop was saved.",
       "type": "object",
       "properties": {
         "ok": {
+          "description": "Always `true`.",
+          "example": true,
           "type": "boolean"
         },
         "slug": {
           "description": "The shop's link name after this change.",
+          "example": "vintageskates",
           "type": "string"
         }
       },
@@ -5055,16 +6669,22 @@
     },
     "ApiSlugsCheckResponse": {
       "title": "ApiSlugsCheckResponse",
+      "description": "Whether the link name can be used.",
       "type": "object",
       "properties": {
         "slug": {
+          "description": "The name, normalised.",
+          "example": "vintageskates",
           "type": "string"
         },
         "available": {
+          "description": "True if no other shop has it and it isn't reserved.",
+          "example": true,
           "type": "boolean"
         },
         "problem": {
           "description": "Why not, when unavailable.",
+          "example": "Taken. Try another name.",
           "type": "string"
         }
       },
@@ -5075,6 +6695,8 @@
     },
     "Carrier": {
       "title": "Carrier",
+      "description": "The carrier. `OTHER` needs `carrierName`.",
+      "example": "USPS",
       "type": "string",
       "enum": [
         "USPS",
@@ -5087,6 +6709,7 @@
     "Channel": {
       "title": "Channel",
       "description": "`agent` for orders an AI agent placed (MCP or an order link).",
+      "example": "web",
       "type": "string",
       "enum": [
         "web",
@@ -5095,14 +6718,21 @@
     },
     "Color": {
       "title": "Color",
+      "description": "One colour.",
+      "example": {
+        "label": "Ice Blue",
+        "hex": "#9fd3e6"
+      },
       "type": "object",
       "properties": {
         "label": {
+          "description": "The colour's name, as buyers see it.",
           "example": "Forest green",
           "type": "string",
           "maxLength": 30
         },
         "hex": {
+          "description": "A colour as `#rrggbb`.",
           "example": "#14171a",
           "type": "string",
           "pattern": "^#[0-9a-fA-F]{6}$"
@@ -5115,6 +6745,7 @@
     "Delivery": {
       "title": "Delivery",
       "description": "For digital products. If omitted, the AI guesses.",
+      "example": "file",
       "type": "string",
       "enum": [
         "file",
@@ -5123,6 +6754,18 @@
     },
     "Delivery1": {
       "title": "Delivery1",
+      "description": "Digital products: `file` or `access_code`.",
+      "example": "file",
+      "type": "string",
+      "enum": [
+        "file",
+        "access_code"
+      ]
+    },
+    "Delivery2": {
+      "title": "Delivery2",
+      "description": "Digital products: `file` (a download) or `access_code` (a code that unlocks an app or game).",
+      "example": "file",
       "type": "string",
       "enum": [
         "file",
@@ -5131,12 +6774,21 @@
     },
     "Detail": {
       "title": "Detail",
+      "description": "One product fact.",
+      "example": {
+        "label": "Material",
+        "value": "Leather upper, walnut burl heel, rubber wheels"
+      },
       "type": "object",
       "properties": {
         "label": {
+          "description": "What the fact is about.",
+          "example": "Material",
           "type": "string"
         },
         "value": {
+          "description": "The fact.",
+          "example": "Leather upper, walnut burl heel, rubber wheels",
           "type": "string"
         }
       },
@@ -5145,16 +6797,24 @@
         "value"
       ]
     },
-    "Error1": {
-      "title": "Error1",
+    "Error": {
+      "title": "Error",
+      "description": "Present when the call failed.",
+      "example": {
+        "code": -32601,
+        "message": "Method not found"
+      },
       "type": "object",
       "properties": {
         "code": {
+          "description": "The JSON-RPC error code.",
           "example": -32601,
           "type": "integer",
           "format": "int32"
         },
         "message": {
+          "description": "What went wrong.",
+          "example": "Method not found",
           "type": "string"
         }
       },
@@ -5165,6 +6825,8 @@
     },
     "Event": {
       "title": "Event",
+      "description": "What happened.",
+      "example": "order.paid",
       "type": "string",
       "enum": [
         "order.paid",
@@ -5174,14 +6836,21 @@
     },
     "Fact": {
       "title": "Fact",
+      "description": "One answered question.",
+      "example": {
+        "label": "Size",
+        "value": "US women's 8"
+      },
       "type": "object",
       "properties": {
         "label": {
+          "description": "The detail's label.",
           "example": "Size",
           "type": "string",
           "maxLength": 30
         },
         "value": {
+          "description": "The answer.",
           "example": "US women's 8",
           "type": "string",
           "maxLength": 100
@@ -5194,12 +6863,21 @@
     },
     "Faq": {
       "title": "Faq",
+      "description": "One question and its answer.",
+      "example": {
+        "q": "Are these suitable for outdoor skating?",
+        "a": "Yes, on indoor rink floors and paved outdoor paths."
+      },
       "type": "object",
       "properties": {
         "q": {
+          "description": "The question.",
+          "example": "Are these suitable for outdoor skating?",
           "type": "string"
         },
         "a": {
+          "description": "The answer.",
+          "example": "Yes, on indoor rink floors and paved outdoor paths.",
           "type": "string"
         }
       },
@@ -5210,12 +6888,21 @@
     },
     "Fonts": {
       "title": "Fonts",
+      "description": "Google Fonts for the page.",
+      "example": {
+        "heading": "Playfair Display",
+        "body": "Inter"
+      },
       "type": "object",
       "properties": {
         "heading": {
+          "description": "The headings font.",
+          "example": "Playfair Display",
           "type": "string"
         },
         "body": {
+          "description": "The body text font.",
+          "example": "Inter",
           "type": "string"
         }
       },
@@ -5226,6 +6913,8 @@
     },
     "Fulfillment": {
       "title": "Fulfillment",
+      "description": "`to_ship` until the seller adds tracking, then `shipped`.",
+      "example": "to_ship",
       "type": "string",
       "enum": [
         "to_ship",
@@ -5234,6 +6923,8 @@
     },
     "FulfillmentStatus": {
       "title": "FulfillmentStatus",
+      "description": "`to_ship` and `shipped` for physical orders, `digital_sent` for digital ones, `none` before payment.",
+      "example": "none",
       "type": "string",
       "enum": [
         "none",
@@ -5244,6 +6935,8 @@
     },
     "HeroStatus": {
       "title": "HeroStatus",
+      "description": "Hero art: `pending` while generating, then `ready` or `failed`; `none` if not requested.",
+      "example": "none",
       "type": "string",
       "enum": [
         "none",
@@ -5255,6 +6948,7 @@
     "Kind": {
       "title": "Kind",
       "description": "`color` shows swatches, and the photo of the picked colour.",
+      "example": "size",
       "type": "string",
       "enum": [
         "size",
@@ -5264,6 +6958,19 @@
     },
     "Kind1": {
       "title": "Kind1",
+      "description": "`physical` ships, `digital` downloads or unlocks with a code, `referral` is bought at another store.",
+      "example": "physical",
+      "type": "string",
+      "enum": [
+        "physical",
+        "digital",
+        "referral"
+      ]
+    },
+    "Kind2": {
+      "title": "Kind2",
+      "description": "`physical`, `digital` or `referral`.",
+      "example": "physical",
       "type": "string",
       "enum": [
         "physical",
@@ -5273,6 +6980,8 @@
     },
     "Layout": {
       "title": "Layout",
+      "description": "The page template: `bold-hero` (image first, punchy), `editorial` (magazine), `minimal` (quiet, lots of space) or `playful`.",
+      "example": "bold-hero",
       "type": "string",
       "enum": [
         "bold-hero",
@@ -5283,6 +6992,8 @@
     },
     "Method": {
       "title": "Method",
+      "description": "The MCP method. `tools/call` runs a tool; `tools/list` lists them.",
+      "example": "tools/call",
       "type": "string",
       "enum": [
         "initialize",
@@ -5294,17 +7005,26 @@
     },
     "MissingFact": {
       "title": "MissingFact",
+      "description": "One question to answer.",
+      "example": {
+        "label": "Size",
+        "question": "What size are the skates?",
+        "placeholder": "US women's 8"
+      },
       "type": "object",
       "properties": {
         "label": {
+          "description": "The product detail it becomes.",
           "example": "Size",
           "type": "string"
         },
         "question": {
+          "description": "The question, for the seller.",
           "example": "What size are the skates?",
           "type": "string"
         },
         "placeholder": {
+          "description": "An example answer.",
           "example": "US women's 8",
           "type": "string"
         }
@@ -5317,26 +7037,46 @@
     },
     "Offer": {
       "title": "Offer",
+      "description": "One store's offer.",
+      "example": {
+        "domain": "rei.com",
+        "url": "https://buy.trychannel3.com/r/abc123",
+        "price": 240,
+        "currency": "USD",
+        "inStock": true,
+        "commission": 0.08
+      },
       "type": "object",
       "properties": {
         "domain": {
+          "description": "The store's domain.",
+          "example": "rei.com",
           "type": "string"
         },
         "url": {
+          "description": "A Channel3-tracked buy link, credited to this shop.",
+          "example": "https://buy.trychannel3.com/r/abc123",
           "type": "string"
         },
         "price": {
+          "description": "The store's price.",
+          "example": 240,
           "type": "number",
           "format": "double"
         },
         "currency": {
+          "description": "ISO 4217 currency code.",
+          "example": "USD",
           "type": "string"
         },
         "inStock": {
+          "description": "Whether the store has it in stock.",
+          "example": true,
           "type": "boolean"
         },
         "commission": {
           "description": "Maximum commission rate, 0–1 (0.08 = 8%).",
+          "example": 0.08,
           "type": "number",
           "format": "double"
         }
@@ -5352,22 +7092,40 @@
     },
     "Offer1": {
       "title": "Offer1",
+      "description": "One store's offer.",
+      "example": {
+        "retailer": "rei.com",
+        "price": 240,
+        "currency": "USD",
+        "in_stock": true,
+        "url": "https://buy.trychannel3.com/r/abc123"
+      },
       "type": "object",
       "properties": {
         "retailer": {
+          "description": "The store.",
+          "example": "rei.com",
           "type": "string"
         },
         "price": {
+          "description": "The store's price.",
+          "example": 240,
           "type": "number",
           "format": "double"
         },
         "currency": {
+          "description": "ISO 4217 currency code.",
+          "example": "USD",
           "type": "string"
         },
         "in_stock": {
+          "description": "Whether the store has it in stock.",
+          "example": true,
           "type": "boolean"
         },
         "url": {
+          "description": "A tracked buy link at that store.",
+          "example": "https://buy.trychannel3.com/r/abc123",
           "type": "string"
         }
       },
@@ -5381,9 +7139,12 @@
     },
     "Ok": {
       "title": "Ok",
+      "description": "Confirms the change.",
       "type": "object",
       "properties": {
         "ok": {
+          "description": "Always `true`.",
+          "example": true,
           "type": "boolean"
         }
       },
@@ -5393,9 +7154,26 @@
     },
     "Option": {
       "title": "Option",
+      "description": "A suggested option.",
+      "example": {
+        "name": "Size",
+        "kind": "size",
+        "values": [
+          {
+            "label": "S"
+          },
+          {
+            "label": "M"
+          },
+          {
+            "label": "L"
+          }
+        ]
+      },
       "type": "object",
       "properties": {
         "name": {
+          "description": "What the buyer is choosing.",
           "example": "Size",
           "type": "string",
           "maxLength": 20
@@ -5407,11 +7185,24 @@
               "$ref": "#/definitions/Kind"
             },
             {
-              "description": "`color` shows swatches, and the photo of the picked colour."
+              "description": "`color` shows swatches, and the photo of the picked colour.",
+              "example": "size"
             }
           ]
         },
         "values": {
+          "description": "The values to pick from.",
+          "example": [
+            {
+              "label": "S"
+            },
+            {
+              "label": "M"
+            },
+            {
+              "label": "L"
+            }
+          ],
           "type": "array",
           "items": {
             "$ref": "#/definitions/OptionValue"
@@ -5421,6 +7212,7 @@
         },
         "fromSeller": {
           "description": "The seller's description or photo named these values; otherwise they're a guess.",
+          "example": false,
           "type": "boolean"
         }
       },
@@ -5432,12 +7224,29 @@
     },
     "Option1": {
       "title": "Option1",
+      "description": "One option and its values.",
+      "example": {
+        "name": "Size",
+        "values": [
+          "7",
+          "8",
+          "9"
+        ]
+      },
       "type": "object",
       "properties": {
         "name": {
+          "description": "The option's name, which is also its query parameter on `order_url`.",
+          "example": "Vintage Cream and Red Roller Skates",
           "type": "string"
         },
         "values": {
+          "description": "The values the buyer can pick.",
+          "example": [
+            "7",
+            "8",
+            "9"
+          ],
           "type": "array",
           "items": {
             "type": "string"
@@ -5451,71 +7260,130 @@
     },
     "Order1": {
       "title": "Order1",
+      "description": "The order.",
+      "example": {
+        "id": "pX4kR9tVb2nQ7sLe",
+        "paypal_order_id": "5O190127TN364715T",
+        "amount": "255.00",
+        "currency": "USD",
+        "buyer_name": "Sam Rivera",
+        "buyer_email": "sam@example.com",
+        "shipping_address": {
+          "address_line_1": "1 Main St",
+          "admin_area_2": "Springfield",
+          "admin_area_1": "IL",
+          "postal_code": "62701",
+          "country_code": "US"
+        },
+        "fulfillment_status": "to_ship",
+        "tracking_number": "9400111899223197428490",
+        "carrier": "USPS"
+      },
       "type": "object",
       "properties": {
         "id": {
+          "description": "OneThing's order id.",
+          "example": "pX4kR9tVb2nQ7sLe",
           "type": "string"
         },
         "paypal_order_id": {
+          "description": "PayPal's order id.",
+          "example": "5O190127TN364715T",
           "type": "string"
         },
         "amount": {
+          "description": "The total, as a decimal string.",
           "example": "2.99",
           "type": "string"
         },
         "currency": {
+          "description": "ISO 4217 currency code.",
+          "example": "USD",
           "type": "string"
         },
         "buyer_name": {
+          "description": "The buyer's name, from PayPal.",
+          "example": "Sam Rivera",
           "type": "string"
         },
         "buyer_email": {
+          "description": "The buyer's email, from PayPal.",
+          "example": "sam@example.com",
           "type": "string"
         },
         "shipping_address": {
+          "description": "Physical orders: the address, by field.",
+          "example": {
+            "address_line_1": "1 Main St",
+            "admin_area_2": "Springfield",
+            "admin_area_1": "IL",
+            "postal_code": "62701",
+            "country_code": "US"
+          },
           "type": "object"
         },
         "fulfillment_status": {
+          "description": "As in `Order.fulfillment_status`.",
+          "example": "to_ship",
           "type": "string"
         },
         "tracking_number": {
+          "description": "The tracking number, once shipped.",
+          "example": "9400111899223197428490",
           "type": "string"
         },
         "carrier": {
+          "description": "The carrier, once shipped.",
+          "example": "USPS",
           "type": "string"
         }
       }
     },
     "Palette": {
       "title": "Palette",
+      "description": "The page colours, taken from the photo. Text colours are checked for contrast.",
+      "example": {
+        "background": "#f7f1e8",
+        "surface": "#ffffff",
+        "text": "#1f1a17",
+        "muted": "#6b625b",
+        "accent": "#b3262d",
+        "accentText": "#ffffff"
+      },
       "type": "object",
       "properties": {
         "background": {
+          "description": "A colour as `#rrggbb`.",
           "example": "#14171a",
           "type": "string",
           "pattern": "^#[0-9a-fA-F]{6}$"
         },
         "surface": {
+          "description": "A colour as `#rrggbb`.",
           "example": "#14171a",
           "type": "string",
           "pattern": "^#[0-9a-fA-F]{6}$"
         },
         "text": {
+          "description": "A colour as `#rrggbb`.",
           "example": "#14171a",
           "type": "string",
           "pattern": "^#[0-9a-fA-F]{6}$"
         },
         "muted": {
+          "description": "A colour as `#rrggbb`.",
           "example": "#14171a",
           "type": "string",
           "pattern": "^#[0-9a-fA-F]{6}$"
         },
         "accent": {
+          "description": "A colour as `#rrggbb`.",
           "example": "#14171a",
           "type": "string",
           "pattern": "^#[0-9a-fA-F]{6}$"
         },
         "accentText": {
+          "description": "A colour as `#rrggbb`.",
           "example": "#14171a",
           "type": "string",
           "pattern": "^#[0-9a-fA-F]{6}$"
@@ -5532,13 +7400,21 @@
     },
     "Photo": {
       "title": "Photo",
+      "description": "One photo.",
+      "example": {
+        "id": "LFRvGuTU3D8i334X",
+        "url": "/api/blobs/LFRvGuTU3D8i334X"
+      },
       "type": "object",
       "properties": {
         "id": {
+          "description": "The photo's id, for `getImage`, `setPhotoOrder` and colour matching.",
+          "example": "LFRvGuTU3D8i334X",
           "type": "string"
         },
         "url": {
           "description": "Public image URL on this site.",
+          "example": "/api/blobs/LFRvGuTU3D8i334X",
           "type": "string"
         }
       },
@@ -5550,6 +7426,7 @@
     "ProductType": {
       "title": "ProductType",
       "description": "`referral` only for shops created from Channel3.",
+      "example": "physical",
       "type": "string",
       "enum": [
         "physical",
@@ -5559,6 +7436,8 @@
     },
     "ProductType1": {
       "title": "ProductType1",
+      "description": "`physical` ships, `digital` downloads or unlocks, `referral` recommends a Channel3 product.",
+      "example": "physical",
       "type": "string",
       "enum": [
         "physical",
@@ -5568,25 +7447,55 @@
     },
     "ProductType2": {
       "title": "ProductType2",
+      "description": "What the AI decided the product is.",
+      "example": "physical",
       "type": "string",
       "enum": [
         "digital",
         "physical"
       ]
     },
+    "ProductType3": {
+      "title": "ProductType3",
+      "description": "`physical`, `digital` or `referral`.",
+      "example": "physical",
+      "type": "string",
+      "enum": [
+        "physical",
+        "digital",
+        "referral"
+      ]
+    },
     "Shipping": {
       "title": "Shipping",
+      "description": "Shipping cost and destinations.",
+      "example": {
+        "amount": 15,
+        "currency": "USD",
+        "ships_to": [
+          "US",
+          "CA"
+        ]
+      },
       "type": "object",
       "properties": {
         "amount": {
+          "description": "Shipping cost per order.",
+          "example": 15,
           "type": "number",
           "format": "double"
         },
         "currency": {
+          "description": "ISO 4217 currency code.",
+          "example": "USD",
           "type": "string"
         },
         "ships_to": {
           "description": "Country codes; empty means anywhere PayPal ships.",
+          "example": [
+            "US",
+            "CA"
+          ],
           "type": "array",
           "items": {
             "type": "string"
@@ -5601,36 +7510,65 @@
     },
     "ShipTo": {
       "title": "ShipTo",
+      "description": "Where it ships, from the buyer's PayPal checkout. Null if PayPal didn't share it.",
+      "example": {
+        "name": "Sam Rivera",
+        "address": "1 Main St, Springfield, IL, 62701, US"
+      },
       "type": "object",
       "properties": {
         "name": {
+          "description": "The recipient's name.",
+          "example": "Sam Rivera",
           "type": "string"
         },
         "address": {
+          "description": "The address on one line.",
+          "example": "1 Main St, Springfield, IL, 62701, US",
           "type": "string"
         }
       }
     },
     "Shop1": {
       "title": "Shop1",
+      "description": "The shop the order belongs to.",
+      "example": {
+        "slug": "vintageskates",
+        "name": "Vintage Cream and Red Roller Skates",
+        "url": "https://one-thing-ash0.onrender.com/vintageskates"
+      },
       "type": "object",
       "properties": {
         "slug": {
+          "description": "The shop's link name.",
+          "example": "vintageskates",
           "type": "string"
         },
         "name": {
+          "description": "The product's name.",
+          "example": "Vintage Cream and Red Roller Skates",
           "type": "string"
         },
         "url": {
+          "description": "The shop page.",
+          "example": "https://one-thing-ash0.onrender.com/vintageskates",
           "type": "string"
         }
       }
     },
     "ShopPhotos": {
       "title": "ShopPhotos",
+      "description": "The shop's photos.",
       "type": "object",
       "properties": {
         "photos": {
+          "description": "Every photo, the cover first.",
+          "example": [
+            {
+              "id": "LFRvGuTU3D8i334X",
+              "url": "/api/blobs/LFRvGuTU3D8i334X"
+            }
+          ],
           "type": "array",
           "items": {
             "$ref": "#/definitions/Photo"
@@ -5643,6 +7581,8 @@
     },
     "Source": {
       "title": "Source",
+      "description": "What the shop starts from: a photo (with an optional description), a product link, or a Channel3 product to recommend.",
+      "example": "photo",
       "type": "string",
       "enum": [
         "photo",
@@ -5652,6 +7592,18 @@
     },
     "Status": {
       "title": "Status",
+      "description": "`live` publishes the shop; `draft` takes it down.",
+      "example": "draft",
+      "type": "string",
+      "enum": [
+        "draft",
+        "live"
+      ]
+    },
+    "Status1": {
+      "title": "Status1",
+      "description": "`draft` until the seller goes live; only `live` shops take orders.",
+      "example": "draft",
       "type": "string",
       "enum": [
         "draft",
@@ -5661,6 +7613,7 @@
     "Status2": {
       "title": "Status2",
       "description": "`declined`: PayPal declined it, nothing charged, the buyer can open `pay_url` again. `sold_out`: it sold out before the payment was captured. `expired`: the PayPal checkout expired; create a new order. `failed`: PayPal couldn't be reached; ask again.",
+      "example": "awaiting_buyer_approval",
       "type": "string",
       "enum": [
         "awaiting_buyer_approval",
@@ -5671,8 +7624,20 @@
         "failed"
       ]
     },
+    "Status3": {
+      "title": "Status3",
+      "description": "`draft` until the seller goes live.",
+      "example": "draft",
+      "type": "string",
+      "enum": [
+        "draft",
+        "live"
+      ]
+    },
     "Status4": {
       "title": "Status4",
+      "description": "`created` until paid; `failed` if PayPal declined; `refunded` after a refund.",
+      "example": "created",
       "type": "string",
       "enum": [
         "created",
@@ -5681,8 +7646,19 @@
         "refunded"
       ]
     },
+    "status5": {
+      "title": "status5",
+      "description": "Only shops with this status, e.g. `live` for a public catalog.",
+      "type": "string",
+      "enum": [
+        "draft",
+        "live"
+      ]
+    },
     "Status6": {
       "title": "Status6",
+      "description": "`pending` until the buyer approves at PayPal.",
+      "example": "pending",
       "type": "string",
       "enum": [
         "pending"
@@ -5690,18 +7666,28 @@
     },
     "Tracking": {
       "title": "Tracking",
+      "description": "The carrier and tracking number once shipped; null before.",
+      "example": {
+        "carrier": "USPS",
+        "number": "9400111899223197428490"
+      },
       "type": "object",
       "properties": {
         "carrier": {
+          "description": "The shipping carrier.",
+          "example": "USPS",
           "type": "string"
         },
         "number": {
+          "description": "The tracking number.",
+          "example": "9400111899223197428490",
           "type": "string"
         }
       }
     },
     "Type": {
       "title": "Type",
+      "description": "`physical` ships, `digital` is a file or an access code, `auto` lets the AI decide.",
       "type": "string",
       "enum": [
         "auto",
@@ -5711,6 +7697,15 @@
     },
     "Variant": {
       "title": "Variant",
+      "description": "One combination of option values.",
+      "example": {
+        "choice": {
+          "Size": "M",
+          "Color": "Black"
+        },
+        "availability": "in_stock (3 left)",
+        "order_url": "https://one-thing-ash0.onrender.com/vintageskates/buy?Size=9"
+      },
       "type": "object",
       "properties": {
         "choice": {
@@ -5725,10 +7720,13 @@
           }
         },
         "availability": {
+          "description": "`in_stock`, `in_stock (N left)` or `sold_out`.",
+          "example": "in_stock (3 left)",
           "type": "string"
         },
         "order_url": {
           "description": "`orderByLink` for this pick. Left out when it's sold out.",
+          "example": "https://one-thing-ash0.onrender.com/vintageskates/buy?Size=9",
           "type": "string"
         }
       },
@@ -5739,6 +7737,7 @@
     },
     "view": {
       "title": "view",
+      "description": "`json` keeps the JSON for a person opening the link in a browser.",
       "type": "string",
       "enum": [
         "json"

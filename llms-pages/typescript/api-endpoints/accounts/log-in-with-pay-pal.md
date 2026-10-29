@@ -32,7 +32,7 @@ This method returns an [`ApiResponse`](/llms-pages/typescript/sdk-infrastructure
 # Example Usage
 
 ```ts
-const next = '/new';
+const next = '/account';
 
 try {
   const response = await accountsApi.logInWithPayPal(next);
@@ -54,7 +54,7 @@ try {
     console.log(error.headers);
     // Extracting response error body of type `string | Stream`.
     console.log(error.body);
-    if (error instanceof CustomError) {
+    if (error instanceof ErrorResponseError) {
       console.log(error.result);
     }
   }
@@ -66,7 +66,7 @@ try {
 
 | HTTP Status Code | Error Description | Exception Class |
 |  --- | --- | --- |
-| 503 | Log in with PayPal isn't switched on for this server. | [`CustomError`](/llms-pages/typescript/models/exceptions/error.md) |
+| 503 | Log in with PayPal isn't switched on for this server. | [`ErrorResponseError`](/llms-pages/typescript/models/exceptions/error-response.md) |
 
 
 

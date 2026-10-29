@@ -16,7 +16,7 @@ What PayPal last said about a connected seller account.
 |  --- | --- | --- | --- |
 | `receivable` | `boolean` | Required | The account can receive payments. |
 | `emailConfirmed` | `boolean` | Required | The seller has confirmed their email with PayPal. |
-| `checkedAt` | `string` | Required | - |
+| `checkedAt` | `string` | Required | When OneThing last asked PayPal. |
 
 
 # Example
@@ -25,9 +25,9 @@ What PayPal last said about a connected seller account.
 import { PayPalStatus } from 'one-thing-sdk';
 
 const payPalStatus: PayPalStatus = {
-  receivable: false,
-  emailConfirmed: false,
-  checkedAt: '2016-03-13T12:52:32.123Z',
+  receivable: true,
+  emailConfirmed: true,
+  checkedAt: '2026-10-22T02:41:37Z',
 };
 ```
 

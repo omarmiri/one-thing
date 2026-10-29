@@ -2,12 +2,14 @@
 
 Source: /#/http/x-redirect/JTI0bSUyRlBob3Rv
 
+One photo.
+
 
 # Fields
 
 | Name | Type | Tags | Description |
 |  --- | --- | --- | --- |
-| `id` | `String` | Required | - |
+| `id` | `String` | Required | The photo's id, for `getImage`, `setPhotoOrder` and colour matching. |
 | `url` | `String` | Required | Public image URL on this site. |
 
 
@@ -15,8 +17,8 @@ Source: /#/http/x-redirect/JTI0bSUyRlBob3Rv
 
 ```json
 {
-  "id": "id6",
-  "url": "url0"
+  "id": "LFRvGuTU3D8i334X",
+  "url": "/api/blobs/LFRvGuTU3D8i334X"
 }
 ```
 

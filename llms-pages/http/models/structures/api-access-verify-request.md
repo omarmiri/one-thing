@@ -2,13 +2,15 @@
 
 Source: /#/http/x-redirect/JTI0bSUyRkFwaSUyNTIwQWNjZXNzJTI1MjBWZXJpZnklMjUyMFJlcXVlc3Q
 
+The code to check, and which shop it's for.
+
 
 # Fields
 
 | Name | Type | Tags | Description |
 |  --- | --- | --- | --- |
 | `shop` | `String` | Required | The shop's link name. |
-| `code` | `String` | Required | - |
+| `code` | `String` | Required | The access code the buyer entered. Case and dashes don't matter. |
 
 
 # Example (as JSON)

@@ -1,11 +1,13 @@
-# Error
+# Error Response
 
-Source: /#/typescript/x-redirect/JTI0bSUyRkVycm9y
+Source: /#/typescript/x-redirect/JTI0bSUyRkVycm9yUmVzcG9uc2U
+
+An error reply.
 
 
 # Class Name
 
-`CustomError`
+`ErrorResponseError`
 
 
 # Fields
@@ -23,7 +25,7 @@ Source: /#/typescript/x-redirect/JTI0bSUyRkVycm9y
 try {
   // make the API call
 } catch (error) {
-  if (error instanceof CustomError) {
+  if (error instanceof ErrorResponseError) {
     console.log(error.result);
   }
 }

@@ -32,7 +32,7 @@ This endpoint requires [AdminToken](/llms-pages/typescript/getting-started/sdk-q
 | Parameter | Type | Tags | Description |
 |  --- | --- | --- | --- |
 | `slug` | `string` | Template, Required | The shop's link name (current or former). |
-| `body` | [`ApiShopsPaypalRequest \| undefined`](/llms-pages/typescript/models/structures/api-shops-paypal-request.md) | Body, Optional | - |
+| `body` | [`ApiShopsPaypalRequest \| undefined`](/llms-pages/typescript/models/structures/api-shops-paypal-request.md) | Body, Optional | Platform keys only: where PayPal sends the seller back. |
 | `requestOptions` | `RequestOptions \| undefined` | Optional | Pass additional request options. |
 
 
@@ -46,7 +46,7 @@ This method returns an [`ApiResponse`](/llms-pages/typescript/sdk-infrastructure
 # Example Usage
 
 ```ts
-const slug = 'raptorrush';
+const slug = 'vintageskates';
 
 const body: ApiShopsPaypalRequest = {
   returnUrl: 'https://www.miriogames.com/market/manage/?g=7Hq2',
@@ -75,7 +75,7 @@ try {
     console.log(error.headers);
     // Extracting response error body of type `string | Stream`.
     console.log(error.body);
-    if (error instanceof CustomError) {
+    if (error instanceof ErrorResponseError) {
       console.log(error.result);
     }
   }
@@ -96,9 +96,9 @@ try {
 
 | HTTP Status Code | Error Description | Exception Class |
 |  --- | --- | --- |
-| 404 | No such shop, or the admin token or API key doesn't match it. | [`CustomError`](/llms-pages/typescript/models/exceptions/error.md) |
-| 502 | Gemini, PayPal or Channel3 failed or isn't configured. | [`CustomError`](/llms-pages/typescript/models/exceptions/error.md) |
-| 503 | Gemini, PayPal or Channel3 failed or isn't configured. | [`CustomError`](/llms-pages/typescript/models/exceptions/error.md) |
+| 404 | No such shop, or the admin token or API key doesn't match it. | [`ErrorResponseError`](/llms-pages/typescript/models/exceptions/error-response.md) |
+| 502 | Gemini, PayPal or Channel3 failed or isn't configured. | [`ErrorResponseError`](/llms-pages/typescript/models/exceptions/error-response.md) |
+| 503 | Gemini, PayPal or Channel3 failed or isn't configured. | [`ErrorResponseError`](/llms-pages/typescript/models/exceptions/error-response.md) |
 
 
 

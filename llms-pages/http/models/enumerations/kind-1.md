@@ -2,6 +2,8 @@
 
 Source: /#/http/x-redirect/JTI0bSUyRktpbmQx
 
+`physical` ships, `digital` downloads or unlocks with a code, `referral` is bought at another store.
+
 
 # Fields
 
@@ -10,6 +12,13 @@ Source: /#/http/x-redirect/JTI0bSUyRktpbmQx
 | `physical` |
 | `digital` |
 | `referral` |
+
+
+# Example
+
+```
+physical
+```
 
 
 

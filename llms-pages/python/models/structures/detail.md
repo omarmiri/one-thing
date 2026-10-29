@@ -2,6 +2,8 @@
 
 Source: /#/python/x-redirect/JTI0bSUyRkRldGFpbA
 
+One product fact.
+
 
 # Class Name
 
@@ -12,8 +14,8 @@ Source: /#/python/x-redirect/JTI0bSUyRkRldGFpbA
 
 | Name | Type | Tags | Description |
 |  --- | --- | --- | --- |
-| `label` | `str` | Required | - |
-| `value` | `str` | Required | - |
+| `label` | `str` | Required | What the fact is about. |
+| `value` | `str` | Required | The fact. |
 
 
 # Example
@@ -22,8 +24,8 @@ Source: /#/python/x-redirect/JTI0bSUyRkRldGFpbA
 from onethingapi.models.detail import Detail
 
 detail = Detail(
-    label='label6',
-    value='value8'
+    label='Material',
+    value='Leather upper, walnut burl heel, rubber wheels'
 )
 ```
 

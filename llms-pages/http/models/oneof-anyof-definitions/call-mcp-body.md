@@ -25,7 +25,14 @@ Source: /#/http/x-redirect/JTI0bSUyRkNhbGxNY3BCb2R5
 ```bash
 {
   "jsonrpc": "2.0",
-  "method": "tools/list"
+  "id": 1,
+  "method": "tools/call",
+  "params": {
+    "name": "get_product",
+    "arguments": {
+      "shop": "vintageskates"
+    }
+  }
 }
 ```
 
@@ -39,8 +46,15 @@ Source: /#/http/x-redirect/JTI0bSUyRkNhbGxNY3BCb2R5
 ```bash
 [
   {
-    "jsonrpc": "jsonrpc6",
-    "method": "tools/list"
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "tools/call",
+    "params": {
+      "name": "get_product",
+      "arguments": {
+        "shop": "vintageskates"
+      }
+    }
   }
 ]
 ```

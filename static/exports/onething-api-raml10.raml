@@ -72,32 +72,63 @@ securitySchemes:
           type: string
 securedBy: []
 types:
-  Error:
-    displayName: Error
+  ErrorResponse:
+    example:
+      value:
+        error: Choose a photo.
+        field: photo
+    displayName: ErrorResponse
+    description: An error reply.
     type: object
     properties:
       error:
         required: true
+        example:
+          value: Order not found.
         displayName: error
         description: A sentence you can show to a person.
         type: string
       field:
         required: false
+        example:
+          value: price
         displayName: field
         description: The form field at fault, when there is one.
         type: string
       detail:
         required: false
+        example:
+          value: INSTRUMENT_DECLINED
         displayName: detail
         description: The upstream service's own message, for debugging.
         type: string
   CreateShopForm:
+    example:
+      value:
+        source: photo
+        description: Vintage cream and red quad roller skates with walnut burl heels.
+        url: https://one-thing-ash0.onrender.com/vintageskates
+        productId: ch3_7f2a9c1e
+        slug: vintageskates
+        type: auto
+        delivery: file
+        access_url: https://www.miriogames.com/raptor-rush/
+        price: 240
+        shipping: 15
+        stock: 7
+        ship_countries: US
+        paypal_email: seller@example.com
+        seller_email: seller@example.com
     displayName: CreateShopForm
+    description: What to make a shop from. Only `source` is required; the AI guesses the rest and the seller corrects it with `updateShop`.
     type: object
     properties:
       source:
         required: true
+        example:
+          value: photo
         displayName: source
+        description: 'What the shop starts from: a photo (with an optional description), a product link, or a Channel3 product to recommend.'
         type: string
         enum:
         - photo
@@ -110,21 +141,29 @@ types:
         type: file
       description:
         required: false
+        example:
+          value: Vintage cream and red quad roller skates with walnut burl heels.
         displayName: description
         description: '`source=photo`: a sentence or two about the product. Required if there is no photo.'
         type: string
       url:
         required: false
+        example:
+          value: https://one-thing-ash0.onrender.com/vintageskates
         displayName: url
         description: '`source=link`: a product page, or your own app or game page.'
         type: string
       productId:
         required: false
+        example:
+          value: ch3_7f2a9c1e
         displayName: productId
         description: '`source=channel3`: a product id from `searchProducts`.'
         type: string
       slug:
         required: false
+        example:
+          value: vintageskates
         displayName: slug
         description: The link name you want. If omitted, the AI suggests one.
         type: string
@@ -132,6 +171,7 @@ types:
         required: false
         default: auto
         displayName: type
+        description: '`physical` ships, `digital` is a file or an access code, `auto` lets the AI decide.'
         type: string
         enum:
         - auto
@@ -139,6 +179,8 @@ types:
         - digital
       delivery:
         required: false
+        example:
+          value: file
         displayName: delivery
         description: For digital products. If omitted, the AI guesses.
         type: string
@@ -147,23 +189,33 @@ types:
         - access_code
       access_url:
         required: false
+        example:
+          value: https://www.miriogames.com/raptor-rush/
         displayName: access_url
         description: Where buyers use an access code.
         type: string
       price:
         required: false
+        example:
+          value: 240
         displayName: price
         description: USD. If omitted, the AI suggests a price.
         type: number
         format: double
       shipping:
         required: false
+        example:
+          value: 15
         displayName: shipping
+        description: 'Physical products: shipping per order, in USD. If omitted, the AI suggests it.'
         type: number
         format: double
       stock:
         required: false
+        example:
+          value: 7
         displayName: stock
+        description: How many are for sale. Leave out for unlimited.
         type: integer
         format: int32
       ship_countries:
@@ -174,21 +226,35 @@ types:
           Untitled Example2:
             value: CA
         displayName: ship_countries
+        description: 'Physical products: comma-separated ISO country codes to ship to. Empty means anywhere PayPal ships.'
         type: string
       paypal_email:
         required: false
+        example:
+          value: seller@example.com
         displayName: paypal_email
+        description: The PayPal account that gets paid, if the seller doesn't connect one with `connectPayPal`.
         type: string
       seller_email:
         required: false
+        example:
+          value: seller@example.com
         displayName: seller_email
+        description: Where order notifications go.
         type: string
       digital_file:
         required: false
         displayName: digital_file
+        description: 'Digital products sold as a file: the file buyers download, up to 25 MB. Can also be added later with `uploadDigitalFile`.'
         type: file
   CreatedShop:
+    example:
+      value:
+        slug: dragonflight
+        token: 3fJ9xQm2LwP8vR1tZk7cN4bY6dHs0aEu
+        manageUrl: /manage/vintageskates?token=3fJ9xQm2LwP8vR1tZk7cN4bY6dHs0aEu
     displayName: CreatedShop
+    description: The new draft shop and the credentials to manage it.
     type: object
     properties:
       slug:
@@ -196,34 +262,76 @@ types:
         example:
           value: dragonflight
         displayName: slug
+        description: "The shop's link name: the page is `https://<host>/<slug>`."
         type: string
       token:
         required: true
+        example:
+          value: 3fJ9xQm2LwP8vR1tZk7cN4bY6dHs0aEu
         displayName: token
         description: The admin token. Shown once; store it.
         type: string
       manageUrl:
         required: true
+        example:
+          value: /manage/vintageskates?token=3fJ9xQm2LwP8vR1tZk7cN4bY6dHs0aEu
         displayName: manageUrl
         description: The seller's private manage page (contains the token).
         type: string
   ShopUpdate:
+    example:
+      value:
+        slug: vintageskates
+        status: draft
+        product_type: physical
+        price: 240
+        shipping: 15
+        stock: 7
+        ship_countries: US,CA
+        delivery: file
+        access_url: https://www.miriogames.com/raptor-rush/
+        paypal_email: seller@example.com
+        seller_email: seller@example.com
+        zapier_hook_url: https://hooks.zapier.com/hooks/catch/123456/abcdef/
+        in_gallery: true
+        options:
+        - name: Size
+          kind: size
+          values:
+          - label: S
+          - label: M
+          - label: L
+        option_stock:
+          M / Black: 4
+          L / Black: 0
+        facts:
+        - label: Size
+          value: US women's 8
     displayName: ShopUpdate
+    description: The fields to change. Anything left out stays as it is.
     type: object
     properties:
       slug:
         required: false
+        example:
+          value: vintageskates
         displayName: slug
+        description: A new link name. The old one keeps redirecting.
         type: string
       status:
         required: false
+        example:
+          value: draft
         displayName: status
+        description: '`live` publishes the shop; `draft` takes it down.'
         type: string
         enum:
         - draft
         - live
       product_type:
         required: false
+        example:
+          value: physical
         displayName: product_type
         description: '`referral` only for shops created from Channel3.'
         type: string
@@ -233,21 +341,30 @@ types:
         - referral
       price:
         required: false
+        example:
+          value: 240
         displayName: price
+        description: The price in USD.
         type: number
         minimum: 0.5
         maximum: 10000
         format: double
       shipping:
         required: false
+        example:
+          value: 15
         displayName: shipping
+        description: Shipping per order, in USD.
         type: number
         minimum: 0
         maximum: 500
         format: double
       stock:
         required: false
+        example:
+          value: 7
         displayName: stock
+        description: How many are for sale; null for unlimited.
         type:
         - integer
         - nil
@@ -255,48 +372,76 @@ types:
         format: int32
       ship_countries:
         required: false
+        example:
+          value: US,CA
         displayName: ship_countries
+        description: Comma-separated ISO country codes; null or empty means anywhere PayPal ships.
         type:
         - string
         - nil
       delivery:
         required: false
+        example:
+          value: file
         displayName: delivery
+        description: 'Digital products: `file` or `access_code`.'
         type: string
         enum:
         - file
         - access_code
       access_url:
         required: false
+        example:
+          value: https://www.miriogames.com/raptor-rush/
         displayName: access_url
+        description: 'Access-code products: where buyers enter their code.'
         type:
         - string
         - nil
       paypal_email:
         required: false
+        example:
+          value: seller@example.com
         displayName: paypal_email
+        description: The PayPal account paid when no account is connected.
         type:
         - string
         - nil
       seller_email:
         required: false
+        example:
+          value: seller@example.com
         displayName: seller_email
+        description: Where order notifications go.
         type:
         - string
         - nil
       zapier_hook_url:
         required: false
+        example:
+          value: https://hooks.zapier.com/hooks/catch/123456/abcdef/
         displayName: zapier_hook_url
+        description: A Zapier Catch Hook for order events; null removes it.
         type:
         - string
         - nil
       in_gallery:
         required: false
+        example:
+          value: true
         displayName: in_gallery
         description: Feature the shop at `/gallery` while it's live. Off by default.
         type: boolean
       options:
         required: false
+        example:
+          value:
+          - name: Size
+            kind: size
+            values:
+            - label: S
+            - label: M
+            - label: L
         displayName: options
         description: What the buyer picks (physical products only), replacing the current options; `[]` removes them. With options, stock is counted per combination in `option_stock` and the shop's own `stock` is cleared. At most 60 combinations.
         type: array
@@ -319,6 +464,10 @@ types:
             type: integer
       facts:
         required: false
+        example:
+          value:
+          - label: Size
+            value: US women's 8
         displayName: facts
         description: Answers to the "buyers will ask" questions in `suggestions.missingFacts`. Each becomes a product detail on the page (replacing one with the same label) and drops off the list.
         type: array
@@ -328,26 +477,39 @@ types:
           type: Fact
   Shop:
     displayName: Shop
+    description: A shop, as its seller sees it.
     type: object
     properties:
       id:
         required: true
+        example:
+          value: shp_8Hc2LmQ4
         displayName: id
+        description: OneThing's internal shop id.
         type: string
       slug:
         required: true
+        example:
+          value: vintageskates
         displayName: slug
+        description: The shop's link name.
         type: string
       status:
         required: true
+        example:
+          value: draft
         displayName: status
+        description: '`draft` until the seller goes live; only `live` shops take orders.'
         type: string
         enum:
         - draft
         - live
       product_type:
         required: true
+        example:
+          value: physical
         displayName: product_type
+        description: '`physical` ships, `digital` downloads or unlocks, `referral` recommends a Channel3 product.'
         type: string
         enum:
         - physical
@@ -355,7 +517,10 @@ types:
         - referral
       price_cents:
         required: true
+        example:
+          value: 24000
         displayName: price_cents
+        description: The price in cents.
         type: integer
         format: int32
       currency:
@@ -363,52 +528,76 @@ types:
         example:
           value: USD
         displayName: currency
+        description: ISO 4217 currency code.
         type: string
       shipping_cents:
         required: false
+        example:
+          value: 1500
         displayName: shipping_cents
+        description: Shipping per order, in cents.
         type: integer
         format: int32
       ship_countries:
         required: false
+        example:
+          value: US,CA
         displayName: ship_countries
+        description: Comma-separated ISO country codes; null or empty means anywhere PayPal ships.
         type:
         - string
         - nil
       stock:
         required: false
+        example:
+          value: 7
         displayName: stock
+        description: How many are left; null for unlimited. With options, see `option_stock`.
         type:
         - integer
         - nil
         format: int32
       delivery:
         required: false
+        example:
+          value: file
         displayName: delivery
+        description: 'Digital products: `file` (a download) or `access_code` (a code that unlocks an app or game).'
         type: string
         enum:
         - file
         - access_code
       access_url:
         required: false
+        example:
+          value: https://www.miriogames.com/raptor-rush/
         displayName: access_url
+        description: 'Access-code products: where buyers enter their code.'
         type:
         - string
         - nil
       paypal_email:
         required: false
+        example:
+          value: seller@example.com
         displayName: paypal_email
+        description: The PayPal account paid when no account is connected.
         type:
         - string
         - nil
       seller_email:
         required: false
+        example:
+          value: seller@example.com
         displayName: seller_email
+        description: Where order notifications go.
         type:
         - string
         - nil
       paypal_merchant_id:
         required: false
+        example:
+          value: 7MZJ4QXN8K2LA
         displayName: paypal_merchant_id
         description: The connected PayPal account (`connectPayPal`). Sales go here when it can receive payments.
         type:
@@ -416,20 +605,34 @@ types:
         - nil
       paypal_status:
         required: false
+        example:
+          value:
+            receivable: true
+            emailConfirmed: true
+            checkedAt: 2026-10-22T02:41:37Z
         displayName: paypal_status
+        description: What PayPal last said about the connected account; null when none is connected.
         type: PayPalStatus | nil
       zapier_hook_url:
         required: false
+        example:
+          value: https://hooks.zapier.com/hooks/catch/123456/abcdef/
         displayName: zapier_hook_url
+        description: A Zapier Catch Hook that gets an `OrderEvent` for each paid, shipped or refunded order.
         type:
         - string
         - nil
       in_gallery:
         required: false
+        example:
+          value: true
         displayName: in_gallery
+        description: Whether the shop is featured at `/gallery` while live.
         type: boolean
       account_id:
         required: false
+        example:
+          value: acc_Vq3nN8cT0bLx2YwE
         displayName: account_id
         description: The seller account that owns the shop, if it was made while signed in.
         type:
@@ -437,7 +640,16 @@ types:
         - nil
       options:
         required: false
+        example:
+          value:
+          - name: Size
+            kind: size
+            values:
+            - label: S
+            - label: M
+            - label: L
         displayName: options
+        description: What the buyer picks, such as size or colour.
         type: array
         items:
           type: ShopOption
@@ -456,10 +668,27 @@ types:
             type: integer
       suggestions:
         required: false
+        example:
+          value:
+            oneOfAKind: false
+            options:
+            - name: Size
+              kind: size
+              values:
+              - label: S
+              - label: M
+              - label: L
+            missingFacts:
+            - label: Size
+              question: What size are the skates?
+              placeholder: US women's 8
         displayName: suggestions
+        description: What the AI thinks buyers will pick or ask; null once handled.
         type: Suggestions | nil
       photo_blob:
         required: false
+        example:
+          value: 'LFRvGuTU3D8i334X'
         displayName: photo_blob
         description: Image id for `getImage`. The cover photo.
         type:
@@ -467,6 +696,10 @@ types:
         - nil
       gallery_blobs:
         required: false
+        example:
+          value:
+          - zrySajNyao6_j11x
+          - SuqcgNv64HWN8H6e
         displayName: gallery_blobs
         description: The other photos, in order.
         type: array
@@ -474,13 +707,19 @@ types:
           type: string
       hero_blob:
         required: false
+        example:
+          value: Hn2Kd8sQp4LmZ0vX
         displayName: hero_blob
+        description: Image id of the AI hero art, when there is one.
         type:
         - string
         - nil
       hero_status:
         required: false
+        example:
+          value: none
         displayName: hero_status
+        description: 'Hero art: `pending` while generating, then `ready` or `failed`; `none` if not requested.'
         type: string
         enum:
         - none
@@ -489,55 +728,156 @@ types:
         - failed
       hero_error:
         required: false
+        example:
+          value: No image model on this key returned an image.
         displayName: hero_error
+        description: Why hero art failed, when it did.
         type:
         - string
         - nil
       ai_source:
         required: false
+        example:
+          value: gemini
         displayName: ai_source
+        description: "Who designed the page: `gemini`, or `fallback` when Gemini wasn't available and a plain template was used."
         type: string
         enum:
         - gemini
         - fallback
       source_url:
         required: false
+        example:
+          value: https://example.com/products/roller-skates
         displayName: source_url
+        description: The product link the shop was made from, if any.
         type:
         - string
         - nil
       referral:
         required: false
+        example:
+          value:
+            productId: ch3_7f2a9c1e
+            title: Trail Running Vest 5L
+            brand: Salomon
+            image: https://images.example.com/vest.jpg
+            offers:
+            - domain: rei.com
+              url: https://buy.trychannel3.com/r/abc123
+              price: 240
+              currency: USD
+              inStock: true
+              commission: 0.08
         displayName: referral
+        description: 'Recommendation shops: the Channel3 product; null otherwise.'
         type: Referral | nil
       spec:
         required: true
+        example:
+          value:
+            productType: physical
+            productName: Vintage Cream and Red Roller Skates
+            layout: bold-hero
+            palette:
+              background: '#f7f1e8'
+              surface: '#ffffff'
+              text: '#1f1a17'
+              muted: '#6b625b'
+              accent: '#b3262d'
+              accentText: '#ffffff'
+            fonts:
+              heading: Playfair Display
+              body: Inter
+            eyebrow: One pair, restored
+            headline: Classic quad skates crafted with walnut burl heels
+            subheadline: A vintage pair of skates with cream leather, bold red trim and quad wheels.
+            story: Each pair combines soft cream leather with distinct red accents and a sculpted walnut burl heel base.
+            bullets:
+            - Walnut burl heels
+            - Restored vintage leather
+            details:
+            - label: Material
+              value: Leather upper, walnut burl heel, rubber wheels
+            faq:
+            - q: Are these suitable for outdoor skating?
+              a: Yes, on indoor rink floors and paved outdoor paths.
+            ctaLabel: Buy the skates
+            suggestedPriceUsd: 240
+            suggestedShippingUsd: 15
+            imageAlt: Cream leather quad roller skates with red trim
+            heroPrompt: Cream roller skates on a sunlit boardwalk, in warm cream and red tones
         displayName: spec
         description: What Gemini designed. OneThing's templates render it; Gemini never writes HTML.
         type: DesignSpec
       created_at:
         required: false
+        example:
+          value: 2026-10-22T02:41:37Z
         displayName: created_at
+        description: When the shop was made.
         type: datetime
   DesignSpec:
+    example:
+      value:
+        productType: physical
+        productName: Vintage Cream and Red Roller Skates
+        layout: bold-hero
+        palette:
+          background: '#f7f1e8'
+          surface: '#ffffff'
+          text: '#1f1a17'
+          muted: '#6b625b'
+          accent: '#b3262d'
+          accentText: '#ffffff'
+        fonts:
+          heading: Playfair Display
+          body: Inter
+        eyebrow: One pair, restored
+        headline: Classic quad skates crafted with walnut burl heels
+        subheadline: A vintage pair of skates with cream leather, bold red trim and quad wheels.
+        story: Each pair combines soft cream leather with distinct red accents and a sculpted walnut burl heel base.
+        bullets:
+        - Walnut burl heels
+        - Restored vintage leather
+        details:
+        - label: Material
+          value: Leather upper, walnut burl heel, rubber wheels
+        faq:
+        - q: Are these suitable for outdoor skating?
+          a: Yes, on indoor rink floors and paved outdoor paths.
+        ctaLabel: Buy the skates
+        suggestedPriceUsd: 240
+        suggestedShippingUsd: 15
+        imageAlt: Cream leather quad roller skates with red trim
+        heroPrompt: Cream roller skates on a sunlit boardwalk, in warm cream and red tones
     displayName: DesignSpec
     description: What Gemini designed. OneThing's templates render it; Gemini never writes HTML.
     type: object
     properties:
       productType:
         required: true
+        example:
+          value: physical
         displayName: productType
+        description: What the AI decided the product is.
         type: string
         enum:
         - digital
         - physical
       productName:
         required: true
+        example:
+          value: Vintage Cream and Red Roller Skates
         displayName: productName
+        description: The product's name.
         type: string
       layout:
         required: true
+        example:
+          value: bold-hero
         displayName: layout
+        description: 'The page template: `bold-hero` (image first, punchy), `editorial` (magazine), `minimal` (quiet, lots of space) or `playful`.'
         type: string
         enum:
         - bold-hero
@@ -546,69 +886,133 @@ types:
         - playful
       palette:
         required: true
+        example:
+          value:
+            background: '#f7f1e8'
+            surface: '#ffffff'
+            text: '#1f1a17'
+            muted: '#6b625b'
+            accent: '#b3262d'
+            accentText: '#ffffff'
         displayName: palette
+        description: The page colours, taken from the photo. Text colours are checked for contrast.
         type: Palette
       fonts:
         required: true
+        example:
+          value:
+            heading: Playfair Display
+            body: Inter
         displayName: fonts
+        description: Google Fonts for the page.
         type: Fonts
       eyebrow:
         required: false
+        example:
+          value: One pair, restored
         displayName: eyebrow
+        description: A short label above the headline.
         type: string
       headline:
         required: true
+        example:
+          value: Classic quad skates crafted with walnut burl heels
         displayName: headline
+        description: The page's main headline.
         type: string
       subheadline:
         required: false
+        example:
+          value: A vintage pair of skates with cream leather, bold red trim and quad wheels.
         displayName: subheadline
+        description: A line under the headline.
         type: string
       story:
         required: false
+        example:
+          value: Each pair combines soft cream leather with distinct red accents and a sculpted walnut burl heel base.
         displayName: story
+        description: A short paragraph about the product.
         type: string
       bullets:
         required: true
+        example:
+          value:
+          - Walnut burl heels
+          - Restored vintage leather
         displayName: bullets
+        description: Short selling points.
         type: array
         items:
           type: string
       details:
         required: false
+        example:
+          value:
+          - label: Material
+            value: Leather upper, walnut burl heel, rubber wheels
         displayName: details
+        description: Product facts shown on the page.
         type: array
         items:
           type: Detail
       faq:
         required: true
+        example:
+          value:
+          - q: Are these suitable for outdoor skating?
+            a: Yes, on indoor rink floors and paved outdoor paths.
         displayName: faq
+        description: Questions buyers will ask, with answers.
         type: array
         items:
           type: Faq
       ctaLabel:
         required: true
+        example:
+          value: Buy the skates
         displayName: ctaLabel
+        description: The buy button's text.
         type: string
       suggestedPriceUsd:
         required: false
+        example:
+          value: 240
         displayName: suggestedPriceUsd
+        description: The AI's price suggestion, in USD.
         type: number
         format: double
       suggestedShippingUsd:
         required: false
+        example:
+          value: 15
         displayName: suggestedShippingUsd
+        description: The AI's shipping suggestion, in USD.
         type: number
         format: double
       imageAlt:
         required: false
+        example:
+          value: Cream leather quad roller skates with red trim
         displayName: imageAlt
+        description: Alt text for the product photo.
         type: string
       heroPrompt:
         required: false
+        example:
+          value: Cream roller skates on a sunlit boardwalk, in warm cream and red tones
         displayName: heroPrompt
+        description: The prompt used to generate hero art for the page.
         type: string
   ShopOption:
+    example:
+      value:
+        name: Size
+        kind: size
+        values:
+        - label: S
+        - label: M
+        - label: L
     displayName: ShopOption
     description: Something the buyer picks, such as a size or a colour. The shop still sells one product.
     type: object
@@ -618,10 +1022,13 @@ types:
         example:
           value: Size
         displayName: name
+        description: What the buyer is choosing.
         type: string
         maxLength: 20
       kind:
         required: true
+        example:
+          value: size
         displayName: kind
         description: '`color` shows swatches, and the photo of the picked colour.'
         type: string
@@ -631,7 +1038,13 @@ types:
         - other
       values:
         required: true
+        example:
+          value:
+          - label: S
+          - label: M
+          - label: L
         displayName: values
+        description: The values to pick from.
         type: array
         uniqueItems: false
         minItems: 1
@@ -639,7 +1052,13 @@ types:
         items:
           type: OptionValue
   OptionValue:
+    example:
+      value:
+        label: M
+        hex: '#14171a'
+        photo: zrySajNyao6_j11x
     displayName: OptionValue
+    description: One value of an option.
     type: object
     properties:
       label:
@@ -647,6 +1066,7 @@ types:
         example:
           value: M
         displayName: label
+        description: What the buyer sees and picks.
         type: string
         maxLength: 30
       hex:
@@ -654,85 +1074,228 @@ types:
         example:
           value: '#14171a'
         displayName: hex
+        description: A colour as `#rrggbb`.
         type: string
         pattern: ^#[0-9a-fA-F]{6}$
       photo:
         required: false
+        example:
+          value: zrySajNyao6_j11x
         displayName: photo
         description: 'Colours: the shop photo (id) that shows this colour. See `matchColorPhotos`.'
         type: string
   Suggestions:
+    example:
+      value:
+        oneOfAKind: false
+        options:
+        - name: Size
+          kind: size
+          values:
+          - label: S
+          - label: M
+          - label: L
+        missingFacts:
+        - label: Size
+          question: What size are the skates?
+          placeholder: US women's 8
     displayName: Suggestions
     description: What Gemini thinks buyers will want to choose or ask. The seller confirms; nothing is applied on its own.
     type: object
     properties:
       oneOfAKind:
         required: true
+        example:
+          value: false
         displayName: oneOfAKind
         description: A single item (vintage, handmade), so options and stock don't apply.
         type: boolean
       options:
         required: true
+        example:
+          value:
+          - name: Size
+            kind: size
+            values:
+            - label: S
+            - label: M
+            - label: L
         displayName: options
+        description: Options buyers will likely want to pick.
         type: array
         items:
           type: Option
       missingFacts:
         required: true
+        example:
+          value:
+          - label: Size
+            question: What size are the skates?
+            placeholder: US women's 8
         displayName: missingFacts
+        description: Questions buyers will ask that the listing doesn't answer yet.
         type: array
         items:
           type: MissingFact
   PayPalStatus:
+    example:
+      value:
+        receivable: true
+        emailConfirmed: true
+        checkedAt: 2026-10-22T02:41:37Z
     displayName: PayPalStatus
     description: What PayPal last said about a connected seller account.
     type: object
     properties:
       receivable:
         required: true
+        example:
+          value: true
         displayName: receivable
         description: The account can receive payments.
         type: boolean
       emailConfirmed:
         required: true
+        example:
+          value: true
         displayName: emailConfirmed
         description: The seller has confirmed their email with PayPal.
         type: boolean
       checkedAt:
         required: true
+        example:
+          value: 2026-10-22T02:41:37Z
         displayName: checkedAt
+        description: When OneThing last asked PayPal.
         type: datetime
   AgentProduct:
+    example:
+      value:
+        show_buyer: '![Vintage Cream and Red Roller Skates](https://one-thing-ash0.onrender.com/api/blobs/LFRvGuTU3D8i334X)
+
+
+          **Vintage Cream and Red Roller Skates**: $240.00. Classic quad skates crafted with walnut burl heels
+
+
+          ![Raptor Rush: Browser Edition](https://one-thing-ash0.onrender.com/api/blobs/R9tWc3yN6bJq1zUd)
+
+
+          **Raptor Rush: Browser Edition**: $2.99. Grow from Tiny Hatchling to Giant Apex Predator
+
+
+          Which one?'
+        agent_name: Grok
+        shop: vintageskates
+        url: https://one-thing-ash0.onrender.com/vintageskates
+        name: Vintage Cream and Red Roller Skates
+        kind: physical
+        headline: Classic quad skates crafted with walnut burl heels
+        description: Vintage cream and red quad roller skates with walnut burl heels.
+        highlights:
+        - Walnut burl heels
+        - Restored vintage leather
+        details:
+        - label: Material
+          value: Leather upper, walnut burl heel, rubber wheels
+        faq:
+        - q: Are these suitable for outdoor skating?
+          a: Yes, on indoor rink floors and paved outdoor paths.
+        images:
+        - 'https://one-thing-ash0.onrender.com/api/blobs/LFRvGuTU3D8i334X'
+        price:
+          amount: 240
+          currency: USD
+          label: $240.00
+        shipping:
+          amount: 15
+          currency: USD
+          ships_to:
+          - US
+          - CA
+        total:
+          amount: 240
+          currency: USD
+          label: $240.00
+        delivery: Shipped. PayPal collects the buyer's address at checkout.
+        availability: in_stock
+        options:
+        - name: Size
+          values:
+          - '7'
+          - '8'
+          - '9'
+        variants:
+        - choice:
+            Size: M
+            Color: Black
+          availability: in_stock (3 left)
+          order_url: https://one-thing-ash0.onrender.com/vintageskates/buy?Size=9
+        order_url: https://one-thing-ash0.onrender.com/vintageskates/buy?Size=9
+        offers:
+        - retailer: rei.com
+          price: 240
+          currency: USD
+          in_stock: true
+          url: https://buy.trychannel3.com/r/abc123
+        how_to_buy: Ask the buyer which size, then open that variant's order_url and show them pay_url.
+        mcp_server: https://one-thing-ash0.onrender.com/api/mcp
     displayName: AgentProduct
     description: A live shop as an AI agent sees it. Recommendations have `offers`; everything else has `price` and is bought with `create_order`.
     type: object
     properties:
       show_buyer:
         required: false
+        example:
+          value: '![Vintage Cream and Red Roller Skates](https://one-thing-ash0.onrender.com/api/blobs/LFRvGuTU3D8i334X)
+
+
+            **Vintage Cream and Red Roller Skates**: $240.00. Classic quad skates crafted with walnut burl heels
+
+
+            ![Raptor Rush: Browser Edition](https://one-thing-ash0.onrender.com/api/blobs/R9tWc3yN6bJq1zUd)
+
+
+            **Raptor Rush: Browser Edition**: $2.99. Grow from Tiny Hatchling to Giant Apex Predator
+
+
+            Which one?'
         displayName: show_buyer
         description: 'A suggested reply to the buyer, in Markdown with the links already written as links: the product and its options to pick from, the pay link, or what they got with a receipt link. Buyers have the best experience when agents show it as written.'
         type: string
       agent_name:
         required: false
+        example:
+          value: Grok
         displayName: agent_name
         description: "Who this request was credited to in the seller's stats: a recognised user agent, else the name the agent gave itself (`?agent=`, or the MCP client's name), else the user agent's first word."
         type: string
       shop:
         required: true
+        example:
+          value: vintageskates
         displayName: shop
         description: The link name, which the MCP tools take as `shop`.
         type: string
       url:
         required: true
+        example:
+          value: https://one-thing-ash0.onrender.com/vintageskates
         displayName: url
+        description: The shop page, where a person can buy it too.
         type: string
       name:
         required: true
+        example:
+          value: Vintage Cream and Red Roller Skates
         displayName: name
+        description: The product's name.
         type: string
       kind:
         required: true
+        example:
+          value: physical
         displayName: kind
+        description: '`physical` ships, `digital` downloads or unlocks with a code, `referral` is bought at another store.'
         type: string
         enum:
         - physical
@@ -740,54 +1303,99 @@ types:
         - referral
       headline:
         required: true
+        example:
+          value: Classic quad skates crafted with walnut burl heels
         displayName: headline
+        description: The shop's one-line pitch.
         type: string
       description:
         required: true
+        example:
+          value: Vintage cream and red quad roller skates with walnut burl heels.
         displayName: description
+        description: What the product is, in a few sentences.
         type: string
       highlights:
         required: true
+        example:
+          value:
+          - Walnut burl heels
+          - Restored vintage leather
         displayName: highlights
+        description: The product's selling points, one per line.
         type: array
         items:
           type: string
       details:
         required: true
+        example:
+          value:
+          - label: Material
+            value: Leather upper, walnut burl heel, rubber wheels
         displayName: details
+        description: Product facts, such as size, material or format.
         type: array
         items:
           type: Detail
       faq:
         required: true
+        example:
+          value:
+          - q: Are these suitable for outdoor skating?
+            a: Yes, on indoor rink floors and paved outdoor paths.
         displayName: faq
+        description: Questions buyers ask, answered by the seller's page.
         type: array
         items:
           type: Faq
       images:
         required: true
+        example:
+          value:
+          - 'https://one-thing-ash0.onrender.com/api/blobs/LFRvGuTU3D8i334X'
         displayName: images
+        description: Photo URLs, the cover first. Show these rather than generating or searching for images.
         type: array
         items:
           type: string
       price:
         required: false
+        example:
+          value:
+            amount: 240
+            currency: USD
+            label: $240.00
         displayName: price
+        description: An amount of money, as a number and as a label.
         type: AgentMoney
       shipping:
         required: false
+        example:
+          value:
+            amount: 15
+            currency: USD
+            ships_to:
+            - US
+            - CA
         displayName: shipping
         description: Physical products only.
         type: Shipping | nil
       total:
         required: false
+        example:
+          value:
+            amount: 240
+            currency: USD
+            label: $240.00
         displayName: total
+        description: An amount of money, as a number and as a label.
         type: AgentMoney
       delivery:
         required: false
         example:
           value: Shipped. PayPal collects the buyer's address at checkout.
         displayName: delivery
+        description: How the buyer gets it, in plain words.
         type: string
       availability:
         required: false
@@ -799,9 +1407,17 @@ types:
           Untitled Example3:
             value: sold_out
         displayName: availability
+        description: '`in_stock`, `in_stock (N left)` or `sold_out`. With options, see `variants`.'
         type: string
       options:
         required: false
+        example:
+          value:
+          - name: Size
+            values:
+            - '7'
+            - '8'
+            - '9'
         displayName: options
         description: Pass one value per option to `create_order`.
         type: array
@@ -809,17 +1425,34 @@ types:
           type: Option1
       variants:
         required: false
+        example:
+          value:
+          - choice:
+              Size: M
+              Color: Black
+            availability: in_stock (3 left)
+            order_url: https://one-thing-ash0.onrender.com/vintageskates/buy?Size=9
         displayName: variants
+        description: 'Products with options: each combination, its stock and its order link.'
         type: array
         items:
           type: Variant
       order_url:
         required: false
+        example:
+          value: https://one-thing-ash0.onrender.com/vintageskates/buy?Size=9
         displayName: order_url
         description: 'Products without options: `orderByLink`, which orders one unit with a GET. Left out when sold out. With options, each variant has its own.'
         type: string
       offers:
         required: false
+        example:
+          value:
+          - retailer: rei.com
+            price: 240
+            currency: USD
+            in_stock: true
+            url: https://buy.trychannel3.com/r/abc123
         displayName: offers
         description: Recommendations only. Bought at the retailer.
         type: array
@@ -827,29 +1460,52 @@ types:
           type: Offer1
       how_to_buy:
         required: true
+        example:
+          value: Ask the buyer which size, then open that variant's order_url and show them pay_url.
         displayName: how_to_buy
+        description: 'How to buy it, written for an agent: which tool or link to use and what to ask the buyer.'
         type: string
       mcp_server:
         required: false
+        example:
+          value: https://one-thing-ash0.onrender.com/api/mcp
         displayName: mcp_server
         description: The MCP server to order through (`getAgentProduct` only).
         type: string
   AgentShopSummary:
+    example:
+      value:
+        shop: vintageskates
+        name: Vintage Cream and Red Roller Skates
+        kind: physical
+        headline: Classic quad skates crafted with walnut burl heels
+        price: $240.00
+        image: 'https://one-thing-ash0.onrender.com/api/blobs/LFRvGuTU3D8i334X'
+        url: https://one-thing-ash0.onrender.com/vintageskates
     displayName: AgentShopSummary
+    description: A shop in search results.
     type: object
     properties:
       shop:
         required: true
+        example:
+          value: vintageskates
         displayName: shop
         description: The link name, for `getAgentProduct` and the MCP tools.
         type: string
       name:
         required: true
+        example:
+          value: Vintage Cream and Red Roller Skates
         displayName: name
+        description: The product's name.
         type: string
       kind:
         required: true
+        example:
+          value: physical
         displayName: kind
+        description: '`physical`, `digital` or `referral`.'
         type: string
         enum:
         - physical
@@ -857,10 +1513,15 @@ types:
         - referral
       headline:
         required: true
+        example:
+          value: Classic quad skates crafted with walnut burl heels
         displayName: headline
+        description: The shop's one-line pitch.
         type: string
       price:
         required: true
+        example:
+          value: $240.00
         displayName: price
         description: The price label, e.g. `$2.99`; null for recommendations.
         type:
@@ -868,6 +1529,8 @@ types:
         - nil
       image:
         required: true
+        example:
+          value: 'https://one-thing-ash0.onrender.com/api/blobs/LFRvGuTU3D8i334X'
         displayName: image
         description: The cover photo's URL (WebP; the retailer's image for a recommendation), or null when there's none.
         type:
@@ -875,36 +1538,87 @@ types:
         - nil
       url:
         required: true
+        example:
+          value: https://one-thing-ash0.onrender.com/vintageskates
         displayName: url
         description: The shop page.
         type: string
   AgentCreatedOrder:
+    example:
+      value:
+        show_buyer: '![Vintage Cream and Red Roller Skates](https://one-thing-ash0.onrender.com/api/blobs/LFRvGuTU3D8i334X)
+
+
+          **Vintage Cream and Red Roller Skates**: $240.00. Classic quad skates crafted with walnut burl heels
+
+
+          ![Raptor Rush: Browser Edition](https://one-thing-ash0.onrender.com/api/blobs/R9tWc3yN6bJq1zUd)
+
+
+          **Raptor Rush: Browser Edition**: $2.99. Grow from Tiny Hatchling to Giant Apex Predator
+
+
+          Which one?'
+        agent_name: Grok
+        order_id: pX4kR9tVb2nQ7sLe
+        status: awaiting_buyer_approval
+        total: $255.00
+        options:
+          Size: M
+          Color: Black
+        pay_url: https://one-thing-ash0.onrender.com/o/pX4kR9tVb2nQ7sLe
+        status_url: https://one-thing-ash0.onrender.com/o/pX4kR9tVb2nQ7sLe/status
+        next_step: Show pay_url to the buyer as a link. When they say they've paid, call get_order with order_id.
     displayName: AgentCreatedOrder
     description: A new order, as `create_order` and `orderByLink` return it.
     type: object
     properties:
       show_buyer:
         required: false
+        example:
+          value: '![Vintage Cream and Red Roller Skates](https://one-thing-ash0.onrender.com/api/blobs/LFRvGuTU3D8i334X)
+
+
+            **Vintage Cream and Red Roller Skates**: $240.00. Classic quad skates crafted with walnut burl heels
+
+
+            ![Raptor Rush: Browser Edition](https://one-thing-ash0.onrender.com/api/blobs/R9tWc3yN6bJq1zUd)
+
+
+            **Raptor Rush: Browser Edition**: $2.99. Grow from Tiny Hatchling to Giant Apex Predator
+
+
+            Which one?'
         displayName: show_buyer
         description: 'A suggested reply to the buyer, in Markdown with the links already written as links: the product and its options to pick from, the pay link, or what they got with a receipt link. Buyers have the best experience when agents show it as written.'
         type: string
       agent_name:
         required: false
+        example:
+          value: Grok
         displayName: agent_name
         description: "Who this request was credited to in the seller's stats: a recognised user agent, else the name the agent gave itself (`?agent=`, or the MCP client's name), else the user agent's first word."
         type: string
       order_id:
         required: true
+        example:
+          value: pX4kR9tVb2nQ7sLe
         displayName: order_id
+        description: The order's id, for `get_order` and `getAgentOrder`.
         type: string
       status:
         required: true
+        example:
+          value: awaiting_buyer_approval
         displayName: status
+        description: 'Always `awaiting_buyer_approval`: nothing is charged until the buyer approves at PayPal.'
         type: string
         enum:
         - awaiting_buyer_approval
       total:
         required: true
+        example:
+          value: $255.00
         displayName: total
         description: The total with shipping, as a label.
         type: string
@@ -923,39 +1637,103 @@ types:
             type: string
       pay_url:
         required: true
+        example:
+          value: https://one-thing-ash0.onrender.com/o/pX4kR9tVb2nQ7sLe
         displayName: pay_url
         description: Where the buyer pays (redirects to PayPal). Safe to show in chat.
         type: string
       status_url:
         required: true
+        example:
+          value: https://one-thing-ash0.onrender.com/o/pX4kR9tVb2nQ7sLe/status
         displayName: status_url
         description: '`getAgentOrder` for this order.'
         type: string
       next_step:
         required: true
+        example:
+          value: Show pay_url to the buyer as a link. When they say they've paid, call get_order with order_id.
         displayName: next_step
+        description: "What the agent should do next, in plain words: show `pay_url`, then check `status_url` once the buyer says they've paid."
         type: string
   AgentOrder:
+    example:
+      value:
+        show_buyer: '![Vintage Cream and Red Roller Skates](https://one-thing-ash0.onrender.com/api/blobs/LFRvGuTU3D8i334X)
+
+
+          **Vintage Cream and Red Roller Skates**: $240.00. Classic quad skates crafted with walnut burl heels
+
+
+          ![Raptor Rush: Browser Edition](https://one-thing-ash0.onrender.com/api/blobs/R9tWc3yN6bJq1zUd)
+
+
+          **Raptor Rush: Browser Edition**: $2.99. Grow from Tiny Hatchling to Giant Apex Predator
+
+
+          Which one?'
+        agent_name: Grok
+        order_id: pX4kR9tVb2nQ7sLe
+        status: awaiting_buyer_approval
+        product: Vintage Cream and Red Roller Skates
+        options:
+          Size: M
+          Color: Black
+        amount:
+          item: 240
+          shipping: 15
+          total: 255
+          currency: USD
+        total: $255.00
+        pay_url: https://one-thing-ash0.onrender.com/o/pX4kR9tVb2nQ7sLe
+        next_step: Show pay_url to the buyer as a link. When they say they've paid, call get_order with order_id.
+        paid_at: 2026-10-22T02:41:37Z
+        receipt_url: https://one-thing-ash0.onrender.com/vintageskates/thanks?order=pX4kR9tVb2nQ7sLe
+        delivery:
+          type: access_code
+          access_code: K7QF-M2XP-9HTD
+          start_url: https://www.miriogames.com/raptor-rush/?code=K7QF-M2XP-9HTD
     displayName: AgentOrder
     description: An order as `get_order` and `getAgentOrder` report it.
     type: object
     properties:
       show_buyer:
         required: false
+        example:
+          value: '![Vintage Cream and Red Roller Skates](https://one-thing-ash0.onrender.com/api/blobs/LFRvGuTU3D8i334X)
+
+
+            **Vintage Cream and Red Roller Skates**: $240.00. Classic quad skates crafted with walnut burl heels
+
+
+            ![Raptor Rush: Browser Edition](https://one-thing-ash0.onrender.com/api/blobs/R9tWc3yN6bJq1zUd)
+
+
+            **Raptor Rush: Browser Edition**: $2.99. Grow from Tiny Hatchling to Giant Apex Predator
+
+
+            Which one?'
         displayName: show_buyer
         description: 'A suggested reply to the buyer, in Markdown with the links already written as links: the product and its options to pick from, the pay link, or what they got with a receipt link. Buyers have the best experience when agents show it as written.'
         type: string
       agent_name:
         required: false
+        example:
+          value: Grok
         displayName: agent_name
         description: "Who this request was credited to in the seller's stats: a recognised user agent, else the name the agent gave itself (`?agent=`, or the MCP client's name), else the user agent's first word."
         type: string
       order_id:
         required: true
+        example:
+          value: pX4kR9tVb2nQ7sLe
         displayName: order_id
+        description: The order's id.
         type: string
       status:
         required: true
+        example:
+          value: awaiting_buyer_approval
         displayName: status
         description: "`declined`: PayPal declined it, nothing charged, the buyer can open `pay_url` again. `sold_out`: it sold out before the payment was captured. `expired`: the PayPal checkout expired; create a new order. `failed`: PayPal couldn't be reached; ask again."
         type: string
@@ -968,7 +1746,10 @@ types:
         - failed
       product:
         required: true
+        example:
+          value: Vintage Cream and Red Roller Skates
         displayName: product
+        description: The product's name.
         type: string
       options:
         required: false
@@ -985,132 +1766,240 @@ types:
             type: string
       amount:
         required: true
+        example:
+          value:
+            item: 240
+            shipping: 15
+            total: 255
+            currency: USD
         displayName: amount
+        description: What the order costs, as numbers.
         type: Amount
       total:
         required: true
+        example:
+          value: $255.00
         displayName: total
         description: The total as a label, e.g. `$255.00`.
         type: string
       pay_url:
         required: false
+        example:
+          value: https://one-thing-ash0.onrender.com/o/pX4kR9tVb2nQ7sLe
         displayName: pay_url
         description: Unpaid orders (waiting or declined). The buyer pays here; safe to show in chat.
         type: string
       next_step:
         required: false
+        example:
+          value: Show pay_url to the buyer as a link. When they say they've paid, call get_order with order_id.
         displayName: next_step
         description: Unpaid orders. What the agent should do next, in plain words.
         type: string
       paid_at:
         required: false
+        example:
+          value: 2026-10-22T02:41:37Z
         displayName: paid_at
+        description: Paid orders. When PayPal captured the payment.
         type: datetime
       receipt_url:
         required: false
+        example:
+          value: https://one-thing-ash0.onrender.com/vintageskates/thanks?order=pX4kR9tVb2nQ7sLe
         displayName: receipt_url
         description: Paid orders. The buyer's thank-you page.
         type: string
       delivery:
         required: false
+        example:
+          value:
+            type: access_code
+            access_code: K7QF-M2XP-9HTD
+            start_url: https://www.miriogames.com/raptor-rush/?code=K7QF-M2XP-9HTD
         displayName: delivery
         description: Paid orders. What the buyer got.
         type: AgentDeliveryAccessCode | AgentDeliveryDownload | AgentDeliveryShipping
   AgentDeliveryAccessCode:
+    example:
+      value:
+        type: access_code
+        access_code: K7QF-M2XP-9HTD
+        start_url: https://www.miriogames.com/raptor-rush/?code=K7QF-M2XP-9HTD
     displayName: AgentDeliveryAccessCode
     description: A digital product unlocked with an access code.
     type: object
     properties:
       type:
         required: true
+        example:
+          value: access_code
         displayName: type
+        description: Always `access_code`.
         type: string
         enum:
         - access_code
       access_code:
         required: true
+        example:
+          value: K7QF-M2XP-9HTD
         displayName: access_code
+        description: The buyer's code, which unlocks the seller's app or game.
         type: string
       start_url:
         required: false
+        example:
+          value: https://www.miriogames.com/raptor-rush/?code=K7QF-M2XP-9HTD
         displayName: start_url
         description: The seller's app with the code filled in.
         type: string
   AgentDeliveryDownload:
+    example:
+      value:
+        type: download
+        download_url: https://one-thing-ash0.onrender.com/api/download/dl_4mQ8sT2vX9
+        note: Works 5 times over 14 days.
     displayName: AgentDeliveryDownload
     description: A digital file to download.
     type: object
     properties:
       type:
         required: true
+        example:
+          value: download
         displayName: type
+        description: Always `download`.
         type: string
         enum:
         - download
       download_url:
         required: true
+        example:
+          value: https://one-thing-ash0.onrender.com/api/download/dl_4mQ8sT2vX9
         displayName: download_url
+        description: A private link to the file. It works 5 times over 14 days.
         type: string
       note:
         required: false
+        example:
+          value: Works 5 times over 14 days.
         displayName: note
+        description: How long the link lasts and how many downloads it allows, in words.
         type: string
   AgentDeliveryShipping:
+    example:
+      value:
+        type: shipping
+        ship_to:
+          name: Sam Rivera
+          address: 1 Main St, Springfield, IL, 62701, US
+        fulfillment: to_ship
+        tracking:
+          carrier: USPS
+          number: '9400111899223197428490'
     displayName: AgentDeliveryShipping
     description: A physical product shipped to the buyer.
     type: object
     properties:
       type:
         required: true
+        example:
+          value: shipping
         displayName: type
+        description: Always `shipping`.
         type: string
         enum:
         - shipping
       ship_to:
         required: false
+        example:
+          value:
+            name: Sam Rivera
+            address: 1 Main St, Springfield, IL, 62701, US
         displayName: ship_to
+        description: Where it ships, from the buyer's PayPal checkout. Null if PayPal didn't share it.
         type:
         - ShipTo
         - nil
       fulfillment:
         required: true
+        example:
+          value: to_ship
         displayName: fulfillment
+        description: '`to_ship` until the seller adds tracking, then `shipped`.'
         type: string
         enum:
         - to_ship
         - shipped
       tracking:
         required: false
+        example:
+          value:
+            carrier: USPS
+            number: '9400111899223197428490'
         displayName: tracking
+        description: The carrier and tracking number once shipped; null before.
         type:
         - Tracking
         - nil
   PlatformShop:
+    example:
+      value:
+        slug: vintageskates
+        status: draft
+        name: Vintage Cream and Red Roller Skates
+        headline: Classic quad skates crafted with walnut burl heels
+        product_type: physical
+        price:
+          amount: 240
+          currency: USD
+          label: $240.00
+        url: https://one-thing-ash0.onrender.com/vintageskates
+        cover: 'https://one-thing-ash0.onrender.com/api/blobs/LFRvGuTU3D8i334X'
+        paypal_connected: true
+        sales: 12
+        created_at: 2026-10-22T02:41:37Z
     displayName: PlatformShop
+    description: A shop as a platform API key lists it.
     type: object
     properties:
       slug:
         required: true
+        example:
+          value: vintageskates
         displayName: slug
+        description: The shop's link name.
         type: string
       status:
         required: true
+        example:
+          value: draft
         displayName: status
+        description: '`draft` until the seller goes live.'
         type: string
         enum:
         - draft
         - live
       name:
         required: true
+        example:
+          value: Vintage Cream and Red Roller Skates
         displayName: name
+        description: The product's name.
         type: string
       headline:
         required: false
+        example:
+          value: Classic quad skates crafted with walnut burl heels
         displayName: headline
+        description: The shop's one-line pitch.
         type: string
       product_type:
         required: true
+        example:
+          value: physical
         displayName: product_type
+        description: '`physical`, `digital` or `referral`.'
         type: string
         enum:
         - physical
@@ -1118,15 +2007,25 @@ types:
         - referral
       price:
         required: true
+        example:
+          value:
+            amount: 240
+            currency: USD
+            label: $240.00
         displayName: price
+        description: An amount of money, as a number and as a label.
         type: AgentMoney
       url:
         required: true
+        example:
+          value: https://one-thing-ash0.onrender.com/vintageskates
         displayName: url
         description: The shop page buyers pay on.
         type: string
       cover:
         required: false
+        example:
+          value: 'https://one-thing-ash0.onrender.com/api/blobs/LFRvGuTU3D8i334X'
         displayName: cover
         description: The cover image's URL.
         type:
@@ -1134,21 +2033,34 @@ types:
         - nil
       paypal_connected:
         required: true
+        example:
+          value: true
         displayName: paypal_connected
         description: The seller connected a PayPal account that can be paid.
         type: boolean
       sales:
         required: true
+        example:
+          value: 12
         displayName: sales
         description: Paid orders.
         type: integer
         format: int32
       created_at:
         required: true
+        example:
+          value: 2026-10-22T02:41:37Z
         displayName: created_at
+        description: When the shop was made.
         type: datetime
   AgentMoney:
+    example:
+      value:
+        amount: 240
+        currency: USD
+        label: $240.00
     displayName: AgentMoney
+    description: An amount of money, as a number and as a label.
     type: object
     properties:
       amount:
@@ -1156,6 +2068,7 @@ types:
         example:
           value: 48.5
         displayName: amount
+        description: The amount in the currency's main unit (dollars, not cents).
         type: number
         format: double
       currency:
@@ -1163,31 +2076,51 @@ types:
         example:
           value: USD
         displayName: currency
+        description: ISO 4217 currency code.
         type: string
       label:
         required: false
         example:
           value: $48.50
         displayName: label
+        description: The amount formatted for people.
         type: string
   JsonRpcRequest:
+    example:
+      value:
+        jsonrpc: '2.0'
+        id: 1
+        method: tools/call
+        params:
+          name: get_product
+          arguments:
+            shop: vintageskates
     displayName: JsonRpcRequest
+    description: A JSON-RPC 2.0 request to the MCP server.
     type: object
     properties:
       jsonrpc:
         required: true
+        example:
+          value: '2.0'
         displayName: jsonrpc
+        description: Always `2.0`.
         type: string
         enum:
         - '2.0'
       id:
         required: false
+        example:
+          value: '1'
         displayName: id
         description: Leave out for a notification.
         type: string | integer | nil
       method:
         required: true
+        example:
+          value: tools/call
         displayName: method
+        description: The MCP method. `tools/call` runs a tool; `tools/list` lists them.
         type: string
         enum:
         - initialize
@@ -1197,129 +2130,272 @@ types:
         - notifications/initialized
       params:
         required: false
+        example:
+          value:
+            name: get_product
+            arguments:
+              shop: vintageskates
         displayName: params
         description: 'For `tools/call`: `{ name, arguments }`.'
         type: object
         properties: {}
   JsonRpcResponse:
+    example:
+      value:
+        jsonrpc: '2.0'
+        id: 1
+        result:
+          content:
+          - type: text
+            text: '{"shop": "vintageskates"}'
+          isError: false
     displayName: JsonRpcResponse
+    description: A JSON-RPC 2.0 reply from the MCP server.
     type: object
     properties:
       jsonrpc:
         required: true
+        example:
+          value: '2.0'
         displayName: jsonrpc
+        description: Always `2.0`.
         type: string
         enum:
         - '2.0'
       id:
         required: true
+        example:
+          value: '1'
         displayName: id
+        description: The request's `id`.
         type: string | integer | nil
       result:
         required: false
+        example:
+          value:
+            isError: false
         displayName: result
         description: 'For `tools/call`: `content` (the answer as JSON text), `structuredContent` (the same object) and `isError`.'
         type: object
         properties: {}
       error:
         required: false
+        example:
+          value:
+            code: -32601
+            message: Method not found
         displayName: error
-        type: Error1
+        description: Present when the call failed.
+        type: Error
   Referral:
+    example:
+      value:
+        productId: ch3_7f2a9c1e
+        title: Trail Running Vest 5L
+        brand: Salomon
+        image: https://images.example.com/vest.jpg
+        offers:
+        - domain: rei.com
+          url: https://buy.trychannel3.com/r/abc123
+          price: 240
+          currency: USD
+          inStock: true
+          commission: 0.08
     displayName: Referral
     description: A recommended Channel3 product. Buy links are Channel3-tracked, credited to this shop.
     type: object
     properties:
       productId:
         required: true
+        example:
+          value: ch3_7f2a9c1e
         displayName: productId
+        description: Channel3's product id.
         type: string
       title:
         required: true
+        example:
+          value: Trail Running Vest 5L
         displayName: title
+        description: The product's name.
         type: string
       brand:
         required: false
+        example:
+          value: Salomon
         displayName: brand
+        description: The brand, when known.
         type:
         - string
         - nil
       image:
         required: false
+        example:
+          value: https://images.example.com/vest.jpg
         displayName: image
+        description: The product image's URL.
         type:
         - string
         - nil
       offers:
         required: true
+        example:
+          value:
+          - domain: rei.com
+            url: https://buy.trychannel3.com/r/abc123
+            price: 240
+            currency: USD
+            inStock: true
+            commission: 0.08
         displayName: offers
+        description: Stores that sell it, with tracked links.
         type: array
         items:
           type: Offer
   ProductCard:
+    example:
+      value:
+        id: ch3_7f2a9c1e
+        title: Trail Running Vest 5L
+        brand: Salomon
+        image: https://images.example.com/vest.jpg
+        price: 240
+        currency: USD
+        retailer: rei.com
+        retailers: 4
+        commission: 0.08
     displayName: ProductCard
+    description: A Channel3 product in search results.
     type: object
     properties:
       id:
         required: true
+        example:
+          value: ch3_7f2a9c1e
         displayName: id
+        description: "Channel3's product id: pass it to `createShop` as `productId`."
         type: string
       title:
         required: true
+        example:
+          value: Trail Running Vest 5L
         displayName: title
+        description: The product's name.
         type: string
       brand:
         required: false
+        example:
+          value: Salomon
         displayName: brand
+        description: The brand, when known.
         type:
         - string
         - nil
       image:
         required: true
+        example:
+          value: https://images.example.com/vest.jpg
         displayName: image
+        description: The product image's URL.
         type: string
       price:
         required: true
+        example:
+          value: 240
         displayName: price
+        description: The best offer's price.
         type: number
         format: double
       currency:
         required: true
+        example:
+          value: USD
         displayName: currency
+        description: ISO 4217 currency code.
         type: string
       retailer:
         required: true
+        example:
+          value: rei.com
         displayName: retailer
         description: The store with the best offer.
         type: string
       retailers:
         required: true
+        example:
+          value: 4
         displayName: retailers
+        description: How many stores sell it.
         type: integer
         format: int32
       commission:
         required: true
+        example:
+          value: 0.08
         displayName: commission
         description: Best commission rate across offers, 0–1.
         type: number
         format: double
   Order:
+    example:
+      value:
+        id: pX4kR9tVb2nQ7sLe
+        paypal_order_id: 5O190127TN364715T
+        status: created
+        amount_cents: 25500
+        shipping_cents: 1500
+        currency: USD
+        buyer_email: sam@example.com
+        buyer_name: Sam Rivera
+        shipping_address:
+          address_line_1: 1 Main St
+          admin_area_2: Springfield
+          admin_area_1: IL
+          postal_code: '62701'
+          country_code: US
+        capture_id: 3C679366HH908993F
+        fulfillment_status: none
+        carrier: USPS
+        tracking_number: '9400111899223197428490'
+        tracking_synced: false
+        downloads: 0
+        access_code: K7QF-M2XP-9HTD
+        code_uses: 0
+        code_last_used_at: 2026-10-22T02:41:37Z
+        channel: web
+        agent: Grok
+        refund_id: 1JU08902781691411
+        refunded_at: 2026-10-22T02:41:37Z
+        options:
+          Size: '9'
+        paid_at: 2026-10-22T02:41:37Z
+        created_at: 2026-10-22T02:41:37Z
     displayName: Order
+    description: An order, as the seller sees it.
     type: object
     properties:
       id:
         required: true
+        example:
+          value: pX4kR9tVb2nQ7sLe
         displayName: id
+        description: OneThing's order id.
         type: string
       paypal_order_id:
         required: false
+        example:
+          value: 5O190127TN364715T
         displayName: paypal_order_id
+        description: PayPal's order id.
         type:
         - string
         - nil
       status:
         required: true
+        example:
+          value: created
         displayName: status
+        description: '`created` until paid; `failed` if PayPal declined; `refunded` after a refund.'
         type: string
         enum:
         - created
@@ -1328,33 +2404,56 @@ types:
         - refunded
       amount_cents:
         required: true
+        example:
+          value: 25500
         displayName: amount_cents
+        description: The total charged, shipping included, in cents.
         type: integer
         format: int32
       shipping_cents:
         required: false
+        example:
+          value: 1500
         displayName: shipping_cents
+        description: The shipping part of `amount_cents`.
         type: integer
         format: int32
       currency:
         required: true
+        example:
+          value: USD
         displayName: currency
+        description: ISO 4217 currency code.
         type: string
       buyer_email:
         required: false
+        example:
+          value: sam@example.com
         displayName: buyer_email
+        description: From PayPal, once paid.
         type:
         - string
         - nil
       buyer_name:
         required: false
+        example:
+          value: Sam Rivera
         displayName: buyer_name
+        description: From PayPal, once paid.
         type:
         - string
         - nil
       shipping_address:
         required: false
+        example:
+          value:
+            address_line_1: 1 Main St
+            admin_area_2: Springfield
+            admin_area_1: IL
+            postal_code: '62701'
+            country_code: US
         displayName: shipping_address
+        description: 'Physical orders: the address from PayPal checkout, by field.'
         type:
         - object
         - nil
@@ -1364,13 +2463,19 @@ types:
             type: string
       capture_id:
         required: false
+        example:
+          value: 3C679366HH908993F
         displayName: capture_id
+        description: PayPal's capture id, once paid. Refunds use it.
         type:
         - string
         - nil
       fulfillment_status:
         required: true
+        example:
+          value: none
         displayName: fulfillment_status
+        description: '`to_ship` and `shipped` for physical orders, `digital_sent` for digital ones, `none` before payment.'
         type: string
         enum:
         - none
@@ -1379,44 +2484,67 @@ types:
         - digital_sent
       carrier:
         required: false
+        example:
+          value: USPS
         displayName: carrier
+        description: 'Shipped orders: the carrier.'
         type:
         - string
         - nil
       tracking_number:
         required: false
+        example:
+          value: '9400111899223197428490'
         displayName: tracking_number
+        description: 'Shipped orders: the tracking number.'
         type:
         - string
         - nil
       tracking_synced:
         required: false
+        example:
+          value: false
         displayName: tracking_synced
+        description: Whether PayPal accepted the tracking number.
         type: boolean
       downloads:
         required: false
+        example:
+          value: 0
         displayName: downloads
+        description: How many times the buyer downloaded the file.
         type: integer
         format: int32
       access_code:
         required: false
+        example:
+          value: K7QF-M2XP-9HTD
         displayName: access_code
+        description: 'Access-code products: the code this buyer got.'
         type:
         - string
         - nil
       code_uses:
         required: false
+        example:
+          value: 0
         displayName: code_uses
+        description: How many times the access code was checked.
         type: integer
         format: int32
       code_last_used_at:
         required: false
+        example:
+          value: 2026-10-22T02:41:37Z
         displayName: code_last_used_at
+        description: When the access code was last checked with `verifyAccessCode`.
         type:
         - datetime
         - nil
       channel:
         required: false
+        example:
+          value: web
         displayName: channel
         description: '`agent` for orders an AI agent placed (MCP or an order link).'
         type: string
@@ -1434,6 +2562,8 @@ types:
         - nil
       refund_id:
         required: false
+        example:
+          value: 1JU08902781691411
         displayName: refund_id
         description: PayPal's refund id, once refunded through OneThing.
         type:
@@ -1441,12 +2571,18 @@ types:
         - nil
       refunded_at:
         required: false
+        example:
+          value: 2026-10-22T02:41:37Z
         displayName: refunded_at
+        description: When the order was refunded.
         type:
         - datetime
         - nil
       options:
         required: false
+        example:
+          value:
+            Size: '9'
         displayName: options
         description: The buyer's pick, one value per option, keyed by option name (see `Choice`).
         type:
@@ -1458,20 +2594,38 @@ types:
             type: string
       paid_at:
         required: false
+        example:
+          value: 2026-10-22T02:41:37Z
         displayName: paid_at
+        description: When PayPal captured the payment.
         type:
         - datetime
         - nil
       created_at:
         required: false
+        example:
+          value: 2026-10-22T02:41:37Z
         displayName: created_at
+        description: When the order was made.
         type: datetime
   WebhookEvent:
+    example:
+      value:
+        id: WH-2WR32451HC0233532-67976317FL4543714
+        event_type: PAYMENT.CAPTURE.COMPLETED
+        paypal_order_id: 5O190127TN364715T
+        summary: 2.99 USD
+        verified: true
+        outcome: 'Confirmed: order already paid'
+        received_at: 2026-10-22T02:41:37Z
     displayName: WebhookEvent
+    description: A PayPal webhook delivery for this shop's orders.
     type: object
     properties:
       id:
         required: true
+        example:
+          value: WH-2WR32451HC0233532-67976317FL4543714
         displayName: id
         description: PayPal's event id.
         type: string
@@ -1480,10 +2634,14 @@ types:
         example:
           value: PAYMENT.CAPTURE.COMPLETED
         displayName: event_type
+        description: PayPal's event type.
         type: string
       paypal_order_id:
         required: false
+        example:
+          value: 5O190127TN364715T
         displayName: paypal_order_id
+        description: The PayPal order it was about.
         type:
         - string
         - nil
@@ -1492,11 +2650,14 @@ types:
         example:
           value: 2.99 USD
         displayName: summary
+        description: The amount, or PayPal's summary.
         type:
         - string
         - nil
       verified:
         required: true
+        example:
+          value: true
         displayName: verified
         description: Whether PayPal confirmed the delivery's signature.
         type: boolean
@@ -1505,18 +2666,49 @@ types:
         example:
           value: 'Confirmed: order already paid'
         displayName: outcome
+        description: What OneThing did with it.
         type: string
       received_at:
         required: true
+        example:
+          value: 2026-10-22T02:41:37Z
         displayName: received_at
+        description: When it arrived.
         type: datetime
   OrderEvent:
+    example:
+      value:
+        event: order.paid
+        shop:
+          slug: vintageskates
+          name: Vintage Cream and Red Roller Skates
+          url: https://one-thing-ash0.onrender.com/vintageskates
+        order:
+          id: pX4kR9tVb2nQ7sLe
+          paypal_order_id: 5O190127TN364715T
+          amount: '255.00'
+          currency: USD
+          buyer_name: Sam Rivera
+          buyer_email: sam@example.com
+          shipping_address:
+            address_line_1: 1 Main St
+            admin_area_2: Springfield
+            admin_area_1: IL
+            postal_code: '62701'
+            country_code: US
+          fulfillment_status: to_ship
+          tracking_number: '9400111899223197428490'
+          carrier: USPS
     displayName: OrderEvent
+    description: What OneThing posts to the seller's Zapier hook.
     type: object
     properties:
       event:
         required: true
+        example:
+          value: order.paid
         displayName: event
+        description: What happened.
         type: string
         enum:
         - order.paid
@@ -1524,37 +2716,81 @@ types:
         - order.refunded
       shop:
         required: true
+        example:
+          value:
+            slug: vintageskates
+            name: Vintage Cream and Red Roller Skates
+            url: https://one-thing-ash0.onrender.com/vintageskates
         displayName: shop
+        description: The shop the order belongs to.
         type: Shop1
       order:
         required: true
+        example:
+          value:
+            id: pX4kR9tVb2nQ7sLe
+            paypal_order_id: 5O190127TN364715T
+            amount: '255.00'
+            currency: USD
+            buyer_name: Sam Rivera
+            buyer_email: sam@example.com
+            shipping_address:
+              address_line_1: 1 Main St
+              admin_area_2: Springfield
+              admin_area_1: IL
+              postal_code: '62701'
+              country_code: US
+            fulfillment_status: to_ship
+            tracking_number: '9400111899223197428490'
+            carrier: USPS
         displayName: order
+        description: The order.
         type: Order1
   Amount:
+    example:
+      value:
+        item: 240
+        shipping: 15
+        total: 255
+        currency: USD
     displayName: Amount
+    description: What the order costs, as numbers.
     type: object
     properties:
       item:
         required: true
+        example:
+          value: 240
         displayName: item
+        description: The product's price.
         type: number
         format: double
       shipping:
         required: true
+        example:
+          value: 15
         displayName: shipping
+        description: Shipping; 0 for digital products.
         type: number
         format: double
       total:
         required: true
+        example:
+          value: 255
         displayName: total
+        description: 'Product plus shipping: what the buyer pays.'
         type: number
         format: double
       currency:
         required: true
+        example:
+          value: USD
         displayName: currency
+        description: ISO 4217 currency code.
         type: string
   ApiAccessVerifyRequest:
     displayName: ApiAccessVerifyRequest
+    description: The code to check, and which shop it's for.
     type: object
     properties:
       shop:
@@ -1569,22 +2805,30 @@ types:
         example:
           value: K7QF-M2XP-9HTD
         displayName: code
+        description: The access code the buyer entered. Case and dashes don't matter.
         type: string
   ApiAccessVerifyResponse:
     displayName: ApiAccessVerifyResponse
+    description: Whether the code is valid.
     type: object
     properties:
       valid:
         required: true
+        example:
+          value: true
         displayName: valid
+        description: True if the code belongs to a paid, unrefunded order for this shop.
         type: boolean
       product:
         required: false
+        example:
+          value: Vintage Cream and Red Roller Skates
         displayName: product
         description: The product name, when valid.
         type: string
   ApiAccountSigninRequest:
     displayName: ApiAccountSigninRequest
+    description: Who is signing in.
     type: object
     properties:
       identifier:
@@ -1599,14 +2843,20 @@ types:
         type: string
   ApiAccountSigninResponse:
     displayName: ApiAccountSigninResponse
+    description: The signed-in account.
     type: object
     properties:
       id:
         required: true
+        example:
+          value: acc_Vq3nN8cT0bLx2YwE
         displayName: id
+        description: The account's id.
         type: string
       email:
         required: true
+        example:
+          value: maker@example.com
         displayName: email
         description: Lower-cased.
         type:
@@ -1614,6 +2864,8 @@ types:
         - nil
       phone:
         required: true
+        example:
+          value: '+15555550123'
         displayName: phone
         description: Digits, with a leading + if one was given.
         type:
@@ -1621,71 +2873,130 @@ types:
         - nil
   ApiAgentShopsResponse:
     displayName: ApiAgentShopsResponse
+    description: The matching shops, with a reply to show the buyer.
     type: object
     properties:
       show_buyer:
         required: true
+        example:
+          value: '![Vintage Cream and Red Roller Skates](https://one-thing-ash0.onrender.com/api/blobs/LFRvGuTU3D8i334X)
+
+
+            **Vintage Cream and Red Roller Skates**: $240.00. Classic quad skates crafted with walnut burl heels
+
+
+            ![Raptor Rush: Browser Edition](https://one-thing-ash0.onrender.com/api/blobs/R9tWc3yN6bJq1zUd)
+
+
+            **Raptor Rush: Browser Edition**: $2.99. Grow from Tiny Hatchling to Giant Apex Predator
+
+
+            Which one?'
         displayName: show_buyer
         description: "A suggested reply to the buyer, in Markdown: each shop's cover photo as an image, its name, price and headline, then \"Which one?\". Chats that block images from other sites just leave the image lines out."
         type: string
       shops:
         required: true
+        example:
+          value:
+          - shop: vintageskates
+            name: Vintage Cream and Red Roller Skates
+            kind: physical
+            headline: Classic quad skates crafted with walnut burl heels
+            price: $240.00
+            image: 'https://one-thing-ash0.onrender.com/api/blobs/LFRvGuTU3D8i334X'
+            url: https://one-thing-ash0.onrender.com/vintageskates
         displayName: shops
+        description: Shops, best match first.
         type: array
         items:
           type: AgentShopSummary
       matched:
         required: true
+        example:
+          value: true
         displayName: matched
         description: False when nothing matched the query and `shops` is the newest gallery shops instead; `show_buyer` then starts by saying so.
         type: boolean
       mcp_server:
         required: true
+        example:
+          value: https://one-thing-ash0.onrender.com/api/mcp
         displayName: mcp_server
         description: The MCP server to order through.
         type: string
   ApiChannel3SearchResponse:
     displayName: ApiChannel3SearchResponse
+    description: The products found.
     type: object
     properties:
       products:
         required: true
+        example:
+          value:
+          - id: ch3_7f2a9c1e
+            title: Trail Running Vest 5L
+            brand: Salomon
+            image: https://images.example.com/vest.jpg
+            price: 240
+            currency: USD
+            retailer: rei.com
+            retailers: 4
+            commission: 0.08
         displayName: products
+        description: Products, best match first.
         type: array
         items:
           type: ProductCard
   ApiOrdersCapture409Error1:
+    example:
+      value:
+        status: pending
     displayName: ApiOrdersCapture409Error1
+    description: Not approved yet.
     type: object
     properties:
       status:
         required: false
+        example:
+          value: pending
         displayName: status
+        description: '`pending` until the buyer approves at PayPal.'
         type: string
         enum:
         - pending
   ApiOrdersCaptureResponse:
     displayName: ApiOrdersCaptureResponse
+    description: The paid order.
     type: object
     properties:
       orderId:
         required: true
+        example:
+          value: pX4kR9tVb2nQ7sLe
         displayName: orderId
         description: OneThing's order id; the thank-you page is `/<slug>/thanks?order=<orderId>`.
         type: string
       status:
         required: true
+        example:
+          value: paid
         displayName: status
+        description: Always `paid`.
         type: string
         enum:
         - paid
   ApiOrdersRequest:
     displayName: ApiOrdersRequest
+    description: The shop to buy from and the buyer's pick.
     type: object
     properties:
       slug:
         required: true
+        example:
+          value: vintageskates
         displayName: slug
+        description: The shop's link name.
         type: string
       options:
         required: false
@@ -1702,38 +3013,67 @@ types:
             type: string
   ApiOrdersResponse:
     displayName: ApiOrdersResponse
+    description: The PayPal order to approve.
     type: object
     properties:
       id:
         required: true
+        example:
+          value: 5O190127TN364715T
         displayName: id
         description: PayPal order id.
         type: string
   ApiPaypalClientTokenResponse:
     displayName: ApiPaypalClientTokenResponse
+    description: The client token.
     type: object
     properties:
       clientToken:
         required: true
+        example:
+          value: eyJraWQiOiJFWEFNUExFIn0.example.client-token
         displayName: clientToken
         description: Pass to `createInstance` in the PayPal JavaScript SDK v6.
         type: string
   ApiPlatformShopsResponse:
     displayName: ApiPlatformShopsResponse
+    description: The account's shops.
     type: object
     properties:
       shops:
         required: true
+        example:
+          value:
+          - slug: vintageskates
+            status: draft
+            name: Vintage Cream and Red Roller Skates
+            headline: Classic quad skates crafted with walnut burl heels
+            product_type: physical
+            price:
+              amount: 240
+              currency: USD
+              label: $240.00
+            url: https://one-thing-ash0.onrender.com/vintageskates
+            cover: 'https://one-thing-ash0.onrender.com/api/blobs/LFRvGuTU3D8i334X'
+            paypal_connected: true
+            sales: 12
+            created_at: 2026-10-22T02:41:37Z
         displayName: shops
+        description: Shops, newest first.
         type: array
         items:
           type: PlatformShop
   ApiShopsColorPhotosRequest:
     displayName: ApiShopsColorPhotosRequest
+    description: Which photo shows each colour.
     type: object
     properties:
       photos:
         required: true
+        example:
+          value:
+            Ice Blue: zrySajNyao6_j11x
+            Amber: null
         displayName: photos
         description: Colour label → photo id, or `null`.
         type: object
@@ -1743,33 +3083,52 @@ types:
             type: string
   ApiShopsColorPhotosResponse:
     displayName: ApiShopsColorPhotosResponse
+    description: The colours that changed.
     type: object
     properties:
       saved:
         required: true
+        example:
+          value:
+          - Ice Blue
+          - Amber
         displayName: saved
+        description: Colour labels whose photo changed.
         type: array
         items:
           type: string
   ApiShopsFileResponse:
     displayName: ApiShopsFileResponse
+    description: The uploaded file.
     type: object
     properties:
       ok:
         required: true
+        example:
+          value: true
         displayName: ok
+        description: Always `true`.
         type: boolean
       filename:
         required: true
+        example:
+          value: dragon-flight-presets.zip
         displayName: filename
+        description: The file's name, as buyers will download it.
         type: string
   ApiShopsMatchPhotosRequest:
     displayName: ApiShopsMatchPhotosRequest
+    description: The colours to find photos for.
     type: object
     properties:
       colors:
         required: true
+        example:
+          value:
+          - label: Ice Blue
+            hex: '#9fd3e6'
         displayName: colors
+        description: The colour option's values.
         type: array
         uniqueItems: false
         minItems: 1
@@ -1778,6 +3137,7 @@ types:
           type: Color
   ApiShopsMatchPhotosResponse:
     displayName: ApiShopsMatchPhotosResponse
+    description: Gemini's matches.
     type: object
     properties:
       matches:
@@ -1787,6 +3147,7 @@ types:
             Black: b_8f2k1
             Forest green: b_q93md
         displayName: matches
+        description: Colour label → photo id.
         type: object
         additionalProperties: true
         properties:
@@ -1794,30 +3155,40 @@ types:
             type: string
   ApiShopsOrdersRefund409Error1:
     displayName: ApiShopsOrdersRefund409Error1
+    description: Why the order can't be refunded here.
     type: object
     properties:
       error:
         required: true
+        example:
+          value: Order not found.
         displayName: error
         description: A sentence you can show to a person.
         type: string
       field:
         required: false
+        example:
+          value: price
         displayName: field
         description: The form field at fault, when there is one.
         type: string
       detail:
         required: false
+        example:
+          value: INSTRUMENT_DECLINED
         displayName: detail
         description: The upstream service's own message, for debugging.
         type: string
       refundInPayPal:
         required: false
+        example:
+          value: true
         displayName: refundInPayPal
         description: 'Refund it in PayPal yourself, then call again with `record: true`.'
         type: boolean
   ApiShopsOrdersRefundRequest:
     displayName: ApiShopsOrdersRefundRequest
+    description: How to refund.
     type: object
     properties:
       record:
@@ -1828,14 +3199,20 @@ types:
         type: boolean
   ApiShopsOrdersRefundResponse:
     displayName: ApiShopsOrdersRefundResponse
+    description: The refund.
     type: object
     properties:
       ok:
         required: true
+        example:
+          value: true
         displayName: ok
+        description: Always `true`.
         type: boolean
       refundId:
         required: false
+        example:
+          value: 1JU08902781691411
         displayName: refundId
         description: PayPal's refund id; null when `record` was used.
         type:
@@ -1843,11 +3220,15 @@ types:
         - nil
   ApiShopsOrdersShipRequest:
     displayName: ApiShopsOrdersShipRequest
+    description: The shipment's tracking.
     type: object
     properties:
       carrier:
         required: true
+        example:
+          value: USPS
         displayName: carrier
+        description: The carrier. `OTHER` needs `carrierName`.
         type: string
         enum:
         - USPS
@@ -1857,31 +3238,43 @@ types:
         - OTHER
       carrierName:
         required: false
+        example:
+          value: Canada Post
         displayName: carrierName
         description: Required when `carrier` is `OTHER`.
         type: string
         maxLength: 60
       trackingNumber:
         required: true
+        example:
+          value: '9400111899223197428490'
         displayName: trackingNumber
+        description: The carrier's tracking number.
         type: string
         minLength: 4
         maxLength: 64
   ApiShopsOrdersShipResponse:
     displayName: ApiShopsOrdersShipResponse
+    description: The order is marked shipped.
     type: object
     properties:
       ok:
         required: true
+        example:
+          value: true
         displayName: ok
+        description: Always `true`.
         type: boolean
       synced:
         required: true
+        example:
+          value: true
         displayName: synced
         description: Whether PayPal accepted the tracking number.
         type: boolean
   ApiShopsPaypalRequest:
     displayName: ApiShopsPaypalRequest
+    description: Where to come back to.
     type: object
     properties:
       returnUrl:
@@ -1893,19 +3286,25 @@ types:
         type: string
   ApiShopsPaypalResponse:
     displayName: ApiShopsPaypalResponse
+    description: The onboarding link.
     type: object
     properties:
       url:
         required: true
+        example:
+          value: https://www.sandbox.paypal.com/bizsignup/partner/entry?referralToken=EXAMPLE
         displayName: url
         description: PayPal's onboarding page for this shop.
         type: string
   ApiShopsPaypalResponse1:
     displayName: ApiShopsPaypalResponse1
+    description: The shop's PayPal connection.
     type: object
     properties:
       merchantId:
         required: true
+        example:
+          value: 7MZJ4QXN8K2LA
         displayName: merchantId
         description: The seller's PayPal merchant id.
         type:
@@ -1913,14 +3312,25 @@ types:
         - nil
       status:
         required: true
+        example:
+          value:
+            receivable: true
+            emailConfirmed: true
+            checkedAt: 2026-10-22T02:41:37Z
         displayName: status
+        description: What PayPal last said; null when nothing is connected.
         type: PayPalStatus | nil
   ApiShopsPhotosRequest:
     displayName: ApiShopsPhotosRequest
+    description: The new photo order.
     type: object
     properties:
       photos:
         required: true
+        example:
+          value:
+          - zrySajNyao6_j11x
+          - 'LFRvGuTU3D8i334X'
         displayName: photos
         description: Photo ids, in order.
         type: array
@@ -1930,6 +3340,7 @@ types:
           type: string
   ApiShopsRefineRequest:
     displayName: ApiShopsRefineRequest
+    description: The design change, in words.
     type: object
     properties:
       instruction:
@@ -1937,49 +3348,104 @@ types:
         example:
           value: Make it feel more premium
         displayName: instruction
+        description: What to change, e.g. "make it feel more premium".
         type: string
         maxLength: 500
   ApiShopsRefineResponse:
     displayName: ApiShopsRefineResponse
+    description: The redesigned page.
     type: object
     properties:
       spec:
         required: true
+        example:
+          value:
+            productType: physical
+            productName: Vintage Cream and Red Roller Skates
+            layout: bold-hero
+            palette:
+              background: '#f7f1e8'
+              surface: '#ffffff'
+              text: '#1f1a17'
+              muted: '#6b625b'
+              accent: '#b3262d'
+              accentText: '#ffffff'
+            fonts:
+              heading: Playfair Display
+              body: Inter
+            eyebrow: One pair, restored
+            headline: Classic quad skates crafted with walnut burl heels
+            subheadline: A vintage pair of skates with cream leather, bold red trim and quad wheels.
+            story: Each pair combines soft cream leather with distinct red accents and a sculpted walnut burl heel base.
+            bullets:
+            - Walnut burl heels
+            - Restored vintage leather
+            details:
+            - label: Material
+              value: Leather upper, walnut burl heel, rubber wheels
+            faq:
+            - q: Are these suitable for outdoor skating?
+              a: Yes, on indoor rink floors and paved outdoor paths.
+            ctaLabel: Buy the skates
+            suggestedPriceUsd: 240
+            suggestedShippingUsd: 15
+            imageAlt: Cream leather quad roller skates with red trim
+            heroPrompt: Cream roller skates on a sunlit boardwalk, in warm cream and red tones
         displayName: spec
         description: What Gemini designed. OneThing's templates render it; Gemini never writes HTML.
         type: DesignSpec
   ApiShopsResponse:
     displayName: ApiShopsResponse
+    description: The shop was saved.
     type: object
     properties:
       ok:
         required: true
+        example:
+          value: true
         displayName: ok
+        description: Always `true`.
         type: boolean
       slug:
         required: true
+        example:
+          value: vintageskates
         displayName: slug
         description: The shop's link name after this change.
         type: string
   ApiSlugsCheckResponse:
     displayName: ApiSlugsCheckResponse
+    description: Whether the link name can be used.
     type: object
     properties:
       slug:
         required: true
+        example:
+          value: vintageskates
         displayName: slug
+        description: The name, normalised.
         type: string
       available:
         required: true
+        example:
+          value: true
         displayName: available
+        description: True if no other shop has it and it isn't reserved.
         type: boolean
       problem:
         required: false
+        example:
+          value: Taken. Try another name.
         displayName: problem
         description: Why not, when unavailable.
         type: string
   Color:
+    example:
+      value:
+        label: Ice Blue
+        hex: '#9fd3e6'
     displayName: Color
+    description: One colour.
     type: object
     properties:
       label:
@@ -1987,6 +3453,7 @@ types:
         example:
           value: Forest green
         displayName: label
+        description: The colour's name, as buyers see it.
         type: string
         maxLength: 30
       hex:
@@ -1994,22 +3461,39 @@ types:
         example:
           value: '#14171a'
         displayName: hex
+        description: A colour as `#rrggbb`.
         type: string
         pattern: ^#[0-9a-fA-F]{6}$
   Detail:
+    example:
+      value:
+        label: Material
+        value: Leather upper, walnut burl heel, rubber wheels
     displayName: Detail
+    description: One product fact.
     type: object
     properties:
       label:
         required: true
+        example:
+          value: Material
         displayName: label
+        description: What the fact is about.
         type: string
       value:
         required: true
+        example:
+          value: Leather upper, walnut burl heel, rubber wheels
         displayName: value
+        description: The fact.
         type: string
-  Error1:
-    displayName: Error1
+  Error:
+    example:
+      value:
+        code: -32601
+        message: Method not found
+    displayName: Error
+    description: Present when the call failed.
     type: object
     properties:
       code:
@@ -2017,14 +3501,23 @@ types:
         example:
           value: -32601
         displayName: code
+        description: The JSON-RPC error code.
         type: integer
         format: int32
       message:
         required: true
+        example:
+          value: Method not found
         displayName: message
+        description: What went wrong.
         type: string
   Fact:
+    example:
+      value:
+        label: Size
+        value: US women's 8
     displayName: Fact
+    description: One answered question.
     type: object
     properties:
       label:
@@ -2032,6 +3525,7 @@ types:
         example:
           value: Size
         displayName: label
+        description: The detail's label.
         type: string
         maxLength: 30
       value:
@@ -2039,34 +3533,63 @@ types:
         example:
           value: US women's 8
         displayName: value
+        description: The answer.
         type: string
         maxLength: 100
   Faq:
+    example:
+      value:
+        q: Are these suitable for outdoor skating?
+        a: Yes, on indoor rink floors and paved outdoor paths.
     displayName: Faq
+    description: One question and its answer.
     type: object
     properties:
       q:
         required: true
+        example:
+          value: Are these suitable for outdoor skating?
         displayName: q
+        description: The question.
         type: string
       a:
         required: true
+        example:
+          value: Yes, on indoor rink floors and paved outdoor paths.
         displayName: a
+        description: The answer.
         type: string
   Fonts:
+    example:
+      value:
+        heading: Playfair Display
+        body: Inter
     displayName: Fonts
+    description: Google Fonts for the page.
     type: object
     properties:
       heading:
         required: true
+        example:
+          value: Playfair Display
         displayName: heading
+        description: The headings font.
         type: string
       body:
         required: true
+        example:
+          value: Inter
         displayName: body
+        description: The body text font.
         type: string
   MissingFact:
+    example:
+      value:
+        label: Size
+        question: What size are the skates?
+        placeholder: US women's 8
     displayName: MissingFact
+    description: One question to answer.
     type: object
     properties:
       label:
@@ -2074,85 +3597,150 @@ types:
         example:
           value: Size
         displayName: label
+        description: The product detail it becomes.
         type: string
       question:
         required: true
         example:
           value: What size are the skates?
         displayName: question
+        description: The question, for the seller.
         type: string
       placeholder:
         required: true
         example:
           value: US women's 8
         displayName: placeholder
+        description: An example answer.
         type: string
   Offer:
+    example:
+      value:
+        domain: rei.com
+        url: https://buy.trychannel3.com/r/abc123
+        price: 240
+        currency: USD
+        inStock: true
+        commission: 0.08
     displayName: Offer
+    description: One store's offer.
     type: object
     properties:
       domain:
         required: true
+        example:
+          value: rei.com
         displayName: domain
+        description: The store's domain.
         type: string
       url:
         required: true
+        example:
+          value: https://buy.trychannel3.com/r/abc123
         displayName: url
+        description: A Channel3-tracked buy link, credited to this shop.
         type: string
       price:
         required: true
+        example:
+          value: 240
         displayName: price
+        description: The store's price.
         type: number
         format: double
       currency:
         required: true
+        example:
+          value: USD
         displayName: currency
+        description: ISO 4217 currency code.
         type: string
       inStock:
         required: true
+        example:
+          value: true
         displayName: inStock
+        description: Whether the store has it in stock.
         type: boolean
       commission:
         required: true
+        example:
+          value: 0.08
         displayName: commission
         description: Maximum commission rate, 0–1 (0.08 = 8%).
         type: number
         format: double
   Offer1:
+    example:
+      value:
+        retailer: rei.com
+        price: 240
+        currency: USD
+        in_stock: true
+        url: https://buy.trychannel3.com/r/abc123
     displayName: Offer1
+    description: One store's offer.
     type: object
     properties:
       retailer:
         required: true
+        example:
+          value: rei.com
         displayName: retailer
+        description: The store.
         type: string
       price:
         required: true
+        example:
+          value: 240
         displayName: price
+        description: The store's price.
         type: number
         format: double
       currency:
         required: true
+        example:
+          value: USD
         displayName: currency
+        description: ISO 4217 currency code.
         type: string
       in_stock:
         required: true
+        example:
+          value: true
         displayName: in_stock
+        description: Whether the store has it in stock.
         type: boolean
       url:
         required: true
+        example:
+          value: https://buy.trychannel3.com/r/abc123
         displayName: url
+        description: A tracked buy link at that store.
         type: string
   Ok:
     displayName: Ok
+    description: Confirms the change.
     type: object
     properties:
       ok:
         required: true
+        example:
+          value: true
         displayName: ok
+        description: Always `true`.
         type: boolean
   Option:
+    example:
+      value:
+        name: Size
+        kind: size
+        values:
+        - label: S
+        - label: M
+        - label: L
     displayName: Option
+    description: A suggested option.
     type: object
     properties:
       name:
@@ -2160,10 +3748,13 @@ types:
         example:
           value: Size
         displayName: name
+        description: What the buyer is choosing.
         type: string
         maxLength: 20
       kind:
         required: true
+        example:
+          value: size
         displayName: kind
         description: '`color` shows swatches, and the photo of the picked colour.'
         type: string
@@ -2173,7 +3764,13 @@ types:
         - other
       values:
         required: true
+        example:
+          value:
+          - label: S
+          - label: M
+          - label: L
         displayName: values
+        description: The values to pick from.
         type: array
         uniqueItems: false
         minItems: 1
@@ -2182,34 +3779,77 @@ types:
           type: OptionValue
       fromSeller:
         required: false
+        example:
+          value: false
         displayName: fromSeller
         description: The seller's description or photo named these values; otherwise they're a guess.
         type: boolean
   Option1:
+    example:
+      value:
+        name: Size
+        values:
+        - '7'
+        - '8'
+        - '9'
     displayName: Option1
+    description: One option and its values.
     type: object
     properties:
       name:
         required: true
+        example:
+          value: Vintage Cream and Red Roller Skates
         displayName: name
+        description: The option's name, which is also its query parameter on `order_url`.
         type: string
       values:
         required: true
+        example:
+          value:
+          - '7'
+          - '8'
+          - '9'
         displayName: values
+        description: The values the buyer can pick.
         type: array
         items:
           type: string
   Order1:
+    example:
+      value:
+        id: pX4kR9tVb2nQ7sLe
+        paypal_order_id: 5O190127TN364715T
+        amount: '255.00'
+        currency: USD
+        buyer_name: Sam Rivera
+        buyer_email: sam@example.com
+        shipping_address:
+          address_line_1: 1 Main St
+          admin_area_2: Springfield
+          admin_area_1: IL
+          postal_code: '62701'
+          country_code: US
+        fulfillment_status: to_ship
+        tracking_number: '9400111899223197428490'
+        carrier: USPS
     displayName: Order1
+    description: The order.
     type: object
     properties:
       id:
         required: false
+        example:
+          value: pX4kR9tVb2nQ7sLe
         displayName: id
+        description: OneThing's order id.
         type: string
       paypal_order_id:
         required: false
+        example:
+          value: 5O190127TN364715T
         displayName: paypal_order_id
+        description: PayPal's order id.
         type:
         - string
         - nil
@@ -2218,48 +3858,84 @@ types:
         example:
           value: '2.99'
         displayName: amount
+        description: The total, as a decimal string.
         type: string
       currency:
         required: false
+        example:
+          value: USD
         displayName: currency
+        description: ISO 4217 currency code.
         type: string
       buyer_name:
         required: false
+        example:
+          value: Sam Rivera
         displayName: buyer_name
+        description: The buyer's name, from PayPal.
         type:
         - string
         - nil
       buyer_email:
         required: false
+        example:
+          value: sam@example.com
         displayName: buyer_email
+        description: The buyer's email, from PayPal.
         type:
         - string
         - nil
       shipping_address:
         required: false
+        example:
+          value:
+            address_line_1: 1 Main St
+            admin_area_2: Springfield
+            admin_area_1: IL
+            postal_code: '62701'
+            country_code: US
         displayName: shipping_address
+        description: 'Physical orders: the address, by field.'
         type:
         - object
         - nil
         properties: {}
       fulfillment_status:
         required: false
+        example:
+          value: to_ship
         displayName: fulfillment_status
+        description: As in `Order.fulfillment_status`.
         type: string
       tracking_number:
         required: false
+        example:
+          value: '9400111899223197428490'
         displayName: tracking_number
+        description: The tracking number, once shipped.
         type:
         - string
         - nil
       carrier:
         required: false
+        example:
+          value: USPS
         displayName: carrier
+        description: The carrier, once shipped.
         type:
         - string
         - nil
   Palette:
+    example:
+      value:
+        background: '#f7f1e8'
+        surface: '#ffffff'
+        text: '#1f1a17'
+        muted: '#6b625b'
+        accent: '#b3262d'
+        accentText: '#ffffff'
     displayName: Palette
+    description: The page colours, taken from the photo. Text colours are checked for contrast.
     type: object
     properties:
       background:
@@ -2267,6 +3943,7 @@ types:
         example:
           value: '#14171a'
         displayName: background
+        description: A colour as `#rrggbb`.
         type: string
         pattern: ^#[0-9a-fA-F]{6}$
       surface:
@@ -2274,6 +3951,7 @@ types:
         example:
           value: '#14171a'
         displayName: surface
+        description: A colour as `#rrggbb`.
         type: string
         pattern: ^#[0-9a-fA-F]{6}$
       text:
@@ -2281,6 +3959,7 @@ types:
         example:
           value: '#14171a'
         displayName: text
+        description: A colour as `#rrggbb`.
         type: string
         pattern: ^#[0-9a-fA-F]{6}$
       muted:
@@ -2288,6 +3967,7 @@ types:
         example:
           value: '#14171a'
         displayName: muted
+        description: A colour as `#rrggbb`.
         type: string
         pattern: ^#[0-9a-fA-F]{6}$
       accent:
@@ -2295,6 +3975,7 @@ types:
         example:
           value: '#14171a'
         displayName: accent
+        description: A colour as `#rrggbb`.
         type: string
         pattern: ^#[0-9a-fA-F]{6}$
       accentText:
@@ -2302,95 +3983,175 @@ types:
         example:
           value: '#14171a'
         displayName: accentText
+        description: A colour as `#rrggbb`.
         type: string
         pattern: ^#[0-9a-fA-F]{6}$
   Photo:
+    example:
+      value:
+        id: 'LFRvGuTU3D8i334X'
+        url: '/api/blobs/LFRvGuTU3D8i334X'
     displayName: Photo
+    description: One photo.
     type: object
     properties:
       id:
         required: true
+        example:
+          value: 'LFRvGuTU3D8i334X'
         displayName: id
+        description: The photo's id, for `getImage`, `setPhotoOrder` and colour matching.
         type: string
       url:
         required: true
+        example:
+          value: '/api/blobs/LFRvGuTU3D8i334X'
         displayName: url
         description: Public image URL on this site.
         type: string
   Shipping:
+    example:
+      value:
+        amount: 15
+        currency: USD
+        ships_to:
+        - US
+        - CA
     displayName: Shipping
+    description: Shipping cost and destinations.
     type: object
     properties:
       amount:
         required: true
+        example:
+          value: 15
         displayName: amount
+        description: Shipping cost per order.
         type: number
         format: double
       currency:
         required: true
+        example:
+          value: USD
         displayName: currency
+        description: ISO 4217 currency code.
         type: string
       ships_to:
         required: true
+        example:
+          value:
+          - US
+          - CA
         displayName: ships_to
         description: Country codes; empty means anywhere PayPal ships.
         type: array
         items:
           type: string
   ShipTo:
+    example:
+      value:
+        name: Sam Rivera
+        address: 1 Main St, Springfield, IL, 62701, US
     displayName: ShipTo
+    description: Where it ships, from the buyer's PayPal checkout. Null if PayPal didn't share it.
     type: object
     properties:
       name:
         required: false
+        example:
+          value: Sam Rivera
         displayName: name
+        description: The recipient's name.
         type:
         - string
         - nil
       address:
         required: false
+        example:
+          value: 1 Main St, Springfield, IL, 62701, US
         displayName: address
+        description: The address on one line.
         type: string
   Shop1:
+    example:
+      value:
+        slug: vintageskates
+        name: Vintage Cream and Red Roller Skates
+        url: https://one-thing-ash0.onrender.com/vintageskates
     displayName: Shop1
+    description: The shop the order belongs to.
     type: object
     properties:
       slug:
         required: false
+        example:
+          value: vintageskates
         displayName: slug
+        description: The shop's link name.
         type: string
       name:
         required: false
+        example:
+          value: Vintage Cream and Red Roller Skates
         displayName: name
+        description: The product's name.
         type: string
       url:
         required: false
+        example:
+          value: https://one-thing-ash0.onrender.com/vintageskates
         displayName: url
+        description: The shop page.
         type: string
   ShopPhotos:
     displayName: ShopPhotos
+    description: The shop's photos.
     type: object
     properties:
       photos:
         required: true
+        example:
+          value:
+          - id: 'LFRvGuTU3D8i334X'
+            url: '/api/blobs/LFRvGuTU3D8i334X'
         displayName: photos
+        description: Every photo, the cover first.
         type: array
         items:
           type: Photo
   Tracking:
+    example:
+      value:
+        carrier: USPS
+        number: '9400111899223197428490'
     displayName: Tracking
+    description: The carrier and tracking number once shipped; null before.
     type: object
     properties:
       carrier:
         required: false
+        example:
+          value: USPS
         displayName: carrier
+        description: The shipping carrier.
         type: string
       number:
         required: false
+        example:
+          value: '9400111899223197428490'
         displayName: number
+        description: The tracking number.
         type: string
   Variant:
+    example:
+      value:
+        choice:
+          Size: M
+          Color: Black
+        availability: in_stock (3 left)
+        order_url: https://one-thing-ash0.onrender.com/vintageskates/buy?Size=9
     displayName: Variant
+    description: One combination of option values.
     type: object
     properties:
       choice:
@@ -2408,10 +4169,15 @@ types:
             type: string
       availability:
         required: true
+        example:
+          value: in_stock (3 left)
         displayName: availability
+        description: '`in_stock`, `in_stock (N left)` or `sold_out`.'
         type: string
       order_url:
         required: false
+        example:
+          value: https://one-thing-ash0.onrender.com/vintageskates/buy?Size=9
         displayName: order_url
         description: "`orderByLink` for this pick. Left out when it's sold out."
         type: string
@@ -2435,8 +4201,10 @@ types:
         description: No order with that id.
         body:
           text/plain:
+            example:
+              value: Order not found.
             displayName: response404
-            description: ''
+            description: A short message.
             type: string
 /api:
   /shops:
@@ -2488,6 +4256,7 @@ types:
                   displayName: A recommendation from searchProducts
                   value: channel3
               displayName: source
+              description: 'What the shop starts from: a photo (with an optional description), a product link, or a Channel3 product to recommend.'
               type: string
               enum:
               - photo
@@ -2500,37 +4269,29 @@ types:
               type: file
             description:
               required: false
-              examples:
-                photo:
-                  displayName: Your own product, described
-                  value: Vintage cream and red quad roller skates with walnut burl heels.
+              example:
+                value: Vintage cream and red quad roller skates with walnut burl heels.
               displayName: description
               description: '`source=photo`: a sentence or two about the product. Required if there is no photo.'
               type: string
             url:
               required: false
-              examples:
-                link:
-                  displayName: An app or game, sold with access codes
-                  value: https://www.miriogames.com/raptor-rush/
+              example:
+                value: https://one-thing-ash0.onrender.com/vintageskates
               displayName: url
               description: '`source=link`: a product page, or your own app or game page.'
               type: string
             productId:
               required: false
-              examples:
-                channel3:
-                  displayName: A recommendation from searchProducts
-                  value: ch3_7f2a9c1e
+              example:
+                value: ch3_7f2a9c1e
               displayName: productId
               description: '`source=channel3`: a product id from `searchProducts`.'
               type: string
             slug:
               required: false
-              examples:
-                link:
-                  displayName: An app or game, sold with access codes
-                  value: raptorrush
+              example:
+                value: vintageskates
               displayName: slug
               description: The link name you want. If omitted, the AI suggests one.
               type: string
@@ -2545,6 +4306,7 @@ types:
                   displayName: An app or game, sold with access codes
                   value: digital
               displayName: type
+              description: '`physical` ships, `digital` is a file or an access code, `auto` lets the AI decide.'
               type: string
               enum:
               - auto
@@ -2564,38 +4326,33 @@ types:
               - access_code
             access_url:
               required: false
-              examples:
-                link:
-                  displayName: An app or game, sold with access codes
-                  value: https://www.miriogames.com/raptor-rush/play/
+              example:
+                value: https://www.miriogames.com/raptor-rush/
               displayName: access_url
               description: Where buyers use an access code.
               type: string
             price:
               required: false
-              examples:
-                photo:
-                  displayName: Your own product, described
-                  value: 240
-                link:
-                  displayName: An app or game, sold with access codes
-                  value: 2.99
+              example:
+                value: 240
               displayName: price
               description: USD. If omitted, the AI suggests a price.
               type: number
               format: double
             shipping:
               required: false
-              examples:
-                photo:
-                  displayName: Your own product, described
-                  value: 15
+              example:
+                value: 15
               displayName: shipping
+              description: 'Physical products: shipping per order, in USD. If omitted, the AI suggests it.'
               type: number
               format: double
             stock:
               required: false
+              example:
+                value: 7
               displayName: stock
+              description: How many are for sale. Leave out for unlimited.
               type: integer
               format: int32
             ship_countries:
@@ -2605,22 +4362,26 @@ types:
                   displayName: Your own product, described
                   value: US
               displayName: ship_countries
+              description: 'Physical products: comma-separated ISO country codes to ship to. Empty means anywhere PayPal ships.'
               type: string
             paypal_email:
               required: false
-              examples:
-                photo:
-                  displayName: Your own product, described
-                  value: seller@example.com
+              example:
+                value: seller@example.com
               displayName: paypal_email
+              description: The PayPal account that gets paid, if the seller doesn't connect one with `connectPayPal`.
               type: string
             seller_email:
               required: false
+              example:
+                value: seller@example.com
               displayName: seller_email
+              description: Where order notifications go.
               type: string
             digital_file:
               required: false
               displayName: digital_file
+              description: 'Digital products sold as a file: the file buyers download, up to 25 MB. Can also be added later with `uploadDigitalFile`.'
               type: file
       securedBy:
       - null
@@ -2636,7 +4397,7 @@ types:
                   token: 3fJ9xQm2LwP8vR1tZk7cN4bY6dHs0aEu
                   manageUrl: /manage/vintageskates?token=3fJ9xQm2LwP8vR1tZk7cN4bY6dHs0aEu
               displayName: response200
-              description: ''
+              description: The new draft shop and the credentials to manage it.
               type: CreatedShop
         '400':
           description: Something in the request needs fixing; `error` says what.
@@ -2646,8 +4407,8 @@ types:
                 value:
                   error: Choose a photo.
               displayName: response400
-              description: ''
-              type: Error
+              description: An error reply.
+              type: ErrorResponse
         '409':
           description: Taken or unavailable (a link name, or a sold-out product).
           body:
@@ -2656,18 +4417,8 @@ types:
                 value:
                   error: Sold out.
               displayName: response409
-              description: ''
-              type: Error
-        '502':
-          description: Gemini, PayPal or Channel3 failed or isn't configured.
-          body:
-            application/json:
-              example:
-                value:
-                  error: PayPal isn't configured on this server.
-              displayName: response502
-              description: ''
-              type: Error
+              description: An error reply.
+              type: ErrorResponse
         '429':
           description: Over this network's cap for the call (see **Limits**). Retry after `Retry-After` seconds.
           headers:
@@ -2684,14 +4435,24 @@ types:
                 value:
                   error: Too many checkouts from your network. Try again in 7 min.
               displayName: response429
-              description: ''
-              type: Error
+              description: An error reply.
+              type: ErrorResponse
+        '502':
+          description: Gemini, PayPal or Channel3 failed or isn't configured.
+          body:
+            application/json:
+              example:
+                value:
+                  error: PayPal isn't configured on this server.
+              displayName: response502
+              description: An error reply.
+              type: ErrorResponse
     /{slug}:
       uriParameters:
         slug:
           required: true
           example:
-            value: raptorrush
+            value: vintageskates
           displayName: slug
           description: The shop's link name (current or former).
           type: string
@@ -2784,7 +4545,7 @@ types:
                       imageAlt: Cream leather quad roller skates with red trim
                     created_at: 2026-10-19T15:22:08Z
                 displayName: response200
-                description: ''
+                description: A shop, as its seller sees it.
                 type: Shop
           '404':
             description: No such shop, or the admin token or API key doesn't match it.
@@ -2794,8 +4555,8 @@ types:
                   value:
                     error: Shop not found.
                 displayName: response404
-                description: ''
-                type: Error
+                description: An error reply.
+                type: ErrorResponse
       patch:
         displayName: updateShop
         description: >
@@ -2839,6 +4600,7 @@ types:
                   - label: Wheel size
                     value: 57 mm
             displayName: body
+            description: The fields to change; anything left out stays as it is.
             type: ShopUpdate
         securedBy:
         - AdminToken
@@ -2860,7 +4622,7 @@ types:
                     ok: true
                     slug: vintageskates
                 displayName: response200
-                description: ''
+                description: The shop was saved.
                 type: ApiShopsResponse
           '400':
             description: Something in the request needs fixing; `error` says what.
@@ -2870,8 +4632,8 @@ types:
                   value:
                     error: Choose a photo.
                 displayName: response400
-                description: ''
-                type: Error
+                description: An error reply.
+                type: ErrorResponse
           '404':
             description: No such shop, or the admin token or API key doesn't match it.
             body:
@@ -2880,8 +4642,8 @@ types:
                   value:
                     error: Shop not found.
                 displayName: response404
-                description: ''
-                type: Error
+                description: An error reply.
+                type: ErrorResponse
       /refine:
         post:
           displayName: refineShopDesign
@@ -2892,6 +4654,7 @@ types:
                 value:
                   instruction: Make it feel more premium
               displayName: body
+              description: The design change, in words.
               type: ApiShopsRefineRequest
           securedBy:
           - AdminToken
@@ -2942,7 +4705,7 @@ types:
                         suggestedShippingUsd: 15
                         imageAlt: Cream leather quad roller skates with red trim
                   displayName: response200
-                  description: ''
+                  description: The redesigned page.
                   type: ApiShopsRefineResponse
             '400':
               description: Something in the request needs fixing; `error` says what.
@@ -2952,8 +4715,8 @@ types:
                     value:
                       error: Choose a photo.
                   displayName: response400
-                  description: ''
-                  type: Error
+                  description: An error reply.
+                  type: ErrorResponse
             '404':
               description: No such shop, or the admin token or API key doesn't match it.
               body:
@@ -2962,18 +4725,8 @@ types:
                     value:
                       error: Shop not found.
                   displayName: response404
-                  description: ''
-                  type: Error
-            '502':
-              description: Gemini, PayPal or Channel3 failed or isn't configured.
-              body:
-                application/json:
-                  example:
-                    value:
-                      error: PayPal isn't configured on this server.
-                  displayName: response502
-                  description: ''
-                  type: Error
+                  description: An error reply.
+                  type: ErrorResponse
             '429':
               description: Over this network's cap for the call (see **Limits**). Retry after `Retry-After` seconds.
               headers:
@@ -2990,8 +4743,18 @@ types:
                     value:
                       error: Too many checkouts from your network. Try again in 7 min.
                   displayName: response429
-                  description: ''
-                  type: Error
+                  description: An error reply.
+                  type: ErrorResponse
+            '502':
+              description: Gemini, PayPal or Channel3 failed or isn't configured.
+              body:
+                application/json:
+                  example:
+                    value:
+                      error: PayPal isn't configured on this server.
+                  displayName: response502
+                  description: An error reply.
+                  type: ErrorResponse
       /hero:
         post:
           displayName: regenerateHeroArt
@@ -3008,7 +4771,7 @@ types:
                     value:
                       ok: true
                   displayName: response200
-                  description: ''
+                  description: Confirms the change.
                   type: Ok
             '400':
               description: Something in the request needs fixing; `error` says what.
@@ -3018,8 +4781,8 @@ types:
                     value:
                       error: Choose a photo.
                   displayName: response400
-                  description: ''
-                  type: Error
+                  description: An error reply.
+                  type: ErrorResponse
             '404':
               description: No such shop, or the admin token or API key doesn't match it.
               body:
@@ -3028,8 +4791,8 @@ types:
                     value:
                       error: Shop not found.
                   displayName: response404
-                  description: ''
-                  type: Error
+                  description: An error reply.
+                  type: ErrorResponse
             '429':
               description: Over this network's cap for the call (see **Limits**). Retry after `Retry-After` seconds.
               headers:
@@ -3046,8 +4809,8 @@ types:
                     value:
                       error: Too many checkouts from your network. Try again in 7 min.
                   displayName: response429
-                  description: ''
-                  type: Error
+                  description: An error reply.
+                  type: ErrorResponse
       /file:
         post:
           displayName: uploadDigitalFile
@@ -3074,7 +4837,7 @@ types:
                       ok: true
                       filename: raptor-rush-soundtrack.zip
                   displayName: response200
-                  description: ''
+                  description: The uploaded file.
                   type: ApiShopsFileResponse
             '400':
               description: Something in the request needs fixing; `error` says what.
@@ -3084,8 +4847,8 @@ types:
                     value:
                       error: Choose a photo.
                   displayName: response400
-                  description: ''
-                  type: Error
+                  description: An error reply.
+                  type: ErrorResponse
             '404':
               description: No such shop, or the admin token or API key doesn't match it.
               body:
@@ -3094,8 +4857,8 @@ types:
                     value:
                       error: Shop not found.
                   displayName: response404
-                  description: ''
-                  type: Error
+                  description: An error reply.
+                  type: ErrorResponse
       /photos:
         post:
           displayName: addPhotos
@@ -3125,7 +4888,7 @@ types:
                       - id: zrySajNyao6_j11x
                         url: /api/blobs/zrySajNyao6_j11x
                   displayName: response200
-                  description: ''
+                  description: The shop's photos.
                   type: ShopPhotos
             '400':
               description: Something in the request needs fixing; `error` says what.
@@ -3135,8 +4898,8 @@ types:
                     value:
                       error: Choose a photo.
                   displayName: response400
-                  description: ''
-                  type: Error
+                  description: An error reply.
+                  type: ErrorResponse
             '404':
               description: No such shop, or the admin token or API key doesn't match it.
               body:
@@ -3145,8 +4908,8 @@ types:
                     value:
                       error: Shop not found.
                   displayName: response404
-                  description: ''
-                  type: Error
+                  description: An error reply.
+                  type: ErrorResponse
         put:
           displayName: setPhotoOrder
           description: Sets the photo order; the first becomes the cover. Leaving a photo out removes it.
@@ -3159,6 +4922,7 @@ types:
                   - 'LFRvGuTU3D8i334X'
                   - SuqcgNv64HWN8H6e
               displayName: body
+              description: Every photo id, in the new order.
               type: ApiShopsPhotosRequest
           securedBy:
           - AdminToken
@@ -3183,7 +4947,7 @@ types:
                       - id: zrySajNyao6_j11x
                         url: /api/blobs/zrySajNyao6_j11x
                   displayName: response200
-                  description: ''
+                  description: The shop's photos.
                   type: ShopPhotos
             '400':
               description: Something in the request needs fixing; `error` says what.
@@ -3193,8 +4957,8 @@ types:
                     value:
                       error: Choose a photo.
                   displayName: response400
-                  description: ''
-                  type: Error
+                  description: An error reply.
+                  type: ErrorResponse
             '404':
               description: No such shop, or the admin token or API key doesn't match it.
               body:
@@ -3203,8 +4967,8 @@ types:
                     value:
                       error: Shop not found.
                   displayName: response404
-                  description: ''
-                  type: Error
+                  description: An error reply.
+                  type: ErrorResponse
       /suggest:
         post:
           displayName: checkMissingDetails
@@ -3253,8 +5017,8 @@ types:
                     value:
                       error: Choose a photo.
                   displayName: response400
-                  description: ''
-                  type: Error
+                  description: An error reply.
+                  type: ErrorResponse
             '404':
               description: No such shop, or the admin token or API key doesn't match it.
               body:
@@ -3263,18 +5027,8 @@ types:
                     value:
                       error: Shop not found.
                   displayName: response404
-                  description: ''
-                  type: Error
-            '502':
-              description: Gemini, PayPal or Channel3 failed or isn't configured.
-              body:
-                application/json:
-                  example:
-                    value:
-                      error: PayPal isn't configured on this server.
-                  displayName: response502
-                  description: ''
-                  type: Error
+                  description: An error reply.
+                  type: ErrorResponse
             '429':
               description: Over this network's cap for the call (see **Limits**). Retry after `Retry-After` seconds.
               headers:
@@ -3291,8 +5045,18 @@ types:
                     value:
                       error: Too many checkouts from your network. Try again in 7 min.
                   displayName: response429
-                  description: ''
-                  type: Error
+                  description: An error reply.
+                  type: ErrorResponse
+            '502':
+              description: Gemini, PayPal or Channel3 failed or isn't configured.
+              body:
+                application/json:
+                  example:
+                    value:
+                      error: PayPal isn't configured on this server.
+                  displayName: response502
+                  description: An error reply.
+                  type: ErrorResponse
       /match-photos:
         post:
           displayName: matchColorPhotos
@@ -3307,6 +5071,7 @@ types:
                   - label: Red
                     hex: '#b3261e'
               displayName: body
+              description: The colour option's values.
               type: ApiShopsMatchPhotosRequest
           securedBy:
           - AdminToken
@@ -3329,7 +5094,7 @@ types:
                         Cream: 'LFRvGuTU3D8i334X'
                         Red: SuqcgNv64HWN8H6e
                   displayName: response200
-                  description: ''
+                  description: Gemini's matches.
                   type: ApiShopsMatchPhotosResponse
             '400':
               description: Something in the request needs fixing; `error` says what.
@@ -3339,8 +5104,8 @@ types:
                     value:
                       error: Choose a photo.
                   displayName: response400
-                  description: ''
-                  type: Error
+                  description: An error reply.
+                  type: ErrorResponse
             '404':
               description: No such shop, or the admin token or API key doesn't match it.
               body:
@@ -3349,18 +5114,8 @@ types:
                     value:
                       error: Shop not found.
                   displayName: response404
-                  description: ''
-                  type: Error
-            '502':
-              description: Gemini, PayPal or Channel3 failed or isn't configured.
-              body:
-                application/json:
-                  example:
-                    value:
-                      error: PayPal isn't configured on this server.
-                  displayName: response502
-                  description: ''
-                  type: Error
+                  description: An error reply.
+                  type: ErrorResponse
             '429':
               description: Over this network's cap for the call (see **Limits**). Retry after `Retry-After` seconds.
               headers:
@@ -3377,8 +5132,18 @@ types:
                     value:
                       error: Too many checkouts from your network. Try again in 7 min.
                   displayName: response429
-                  description: ''
-                  type: Error
+                  description: An error reply.
+                  type: ErrorResponse
+            '502':
+              description: Gemini, PayPal or Channel3 failed or isn't configured.
+              body:
+                application/json:
+                  example:
+                    value:
+                      error: PayPal isn't configured on this server.
+                  displayName: response502
+                  description: An error reply.
+                  type: ErrorResponse
       /color-photos:
         put:
           displayName: setColorPhotos
@@ -3391,6 +5156,7 @@ types:
                     Cream: 'LFRvGuTU3D8i334X'
                     Red: null
               displayName: body
+              description: The photo for each colour.
               type: ApiShopsColorPhotosRequest
           securedBy:
           - AdminToken
@@ -3413,7 +5179,7 @@ types:
                       - Cream
                       - Red
                   displayName: response200
-                  description: ''
+                  description: The colours that changed.
                   type: ApiShopsColorPhotosResponse
             '400':
               description: Something in the request needs fixing; `error` says what.
@@ -3423,8 +5189,8 @@ types:
                     value:
                       error: Choose a photo.
                   displayName: response400
-                  description: ''
-                  type: Error
+                  description: An error reply.
+                  type: ErrorResponse
             '404':
               description: No such shop, or the admin token or API key doesn't match it.
               body:
@@ -3433,8 +5199,8 @@ types:
                     value:
                       error: Shop not found.
                   displayName: response404
-                  description: ''
-                  type: Error
+                  description: An error reply.
+                  type: ErrorResponse
       /paypal:
         post:
           displayName: connectPayPal
@@ -3462,6 +5228,7 @@ types:
                 value:
                   returnUrl: https://www.miriogames.com/market/manage/?g=7Hq2
               displayName: body
+              description: 'Platform keys only: where PayPal sends the seller back.'
               type: ApiShopsPaypalRequest
           securedBy:
           - AdminToken
@@ -3482,7 +5249,7 @@ types:
                     value:
                       url: https://www.sandbox.paypal.com/bizsignup/partner/entry?referralToken=EXAMPLE
                   displayName: response200
-                  description: ''
+                  description: The onboarding link.
                   type: ApiShopsPaypalResponse
             '404':
               description: No such shop, or the admin token or API key doesn't match it.
@@ -3492,8 +5259,8 @@ types:
                     value:
                       error: Shop not found.
                   displayName: response404
-                  description: ''
-                  type: Error
+                  description: An error reply.
+                  type: ErrorResponse
             '502':
               description: Gemini, PayPal or Channel3 failed or isn't configured.
               body:
@@ -3502,8 +5269,8 @@ types:
                     value:
                       error: PayPal isn't configured on this server.
                   displayName: response502
-                  description: ''
-                  type: Error
+                  description: An error reply.
+                  type: ErrorResponse
             '503':
               description: Gemini, PayPal or Channel3 failed or isn't configured.
               body:
@@ -3512,8 +5279,8 @@ types:
                     value:
                       error: PayPal isn't configured on this server.
                   displayName: response503
-                  description: ''
-                  type: Error
+                  description: An error reply.
+                  type: ErrorResponse
         get:
           displayName: getPayPalConnection
           description: Asks PayPal where the seller's connection stands and saves it on the shop. Also finds a connection the seller finished at PayPal without coming back.
@@ -3533,7 +5300,7 @@ types:
                         emailConfirmed: true
                         checkedAt: 2026-10-21T18:04:11Z
                   displayName: response200
-                  description: ''
+                  description: The shop's PayPal connection.
                   type: ApiShopsPaypalResponse1
             '404':
               description: No such shop, or the admin token or API key doesn't match it.
@@ -3543,8 +5310,8 @@ types:
                     value:
                       error: Shop not found.
                   displayName: response404
-                  description: ''
-                  type: Error
+                  description: An error reply.
+                  type: ErrorResponse
             '502':
               description: Gemini, PayPal or Channel3 failed or isn't configured.
               body:
@@ -3553,8 +5320,8 @@ types:
                     value:
                       error: PayPal isn't configured on this server.
                   displayName: response502
-                  description: ''
-                  type: Error
+                  description: An error reply.
+                  type: ErrorResponse
             '503':
               description: Gemini, PayPal or Channel3 failed or isn't configured.
               body:
@@ -3563,8 +5330,8 @@ types:
                     value:
                       error: PayPal isn't configured on this server.
                   displayName: response503
-                  description: ''
-                  type: Error
+                  description: An error reply.
+                  type: ErrorResponse
         delete:
           displayName: disconnectPayPal
           description: Forgets the connected account. Sales go back to the shop's `paypal_email`.
@@ -3580,7 +5347,7 @@ types:
                     value:
                       ok: true
                   displayName: response200
-                  description: ''
+                  description: Confirms the change.
                   type: Ok
             '404':
               description: No such shop, or the admin token or API key doesn't match it.
@@ -3590,8 +5357,8 @@ types:
                     value:
                       error: Shop not found.
                   displayName: response404
-                  description: ''
-                  type: Error
+                  description: An error reply.
+                  type: ErrorResponse
       /orders:
         get:
           displayName: listOrders
@@ -3634,7 +5401,7 @@ types:
                       paid_at: 2026-10-22T02:41:37Z
                       created_at: 2026-10-22T02:38:05Z
                   displayName: response200
-                  description: ''
+                  description: Orders, newest first.
                   type: array
                   items:
                     type: Order
@@ -3646,8 +5413,8 @@ types:
                     value:
                       error: Shop not found.
                   displayName: response404
-                  description: ''
-                  type: Error
+                  description: An error reply.
+                  type: ErrorResponse
         /{orderId}:
           uriParameters:
             orderId:
@@ -3676,6 +5443,7 @@ types:
                         carrierName: Canada Post
                         trackingNumber: '7023210039414604'
                   displayName: body
+                  description: The carrier and tracking number.
                   type: ApiShopsOrdersShipRequest
               securedBy:
               - AdminToken
@@ -3697,7 +5465,7 @@ types:
                           ok: true
                           synced: true
                       displayName: response200
-                      description: ''
+                      description: The order is marked shipped.
                       type: ApiShopsOrdersShipResponse
                 '400':
                   description: Something in the request needs fixing; `error` says what.
@@ -3707,8 +5475,8 @@ types:
                         value:
                           error: Choose a photo.
                       displayName: response400
-                      description: ''
-                      type: Error
+                      description: An error reply.
+                      type: ErrorResponse
                 '404':
                   description: No such shop, or the admin token or API key doesn't match it.
                   body:
@@ -3717,8 +5485,8 @@ types:
                         value:
                           error: Shop not found.
                       displayName: response404
-                      description: ''
-                      type: Error
+                      description: An error reply.
+                      type: ErrorResponse
           /refund:
             post:
               displayName: refundOrder
@@ -3734,6 +5502,7 @@ types:
                       value:
                         record: true
                   displayName: body
+                  description: 'Optional. `record: true` records a refund made in PayPal.'
                   type: ApiShopsOrdersRefundRequest
               securedBy:
               - AdminToken
@@ -3755,7 +5524,7 @@ types:
                           ok: true
                           refundId: 1JU08902781691411
                       displayName: response200
-                      description: ''
+                      description: The refund.
                       type: ApiShopsOrdersRefundResponse
                 '404':
                   description: No such shop or order, or the token doesn't match the shop.
@@ -3765,8 +5534,8 @@ types:
                         value:
                           error: Order not found.
                       displayName: response404
-                      description: ''
-                      type: Error
+                      description: An error reply.
+                      type: ErrorResponse
                 '409':
                   description: Not refundable here; `error` says why.
                   body:
@@ -3782,7 +5551,7 @@ types:
                             error: PayPal only lets the account that was paid refund this. Refund it in your PayPal account (Activity, then this payment, then Refund), then mark it refunded here.
                             refundInPayPal: true
                       displayName: response409
-                      description: ''
+                      description: Why the order can't be refunded here.
                       type: ApiShopsOrdersRefund409Error1
       /webhooks:
         get:
@@ -3806,7 +5575,7 @@ types:
                       outcome: 'Confirmed: order already paid'
                       received_at: 2026-10-22T02:41:40Z
                   displayName: response200
-                  description: ''
+                  description: PayPal webhook deliveries, newest first.
                   type: array
                   items:
                     type: WebhookEvent
@@ -3818,8 +5587,8 @@ types:
                     value:
                       error: Shop not found.
                   displayName: response404
-                  description: ''
-                  type: Error
+                  description: An error reply.
+                  type: ErrorResponse
   /slugs/check:
     get:
       displayName: checkLinkName
@@ -3850,7 +5619,7 @@ types:
                     available: false
                     problem: Taken. Try another name.
               displayName: response200
-              description: ''
+              description: Whether the link name can be used.
               type: ApiSlugsCheckResponse
   /channel3/search:
     get:
@@ -3860,7 +5629,7 @@ types:
         q:
           required: true
           example:
-            value: gifts for trail runners under $60
+            value: trail running vest
           displayName: q
           description: What to look for, in plain words.
           type: string
@@ -3883,7 +5652,7 @@ types:
                     retailers: 4
                     commission: 0.08
               displayName: response200
-              description: ''
+              description: The products found.
               type: ApiChannel3SearchResponse
         '502':
           description: Gemini, PayPal or Channel3 failed or isn't configured.
@@ -3893,8 +5662,8 @@ types:
                 value:
                   error: PayPal isn't configured on this server.
               displayName: response502
-              description: ''
-              type: Error
+              description: An error reply.
+              type: ErrorResponse
         '503':
           description: Gemini, PayPal or Channel3 failed or isn't configured.
           body:
@@ -3903,8 +5672,8 @@ types:
                 value:
                   error: PayPal isn't configured on this server.
               displayName: response503
-              description: ''
-              type: Error
+              description: An error reply.
+              type: ErrorResponse
   /paypal/client-token:
     get:
       displayName: getPayPalClientToken
@@ -3923,7 +5692,7 @@ types:
                 value:
                   clientToken: eyJraWQiOiJFWEFNUExFIn0.example.client-token
               displayName: response200
-              description: ''
+              description: The client token.
               type: ApiPaypalClientTokenResponse
         '502':
           description: Gemini, PayPal or Channel3 failed or isn't configured.
@@ -3933,8 +5702,8 @@ types:
                 value:
                   error: PayPal isn't configured on this server.
               displayName: response502
-              description: ''
-              type: Error
+              description: An error reply.
+              type: ErrorResponse
         '503':
           description: Gemini, PayPal or Channel3 failed or isn't configured.
           body:
@@ -3943,8 +5712,8 @@ types:
                 value:
                   error: PayPal isn't configured on this server.
               displayName: response503
-              description: ''
-              type: Error
+              description: An error reply.
+              type: ErrorResponse
   /orders:
     post:
       displayName: createCheckoutOrder
@@ -3969,6 +5738,7 @@ types:
                 options:
                   Size: '9'
           displayName: body
+          description: The shop and the buyer's pick.
           type: ApiOrdersRequest
       headers:
         Content-Type:
@@ -3986,7 +5756,7 @@ types:
                 value:
                   id: 5O190127TN364715T
               displayName: response200
-              description: ''
+              description: The PayPal order to approve.
               type: ApiOrdersResponse
         '400':
           description: Something in the request needs fixing; `error` says what.
@@ -3996,8 +5766,8 @@ types:
                 value:
                   error: Choose a photo.
               displayName: response400
-              description: ''
-              type: Error
+              description: An error reply.
+              type: ErrorResponse
         '404':
           description: No such shop, or the admin token or API key doesn't match it.
           body:
@@ -4006,8 +5776,8 @@ types:
                 value:
                   error: Shop not found.
               displayName: response404
-              description: ''
-              type: Error
+              description: An error reply.
+              type: ErrorResponse
         '409':
           description: Taken or unavailable (a link name, or a sold-out product).
           body:
@@ -4016,28 +5786,8 @@ types:
                 value:
                   error: Sold out.
               displayName: response409
-              description: ''
-              type: Error
-        '502':
-          description: Gemini, PayPal or Channel3 failed or isn't configured.
-          body:
-            application/json:
-              example:
-                value:
-                  error: PayPal isn't configured on this server.
-              displayName: response502
-              description: ''
-              type: Error
-        '503':
-          description: Gemini, PayPal or Channel3 failed or isn't configured.
-          body:
-            application/json:
-              example:
-                value:
-                  error: PayPal isn't configured on this server.
-              displayName: response503
-              description: ''
-              type: Error
+              description: An error reply.
+              type: ErrorResponse
         '429':
           description: Over this network's cap for the call (see **Limits**). Retry after `Retry-After` seconds.
           headers:
@@ -4054,8 +5804,28 @@ types:
                 value:
                   error: Too many checkouts from your network. Try again in 7 min.
               displayName: response429
-              description: ''
-              type: Error
+              description: An error reply.
+              type: ErrorResponse
+        '502':
+          description: Gemini, PayPal or Channel3 failed or isn't configured.
+          body:
+            application/json:
+              example:
+                value:
+                  error: PayPal isn't configured on this server.
+              displayName: response502
+              description: An error reply.
+              type: ErrorResponse
+        '503':
+          description: Gemini, PayPal or Channel3 failed or isn't configured.
+          body:
+            application/json:
+              example:
+                value:
+                  error: PayPal isn't configured on this server.
+              displayName: response503
+              description: An error reply.
+              type: ErrorResponse
     /{paypalOrderId}/capture:
       uriParameters:
         paypalOrderId:
@@ -4081,7 +5851,7 @@ types:
                     orderId: pX4kR9tVb2nQ7sLe
                     status: paid
                 displayName: response200
-                description: ''
+                description: The paid order.
                 type: ApiOrdersCaptureResponse
           '402':
             description: Something in the request needs fixing; `error` says what.
@@ -4091,8 +5861,8 @@ types:
                   value:
                     error: Choose a photo.
                 displayName: response402
-                description: ''
-                type: Error
+                description: An error reply.
+                type: ErrorResponse
           '404':
             description: No such shop, or the admin token or API key doesn't match it.
             body:
@@ -4101,29 +5871,29 @@ types:
                   value:
                     error: Shop not found.
                 displayName: response404
-                description: ''
-                type: Error
+                description: An error reply.
+                type: ErrorResponse
           '409':
             description: The buyer hasn't approved the order yet.
             body:
               application/json:
                 displayName: response409
-                description: ''
+                description: Not approved yet.
                 type: ApiOrdersCapture409Error1
           '410':
             description: The last unit (or the last of the buyer's combination) sold while they were paying, or the PayPal checkout expired before they paid. The payment isn't captured, so the buyer isn't charged.
             body:
               application/json:
                 displayName: response410
-                description: ''
-                type: Error
+                description: An error reply.
+                type: ErrorResponse
           '422':
             description: The buyer's funding source was declined (`INSTRUMENT_DECLINED`); they can try another.
             body:
               application/json:
                 displayName: response422
-                description: ''
-                type: Error
+                description: An error reply.
+                type: ErrorResponse
           '502':
             description: Gemini, PayPal or Channel3 failed or isn't configured.
             body:
@@ -4132,8 +5902,8 @@ types:
                   value:
                     error: PayPal isn't configured on this server.
                 displayName: response502
-                description: ''
-                type: Error
+                description: An error reply.
+                type: ErrorResponse
   /access/verify:
     post:
       displayName: verifyAccessCode
@@ -4150,6 +5920,7 @@ types:
               shop: raptorrush
               code: K7QF-M2XP-9HTD
           displayName: body
+          description: The shop and the code to check.
           type: ApiAccessVerifyRequest
       headers:
         Content-Type:
@@ -4174,7 +5945,7 @@ types:
                   value:
                     valid: false
               displayName: response200
-              description: ''
+              description: Whether the code is valid.
               type: ApiAccessVerifyResponse
   /download/{token}:
     uriParameters:
@@ -4194,14 +5965,16 @@ types:
           body:
             application/octet-stream:
               displayName: response200
-              description: ''
+              description: The file's bytes.
               type: file
         '410':
           description: Expired or used up.
           body:
             text/plain:
+              example:
+                value: This download link has expired.
               displayName: response410
-              description: ''
+              description: Why the link no longer works.
               type: string
   /blobs/{id}:
     uriParameters:
@@ -4221,7 +5994,7 @@ types:
           body:
             text/plain:
               displayName: response200
-              description: ''
+              description: The image bytes.
               type: any
         '404':
           description: Not a public shop image.
@@ -4366,6 +6139,7 @@ types:
                   arguments:
                     order_id: pX4kR9tVb2nQ7sLe
           displayName: body
+          description: A JSON-RPC 2.0 request or batch.
           type: JsonRpcRequest | JsonRpcRequest[]
       headers:
         Content-Type:
@@ -4508,7 +6282,7 @@ types:
                           }
                       isError: true
               displayName: response200
-              description: ''
+              description: One JSON-RPC reply, or a batch.
               type: JsonRpcResponse | JsonRpcResponse[]
         '202':
           description: Only notifications were sent; there's nothing to reply.
@@ -4518,7 +6292,7 @@ types:
           body:
             application/json:
               displayName: response400
-              description: ''
+              description: A JSON-RPC 2.0 reply from the MCP server.
               type: JsonRpcResponse
   /platform/shops:
     get:
@@ -4559,15 +6333,15 @@ types:
                     sales: 12
                     created_at: 2026-10-12T20:31:44Z
               displayName: response200
-              description: ''
+              description: The account's shops.
               type: ApiPlatformShopsResponse
         '401':
           description: No API key, or it's wrong or revoked.
           body:
             application/json:
               displayName: response401
-              description: ''
-              type: Error
+              description: An error reply.
+              type: ErrorResponse
   /account:
     /signin:
       post:
@@ -4585,6 +6359,7 @@ types:
                 value:
                   identifier: +1 555 123 4567
             displayName: body
+            description: The email or phone number to sign in with.
             type: ApiAccountSigninRequest
         headers:
           Content-Type:
@@ -4611,7 +6386,7 @@ types:
                     email: maker@example.com
                     phone: null
                 displayName: response200
-                description: ''
+                description: The signed-in account.
                 type: ApiAccountSigninResponse
           '400':
             description: Something in the request needs fixing; `error` says what.
@@ -4621,8 +6396,8 @@ types:
                   value:
                     error: Choose a photo.
                 displayName: response400
-                description: ''
-                type: Error
+                description: An error reply.
+                type: ErrorResponse
     /signout:
       post:
         displayName: signOut
@@ -4636,7 +6411,7 @@ types:
                   value:
                     ok: true
                 displayName: response200
-                description: ''
+                description: Confirms the change.
                 type: Ok
     /paypal:
       get:
@@ -4646,7 +6421,7 @@ types:
           next:
             required: false
             example:
-              value: /new
+              value: /account
             displayName: next
             description: A path on this site to land on afterwards. Defaults to `/account`.
             type: string
@@ -4659,8 +6434,8 @@ types:
             body:
               application/json:
                 displayName: response503
-                description: ''
-                type: Error
+                description: An error reply.
+                type: ErrorResponse
   /agent:
     /shops:
       get:
@@ -4724,14 +6499,14 @@ types:
                     matched: true
                     mcp_server: https://one-thing-ash0.onrender.com/api/mcp
                 displayName: response200
-                description: ''
+                description: The matching shops, with a reply to show the buyer.
                 type: ApiAgentShopsResponse
       /{slug}:
         uriParameters:
           slug:
             required: true
             example:
-              value: raptorrush
+              value: vintageskates
             displayName: slug
             description: The shop's link name (current or former).
             type: string
@@ -4837,8 +6612,8 @@ types:
               body:
                 application/json:
                   displayName: response404
-                  description: ''
-                  type: Error
+                  description: An error reply.
+                  type: ErrorResponse
         /order:
           get:
             displayName: orderByLink
@@ -4937,8 +6712,8 @@ types:
                       value:
                         error: 'Unknown Size "12". Size: one of 7, 8, 9.'
                     displayName: response400
-                    description: ''
-                    type: Error
+                    description: An error reply.
+                    type: ErrorResponse
               '403':
                 description: A known crawler or link previewer. They don't place orders.
                 body:
@@ -4947,8 +6722,8 @@ types:
                       value:
                         error: Crawlers and link previews don't place orders. Read the product at the shop's page.
                     displayName: response403
-                    description: ''
-                    type: Error
+                    description: An error reply.
+                    type: ErrorResponse
               '404':
                 description: No live shop with that link name.
                 body:
@@ -4957,8 +6732,8 @@ types:
                       value:
                         error: No live shop called "skatez". Try search_shops.
                     displayName: response404
-                    description: ''
-                    type: Error
+                    description: An error reply.
+                    type: ErrorResponse
               '429':
                 description: Over this network's cap for the call (see **Limits**). Retry after `Retry-After` seconds.
                 headers:
@@ -4975,8 +6750,8 @@ types:
                       value:
                         error: Too many checkouts from your network. Try again in 7 min.
                     displayName: response429
-                    description: ''
-                    type: Error
+                    description: An error reply.
+                    type: ErrorResponse
     /orders/{orderId}:
       uriParameters:
         orderId:
@@ -5093,5 +6868,5 @@ types:
             body:
               application/json:
                 displayName: response404
-                description: ''
-                type: Error
+                description: An error reply.
+                type: ErrorResponse

@@ -30,7 +30,7 @@ GET /api/account/paypal
 ```bash
 curl -X GET -G \
   --url 'https://one-thing-ash0.onrender.com/api/account/paypal'  \
-  -d 'next=%2Fnew'
+  -d 'next=%2Faccount'
 ```
 
 
@@ -38,7 +38,7 @@ curl -X GET -G \
 
 | HTTP Status Code | Error Description | Exception Class |
 |  --- | --- | --- |
-| 503 | Log in with PayPal isn't switched on for this server. | [`Error_ErrorException`](/llms-pages/http/models/exceptions/error-error.md) |
+| 503 | Log in with PayPal isn't switched on for this server. | [`ErrorResponse_ErrorException`](/llms-pages/http/models/exceptions/error-response-error.md) |
 
 
 

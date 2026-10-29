@@ -2,12 +2,14 @@
 
 Source: /#/http/x-redirect/JTI0bSUyRkFwaSUyNTIwU2hvcHMlMjUyMFJlZmluZSUyNTIwUmVxdWVzdA
 
+The design change, in words.
+
 
 # Fields
 
 | Name | Type | Tags | Description |
 |  --- | --- | --- | --- |
-| `instruction` | `String` | Required | **Constraints**: *Maximum Length*: `500` |
+| `instruction` | `String` | Required | What to change, e.g. "make it feel more premium".<br><br>**Constraints**: *Maximum Length*: `500` |
 
 
 # Example (as JSON)

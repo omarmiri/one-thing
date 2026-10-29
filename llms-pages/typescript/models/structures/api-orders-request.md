@@ -2,6 +2,8 @@
 
 Source: /#/typescript/x-redirect/JTI0bSUyRkFwaSUyNTIwT3JkZXJzJTI1MjBSZXF1ZXN0
 
+The shop to buy from and the buyer's pick.
+
 
 # Interface Name
 
@@ -12,7 +14,7 @@ Source: /#/typescript/x-redirect/JTI0bSUyRkFwaSUyNTIwT3JkZXJzJTI1MjBSZXF1ZXN0
 
 | Name | Type | Tags | Description |
 |  --- | --- | --- | --- |
-| `slug` | `string` | Required | - |
+| `slug` | `string` | Required | The shop's link name. |
 | `options` | `Record<string, string> \| undefined` | Optional | The buyer's pick, one value per option, keyed by option name. |
 
 
@@ -22,7 +24,7 @@ Source: /#/typescript/x-redirect/JTI0bSUyRkFwaSUyNTIwT3JkZXJzJTI1MjBSZXF1ZXN0
 import { ApiOrdersRequest } from 'one-thing-sdk';
 
 const apiOrdersRequest: ApiOrdersRequest = {
-  slug: 'slug4',
+  slug: 'vintageskates',
   options: {
     'Size': 'M',
     'Color': 'Black'

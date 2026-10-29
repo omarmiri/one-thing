@@ -2,6 +2,8 @@
 
 Source: /#/typescript/x-redirect/JTI0bSUyRk9r
 
+Confirms the change.
+
 
 # Interface Name
 
@@ -12,7 +14,7 @@ Source: /#/typescript/x-redirect/JTI0bSUyRk9r
 
 | Name | Type | Tags | Description |
 |  --- | --- | --- | --- |
-| `ok` | `boolean` | Required | - |
+| `ok` | `boolean` | Required | Always `true`. |
 
 
 # Example
@@ -21,7 +23,7 @@ Source: /#/typescript/x-redirect/JTI0bSUyRk9r
 import { Ok } from 'one-thing-sdk';
 
 const ok: Ok = {
-  ok: false,
+  ok: true,
 };
 ```
 

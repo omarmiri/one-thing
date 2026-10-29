@@ -2,6 +2,8 @@
 
 Source: /#/typescript/x-redirect/JTI0bSUyRkFwaSUyNTIwQWNjZXNzJTI1MjBWZXJpZnklMjUyMFJlcXVlc3Q
 
+The code to check, and which shop it's for.
+
 
 # Interface Name
 
@@ -13,7 +15,7 @@ Source: /#/typescript/x-redirect/JTI0bSUyRkFwaSUyNTIwQWNjZXNzJTI1MjBWZXJpZnklMjU
 | Name | Type | Tags | Description |
 |  --- | --- | --- | --- |
 | `shop` | `string` | Required | The shop's link name. |
-| `code` | `string` | Required | - |
+| `code` | `string` | Required | The access code the buyer entered. Case and dashes don't matter. |
 
 
 # Example

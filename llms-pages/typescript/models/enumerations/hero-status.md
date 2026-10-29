@@ -2,6 +2,8 @@
 
 Source: /#/typescript/x-redirect/JTI0bSUyRkhlcm9TdGF0dXM
 
+Hero art: `pending` while generating, then `ready` or `failed`; `none` if not requested.
+
 
 # Enum Type Name
 

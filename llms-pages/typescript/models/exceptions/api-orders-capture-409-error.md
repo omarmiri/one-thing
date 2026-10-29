@@ -2,6 +2,8 @@
 
 Source: /#/typescript/x-redirect/JTI0bSUyRkFwaSUyNTIwT3JkZXJzJTI1MjBDYXB0dXJlJTI1MjA0MDklMjUyMEVycm9y
 
+Not approved yet.
+
 
 # Class Name
 
@@ -12,7 +14,7 @@ Source: /#/typescript/x-redirect/JTI0bSUyRkFwaSUyNTIwT3JkZXJzJTI1MjBDYXB0dXJlJTI
 
 | Name | Type | Tags | Description |
 |  --- | --- | --- | --- |
-| `status` | [`Status6 \| undefined`](/llms-pages/typescript/models/enumerations/status-6.md) | Optional | - |
+| `status` | [`Status6 \| undefined`](/llms-pages/typescript/models/enumerations/status-6.md) | Optional | `pending` until the buyer approves at PayPal. |
 
 
 # Example

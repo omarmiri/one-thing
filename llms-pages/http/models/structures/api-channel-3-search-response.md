@@ -2,12 +2,14 @@
 
 Source: /#/http/x-redirect/JTI0bSUyRkFwaSUyNTIwQ2hhbm5lbDMlMjUyMFNlYXJjaCUyNTIwUmVzcG9uc2U
 
+The products found.
+
 
 # Fields
 
 | Name | Type | Tags | Description |
 |  --- | --- | --- | --- |
-| `products` | [`array<Product Card>`](/llms-pages/http/models/structures/product-card.md) | Required | - |
+| `products` | [`array<Product Card>`](/llms-pages/http/models/structures/product-card.md) | Required | Products, best match first. |
 
 
 # Example (as JSON)
@@ -16,15 +18,15 @@ Source: /#/http/x-redirect/JTI0bSUyRkFwaSUyNTIwQ2hhbm5lbDMlMjUyMFNlYXJjaCUyNTIwU
 {
   "products": [
     {
-      "id": "id2",
-      "title": "title2",
-      "brand": "brand6",
-      "image": "image4",
-      "price": 194.6,
-      "currency": "currency8",
-      "retailer": "retailer8",
-      "retailers": 28,
-      "commission": 62.94
+      "id": "ch3_7f2a9c1e",
+      "title": "Trail Running Vest 5L",
+      "brand": "Salomon",
+      "image": "https://images.example.com/vest.jpg",
+      "price": 240.0,
+      "currency": "USD",
+      "retailer": "rei.com",
+      "retailers": 4,
+      "commission": 0.08
     }
   ]
 }

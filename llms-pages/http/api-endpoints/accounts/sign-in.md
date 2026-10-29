@@ -15,7 +15,7 @@ POST /api/account/signin
 
 | Parameter | Type | Tags | Description |
 |  --- | --- | --- | --- |
-| `body` | [`Api Account Signin Request`](/llms-pages/http/models/structures/api-account-signin-request.md) | Body, Required | - |
+| `body` | [`Api Account Signin Request`](/llms-pages/http/models/structures/api-account-signin-request.md) | Body, Required | The email or phone number to sign in with. |
 
 
 # Response Type
@@ -53,7 +53,7 @@ curl -X POST \
 
 | HTTP Status Code | Error Description | Exception Class |
 |  --- | --- | --- |
-| 400 | Something in the request needs fixing; `error` says what. | [`Error_ErrorException`](/llms-pages/http/models/exceptions/error-error.md) |
+| 400 | Something in the request needs fixing; `error` says what. | [`ErrorResponse_ErrorException`](/llms-pages/http/models/exceptions/error-response-error.md) |
 
 
 

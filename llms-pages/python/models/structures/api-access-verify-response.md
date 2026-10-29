@@ -2,6 +2,8 @@
 
 Source: /#/python/x-redirect/JTI0bSUyRkFwaSUyNTIwQWNjZXNzJTI1MjBWZXJpZnklMjUyMFJlc3BvbnNl
 
+Whether the code is valid.
+
 
 # Class Name
 
@@ -12,7 +14,7 @@ Source: /#/python/x-redirect/JTI0bSUyRkFwaSUyNTIwQWNjZXNzJTI1MjBWZXJpZnklMjUyMFJ
 
 | Name | Type | Tags | Description |
 |  --- | --- | --- | --- |
-| `valid` | `bool` | Required | - |
+| `valid` | `bool` | Required | True if the code belongs to a paid, unrefunded order for this shop. |
 | `product` | `str` | Optional | The product name, when valid. |
 
 
@@ -22,8 +24,8 @@ Source: /#/python/x-redirect/JTI0bSUyRkFwaSUyNTIwQWNjZXNzJTI1MjBWZXJpZnklMjUyMFJ
 from onethingapi.models.api_access_verify_response import ApiAccessVerifyResponse
 
 api_access_verify_response = ApiAccessVerifyResponse(
-    valid=False,
-    product='product6'
+    valid=True,
+    product='Vintage Cream and Red Roller Skates'
 )
 ```
 

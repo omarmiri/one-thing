@@ -14,4 +14,11 @@ Source: /#/http/x-redirect/JTI0bSUyRlByb2R1Y3RUeXBl
 | `referral` |
 
 
+# Example
+
+```
+physical
+```
+
+
 

@@ -21,7 +21,7 @@ This endpoint requires [AdminToken](/llms-pages/http/getting-started/sdk-quickst
 | Parameter | Type | Tags | Description |
 |  --- | --- | --- | --- |
 | `slug` | `String` | Template, Required | The shop's link name (current or former). |
-| `body` | [`Shop Update`](/llms-pages/http/models/structures/shop-update.md) | Body, Required | - |
+| `body` | [`Shop Update`](/llms-pages/http/models/structures/shop-update.md) | Body, Required | The fields to change; anything left out stays as it is. |
 
 
 # Response Type
@@ -35,7 +35,7 @@ This endpoint requires [AdminToken](/llms-pages/http/getting-started/sdk-quickst
 
 ```bash
 curl -X PATCH \
-  --url 'https://one-thing-ash0.onrender.com/api/shops/raptorrush'  \
+  --url 'https://one-thing-ash0.onrender.com/api/shops/vintageskates'  \
   -H 'Accept: application/json' \
   -H 'Content-Type: application/json' \
   -H 'x-admin-token: x-admin-token' \
@@ -60,8 +60,8 @@ curl -X PATCH \
 
 | HTTP Status Code | Error Description | Exception Class |
 |  --- | --- | --- |
-| 400 | Something in the request needs fixing; `error` says what. | [`Error_ErrorException`](/llms-pages/http/models/exceptions/error-error.md) |
-| 404 | No such shop, or the admin token or API key doesn't match it. | [`Error_ErrorException`](/llms-pages/http/models/exceptions/error-error.md) |
+| 400 | Something in the request needs fixing; `error` says what. | [`ErrorResponse_ErrorException`](/llms-pages/http/models/exceptions/error-response-error.md) |
+| 404 | No such shop, or the admin token or API key doesn't match it. | [`ErrorResponse_ErrorException`](/llms-pages/http/models/exceptions/error-response-error.md) |
 
 
 

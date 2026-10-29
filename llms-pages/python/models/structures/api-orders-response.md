@@ -2,6 +2,8 @@
 
 Source: /#/python/x-redirect/JTI0bSUyRkFwaSUyNTIwT3JkZXJzJTI1MjBSZXNwb25zZQ
 
+The PayPal order to approve.
+
 
 # Class Name
 
@@ -21,7 +23,7 @@ Source: /#/python/x-redirect/JTI0bSUyRkFwaSUyNTIwT3JkZXJzJTI1MjBSZXNwb25zZQ
 from onethingapi.models.api_orders_response import ApiOrdersResponse
 
 api_orders_response = ApiOrdersResponse(
-    id='id4'
+    id='5O190127TN364715T'
 )
 ```
 

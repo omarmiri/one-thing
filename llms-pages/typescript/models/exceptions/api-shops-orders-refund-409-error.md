@@ -2,6 +2,8 @@
 
 Source: /#/typescript/x-redirect/JTI0bSUyRkFwaSUyNTIwU2hvcHMlMjUyME9yZGVycyUyNTIwUmVmdW5kJTI1MjA0MDklMjUyMEVycm9y
 
+Why the order can't be refunded here.
+
 
 # Class Name
 

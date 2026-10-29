@@ -2,6 +2,8 @@
 
 Source: /#/http/x-redirect/JTI0bSUyRkNhcnJpZXI
 
+The carrier. `OTHER` needs `carrierName`.
+
 
 # Fields
 
@@ -12,6 +14,13 @@ Source: /#/http/x-redirect/JTI0bSUyRkNhcnJpZXI
 | `FEDEX` |
 | `DHL` |
 | `OTHER` |
+
+
+# Example
+
+```
+USPS
+```
 
 
 

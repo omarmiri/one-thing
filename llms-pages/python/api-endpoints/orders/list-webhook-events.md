@@ -32,7 +32,7 @@ This endpoint requires [AdminToken](/llms-pages/python/getting-started/sdk-quick
 # Example Usage
 
 ```python
-slug = 'raptorrush'
+slug = 'vintageskates'
 
 result = orders_api.list_webhook_events(slug)
 print(result)
@@ -60,7 +60,7 @@ print(result)
 
 | HTTP Status Code | Error Description | Exception Class |
 |  --- | --- | --- |
-| 404 | No such shop, or the admin token or API key doesn't match it. | [`ErrorException`](/llms-pages/python/models/exceptions/error.md) |
+| 404 | No such shop, or the admin token or API key doesn't match it. | [`ErrorResponseException`](/llms-pages/python/models/exceptions/error-response.md) |
 
 
 

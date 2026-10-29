@@ -2,6 +2,8 @@
 
 Source: /#/typescript/x-redirect/JTI0bSUyRlNoaXBUbw
 
+Where it ships, from the buyer's PayPal checkout. Null if PayPal didn't share it.
+
 
 # Interface Name
 
@@ -12,8 +14,8 @@ Source: /#/typescript/x-redirect/JTI0bSUyRlNoaXBUbw
 
 | Name | Type | Tags | Description |
 |  --- | --- | --- | --- |
-| `name` | `string \| null \| undefined` | Optional | - |
-| `address` | `string \| undefined` | Optional | - |
+| `name` | `string \| null \| undefined` | Optional | The recipient's name. |
+| `address` | `string \| undefined` | Optional | The address on one line. |
 
 
 # Example
@@ -22,8 +24,8 @@ Source: /#/typescript/x-redirect/JTI0bSUyRlNoaXBUbw
 import { ShipTo } from 'one-thing-sdk';
 
 const shipTo: ShipTo = {
-  name: 'name4',
-  address: 'address0',
+  name: 'Sam Rivera',
+  address: '1 Main St, Springfield, IL, 62701, US',
 };
 ```
 

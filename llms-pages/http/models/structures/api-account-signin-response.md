@@ -2,12 +2,14 @@
 
 Source: /#/http/x-redirect/JTI0bSUyRkFwaSUyNTIwQWNjb3VudCUyNTIwU2lnbmluJTI1MjBSZXNwb25zZQ
 
+The signed-in account.
+
 
 # Fields
 
 | Name | Type | Tags | Description |
 |  --- | --- | --- | --- |
-| `id` | `String` | Required | - |
+| `id` | `String` | Required | The account's id. |
 | `email` | `String` | Required | Lower-cased. |
 | `phone` | `String` | Required | Digits, with a leading + if one was given. |
 
@@ -16,9 +18,9 @@ Source: /#/http/x-redirect/JTI0bSUyRkFwaSUyNTIwQWNjb3VudCUyNTIwU2lnbmluJTI1MjBSZ
 
 ```json
 {
-  "id": "id6",
-  "email": "email0",
-  "phone": "phone6"
+  "id": "acc_Vq3nN8cT0bLx2YwE",
+  "email": "maker@example.com",
+  "phone": "+15555550123"
 }
 ```
 

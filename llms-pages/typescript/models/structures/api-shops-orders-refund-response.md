@@ -2,6 +2,8 @@
 
 Source: /#/typescript/x-redirect/JTI0bSUyRkFwaSUyNTIwU2hvcHMlMjUyME9yZGVycyUyNTIwUmVmdW5kJTI1MjBSZXNwb25zZQ
 
+The refund.
+
 
 # Interface Name
 
@@ -12,7 +14,7 @@ Source: /#/typescript/x-redirect/JTI0bSUyRkFwaSUyNTIwU2hvcHMlMjUyME9yZGVycyUyNTI
 
 | Name | Type | Tags | Description |
 |  --- | --- | --- | --- |
-| `ok` | `boolean` | Required | - |
+| `ok` | `boolean` | Required | Always `true`. |
 | `refundId` | `string \| null \| undefined` | Optional | PayPal's refund id; null when `record` was used. |
 
 
@@ -22,8 +24,8 @@ Source: /#/typescript/x-redirect/JTI0bSUyRkFwaSUyNTIwU2hvcHMlMjUyME9yZGVycyUyNTI
 import { ApiShopsOrdersRefundResponse } from 'one-thing-sdk';
 
 const apiShopsOrdersRefundResponse: ApiShopsOrdersRefundResponse = {
-  ok: false,
-  refundId: 'refundId6',
+  ok: true,
+  refundId: '1JU08902781691411',
 };
 ```
 

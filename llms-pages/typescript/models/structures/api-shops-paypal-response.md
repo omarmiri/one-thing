@@ -2,6 +2,8 @@
 
 Source: /#/typescript/x-redirect/JTI0bSUyRkFwaSUyNTIwU2hvcHMlMjUyMFBheXBhbCUyNTIwUmVzcG9uc2U
 
+The onboarding link.
+
 
 # Interface Name
 
@@ -21,7 +23,7 @@ Source: /#/typescript/x-redirect/JTI0bSUyRkFwaSUyNTIwU2hvcHMlMjUyMFBheXBhbCUyNTI
 import { ApiShopsPaypalResponse } from 'one-thing-sdk';
 
 const apiShopsPaypalResponse: ApiShopsPaypalResponse = {
-  url: 'url0',
+  url: 'https://www.sandbox.paypal.com/bizsignup/partner/entry?referralToken=EXAMPLE',
 };
 ```
 

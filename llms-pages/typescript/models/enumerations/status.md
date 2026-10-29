@@ -2,6 +2,8 @@
 
 Source: /#/typescript/x-redirect/JTI0bSUyRlN0YXR1cw
 
+`live` publishes the shop; `draft` takes it down.
+
 
 # Enum Type Name
 

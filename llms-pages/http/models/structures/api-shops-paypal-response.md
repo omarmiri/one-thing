@@ -2,6 +2,8 @@
 
 Source: /#/http/x-redirect/JTI0bSUyRkFwaSUyNTIwU2hvcHMlMjUyMFBheXBhbCUyNTIwUmVzcG9uc2U
 
+The onboarding link.
+
 
 # Fields
 
@@ -14,7 +16,7 @@ Source: /#/http/x-redirect/JTI0bSUyRkFwaSUyNTIwU2hvcHMlMjUyMFBheXBhbCUyNTIwUmVzc
 
 ```json
 {
-  "url": "url4"
+  "url": "https://www.sandbox.paypal.com/bizsignup/partner/entry?referralToken=EXAMPLE"
 }
 ```
 

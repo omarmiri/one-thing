@@ -2,12 +2,14 @@
 
 Source: /#/http/x-redirect/JTI0bSUyRkFwaSUyNTIwT3JkZXJzJTI1MjBSZXF1ZXN0
 
+The shop to buy from and the buyer's pick.
+
 
 # Fields
 
 | Name | Type | Tags | Description |
 |  --- | --- | --- | --- |
-| `slug` | `String` | Required | - |
+| `slug` | `String` | Required | The shop's link name. |
 | `options` | `map<String>` | Optional | The buyer's pick, one value per option, keyed by option name. |
 
 
@@ -15,7 +17,7 @@ Source: /#/http/x-redirect/JTI0bSUyRkFwaSUyNTIwT3JkZXJzJTI1MjBSZXF1ZXN0
 
 ```json
 {
-  "slug": "slug2",
+  "slug": "vintageskates",
   "options": {
     "Size": "M",
     "Color": "Black"

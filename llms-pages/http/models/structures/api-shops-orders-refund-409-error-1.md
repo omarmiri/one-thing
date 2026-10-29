@@ -2,6 +2,8 @@
 
 Source: /#/http/x-redirect/JTI0bSUyRkFwaSUyNTIwU2hvcHMlMjUyME9yZGVycyUyNTIwUmVmdW5kJTI1MjA0MDklMjUyMEVycm9yMQ
 
+Why the order can't be refunded here.
+
 
 # Fields
 
@@ -17,10 +19,10 @@ Source: /#/http/x-redirect/JTI0bSUyRkFwaSUyNTIwU2hvcHMlMjUyME9yZGVycyUyNTIwUmVmd
 
 ```json
 {
-  "error": "error4",
-  "field": "field4",
-  "detail": "detail6",
-  "refundInPayPal": false
+  "error": "Order not found.",
+  "field": "price",
+  "detail": "INSTRUMENT_DECLINED",
+  "refundInPayPal": true
 }
 ```
 

@@ -2,6 +2,8 @@
 
 Source: /#/typescript/x-redirect/JTI0bSUyRkFwaSUyNTIwU2hvcHMlMjUyMFJlZmluZSUyNTIwUmVxdWVzdA
 
+The design change, in words.
+
 
 # Interface Name
 
@@ -12,7 +14,7 @@ Source: /#/typescript/x-redirect/JTI0bSUyRkFwaSUyNTIwU2hvcHMlMjUyMFJlZmluZSUyNTI
 
 | Name | Type | Tags | Description |
 |  --- | --- | --- | --- |
-| `instruction` | `string` | Required | **Constraints**: *Maximum Length*: `500` |
+| `instruction` | `string` | Required | What to change, e.g. "make it feel more premium".<br><br>**Constraints**: *Maximum Length*: `500` |
 
 
 # Example

@@ -1,11 +1,13 @@
-# Error
+# Error Response
 
-Source: /#/python/x-redirect/JTI0bSUyRkVycm9y
+Source: /#/python/x-redirect/JTI0bSUyRkVycm9yUmVzcG9uc2U
+
+An error reply.
 
 
 # Class Name
 
-`ErrorException`
+`ErrorResponseException`
 
 
 # Fields
@@ -22,7 +24,7 @@ Source: /#/python/x-redirect/JTI0bSUyRkVycm9y
 ```python
 try:
     # make the API call
-except ErrorException as e:
+except ErrorResponseException as e:
     print(e)
 except ApiException as e:
     print(e)

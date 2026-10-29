@@ -2,6 +2,8 @@
 
 Source: /#/typescript/x-redirect/JTI0bSUyRkFwaSUyNTIwU2hvcHMlMjUyMENvbG9yJTI1MjBQaG90b3MlMjUyMFJlcXVlc3Q
 
+Which photo shows each colour.
+
 
 # Interface Name
 
@@ -22,7 +24,8 @@ import { ApiShopsColorPhotosRequest } from 'one-thing-sdk';
 
 const apiShopsColorPhotosRequest: ApiShopsColorPhotosRequest = {
   photos: {
-    'key0': 'photos0'
+    'Ice Blue': 'zrySajNyao6_j11x',
+    'Amber': ''
   },
 };
 ```

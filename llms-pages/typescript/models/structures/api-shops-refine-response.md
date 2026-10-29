@@ -2,6 +2,8 @@
 
 Source: /#/typescript/x-redirect/JTI0bSUyRkFwaSUyNTIwU2hvcHMlMjUyMFJlZmluZSUyNTIwUmVzcG9uc2U
 
+The redesigned page.
+
 
 # Interface Name
 
@@ -22,52 +24,46 @@ import { ApiShopsRefineResponse, Layout, ProductType2 } from 'one-thing-sdk';
 
 const apiShopsRefineResponse: ApiShopsRefineResponse = {
   spec: {
-    productType: ProductType2.Digital,
-    productName: 'productName2',
-    layout: Layout.Minimal,
+    productType: ProductType2.Physical,
+    productName: 'Vintage Cream and Red Roller Skates',
+    layout: Layout.Boldhero,
     palette: {
-      background: '#14171a',
-      surface: '#14171a',
-      text: '#14171a',
-      muted: '#14171a',
-      accent: '#14171a',
-      accentText: '#14171a',
+      background: '#f7f1e8',
+      surface: '#ffffff',
+      text: '#1f1a17',
+      muted: '#6b625b',
+      accent: '#b3262d',
+      accentText: '#ffffff',
     },
     fonts: {
-      heading: 'heading2',
-      body: 'body6',
+      heading: 'Playfair Display',
+      body: 'Inter',
     },
-    headline: 'headline2',
+    headline: 'Classic quad skates crafted with walnut burl heels',
     bullets: [
-      'bullets0',
-      'bullets1',
-      'bullets2'
+      'Walnut burl heels',
+      'Restored vintage leather'
     ],
     faq: [
       {
-        q: 'q0',
-        a: 'a8',
+        q: 'Are these suitable for outdoor skating?',
+        a: 'Yes, on indoor rink floors and paved outdoor paths.',
       }
     ],
-    ctaLabel: 'ctaLabel6',
-    eyebrow: 'eyebrow6',
-    subheadline: 'subheadline8',
-    story: 'story6',
+    ctaLabel: 'Buy the skates',
+    eyebrow: 'One pair, restored',
+    subheadline: 'A vintage pair of skates with cream leather, bold red trim and quad wheels.',
+    story: 'Each pair combines soft cream leather with distinct red accents and a sculpted walnut burl heel base.',
     details: [
       {
-        label: 'label0',
-        value: 'value2',
-      },
-      {
-        label: 'label0',
-        value: 'value2',
-      },
-      {
-        label: 'label0',
-        value: 'value2',
+        label: 'Material',
+        value: 'Leather upper, walnut burl heel, rubber wheels',
       }
     ],
-    suggestedPriceUsd: 233.64,
+    suggestedPriceUsd: 240,
+    suggestedShippingUsd: 15,
+    imageAlt: 'Cream leather quad roller skates with red trim',
+    heroPrompt: 'Cream roller skates on a sunlit boardwalk, in warm cream and red tones',
   },
 };
 ```

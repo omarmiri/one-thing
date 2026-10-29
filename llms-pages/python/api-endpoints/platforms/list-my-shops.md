@@ -19,7 +19,7 @@ This endpoint requires [PlatformKey](/llms-pages/python/getting-started/sdk-quic
 
 | Parameter | Type | Tags | Description |
 |  --- | --- | --- | --- |
-| `status` | [`Status`](/llms-pages/python/models/enumerations/status.md) | Query, Optional | Only shops with this status, e.g. `live` for a public catalog. |
+| `status` | [`Status5`](/llms-pages/python/models/enumerations/status-5.md) | Query, Optional | Only shops with this status, e.g. `live` for a public catalog. |
 
 
 # Response Type
@@ -32,7 +32,7 @@ This endpoint requires [PlatformKey](/llms-pages/python/getting-started/sdk-quic
 # Example Usage
 
 ```python
-status = Status.LIVE
+status = Status5.LIVE
 
 result = platforms_api.list_my_shops(
     status=status
@@ -71,7 +71,7 @@ print(result)
 
 | HTTP Status Code | Error Description | Exception Class |
 |  --- | --- | --- |
-| 401 | No API key, or it's wrong or revoked. | [`ErrorException`](/llms-pages/python/models/exceptions/error.md) |
+| 401 | No API key, or it's wrong or revoked. | [`ErrorResponseException`](/llms-pages/python/models/exceptions/error-response.md) |
 
 
 

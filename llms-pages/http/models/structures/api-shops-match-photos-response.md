@@ -2,12 +2,14 @@
 
 Source: /#/http/x-redirect/JTI0bSUyRkFwaSUyNTIwU2hvcHMlMjUyME1hdGNoJTI1MjBQaG90b3MlMjUyMFJlc3BvbnNl
 
+Gemini's matches.
+
 
 # Fields
 
 | Name | Type | Tags | Description |
 |  --- | --- | --- | --- |
-| `matches` | `map<String>` | Required | - |
+| `matches` | `map<String>` | Required | Colour label → photo id. |
 
 
 # Example (as JSON)

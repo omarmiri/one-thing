@@ -2,6 +2,8 @@
 
 Source: /#/python/x-redirect/JTI0bSUyRkZvbnRz
 
+Google Fonts for the page.
+
 
 # Class Name
 
@@ -12,8 +14,8 @@ Source: /#/python/x-redirect/JTI0bSUyRkZvbnRz
 
 | Name | Type | Tags | Description |
 |  --- | --- | --- | --- |
-| `heading` | `str` | Required | - |
-| `body` | `str` | Required | - |
+| `heading` | `str` | Required | The headings font. |
+| `body` | `str` | Required | The body text font. |
 
 
 # Example
@@ -22,8 +24,8 @@ Source: /#/python/x-redirect/JTI0bSUyRkZvbnRz
 from onethingapi.models.fonts import Fonts
 
 fonts = Fonts(
-    heading='heading2',
-    body='body6'
+    heading='Playfair Display',
+    body='Inter'
 )
 ```
 

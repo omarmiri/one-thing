@@ -17,4 +17,11 @@ Source: /#/http/x-redirect/JTI0bSUyRlN0YXR1czI
 | `failed` |
 
 
+# Example
+
+```
+awaiting_buyer_approval
+```
+
+
 

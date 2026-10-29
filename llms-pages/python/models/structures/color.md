@@ -2,6 +2,8 @@
 
 Source: /#/python/x-redirect/JTI0bSUyRkNvbG9y
 
+One colour.
+
 
 # Class Name
 
@@ -12,8 +14,8 @@ Source: /#/python/x-redirect/JTI0bSUyRkNvbG9y
 
 | Name | Type | Tags | Description |
 |  --- | --- | --- | --- |
-| `label` | `str` | Required | **Constraints**: *Maximum Length*: `30` |
-| `hex` | `str` | Optional | **Constraints**: *Pattern*: `^#[0-9a-fA-F]{6}$` |
+| `label` | `str` | Required | The colour's name, as buyers see it.<br><br>**Constraints**: *Maximum Length*: `30` |
+| `hex` | `str` | Optional | A colour as `#rrggbb`.<br><br>**Constraints**: *Pattern*: `^#[0-9a-fA-F]{6}$` |
 
 
 # Example
@@ -22,8 +24,8 @@ Source: /#/python/x-redirect/JTI0bSUyRkNvbG9y
 from onethingapi.models.color import Color
 
 color = Color(
-    label='Forest green',
-    hex='#14171a'
+    label='Ice Blue',
+    hex='#9fd3e6'
 )
 ```
 

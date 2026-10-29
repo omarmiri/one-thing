@@ -2,6 +2,8 @@
 
 Source: /#/python/x-redirect/JTI0bSUyRkFwaSUyNTIwUGF5cGFsJTI1MjBDbGllbnQlMjUyMFRva2VuJTI1MjBSZXNwb25zZQ
 
+The client token.
+
 
 # Class Name
 
@@ -21,7 +23,7 @@ Source: /#/python/x-redirect/JTI0bSUyRkFwaSUyNTIwUGF5cGFsJTI1MjBDbGllbnQlMjUyMFR
 from onethingapi.models.api_paypal_client_token_response import ApiPaypalClientTokenResponse
 
 api_paypal_client_token_response = ApiPaypalClientTokenResponse(
-    client_token='clientToken4'
+    client_token='eyJraWQiOiJFWEFNUExFIn0.example.client-token'
 )
 ```
 

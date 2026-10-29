@@ -2,6 +2,8 @@
 
 Source: /#/typescript/x-redirect/JTI0bSUyRk1pc3NpbmdGYWN0
 
+One question to answer.
+
 
 # Interface Name
 
@@ -12,9 +14,9 @@ Source: /#/typescript/x-redirect/JTI0bSUyRk1pc3NpbmdGYWN0
 
 | Name | Type | Tags | Description |
 |  --- | --- | --- | --- |
-| `label` | `string` | Required | - |
-| `question` | `string` | Required | - |
-| `placeholder` | `string` | Required | - |
+| `label` | `string` | Required | The product detail it becomes. |
+| `question` | `string` | Required | The question, for the seller. |
+| `placeholder` | `string` | Required | An example answer. |
 
 
 # Example

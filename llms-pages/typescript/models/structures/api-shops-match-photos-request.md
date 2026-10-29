@@ -2,6 +2,8 @@
 
 Source: /#/typescript/x-redirect/JTI0bSUyRkFwaSUyNTIwU2hvcHMlMjUyME1hdGNoJTI1MjBQaG90b3MlMjUyMFJlcXVlc3Q
 
+The colours to find photos for.
+
 
 # Interface Name
 
@@ -12,7 +14,7 @@ Source: /#/typescript/x-redirect/JTI0bSUyRkFwaSUyNTIwU2hvcHMlMjUyME1hdGNoJTI1MjB
 
 | Name | Type | Tags | Description |
 |  --- | --- | --- | --- |
-| `colors` | [`Color[]`](/llms-pages/typescript/models/structures/color.md) | Required | **Constraints**: *Minimum Items*: `1`, *Maximum Items*: `12` |
+| `colors` | [`Color[]`](/llms-pages/typescript/models/structures/color.md) | Required | The colour option's values.<br><br>**Constraints**: *Minimum Items*: `1`, *Maximum Items*: `12` |
 
 
 # Example
@@ -23,8 +25,8 @@ import { ApiShopsMatchPhotosRequest } from 'one-thing-sdk';
 const apiShopsMatchPhotosRequest: ApiShopsMatchPhotosRequest = {
   colors: [
     {
-      label: 'Forest green',
-      hex: '#14171a',
+      label: 'Ice Blue',
+      hex: '#9fd3e6',
     }
   ],
 };

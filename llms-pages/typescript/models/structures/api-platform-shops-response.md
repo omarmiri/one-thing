@@ -2,6 +2,8 @@
 
 Source: /#/typescript/x-redirect/JTI0bSUyRkFwaSUyNTIwUGxhdGZvcm0lMjUyMFNob3BzJTI1MjBSZXNwb25zZQ
 
+The account's shops.
+
 
 # Interface Name
 
@@ -12,7 +14,7 @@ Source: /#/typescript/x-redirect/JTI0bSUyRkFwaSUyNTIwUGxhdGZvcm0lMjUyMFNob3BzJTI
 
 | Name | Type | Tags | Description |
 |  --- | --- | --- | --- |
-| `shops` | [`PlatformShop[]`](/llms-pages/typescript/models/structures/platform-shop.md) | Required | - |
+| `shops` | [`PlatformShop[]`](/llms-pages/typescript/models/structures/platform-shop.md) | Required | Shops, newest first. |
 
 
 # Example
@@ -20,28 +22,28 @@ Source: /#/typescript/x-redirect/JTI0bSUyRkFwaSUyNTIwUGxhdGZvcm0lMjUyMFNob3BzJTI
 ```ts
 import {
   ApiPlatformShopsResponse,
-  ProductType1,
-  Status,
+  ProductType3,
+  Status3,
 } from 'one-thing-sdk';
 
 const apiPlatformShopsResponse: ApiPlatformShopsResponse = {
   shops: [
     {
-      slug: 'slug6',
-      status: Status.Draft,
-      name: 'name0',
-      productType: ProductType1.Digital,
+      slug: 'vintageskates',
+      status: Status3.Draft,
+      name: 'Vintage Cream and Red Roller Skates',
+      productType: ProductType3.Physical,
       price: {
-        amount: 48.5,
+        amount: 240,
         currency: 'USD',
-        label: '$48.50',
+        label: '$240.00',
       },
-      url: 'url4',
-      paypalConnected: false,
-      sales: 28,
-      createdAt: '2016-03-13T12:52:32.123Z',
-      headline: 'headline0',
-      cover: 'cover6',
+      url: 'https://one-thing-ash0.onrender.com/vintageskates',
+      paypalConnected: true,
+      sales: 12,
+      createdAt: '2026-10-22T02:41:37Z',
+      headline: 'Classic quad skates crafted with walnut burl heels',
+      cover: 'https://one-thing-ash0.onrender.com/api/blobs/LFRvGuTU3D8i334X',
     }
   ],
 };

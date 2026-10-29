@@ -20,7 +20,7 @@ This endpoint requires [AdminToken](/llms-pages/http/getting-started/sdk-quickst
 |  --- | --- | --- | --- |
 | `slug` | `String` | Template, Required | The shop's link name (current or former). |
 | `orderId` | `String` | Template, Required | OneThing's order id (`Order.id`). |
-| `body` | [`Api Shops Orders Refund Request`](/llms-pages/http/models/structures/api-shops-orders-refund-request.md) | Body, Optional | - |
+| `body` | [`Api Shops Orders Refund Request`](/llms-pages/http/models/structures/api-shops-orders-refund-request.md) | Body, Optional | Optional. `record: true` records a refund made in PayPal. |
 
 
 # Response Type
@@ -34,7 +34,7 @@ This endpoint requires [AdminToken](/llms-pages/http/getting-started/sdk-quickst
 
 ```bash
 curl -X POST \
-  --url 'https://one-thing-ash0.onrender.com/api/shops/raptorrush/orders/pX4kR9tVb2nQ7sLe/refund'  \
+  --url 'https://one-thing-ash0.onrender.com/api/shops/vintageskates/orders/pX4kR9tVb2nQ7sLe/refund'  \
   -H 'Accept: application/json' \
   -H 'Content-Type: application/json' \
   -H 'x-admin-token: x-admin-token' \
@@ -57,7 +57,7 @@ curl -X POST \
 
 | HTTP Status Code | Error Description | Exception Class |
 |  --- | --- | --- |
-| 404 | No such shop or order, or the token doesn't match the shop. | [`Error_ErrorException`](/llms-pages/http/models/exceptions/error-error.md) |
+| 404 | No such shop or order, or the token doesn't match the shop. | [`ErrorResponse_ErrorException`](/llms-pages/http/models/exceptions/error-response-error.md) |
 | 409 | Not refundable here; `error` says why. | [`Api Shops Orders Refund 409 ErrorException`](/llms-pages/http/models/exceptions/api-shops-orders-refund-409-error.md) |
 
 

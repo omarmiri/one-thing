@@ -25,7 +25,7 @@ This endpoint requires [AdminToken](/llms-pages/typescript/getting-started/sdk-q
 |  --- | --- | --- | --- |
 | `slug` | `string` | Template, Required | The shop's link name (current or former). |
 | `orderId` | `string` | Template, Required | OneThing's order id (`Order.id`). |
-| `body` | [`ApiShopsOrdersShipRequest`](/llms-pages/typescript/models/structures/api-shops-orders-ship-request.md) | Body, Required | - |
+| `body` | [`ApiShopsOrdersShipRequest`](/llms-pages/typescript/models/structures/api-shops-orders-ship-request.md) | Body, Required | The carrier and tracking number. |
 | `requestOptions` | `RequestOptions \| undefined` | Optional | Pass additional request options. |
 
 
@@ -39,7 +39,7 @@ This method returns an [`ApiResponse`](/llms-pages/typescript/sdk-infrastructure
 # Example Usage
 
 ```ts
-const slug = 'raptorrush';
+const slug = 'vintageskates';
 
 const orderId = 'pX4kR9tVb2nQ7sLe';
 
@@ -72,7 +72,7 @@ try {
     console.log(error.headers);
     // Extracting response error body of type `string | Stream`.
     console.log(error.body);
-    if (error instanceof CustomError) {
+    if (error instanceof ErrorResponseError) {
       console.log(error.result);
     }
   }
@@ -94,8 +94,8 @@ try {
 
 | HTTP Status Code | Error Description | Exception Class |
 |  --- | --- | --- |
-| 400 | Something in the request needs fixing; `error` says what. | [`CustomError`](/llms-pages/typescript/models/exceptions/error.md) |
-| 404 | No such shop, or the admin token or API key doesn't match it. | [`CustomError`](/llms-pages/typescript/models/exceptions/error.md) |
+| 400 | Something in the request needs fixing; `error` says what. | [`ErrorResponseError`](/llms-pages/typescript/models/exceptions/error-response.md) |
+| 404 | No such shop, or the admin token or API key doesn't match it. | [`ErrorResponseError`](/llms-pages/typescript/models/exceptions/error-response.md) |
 
 
 

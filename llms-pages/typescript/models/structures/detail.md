@@ -2,6 +2,8 @@
 
 Source: /#/typescript/x-redirect/JTI0bSUyRkRldGFpbA
 
+One product fact.
+
 
 # Interface Name
 
@@ -12,8 +14,8 @@ Source: /#/typescript/x-redirect/JTI0bSUyRkRldGFpbA
 
 | Name | Type | Tags | Description |
 |  --- | --- | --- | --- |
-| `label` | `string` | Required | - |
-| `value` | `string` | Required | - |
+| `label` | `string` | Required | What the fact is about. |
+| `value` | `string` | Required | The fact. |
 
 
 # Example
@@ -22,8 +24,8 @@ Source: /#/typescript/x-redirect/JTI0bSUyRkRldGFpbA
 import { Detail } from 'one-thing-sdk';
 
 const detail: Detail = {
-  label: 'label6',
-  value: 'value8',
+  label: 'Material',
+  value: 'Leather upper, walnut burl heel, rubber wheels',
 };
 ```
 

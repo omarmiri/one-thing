@@ -10,8 +10,8 @@ What Gemini thinks buyers will want to choose or ask. The seller confirms; nothi
 | Name | Type | Tags | Description |
 |  --- | --- | --- | --- |
 | `oneOfAKind` | `Boolean` | Required | A single item (vintage, handmade), so options and stock don't apply. |
-| `options` | [`array<Option>`](/llms-pages/http/models/structures/option.md) | Required | - |
-| `missingFacts` | [`array<Missing Fact>`](/llms-pages/http/models/structures/missing-fact.md) | Required | - |
+| `options` | [`array<Option>`](/llms-pages/http/models/structures/option.md) | Required | Options buyers will likely want to pick. |
+| `missingFacts` | [`array<Missing Fact>`](/llms-pages/http/models/structures/missing-fact.md) | Required | Questions buyers will ask that the listing doesn't answer yet. |
 
 
 # Example (as JSON)
@@ -25,12 +25,15 @@ What Gemini thinks buyers will want to choose or ask. The seller confirms; nothi
       "kind": "size",
       "values": [
         {
-          "label": "M",
-          "hex": "#14171a",
-          "photo": "photo6"
+          "label": "S"
+        },
+        {
+          "label": "M"
+        },
+        {
+          "label": "L"
         }
-      ],
-      "fromSeller": false
+      ]
     }
   ],
   "missingFacts": [

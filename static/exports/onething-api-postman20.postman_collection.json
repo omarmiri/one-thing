@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "OneThing API",
-    "_postman_id": "990a8e26-950d-4f45-b37c-90d03e5c885b",
+    "_postman_id": "fa6b0748-56de-44b7-9067-244910ec3c4d",
     "description": "OneThing turns a photo, a link or a picked product into a live one-product shop that takes\nPayPal payments, or a recommendation page that earns referral commissions through Channel3.\n\n**How a shop is made**\n1. `createShop`: start from a photo, a link, or a Channel3 product. Gemini guesses what it\n   is, how it's delivered, the price, a short link and the page design. You get back the\n   shop's link name and an **admin token**.\n2. `updateShop`: correct anything the AI guessed, then set `status: live`.\n3. Buyers pay on `https://<host>/<slug>` with PayPal. Sellers read orders and ship them.\n\n**Auth.** Seller endpoints take the shop's admin token in the `x-admin-token` header, or a\n**platform API key** (`Authorization: Bearer ot_sk_…`) for marketplaces that make shops for\ntheir own sellers. Buyer endpoints (checkout, access-code verification, downloads) are public.\n\n**Access codes.** A digital product can unlock an app or game instead of shipping a file.\nEach paid order gets a code such as `K7QF-M2XP-9HTD`; your app calls `verifyAccessCode`\nbefore unlocking. Raptor Rush on miriogames.com is a live example.\n\n**Agent-ready.** Every live shop is also published for AI shopping agents: an MCP server at\n`/api/mcp` with `search_shops`, `get_product`, `create_order` and `get_order`, and the same\nfour as plain GETs for assistants that can only fetch URLs (`listAgentShops`,\n`getAgentProduct`, `orderByLink`, `getAgentOrder`), with `/llms.txt` as the starting point.\nOrder and status links also have short forms, `/<slug>/buy` and `/o/<order_id>/status`.\nAn agent can find and order, but the buyer still approves every payment at PayPal.\n\n**Limits.** Calls that cost something are capped per network: 120 checkouts per 10 minutes,\n10 new shops an hour and 60 AI requests an hour. Over the cap the reply is a 429 with\n`Retry-After`.\n\nAll money moves through PayPal (sandbox in this deployment). OneThing never holds card data.\n",
     "schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
   },
@@ -11,7 +11,7 @@
       "description": "Sign in as a seller with an email or a phone number. Shops made while signed in belong to the account.",
       "item": [
         {
-          "id": "2b2fdc8a-0315-4d0b-a118-e3e29152da30",
+          "id": "88187039-99b5-4d45-ab5d-fe7bc647a884",
           "name": "signIn",
           "request": {
             "url": {
@@ -59,7 +59,7 @@
               "status": "Signed in. The `ot_session` cookie is set.",
               "code": 200,
               "name": "Response_200",
-              "id": "ffe25360-2fe6-4658-9403-710fbd627d23"
+              "id": "db0b5b1e-2256-4113-a6e6-4979fea706b6"
             },
             {
               "header": [
@@ -73,12 +73,12 @@
               "status": "Something in the request needs fixing; `error` says what.",
               "code": 400,
               "name": "Response_400",
-              "id": "84206aea-8f0d-411b-9f8e-1ebfea806309"
+              "id": "d307024b-0c3b-49b0-a642-a31b22d9b8bd"
             }
           ]
         },
         {
-          "id": "a5aedf0b-b366-4edd-bd95-70753e5c8afe",
+          "id": "078d2465-a0f6-48cd-8d25-5d37d56b58b4",
           "name": "signOut",
           "request": {
             "url": {
@@ -114,12 +114,12 @@
               "status": "Done.",
               "code": 200,
               "name": "Response_200",
-              "id": "e0461be6-981e-456b-a4f5-b857fa48effa"
+              "id": "7c7bfd4d-d0c6-4c30-8ead-f7f351e230da"
             }
           ]
         },
         {
-          "id": "b17d0129-6e18-4faa-892c-19a059a43da8",
+          "id": "f84185b2-6d4e-4573-a269-55718f6e23e8",
           "name": "logInWithPayPal",
           "request": {
             "url": {
@@ -130,7 +130,7 @@
               "query": [
                 {
                   "key": "next",
-                  "value": "%2Fnew",
+                  "value": "%2Faccount",
                   "description": "A path on this site to land on afterwards. Defaults to `/account`.",
                   "disabled": false
                 }
@@ -156,7 +156,7 @@
               "status": "To PayPal's sign-in page.",
               "code": 302,
               "name": "Response_302",
-              "id": "53042edf-84f4-4f4d-a5eb-0ba675d834b3"
+              "id": "14f7d2a7-953c-4144-b44b-a14e38e0b33c"
             },
             {
               "header": [
@@ -166,11 +166,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"error\": \"error81\",\n  \"field\": \"field45\",\n  \"detail\": \"detail76\"\n}",
+              "body": "{\n  \"error\": \"Order not found.\",\n  \"field\": \"price\",\n  \"detail\": \"INSTRUMENT_DECLINED\"\n}",
               "status": "Log in with PayPal isn't switched on for this server.",
               "code": 503,
               "name": "Response_503",
-              "id": "ef0ede3d-210c-4d02-8385-0618282dba79"
+              "id": "3ccbdbed-c674-49d2-aad6-880d3078089e"
             }
           ]
         }
@@ -181,7 +181,7 @@
       "description": "Create a shop and manage it as its seller.",
       "item": [
         {
-          "id": "36bf205f-1c4b-4337-a0b9-91683b947924",
+          "id": "1d379506-643d-4097-b4e3-e0088cb66271",
           "name": "createShop",
           "request": {
             "url": {
@@ -225,7 +225,7 @@
                 },
                 {
                   "key": "url",
-                  "value": "https://www.miriogames.com/raptor-rush/",
+                  "value": "https://one-thing-ash0.onrender.com/vintageskates",
                   "disabled": false,
                   "type": "text",
                   "description": "`source=link`: a product page, or your own app or game page."
@@ -239,7 +239,7 @@
                 },
                 {
                   "key": "slug",
-                  "value": "raptorrush",
+                  "value": "vintageskates",
                   "disabled": false,
                   "type": "text",
                   "description": "The link name you want. If omitted, the AI suggests one."
@@ -258,7 +258,7 @@
                 },
                 {
                   "key": "access_url",
-                  "value": "https://www.miriogames.com/raptor-rush/play/",
+                  "value": "https://www.miriogames.com/raptor-rush/",
                   "disabled": false,
                   "type": "text",
                   "description": "Where buyers use an access code."
@@ -275,41 +275,41 @@
                   "value": "15",
                   "disabled": false,
                   "type": "text",
-                  "description": ""
+                  "description": "Physical products: shipping per order, in USD. If omitted, the AI suggests it."
                 },
                 {
                   "key": "stock",
-                  "value": "156",
+                  "value": "7",
                   "disabled": false,
                   "type": "text",
-                  "description": ""
+                  "description": "How many are for sale. Leave out for unlimited."
                 },
                 {
                   "key": "ship_countries",
                   "value": "US",
                   "disabled": false,
                   "type": "text",
-                  "description": ""
+                  "description": "Physical products: comma-separated ISO country codes to ship to. Empty means anywhere PayPal ships."
                 },
                 {
                   "key": "paypal_email",
                   "value": "seller@example.com",
                   "disabled": false,
                   "type": "text",
-                  "description": ""
+                  "description": "The PayPal account that gets paid, if the seller doesn't connect one with `connectPayPal`."
                 },
                 {
                   "key": "seller_email",
-                  "value": "seller_email5",
+                  "value": "seller@example.com",
                   "disabled": false,
                   "type": "text",
-                  "description": ""
+                  "description": "Where order notifications go."
                 },
                 {
                   "key": "digital_file",
                   "disabled": false,
                   "type": "file",
-                  "description": ""
+                  "description": "Digital products sold as a file: the file buyers download, up to 25 MB. Can also be added later with `uploadDigitalFile`."
                 }
               ],
               "disabled": false
@@ -329,7 +329,7 @@
               "status": "Draft created.",
               "code": 200,
               "name": "Response_200",
-              "id": "d8bba1ef-f8f3-4208-8253-a905319896c5"
+              "id": "bdf861e6-4f90-4d59-a706-0fd843b369ed"
             },
             {
               "header": [
@@ -343,7 +343,7 @@
               "status": "Something in the request needs fixing; `error` says what.",
               "code": 400,
               "name": "Response_400",
-              "id": "2432f312-3283-4b01-9707-6e03e8df9ff2"
+              "id": "666e32b1-b9e0-4f9a-b38e-8a3b9cd95806"
             },
             {
               "header": [
@@ -357,21 +357,7 @@
               "status": "Taken or unavailable (a link name, or a sold-out product).",
               "code": 409,
               "name": "Response_409",
-              "id": "169d6504-3a69-4b5c-8a1e-27de8e700b0d"
-            },
-            {
-              "header": [
-                {
-                  "key": "Content-Type",
-                  "value": "application/json",
-                  "disabled": false
-                }
-              ],
-              "body": "{\n  \"error\": \"PayPal isn't configured on this server.\"\n}",
-              "status": "Gemini, PayPal or Channel3 failed or isn't configured.",
-              "code": 502,
-              "name": "Response_502",
-              "id": "b839f7d0-9e48-4df1-a81e-94af23b642da"
+              "id": "733408e8-7d0c-47aa-ac94-ccb50fd89a64"
             },
             {
               "header": [
@@ -390,12 +376,26 @@
               "status": "Over this network's cap for the call (see **Limits**). Retry after `Retry-After` seconds.",
               "code": 429,
               "name": "Response_429",
-              "id": "23f90b6e-ddec-476c-a038-ab191db9cae5"
+              "id": "362c6e3b-b551-45d0-8018-c3fc7520ed74"
+            },
+            {
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "disabled": false
+                }
+              ],
+              "body": "{\n  \"error\": \"PayPal isn't configured on this server.\"\n}",
+              "status": "Gemini, PayPal or Channel3 failed or isn't configured.",
+              "code": 502,
+              "name": "Response_502",
+              "id": "58f168dc-d35a-4818-96ae-fa897ab2b92c"
             }
           ]
         },
         {
-          "id": "866f27bd-81f0-4c98-b13b-6b0356d99a54",
+          "id": "ed8e86a9-adf8-478d-b7d2-c1113b8d8081",
           "name": "getShop",
           "request": {
             "url": {
@@ -407,7 +407,7 @@
                 {
                   "id": "slug",
                   "key": "slug",
-                  "value": "raptorrush",
+                  "value": "vintageskates",
                   "type": "string",
                   "description": "The shop's link name (current or former)."
                 }
@@ -417,7 +417,7 @@
               "type": "apikey",
               "apikey": {
                 "key": "x-admin-token",
-                "value": "x-admin-token22",
+                "value": "x-admin-token88",
                 "in": "header"
               }
             },
@@ -448,7 +448,7 @@
               "status": "The shop.",
               "code": 200,
               "name": "Response_200",
-              "id": "d8019fcc-1b91-46bc-8917-5dc04da67762"
+              "id": "85e15e4a-a846-40de-b17d-a7bc114e8de7"
             },
             {
               "header": [
@@ -462,12 +462,12 @@
               "status": "No such shop, or the admin token or API key doesn't match it.",
               "code": 404,
               "name": "Response_404",
-              "id": "c72db9c2-0ef4-4d44-a788-ff8e10061069"
+              "id": "29536216-ece5-4864-9c37-e40b2cd22c30"
             }
           ]
         },
         {
-          "id": "3e70297a-c8e3-4a0f-b7db-4459ec8f7163",
+          "id": "eabc0822-c187-4909-ae43-4be8bdbaac13",
           "name": "updateShop",
           "request": {
             "url": {
@@ -479,7 +479,7 @@
                 {
                   "id": "slug",
                   "key": "slug",
-                  "value": "raptorrush",
+                  "value": "vintageskates",
                   "type": "string",
                   "description": "The shop's link name (current or former)."
                 }
@@ -489,7 +489,7 @@
               "type": "apikey",
               "apikey": {
                 "key": "x-admin-token",
-                "value": "x-admin-token53",
+                "value": "x-admin-token12",
                 "in": "header"
               }
             },
@@ -527,7 +527,7 @@
               "status": "Saved.",
               "code": 200,
               "name": "Response_200",
-              "id": "e4d275f3-db32-431a-b875-b866c823d219"
+              "id": "eab14207-1d16-423e-b47c-e2df0c1bd2eb"
             },
             {
               "header": [
@@ -541,7 +541,7 @@
               "status": "Something in the request needs fixing; `error` says what.",
               "code": 400,
               "name": "Response_400",
-              "id": "971bf832-5f4b-4ff0-91b1-fe0ffd6db52f"
+              "id": "d71a096f-6114-44fd-a6a8-fd3c8b3b66d8"
             },
             {
               "header": [
@@ -555,12 +555,12 @@
               "status": "No such shop, or the admin token or API key doesn't match it.",
               "code": 404,
               "name": "Response_404",
-              "id": "3b3853bb-d0d4-4631-9382-ed18b3a7db6b"
+              "id": "3b5e65ba-8fdd-431a-b71a-e6f0f814ed93"
             }
           ]
         },
         {
-          "id": "1a5821e6-e30f-4553-affe-451e4cc8f70d",
+          "id": "85cf6c8e-8a1e-4f76-9ff5-6741cfbf3ee4",
           "name": "refineShopDesign",
           "request": {
             "url": {
@@ -572,7 +572,7 @@
                 {
                   "id": "slug",
                   "key": "slug",
-                  "value": "raptorrush",
+                  "value": "vintageskates",
                   "type": "string",
                   "description": "The shop's link name (current or former)."
                 }
@@ -582,7 +582,7 @@
               "type": "apikey",
               "apikey": {
                 "key": "x-admin-token",
-                "value": "x-admin-token18",
+                "value": "x-admin-token53",
                 "in": "header"
               }
             },
@@ -620,7 +620,7 @@
               "status": "The new design.",
               "code": 200,
               "name": "Response_200",
-              "id": "caa587ef-7d90-4d9a-8f3b-4e6731ed50e9"
+              "id": "c79b125c-4210-4500-b704-a391ac87a791"
             },
             {
               "header": [
@@ -634,7 +634,7 @@
               "status": "Something in the request needs fixing; `error` says what.",
               "code": 400,
               "name": "Response_400",
-              "id": "3e67d519-a86e-4842-b9fa-bf3dc8754efc"
+              "id": "683a8642-fab0-47e4-ae82-869150f1ba00"
             },
             {
               "header": [
@@ -648,21 +648,7 @@
               "status": "No such shop, or the admin token or API key doesn't match it.",
               "code": 404,
               "name": "Response_404",
-              "id": "eed95882-2135-435d-ae58-ce58a4bd6c40"
-            },
-            {
-              "header": [
-                {
-                  "key": "Content-Type",
-                  "value": "application/json",
-                  "disabled": false
-                }
-              ],
-              "body": "{\n  \"error\": \"PayPal isn't configured on this server.\"\n}",
-              "status": "Gemini, PayPal or Channel3 failed or isn't configured.",
-              "code": 502,
-              "name": "Response_502",
-              "id": "22cbe883-2cc8-4b14-9bb1-da21f2f87b27"
+              "id": "63fffdb0-c06f-48ce-92ed-712de43b9d80"
             },
             {
               "header": [
@@ -681,12 +667,26 @@
               "status": "Over this network's cap for the call (see **Limits**). Retry after `Retry-After` seconds.",
               "code": 429,
               "name": "Response_429",
-              "id": "1d120fc3-5ac7-4409-92fd-bda3de1605b6"
+              "id": "6d5d7b86-5c9e-414c-8d98-edc671916b64"
+            },
+            {
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "disabled": false
+                }
+              ],
+              "body": "{\n  \"error\": \"PayPal isn't configured on this server.\"\n}",
+              "status": "Gemini, PayPal or Channel3 failed or isn't configured.",
+              "code": 502,
+              "name": "Response_502",
+              "id": "cdfe7bf1-6235-4db1-81f5-d9c5fbd95956"
             }
           ]
         },
         {
-          "id": "c8592419-95cc-415b-a95e-a4896d99f8d4",
+          "id": "8420c3e1-12bf-4c37-a2ff-f428481c7f20",
           "name": "regenerateHeroArt",
           "request": {
             "url": {
@@ -698,7 +698,7 @@
                 {
                   "id": "slug",
                   "key": "slug",
-                  "value": "raptorrush",
+                  "value": "vintageskates",
                   "type": "string",
                   "description": "The shop's link name (current or former)."
                 }
@@ -708,7 +708,7 @@
               "type": "apikey",
               "apikey": {
                 "key": "x-admin-token",
-                "value": "x-admin-token8",
+                "value": "x-admin-token33",
                 "in": "header"
               }
             },
@@ -739,7 +739,7 @@
               "status": "Done.",
               "code": 200,
               "name": "Response_200",
-              "id": "0f7f1731-cf82-430b-a456-c8f2a660eac9"
+              "id": "93cf9e2a-c40c-447d-b56d-6ebb653d5f4d"
             },
             {
               "header": [
@@ -753,7 +753,7 @@
               "status": "Something in the request needs fixing; `error` says what.",
               "code": 400,
               "name": "Response_400",
-              "id": "e7ddd65e-4c42-4902-aa0f-2a652ded28f8"
+              "id": "288bf520-bcdc-4ce0-abfc-b1d2bed9b9f5"
             },
             {
               "header": [
@@ -767,7 +767,7 @@
               "status": "No such shop, or the admin token or API key doesn't match it.",
               "code": 404,
               "name": "Response_404",
-              "id": "1cef3863-10e3-4e7f-a36d-191647508287"
+              "id": "d835f346-415f-40e1-9573-1830d4836e97"
             },
             {
               "header": [
@@ -786,12 +786,12 @@
               "status": "Over this network's cap for the call (see **Limits**). Retry after `Retry-After` seconds.",
               "code": 429,
               "name": "Response_429",
-              "id": "3042842a-9b24-40d7-8601-bf28d6887d9f"
+              "id": "1ae13fd7-1dda-4803-8b13-0d06896a0507"
             }
           ]
         },
         {
-          "id": "07614ce0-4d21-4641-a338-ad8bf979f714",
+          "id": "50e268ed-d46d-45ca-81f7-7b91bd1d9e9f",
           "name": "uploadDigitalFile",
           "request": {
             "url": {
@@ -803,7 +803,7 @@
                 {
                   "id": "slug",
                   "key": "slug",
-                  "value": "raptorrush",
+                  "value": "vintageskates",
                   "type": "string",
                   "description": "The shop's link name (current or former)."
                 }
@@ -813,7 +813,7 @@
               "type": "apikey",
               "apikey": {
                 "key": "x-admin-token",
-                "value": "x-admin-token51",
+                "value": "x-admin-token79",
                 "in": "header"
               }
             },
@@ -852,7 +852,7 @@
               "status": "Uploaded.",
               "code": 200,
               "name": "Response_200",
-              "id": "97786276-827c-42fc-8b18-d321142fe1e6"
+              "id": "c9511eb9-2fc0-4616-b148-474f2837aed6"
             },
             {
               "header": [
@@ -866,7 +866,7 @@
               "status": "Something in the request needs fixing; `error` says what.",
               "code": 400,
               "name": "Response_400",
-              "id": "8a7ddeae-bf44-48f8-b6f9-8288488c6af9"
+              "id": "cc38dda7-9b1e-4441-95ab-cac06abdef49"
             },
             {
               "header": [
@@ -880,12 +880,12 @@
               "status": "No such shop, or the admin token or API key doesn't match it.",
               "code": 404,
               "name": "Response_404",
-              "id": "f1d3be5d-5480-430d-8ff0-61b64f993228"
+              "id": "6a042180-e239-40a1-a547-eb1d56f39cee"
             }
           ]
         },
         {
-          "id": "b6bfb56c-3696-4b29-9006-f9bf9e69d3e3",
+          "id": "9333c053-3100-41ff-bb8b-00c09230f0da",
           "name": "addPhotos",
           "request": {
             "url": {
@@ -897,7 +897,7 @@
                 {
                   "id": "slug",
                   "key": "slug",
-                  "value": "raptorrush",
+                  "value": "vintageskates",
                   "type": "string",
                   "description": "The shop's link name (current or former)."
                 }
@@ -907,7 +907,7 @@
               "type": "apikey",
               "apikey": {
                 "key": "x-admin-token",
-                "value": "x-admin-token49",
+                "value": "x-admin-token87",
                 "in": "header"
               }
             },
@@ -946,7 +946,7 @@
               "status": "The shop's photos, cover first.",
               "code": 200,
               "name": "Response_200",
-              "id": "890e3f34-3699-4bfd-a7fc-a301fc227d9a"
+              "id": "738f461c-44f4-42df-9b86-3fb598c7622c"
             },
             {
               "header": [
@@ -960,7 +960,7 @@
               "status": "Something in the request needs fixing; `error` says what.",
               "code": 400,
               "name": "Response_400",
-              "id": "1caa39c7-6372-48b4-8ebe-8f720f0f2968"
+              "id": "b801cf93-f531-4428-a58e-2564bc874246"
             },
             {
               "header": [
@@ -974,12 +974,12 @@
               "status": "No such shop, or the admin token or API key doesn't match it.",
               "code": 404,
               "name": "Response_404",
-              "id": "693f96c0-15f8-4b6a-bb8f-4862c52b4a3f"
+              "id": "df5492ff-5df7-4f16-8f92-972d0c16c234"
             }
           ]
         },
         {
-          "id": "8e5b3e2d-fcfd-4561-8a8c-5ed2def616e5",
+          "id": "6df7089e-8bee-4493-85d0-664bde6cbd9e",
           "name": "setPhotoOrder",
           "request": {
             "url": {
@@ -991,7 +991,7 @@
                 {
                   "id": "slug",
                   "key": "slug",
-                  "value": "raptorrush",
+                  "value": "vintageskates",
                   "type": "string",
                   "description": "The shop's link name (current or former)."
                 }
@@ -1001,7 +1001,7 @@
               "type": "apikey",
               "apikey": {
                 "key": "x-admin-token",
-                "value": "x-admin-token36",
+                "value": "x-admin-token92",
                 "in": "header"
               }
             },
@@ -1039,7 +1039,7 @@
               "status": "The shop's photos, cover first.",
               "code": 200,
               "name": "Response_200",
-              "id": "f5061c59-e9da-4a58-b724-a1718b4ae9c8"
+              "id": "6320f9d1-bda4-4b8e-b4f5-cc6b2f665354"
             },
             {
               "header": [
@@ -1053,7 +1053,7 @@
               "status": "Something in the request needs fixing; `error` says what.",
               "code": 400,
               "name": "Response_400",
-              "id": "c309e702-01b7-45dd-9f2e-b3a43966175f"
+              "id": "578c3895-5964-4201-80ce-915cf60a5a7f"
             },
             {
               "header": [
@@ -1067,12 +1067,12 @@
               "status": "No such shop, or the admin token or API key doesn't match it.",
               "code": 404,
               "name": "Response_404",
-              "id": "13821326-4c5b-45e1-b5f3-901df9d97d26"
+              "id": "27f9af2c-64f3-49d8-bd18-52a7418f145c"
             }
           ]
         },
         {
-          "id": "80cc36cd-2496-4369-9d22-5b81c276eaf6",
+          "id": "e417c318-0608-4c12-a68a-8625e849de86",
           "name": "checkMissingDetails",
           "request": {
             "url": {
@@ -1084,7 +1084,7 @@
                 {
                   "id": "slug",
                   "key": "slug",
-                  "value": "raptorrush",
+                  "value": "vintageskates",
                   "type": "string",
                   "description": "The shop's link name (current or former)."
                 }
@@ -1094,7 +1094,7 @@
               "type": "apikey",
               "apikey": {
                 "key": "x-admin-token",
-                "value": "x-admin-token22",
+                "value": "x-admin-token14",
                 "in": "header"
               }
             },
@@ -1125,7 +1125,7 @@
               "status": "The suggestions.",
               "code": 200,
               "name": "Response_200",
-              "id": "7e3eeaeb-a3b4-4039-9084-3ffcbf5ea32b"
+              "id": "6f780082-9109-474e-9d8a-dc1d7c3740d5"
             },
             {
               "header": [
@@ -1139,7 +1139,7 @@
               "status": "Something in the request needs fixing; `error` says what.",
               "code": 400,
               "name": "Response_400",
-              "id": "c09e7674-6764-4ead-a22d-b6907af71400"
+              "id": "1ae8f863-eb1f-40be-ba8e-78279003206c"
             },
             {
               "header": [
@@ -1153,21 +1153,7 @@
               "status": "No such shop, or the admin token or API key doesn't match it.",
               "code": 404,
               "name": "Response_404",
-              "id": "3ad2cff8-2bb0-4ceb-b707-6cfca3f4df9e"
-            },
-            {
-              "header": [
-                {
-                  "key": "Content-Type",
-                  "value": "application/json",
-                  "disabled": false
-                }
-              ],
-              "body": "{\n  \"error\": \"PayPal isn't configured on this server.\"\n}",
-              "status": "Gemini, PayPal or Channel3 failed or isn't configured.",
-              "code": 502,
-              "name": "Response_502",
-              "id": "8cfc9bf1-7527-409f-b5d8-6de46eb7b36e"
+              "id": "f72144c3-06bb-4ee1-bbe6-1728dc61faf2"
             },
             {
               "header": [
@@ -1186,12 +1172,26 @@
               "status": "Over this network's cap for the call (see **Limits**). Retry after `Retry-After` seconds.",
               "code": 429,
               "name": "Response_429",
-              "id": "9edcfaab-408b-48a4-aa8a-c450224be07c"
+              "id": "d3efe137-0b7e-4d67-880d-c764d0349f54"
+            },
+            {
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "disabled": false
+                }
+              ],
+              "body": "{\n  \"error\": \"PayPal isn't configured on this server.\"\n}",
+              "status": "Gemini, PayPal or Channel3 failed or isn't configured.",
+              "code": 502,
+              "name": "Response_502",
+              "id": "376849ed-6a7f-4570-b5a1-26a74b51ee12"
             }
           ]
         },
         {
-          "id": "f457cd0c-9d80-4209-8842-57c90a5c4263",
+          "id": "b9c77ef3-053c-41df-aa14-984cdb6a3590",
           "name": "matchColorPhotos",
           "request": {
             "url": {
@@ -1203,7 +1203,7 @@
                 {
                   "id": "slug",
                   "key": "slug",
-                  "value": "raptorrush",
+                  "value": "vintageskates",
                   "type": "string",
                   "description": "The shop's link name (current or former)."
                 }
@@ -1213,7 +1213,7 @@
               "type": "apikey",
               "apikey": {
                 "key": "x-admin-token",
-                "value": "x-admin-token17",
+                "value": "x-admin-token3",
                 "in": "header"
               }
             },
@@ -1251,7 +1251,7 @@
               "status": "A photo id for each colour Gemini could match. Colours it couldn't place are left out.",
               "code": 200,
               "name": "Response_200",
-              "id": "2ee4d030-e546-4ec0-ba6a-ca0d8baad540"
+              "id": "e05908a7-2159-49b6-81ff-0b303aa8d285"
             },
             {
               "header": [
@@ -1265,7 +1265,7 @@
               "status": "Something in the request needs fixing; `error` says what.",
               "code": 400,
               "name": "Response_400",
-              "id": "54d43dc1-85fa-416c-9a5a-f00bb5470953"
+              "id": "b15e984d-b04b-42c0-b203-6141f73156b0"
             },
             {
               "header": [
@@ -1279,21 +1279,7 @@
               "status": "No such shop, or the admin token or API key doesn't match it.",
               "code": 404,
               "name": "Response_404",
-              "id": "ef66b6d2-bb88-413c-a061-1c80fc6d049f"
-            },
-            {
-              "header": [
-                {
-                  "key": "Content-Type",
-                  "value": "application/json",
-                  "disabled": false
-                }
-              ],
-              "body": "{\n  \"error\": \"PayPal isn't configured on this server.\"\n}",
-              "status": "Gemini, PayPal or Channel3 failed or isn't configured.",
-              "code": 502,
-              "name": "Response_502",
-              "id": "387e85c2-5d19-40b2-8aeb-5e67b7acfd9b"
+              "id": "5a8c1bb8-069f-4546-8501-a369c8d0b3fe"
             },
             {
               "header": [
@@ -1312,12 +1298,26 @@
               "status": "Over this network's cap for the call (see **Limits**). Retry after `Retry-After` seconds.",
               "code": 429,
               "name": "Response_429",
-              "id": "f1bb3869-7a4a-4fde-b368-a88cf78896a2"
+              "id": "db88fd47-9ca0-42e2-87b8-61d9f5803e9b"
+            },
+            {
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "disabled": false
+                }
+              ],
+              "body": "{\n  \"error\": \"PayPal isn't configured on this server.\"\n}",
+              "status": "Gemini, PayPal or Channel3 failed or isn't configured.",
+              "code": 502,
+              "name": "Response_502",
+              "id": "cd323baf-57ee-40da-98c5-c568c1b89185"
             }
           ]
         },
         {
-          "id": "42bc2818-df21-4269-9965-91cfe480d8ab",
+          "id": "7b2053b9-420d-47e0-99c4-55e7e022bccd",
           "name": "setColorPhotos",
           "request": {
             "url": {
@@ -1329,7 +1329,7 @@
                 {
                   "id": "slug",
                   "key": "slug",
-                  "value": "raptorrush",
+                  "value": "vintageskates",
                   "type": "string",
                   "description": "The shop's link name (current or former)."
                 }
@@ -1339,7 +1339,7 @@
               "type": "apikey",
               "apikey": {
                 "key": "x-admin-token",
-                "value": "x-admin-token68",
+                "value": "x-admin-token29",
                 "in": "header"
               }
             },
@@ -1377,7 +1377,7 @@
               "status": "The colours that were changed.",
               "code": 200,
               "name": "Response_200",
-              "id": "e2d6c73e-000c-4127-b05a-deda13dd00fd"
+              "id": "e43e9272-6f5e-4f70-8717-dd97119c1cc3"
             },
             {
               "header": [
@@ -1391,7 +1391,7 @@
               "status": "Something in the request needs fixing; `error` says what.",
               "code": 400,
               "name": "Response_400",
-              "id": "a6db9e82-c2ba-417d-9d13-b7b12672d606"
+              "id": "c3f3a50e-07d1-4579-b9f7-d618846b48c8"
             },
             {
               "header": [
@@ -1405,12 +1405,12 @@
               "status": "No such shop, or the admin token or API key doesn't match it.",
               "code": 404,
               "name": "Response_404",
-              "id": "0539144b-10c7-44a9-9270-3eca3e40f8f5"
+              "id": "2bdbdc76-ef0d-4b1f-84c5-d24a01c16425"
             }
           ]
         },
         {
-          "id": "720c9d16-2d59-4aa7-979e-b74b1bab220d",
+          "id": "cdd11814-a3c6-41b6-9045-c1921bd53bf1",
           "name": "connectPayPal",
           "request": {
             "url": {
@@ -1422,7 +1422,7 @@
                 {
                   "id": "slug",
                   "key": "slug",
-                  "value": "raptorrush",
+                  "value": "vintageskates",
                   "type": "string",
                   "description": "The shop's link name (current or former)."
                 }
@@ -1432,7 +1432,7 @@
               "type": "apikey",
               "apikey": {
                 "key": "x-admin-token",
-                "value": "x-admin-token28",
+                "value": "x-admin-token97",
                 "in": "header"
               }
             },
@@ -1470,7 +1470,7 @@
               "status": "Where to send the seller.",
               "code": 200,
               "name": "Response_200",
-              "id": "36a3c419-2582-4f48-8d96-c5cf038dcef4"
+              "id": "3a271df5-9939-462d-a043-c03407b3b486"
             },
             {
               "header": [
@@ -1484,7 +1484,7 @@
               "status": "No such shop, or the admin token or API key doesn't match it.",
               "code": 404,
               "name": "Response_404",
-              "id": "67c02b8d-f693-4315-87c6-897f221fa3f3"
+              "id": "fad0f106-0f73-4746-ad36-ca77569586d0"
             },
             {
               "header": [
@@ -1498,7 +1498,7 @@
               "status": "Gemini, PayPal or Channel3 failed or isn't configured.",
               "code": 502,
               "name": "Response_502",
-              "id": "61b2fede-a49e-43b6-966c-e30ba0386888"
+              "id": "e0f2ac62-53af-47bb-8d60-333f7ac88a62"
             },
             {
               "header": [
@@ -1512,12 +1512,12 @@
               "status": "Gemini, PayPal or Channel3 failed or isn't configured.",
               "code": 503,
               "name": "Response_503",
-              "id": "8a5c87cc-6104-43da-8de9-190b5429b385"
+              "id": "4fa7bd46-8a1c-4f99-9b91-1a5ea4f7808f"
             }
           ]
         },
         {
-          "id": "baaf2001-484d-46cc-ab98-efec60a7b85a",
+          "id": "e8e62ade-2214-4cc2-a8d4-e6c62b8fe26f",
           "name": "getPayPalConnection",
           "request": {
             "url": {
@@ -1529,7 +1529,7 @@
                 {
                   "id": "slug",
                   "key": "slug",
-                  "value": "raptorrush",
+                  "value": "vintageskates",
                   "type": "string",
                   "description": "The shop's link name (current or former)."
                 }
@@ -1539,7 +1539,7 @@
               "type": "apikey",
               "apikey": {
                 "key": "x-admin-token",
-                "value": "x-admin-token41",
+                "value": "x-admin-token97",
                 "in": "header"
               }
             },
@@ -1570,7 +1570,7 @@
               "status": "The connection, or nulls if there is none yet.",
               "code": 200,
               "name": "Response_200",
-              "id": "679ba058-4a06-43bb-a6d5-b20ede077497"
+              "id": "c1ad0ebb-7fb6-40f5-8ab0-5eb01d0c3f26"
             },
             {
               "header": [
@@ -1584,7 +1584,7 @@
               "status": "No such shop, or the admin token or API key doesn't match it.",
               "code": 404,
               "name": "Response_404",
-              "id": "71e52bc4-cc5a-46c8-ac5c-1f253111b9cf"
+              "id": "b74c34da-7da3-402c-91c7-6d030807d760"
             },
             {
               "header": [
@@ -1598,7 +1598,7 @@
               "status": "Gemini, PayPal or Channel3 failed or isn't configured.",
               "code": 502,
               "name": "Response_502",
-              "id": "8d148a10-44bd-4ffc-b2dc-b207d1a8c9c0"
+              "id": "57171c6f-bb6f-4280-b951-8de1ca03bb0a"
             },
             {
               "header": [
@@ -1612,12 +1612,12 @@
               "status": "Gemini, PayPal or Channel3 failed or isn't configured.",
               "code": 503,
               "name": "Response_503",
-              "id": "700de675-c75f-4f6b-8274-bcd364b6bff8"
+              "id": "cef6a580-98af-4f65-a6cc-ee1c6da0711f"
             }
           ]
         },
         {
-          "id": "fd6991a9-bc16-4ce3-bf7d-7c48753081a0",
+          "id": "ddbe8e76-1409-45b1-9b84-2c571866d23c",
           "name": "disconnectPayPal",
           "request": {
             "url": {
@@ -1629,7 +1629,7 @@
                 {
                   "id": "slug",
                   "key": "slug",
-                  "value": "raptorrush",
+                  "value": "vintageskates",
                   "type": "string",
                   "description": "The shop's link name (current or former)."
                 }
@@ -1639,7 +1639,7 @@
               "type": "apikey",
               "apikey": {
                 "key": "x-admin-token",
-                "value": "x-admin-token34",
+                "value": "x-admin-token89",
                 "in": "header"
               }
             },
@@ -1670,7 +1670,7 @@
               "status": "Done.",
               "code": 200,
               "name": "Response_200",
-              "id": "c7077ad4-e9b5-4639-a92b-572d180807f1"
+              "id": "09049545-e5d0-43a2-b6be-7d4ed829e3c1"
             },
             {
               "header": [
@@ -1684,7 +1684,7 @@
               "status": "No such shop, or the admin token or API key doesn't match it.",
               "code": 404,
               "name": "Response_404",
-              "id": "008fafc3-b950-49a9-8f39-e4327ec7f08e"
+              "id": "70e6bb7b-ed18-4b14-98ca-d47b477298b6"
             }
           ]
         }
@@ -1695,7 +1695,7 @@
       "description": "Short shop links (`/<slug>`).",
       "item": [
         {
-          "id": "4b1d060e-ee8a-43a9-9ce2-e55f450a6c6d",
+          "id": "ed3587dd-ccda-43d3-96f1-0e67c22280ce",
           "name": "checkLinkName",
           "request": {
             "url": {
@@ -1739,7 +1739,7 @@
               "status": "The normalised name and whether it can be used.",
               "code": 200,
               "name": "Response_200",
-              "id": "1852ed04-1336-470a-9b40-6c6102fc3d50"
+              "id": "5fbe277d-ad84-4ce7-8423-644c32b0ae22"
             }
           ]
         }
@@ -1750,7 +1750,7 @@
       "description": "Find products to recommend (Channel3 catalog).",
       "item": [
         {
-          "id": "e8f89036-32d6-4721-82fb-c97d148264a6",
+          "id": "368bbc6e-3739-45e3-9afb-5b1cafc16487",
           "name": "searchProducts",
           "request": {
             "url": {
@@ -1761,7 +1761,7 @@
               "query": [
                 {
                   "key": "q",
-                  "value": "gifts%20for%20trail%20runners%20under%20%2460",
+                  "value": "trail%20running%20vest",
                   "description": "What to look for, in plain words.",
                   "disabled": false
                 }
@@ -1794,7 +1794,7 @@
               "status": "Up to 12 products.",
               "code": 200,
               "name": "Response_200",
-              "id": "87fbeb7b-0eda-4ce6-ace6-856ec7d8cd6b"
+              "id": "229cfaf5-554b-472a-90ae-ed569a7b56f5"
             },
             {
               "header": [
@@ -1808,7 +1808,7 @@
               "status": "Gemini, PayPal or Channel3 failed or isn't configured.",
               "code": 502,
               "name": "Response_502",
-              "id": "a7ebec6e-e8bb-4546-b30a-2368331e0379"
+              "id": "0c1a182f-99a6-43a2-9581-1d3636fe2fb3"
             },
             {
               "header": [
@@ -1822,7 +1822,7 @@
               "status": "Gemini, PayPal or Channel3 failed or isn't configured.",
               "code": 503,
               "name": "Response_503",
-              "id": "6961b2ae-bc77-4909-89d8-a92ceab0a702"
+              "id": "c3979ea0-b091-4dce-916b-125152a1b47d"
             }
           ]
         }
@@ -1833,7 +1833,7 @@
       "description": "Buyer-side PayPal checkout.",
       "item": [
         {
-          "id": "22fdc17a-bc3c-4fc4-802c-4a44e5727b41",
+          "id": "24296af4-ac15-45d5-8025-7ccf68ce2743",
           "name": "getPayPalClientToken",
           "request": {
             "url": {
@@ -1869,7 +1869,7 @@
               "status": "A token for this site's domain.",
               "code": 200,
               "name": "Response_200",
-              "id": "47b17488-dde7-47c9-8c6b-b48135cda8b8"
+              "id": "2105071d-4f68-4657-b156-195b806d1ba9"
             },
             {
               "header": [
@@ -1883,7 +1883,7 @@
               "status": "Gemini, PayPal or Channel3 failed or isn't configured.",
               "code": 502,
               "name": "Response_502",
-              "id": "d26410b2-1083-4485-ac3c-6597714cae7e"
+              "id": "526e7bf0-0549-4c02-a48a-193989a94874"
             },
             {
               "header": [
@@ -1897,12 +1897,12 @@
               "status": "Gemini, PayPal or Channel3 failed or isn't configured.",
               "code": 503,
               "name": "Response_503",
-              "id": "77abcf39-1217-4036-b515-e09a55789814"
+              "id": "0d77d845-f466-49e8-9091-1c32a9c78aa8"
             }
           ]
         },
         {
-          "id": "bf36e29d-ed67-45f0-bc4b-2bd98dd9fcef",
+          "id": "7230dd39-747f-44bc-b591-550fd22f11ca",
           "name": "createCheckoutOrder",
           "request": {
             "url": {
@@ -1945,7 +1945,7 @@
               "status": "PayPal order created.",
               "code": 200,
               "name": "Response_200",
-              "id": "ca7ed8d5-185d-4236-960d-b5834968cd3e"
+              "id": "5bd05087-4e7c-4e15-8fc8-4dc4dd98f295"
             },
             {
               "header": [
@@ -1959,7 +1959,7 @@
               "status": "Something in the request needs fixing; `error` says what.",
               "code": 400,
               "name": "Response_400",
-              "id": "b2083ca5-53f9-407f-b112-0c6cf551ce93"
+              "id": "79cb26f2-5ac8-4593-a732-cb8735179708"
             },
             {
               "header": [
@@ -1973,7 +1973,7 @@
               "status": "No such shop, or the admin token or API key doesn't match it.",
               "code": 404,
               "name": "Response_404",
-              "id": "7cc77a85-0ccf-4b15-bccd-64a0432acbd3"
+              "id": "d5bca38e-d6a6-43af-9822-d5909059cdd3"
             },
             {
               "header": [
@@ -1987,35 +1987,7 @@
               "status": "Taken or unavailable (a link name, or a sold-out product).",
               "code": 409,
               "name": "Response_409",
-              "id": "fcd9a404-2b77-4286-8d61-12824aae2011"
-            },
-            {
-              "header": [
-                {
-                  "key": "Content-Type",
-                  "value": "application/json",
-                  "disabled": false
-                }
-              ],
-              "body": "{\n  \"error\": \"PayPal isn't configured on this server.\"\n}",
-              "status": "Gemini, PayPal or Channel3 failed or isn't configured.",
-              "code": 502,
-              "name": "Response_502",
-              "id": "449ffd22-c466-490f-a00b-07cf1e75f518"
-            },
-            {
-              "header": [
-                {
-                  "key": "Content-Type",
-                  "value": "application/json",
-                  "disabled": false
-                }
-              ],
-              "body": "{\n  \"error\": \"PayPal isn't configured on this server.\"\n}",
-              "status": "Gemini, PayPal or Channel3 failed or isn't configured.",
-              "code": 503,
-              "name": "Response_503",
-              "id": "15ca0f7b-c9e1-4a60-8242-7a9b53884eee"
+              "id": "cd796b16-1dc6-49e8-b486-6e150e2b151c"
             },
             {
               "header": [
@@ -2034,12 +2006,40 @@
               "status": "Over this network's cap for the call (see **Limits**). Retry after `Retry-After` seconds.",
               "code": 429,
               "name": "Response_429",
-              "id": "7acb228a-3a99-45f5-b510-a304d0d8c35c"
+              "id": "579d861a-453f-4742-99ac-a35e84cc28b6"
+            },
+            {
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "disabled": false
+                }
+              ],
+              "body": "{\n  \"error\": \"PayPal isn't configured on this server.\"\n}",
+              "status": "Gemini, PayPal or Channel3 failed or isn't configured.",
+              "code": 502,
+              "name": "Response_502",
+              "id": "acb35af0-a2b6-41bf-b3e4-57aa0695e2a8"
+            },
+            {
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "disabled": false
+                }
+              ],
+              "body": "{\n  \"error\": \"PayPal isn't configured on this server.\"\n}",
+              "status": "Gemini, PayPal or Channel3 failed or isn't configured.",
+              "code": 503,
+              "name": "Response_503",
+              "id": "8ff94662-226a-49a5-b2a0-75176c17daf5"
             }
           ]
         },
         {
-          "id": "29bdbffc-cb2f-4ade-9340-735f6022560f",
+          "id": "268c9b56-a052-44d2-8521-6f3a0b441e7f",
           "name": "captureCheckoutOrder",
           "request": {
             "url": {
@@ -2084,7 +2084,7 @@
               "status": "Paid.",
               "code": 200,
               "name": "Response_200",
-              "id": "eb1675b4-674f-474e-ab06-db44d0c6c4ae"
+              "id": "296aae0f-b3cf-4419-a5ec-7531a1cbbfcd"
             },
             {
               "header": [
@@ -2098,7 +2098,7 @@
               "status": "Something in the request needs fixing; `error` says what.",
               "code": 402,
               "name": "Response_402",
-              "id": "323ef7c3-4e9c-4154-9d52-ed7e00753676"
+              "id": "2210f1e2-5f77-4683-b8a4-7525f79c257a"
             },
             {
               "header": [
@@ -2112,7 +2112,7 @@
               "status": "No such shop, or the admin token or API key doesn't match it.",
               "code": 404,
               "name": "Response_404",
-              "id": "314f3d83-ba50-48f9-9106-7b4e44b8a4e8"
+              "id": "6657f5ed-3f62-49f4-beab-653f9c861ceb"
             },
             {
               "header": [
@@ -2126,7 +2126,7 @@
               "status": "The buyer hasn't approved the order yet.",
               "code": 409,
               "name": "Response_409",
-              "id": "03f1e491-1027-4c3c-998e-1aaac2d39484"
+              "id": "5a8d632c-ddc5-4003-a23b-ebf2f635c679"
             },
             {
               "header": [
@@ -2136,11 +2136,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"error\": \"error81\",\n  \"field\": \"field45\",\n  \"detail\": \"detail76\"\n}",
+              "body": "{\n  \"error\": \"Order not found.\",\n  \"field\": \"price\",\n  \"detail\": \"INSTRUMENT_DECLINED\"\n}",
               "status": "The last unit (or the last of the buyer's combination) sold while they were paying, or the PayPal checkout expired before they paid. The payment isn't captured, so the buyer isn't charged.",
               "code": 410,
               "name": "Response_410",
-              "id": "2052fd8d-5335-4b87-911f-c26de7a1db4f"
+              "id": "fd39bd84-b68a-4fbb-970f-d87ec4659550"
             },
             {
               "header": [
@@ -2150,11 +2150,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"error\": \"error81\",\n  \"field\": \"field45\",\n  \"detail\": \"detail76\"\n}",
+              "body": "{\n  \"error\": \"Order not found.\",\n  \"field\": \"price\",\n  \"detail\": \"INSTRUMENT_DECLINED\"\n}",
               "status": "The buyer's funding source was declined (`INSTRUMENT_DECLINED`); they can try another.",
               "code": 422,
               "name": "Response_422",
-              "id": "fc7ad2b5-5479-4857-a213-6c67ec81a0f8"
+              "id": "e84122c1-df35-4344-8e9b-87b822590d2c"
             },
             {
               "header": [
@@ -2168,7 +2168,7 @@
               "status": "Gemini, PayPal or Channel3 failed or isn't configured.",
               "code": 502,
               "name": "Response_502",
-              "id": "2dc946fb-8c90-48f8-9f4e-ef5a024f8f2f"
+              "id": "e1f6ad00-48a3-4951-8f54-400cb79a24c5"
             }
           ]
         }
@@ -2179,7 +2179,7 @@
       "description": "Unlock a paid app or game with a buyer's code.",
       "item": [
         {
-          "id": "7cc14ce4-816c-4802-bd7c-9dea0e3e72d8",
+          "id": "2ffdd882-5300-4de5-a21d-f548ccc75099",
           "name": "verifyAccessCode",
           "request": {
             "url": {
@@ -2222,7 +2222,7 @@
               "status": "The answer. Invalid codes are also a 200.",
               "code": 200,
               "name": "Response_200",
-              "id": "203e8ebd-e3ac-421d-be87-0f89065bfb48"
+              "id": "2a6c2e78-0e2a-40ab-aed5-f66b80bd1746"
             }
           ]
         }
@@ -2233,7 +2233,7 @@
       "description": "The seller's orders, fulfilment and PayPal webhook log.",
       "item": [
         {
-          "id": "affa8cf5-3501-4ba3-969d-f55596a9cba2",
+          "id": "112a0f36-cbcd-425c-8da3-443a9166b370",
           "name": "listOrders",
           "request": {
             "url": {
@@ -2245,7 +2245,7 @@
                 {
                   "id": "slug",
                   "key": "slug",
-                  "value": "raptorrush",
+                  "value": "vintageskates",
                   "type": "string",
                   "description": "The shop's link name (current or former)."
                 }
@@ -2255,7 +2255,7 @@
               "type": "apikey",
               "apikey": {
                 "key": "x-admin-token",
-                "value": "x-admin-token82",
+                "value": "x-admin-token27",
                 "in": "header"
               }
             },
@@ -2286,7 +2286,7 @@
               "status": "Orders.",
               "code": 200,
               "name": "Response_200",
-              "id": "c55927cc-a3ba-49bb-bae2-d47a8b5026dc"
+              "id": "3a0ba0bb-5933-49be-9f10-fca11e0c24e8"
             },
             {
               "header": [
@@ -2300,12 +2300,12 @@
               "status": "No such shop, or the admin token or API key doesn't match it.",
               "code": 404,
               "name": "Response_404",
-              "id": "44096ca7-46c4-4205-ae5a-7b7a324a0bd3"
+              "id": "9535bbe9-f803-4879-9feb-3ac09d113628"
             }
           ]
         },
         {
-          "id": "58001b25-9ca9-4f23-b47a-c1de00d85ab4",
+          "id": "e1bf64b6-1ef0-4d9b-976c-6c08542b2542",
           "name": "markOrderShipped",
           "request": {
             "url": {
@@ -2317,7 +2317,7 @@
                 {
                   "id": "slug",
                   "key": "slug",
-                  "value": "raptorrush",
+                  "value": "vintageskates",
                   "type": "string",
                   "description": "The shop's link name (current or former)."
                 },
@@ -2334,7 +2334,7 @@
               "type": "apikey",
               "apikey": {
                 "key": "x-admin-token",
-                "value": "x-admin-token86",
+                "value": "x-admin-token26",
                 "in": "header"
               }
             },
@@ -2372,7 +2372,7 @@
               "status": "Shipped.",
               "code": 200,
               "name": "Response_200",
-              "id": "242e8976-ab34-436c-b06f-0ab368592df4"
+              "id": "5710040e-fadc-46cf-b494-39553b00837e"
             },
             {
               "header": [
@@ -2386,7 +2386,7 @@
               "status": "Something in the request needs fixing; `error` says what.",
               "code": 400,
               "name": "Response_400",
-              "id": "bcf94834-f095-47d8-a5ba-4dd1fd77b1df"
+              "id": "a4336957-2948-4b71-8172-60ceb32d04c4"
             },
             {
               "header": [
@@ -2400,12 +2400,12 @@
               "status": "No such shop, or the admin token or API key doesn't match it.",
               "code": 404,
               "name": "Response_404",
-              "id": "860fce50-b074-46d6-ab64-92be395de263"
+              "id": "89966dca-240d-47f9-bfbe-47e56b55a15e"
             }
           ]
         },
         {
-          "id": "515d3f16-d2dd-4ded-8b73-2db1759151c1",
+          "id": "4d1d3499-e30a-4d91-b7f3-6d0ca960e275",
           "name": "refundOrder",
           "request": {
             "url": {
@@ -2417,7 +2417,7 @@
                 {
                   "id": "slug",
                   "key": "slug",
-                  "value": "raptorrush",
+                  "value": "vintageskates",
                   "type": "string",
                   "description": "The shop's link name (current or former)."
                 },
@@ -2434,7 +2434,7 @@
               "type": "apikey",
               "apikey": {
                 "key": "x-admin-token",
-                "value": "x-admin-token27",
+                "value": "x-admin-token92",
                 "in": "header"
               }
             },
@@ -2472,7 +2472,7 @@
               "status": "Refunded.",
               "code": 200,
               "name": "Response_200",
-              "id": "5a672cfd-79c7-412d-8c08-3ad133f96fb9"
+              "id": "8f63f4d4-4d2f-4af0-990e-7acd2f485c96"
             },
             {
               "header": [
@@ -2486,7 +2486,7 @@
               "status": "No such shop or order, or the token doesn't match the shop.",
               "code": 404,
               "name": "Response_404",
-              "id": "5b15fb5e-0702-4063-bee6-8546cd4b3b82"
+              "id": "3280ccfa-4004-4a55-baa8-17719a3f4873"
             },
             {
               "header": [
@@ -2500,12 +2500,12 @@
               "status": "Not refundable here; `error` says why.",
               "code": 409,
               "name": "Response_409",
-              "id": "c25a09ee-5d69-4ad1-8b69-3246c874d3fd"
+              "id": "4a9efd4d-6bdd-4441-8f47-4acf1f6250a8"
             }
           ]
         },
         {
-          "id": "e48f5dbd-e0e6-4431-b36f-d065bf917107",
+          "id": "e7a1d1b9-e15a-43f5-aba9-163f9cf44190",
           "name": "listWebhookEvents",
           "request": {
             "url": {
@@ -2517,7 +2517,7 @@
                 {
                   "id": "slug",
                   "key": "slug",
-                  "value": "raptorrush",
+                  "value": "vintageskates",
                   "type": "string",
                   "description": "The shop's link name (current or former)."
                 }
@@ -2527,7 +2527,7 @@
               "type": "apikey",
               "apikey": {
                 "key": "x-admin-token",
-                "value": "x-admin-token95",
+                "value": "x-admin-token20",
                 "in": "header"
               }
             },
@@ -2558,7 +2558,7 @@
               "status": "Events, newest first.",
               "code": 200,
               "name": "Response_200",
-              "id": "67ecddb5-7f00-4bbf-87d3-ff6d1257ce8e"
+              "id": "316628e7-c644-40f0-804d-ea180c8c92de"
             },
             {
               "header": [
@@ -2572,7 +2572,7 @@
               "status": "No such shop, or the admin token or API key doesn't match it.",
               "code": 404,
               "name": "Response_404",
-              "id": "f8182441-477e-42c9-ab8d-739be487367b"
+              "id": "b66b2987-53ea-4b1e-80fc-42a389fccff3"
             }
           ]
         }
@@ -2583,7 +2583,7 @@
       "description": "Digital downloads and shop images.",
       "item": [
         {
-          "id": "37bbfb29-4d52-4eba-bfd7-a68b2009f66f",
+          "id": "d03a18fb-90dd-4f82-ba59-27db826ffd76",
           "name": "downloadFile",
           "request": {
             "url": {
@@ -2622,7 +2622,7 @@
               "status": "The file.",
               "code": 200,
               "name": "Response_200",
-              "id": "627f0ca0-3c0f-4d78-9ebf-bb1e05e9ef82"
+              "id": "5a24b93f-44b4-4b67-8826-37dc91d538e0"
             },
             {
               "header": [
@@ -2632,16 +2632,16 @@
                   "disabled": false
                 }
               ],
-              "body": "response 41013",
+              "body": "This download link has expired.",
               "status": "Expired or used up.",
               "code": 410,
               "name": "Response_410",
-              "id": "a6c536fb-e28f-474f-915c-6673c385d703"
+              "id": "bf21b925-0a0d-486a-996e-cf1d16b002fc"
             }
           ]
         },
         {
-          "id": "313f068d-34e1-42a5-af2a-9625364ffd28",
+          "id": "b68580f1-fda3-4f63-89fa-b617ffd8fa68",
           "name": "getImage",
           "request": {
             "url": {
@@ -2686,14 +2686,14 @@
               "status": "The image.",
               "code": 200,
               "name": "Response_200",
-              "id": "f18d88c9-f145-47e5-940a-2ec88702aaa7"
+              "id": "9aad72dd-cf74-46af-9985-2436eb60f78b"
             },
             {
               "header": [],
               "status": "Not a public shop image.",
               "code": 404,
               "name": "Response_404",
-              "id": "697afba6-e4a5-4f96-9eb2-0080cc21349e"
+              "id": "c22c220a-a17e-4298-9b0b-eafe6bf0ee43"
             }
           ]
         }
@@ -2704,7 +2704,7 @@
       "description": "Machine-readable shops and the MCP server AI shopping agents buy through.",
       "item": [
         {
-          "id": "3fdd16bf-9c5d-4850-be83-84517de5cb2b",
+          "id": "06a922b9-da84-46a1-96da-f3d7e73d682f",
           "name": "openPayLink",
           "request": {
             "url": {
@@ -2742,7 +2742,7 @@
               "status": "Redirect to PayPal, the thank-you page or the shop page.",
               "code": 303,
               "name": "Response_303",
-              "id": "d920804a-cf3f-4264-b4bd-c37e34265510"
+              "id": "92da9ca0-8647-44a3-8ef0-e80d090b117b"
             },
             {
               "header": [
@@ -2752,16 +2752,16 @@
                   "disabled": false
                 }
               ],
-              "body": "response 4042",
+              "body": "Order not found.",
               "status": "No order with that id.",
               "code": 404,
               "name": "Response_404",
-              "id": "81a6d6d1-e4c4-4853-a656-ba6801c9c580"
+              "id": "e0e01c51-5ea3-461f-b6d3-73104fb10fa9"
             }
           ]
         },
         {
-          "id": "addfa814-0749-4806-ad22-10427472e489",
+          "id": "c1ff3773-11f9-4d01-b84c-495f8e0442f3",
           "name": "listAgentShops",
           "request": {
             "url": {
@@ -2811,12 +2811,12 @@
               "status": "The matching shops.",
               "code": 200,
               "name": "Response_200",
-              "id": "6b8dc110-bd22-4ec2-b2f1-3b0984b73f30"
+              "id": "1dfea124-dbfd-4ed1-85d2-999c251037d6"
             }
           ]
         },
         {
-          "id": "d02752f0-f3bc-4ca4-bf3b-0c72a1ba78bc",
+          "id": "b8c19bb0-2925-4150-8e67-0aea50839231",
           "name": "orderByLink",
           "request": {
             "url": {
@@ -2842,7 +2842,7 @@
                 {
                   "id": "slug",
                   "key": "slug",
-                  "value": "raptorrush",
+                  "value": "vintageskates",
                   "type": "string",
                   "description": "The shop's link name (current or former)."
                 }
@@ -2875,7 +2875,7 @@
               "status": "The order, waiting for the buyer to pay.",
               "code": 200,
               "name": "Response_200",
-              "id": "9aab9016-29f1-4147-b173-0894abf34d0c"
+              "id": "ded615af-4514-4ceb-b2c6-a604d6a098cd"
             },
             {
               "header": [
@@ -2888,7 +2888,7 @@
               "status": "A person clicked the link. Redirect to PayPal (`pay_url`), or to the shop page to pick an option.",
               "code": 303,
               "name": "Response_303",
-              "id": "93597eca-c26b-47ca-aea1-b0dbeadb0312"
+              "id": "ddc7d405-4139-46f9-8762-4734bdf56d65"
             },
             {
               "header": [
@@ -2902,7 +2902,7 @@
               "status": "A missing or unknown option value, or sold out. `error` names the valid values.",
               "code": 400,
               "name": "Response_400",
-              "id": "7a531dcc-bbf4-4272-97e5-727530723789"
+              "id": "a4126a51-9409-41ed-9da9-0d2e1269f466"
             },
             {
               "header": [
@@ -2916,7 +2916,7 @@
               "status": "A known crawler or link previewer. They don't place orders.",
               "code": 403,
               "name": "Response_403",
-              "id": "84943da9-0e15-4f67-9e99-97ead4a3dec5"
+              "id": "59ab05f9-b332-4fb1-beb7-ea1cf9f3f084"
             },
             {
               "header": [
@@ -2930,7 +2930,7 @@
               "status": "No live shop with that link name.",
               "code": 404,
               "name": "Response_404",
-              "id": "a4e4aed7-ff15-42fe-8084-7e9b4719671f"
+              "id": "6b933152-5128-4ccb-b057-698d200c0d95"
             },
             {
               "header": [
@@ -2949,12 +2949,12 @@
               "status": "Over this network's cap for the call (see **Limits**). Retry after `Retry-After` seconds.",
               "code": 429,
               "name": "Response_429",
-              "id": "c24cecbd-ffa8-4b3a-a412-259e3ddaf50d"
+              "id": "e88ea3a3-4c09-4e3b-a974-cfeb66106e29"
             }
           ]
         },
         {
-          "id": "46678da3-eacd-4e5d-be1f-3da075db211d",
+          "id": "93557111-dafc-44bf-9955-48a85a1fce4f",
           "name": "getAgentOrder",
           "request": {
             "url": {
@@ -3007,14 +3007,14 @@
               "status": "The order.",
               "code": 200,
               "name": "Response_200",
-              "id": "822f9616-08d2-4df6-95e4-d7b9e1f239bc"
+              "id": "5d0b0381-4100-44a8-a88d-b62958acb073"
             },
             {
               "header": [],
               "status": "A person clicked the link. Redirect to the order's page (`/o/<order_id>`).",
               "code": 303,
               "name": "Response_303",
-              "id": "40f2efe4-9763-42ff-9099-827568c0714a"
+              "id": "6fe6bceb-b1f6-468a-b028-1c74e6e62d56"
             },
             {
               "header": [
@@ -3024,16 +3024,16 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"error\": \"error81\",\n  \"field\": \"field45\",\n  \"detail\": \"detail76\"\n}",
+              "body": "{\n  \"error\": \"Order not found.\",\n  \"field\": \"price\",\n  \"detail\": \"INSTRUMENT_DECLINED\"\n}",
               "status": "No order with that id.",
               "code": 404,
               "name": "Response_404",
-              "id": "9aedc845-a17d-451e-882e-110195c63552"
+              "id": "32ff7351-df8e-49b9-bab7-5b612bcf74e4"
             }
           ]
         },
         {
-          "id": "f81725d3-e96b-4b75-ab88-bb52d83dfc79",
+          "id": "74f54c78-d642-4e07-a4b8-01f1c3f2ff28",
           "name": "getAgentProduct",
           "request": {
             "url": {
@@ -3059,7 +3059,7 @@
                 {
                   "id": "slug",
                   "key": "slug",
-                  "value": "raptorrush",
+                  "value": "vintageskates",
                   "type": "string",
                   "description": "The shop's link name (current or former)."
                 }
@@ -3092,14 +3092,14 @@
               "status": "The product.",
               "code": 200,
               "name": "Response_200",
-              "id": "c2a4a6fe-52c4-40fd-8ca8-7f4ab2f8483c"
+              "id": "9b5dc5ce-7c7e-488b-84df-12e0bd9a0f2b"
             },
             {
               "header": [],
               "status": "A person clicked the link. Redirect to the shop page (`/<slug>`).",
               "code": 303,
               "name": "Response_303",
-              "id": "bc897f3d-0fda-4c4a-a1ee-b698b5dc6aac"
+              "id": "074af98f-73af-4f5b-9b4c-0eab79a0e062"
             },
             {
               "header": [
@@ -3109,16 +3109,16 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"error\": \"error81\",\n  \"field\": \"field45\",\n  \"detail\": \"detail76\"\n}",
+              "body": "{\n  \"error\": \"Order not found.\",\n  \"field\": \"price\",\n  \"detail\": \"INSTRUMENT_DECLINED\"\n}",
               "status": "No live shop with that link name.",
               "code": 404,
               "name": "Response_404",
-              "id": "3bfe04de-a152-4c6e-8c82-f781293f3356"
+              "id": "786ebc04-4ab8-45b1-b784-21826e0a0695"
             }
           ]
         },
         {
-          "id": "efd6cc08-05eb-4794-bc6e-080b27580574",
+          "id": "c30c346b-82f8-4631-a0e2-d890e48ab995",
           "name": "callMcp",
           "request": {
             "url": {
@@ -3161,14 +3161,14 @@
               "status": "The JSON-RPC reply (an array for a batch).",
               "code": 200,
               "name": "Response_200",
-              "id": "941b810f-43c3-4941-b213-37af38c10e4c"
+              "id": "cf4bbf3c-7556-4e4e-819b-311501b6d71c"
             },
             {
               "header": [],
               "status": "Only notifications were sent; there's nothing to reply.",
               "code": 202,
               "name": "Response_202",
-              "id": "1b1d8059-791a-40b8-83af-6420a8d9eeb1"
+              "id": "b5ff2c7c-acf0-4064-93ee-b60a2f6d67ab"
             },
             {
               "header": [
@@ -3178,11 +3178,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"jsonrpc\": \"2.0\",\n  \"id\": 16,\n  \"result\": {},\n  \"error\": {\n    \"code\": -32601,\n    \"message\": \"message17\"\n  }\n}",
+              "body": "{\n  \"jsonrpc\": \"2.0\",\n  \"id\": 52,\n  \"result\": {\n    \"isError\": false\n  },\n  \"error\": {\n    \"code\": -32601,\n    \"message\": \"Method not found\"\n  }\n}",
               "status": "Not JSON (JSON-RPC parse error `-32700`).",
               "code": 400,
               "name": "Response_400",
-              "id": "cdc52a6a-0d32-4011-92dd-9f44461329fc"
+              "id": "5b6fe96f-2f89-4117-a92a-36856a2f8c70"
             }
           ]
         }
@@ -3193,7 +3193,7 @@
       "description": "For marketplaces that make and run shops for their own sellers with one API key.",
       "item": [
         {
-          "id": "c5bdba45-f786-47a8-b8ee-107f27f86cab",
+          "id": "bb97b87c-d35c-4942-8180-e3c746f482ef",
           "name": "listMyShops",
           "request": {
             "url": {
@@ -3244,7 +3244,7 @@
               "status": "The shops.",
               "code": 200,
               "name": "Response_200",
-              "id": "7d221c9a-5ed9-4612-b4d0-42d261c6c849"
+              "id": "91c78179-3c0b-4fa3-8301-44cafbad17ad"
             },
             {
               "header": [
@@ -3254,11 +3254,11 @@
                   "disabled": false
                 }
               ],
-              "body": "{\n  \"error\": \"error81\",\n  \"field\": \"field45\",\n  \"detail\": \"detail76\"\n}",
+              "body": "{\n  \"error\": \"Order not found.\",\n  \"field\": \"price\",\n  \"detail\": \"INSTRUMENT_DECLINED\"\n}",
               "status": "No API key, or it's wrong or revoked.",
               "code": 401,
               "name": "Response_401",
-              "id": "1e680f72-f57e-4159-b649-d596068b2081"
+              "id": "c6662566-cdc7-4366-8696-0736366e9333"
             }
           ]
         }

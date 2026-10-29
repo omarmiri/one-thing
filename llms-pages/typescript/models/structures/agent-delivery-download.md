@@ -14,9 +14,9 @@ A digital file to download.
 
 | Name | Type | Tags | Description |
 |  --- | --- | --- | --- |
-| `type` | `string` | Required, Constant | **Value**: `'download'` |
-| `downloadUrl` | `string` | Required | - |
-| `note` | `string \| undefined` | Optional | - |
+| `type` | `string` | Required, Constant | Always `download`.<br><br>**Value**: `'download'` |
+| `downloadUrl` | `string` | Required | A private link to the file. It works 5 times over 14 days. |
+| `note` | `string \| undefined` | Optional | How long the link lasts and how many downloads it allows, in words. |
 
 
 # Example
@@ -26,8 +26,8 @@ import { AgentDeliveryDownload } from 'one-thing-sdk';
 
 const agentDeliveryDownload: AgentDeliveryDownload = {
   type: 'download',
-  downloadUrl: 'download_url8',
-  note: 'note2',
+  downloadUrl: 'https://one-thing-ash0.onrender.com/api/download/dl_4mQ8sT2vX9',
+  note: 'Works 5 times over 14 days.',
 };
 ```
 

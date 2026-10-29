@@ -15,8 +15,8 @@ What Gemini thinks buyers will want to choose or ask. The seller confirms; nothi
 | Name | Type | Tags | Description |
 |  --- | --- | --- | --- |
 | `one_of_a_kind` | `bool` | Required | A single item (vintage, handmade), so options and stock don't apply. |
-| `options` | [`List[Option]`](/llms-pages/python/models/structures/option.md) | Required | - |
-| `missing_facts` | [`List[MissingFact]`](/llms-pages/python/models/structures/missing-fact.md) | Required | - |
+| `options` | [`List[Option]`](/llms-pages/python/models/structures/option.md) | Required | Options buyers will likely want to pick. |
+| `missing_facts` | [`List[MissingFact]`](/llms-pages/python/models/structures/missing-fact.md) | Required | Questions buyers will ask that the listing doesn't answer yet. |
 
 
 # Example
@@ -36,12 +36,15 @@ suggestions = Suggestions(
             kind=Kind.SIZE,
             values=[
                 OptionValue(
-                    label='M',
-                    hex='#14171a',
-                    photo='photo6'
+                    label='S'
+                ),
+                OptionValue(
+                    label='M'
+                ),
+                OptionValue(
+                    label='L'
                 )
-            ],
-            from_seller=False
+            ]
         )
     ],
     missing_facts=[

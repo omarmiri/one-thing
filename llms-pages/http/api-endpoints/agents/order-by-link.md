@@ -51,7 +51,7 @@ GET /api/agent/shops/{slug}/order
 
 ```bash
 curl -X GET -G \
-  --url 'https://one-thing-ash0.onrender.com/api/agent/shops/raptorrush/order'  \
+  --url 'https://one-thing-ash0.onrender.com/api/agent/shops/vintageskates/order'  \
   -H 'Accept: application/json' \
   -d 'agent=ChatGPT' \
   -d 'Size=9'
@@ -80,10 +80,10 @@ curl -X GET -G \
 
 | HTTP Status Code | Error Description | Exception Class |
 |  --- | --- | --- |
-| 400 | A missing or unknown option value, or sold out. `error` names the valid values. | [`Error_ErrorException`](/llms-pages/http/models/exceptions/error-error.md) |
-| 403 | A known crawler or link previewer. They don't place orders. | [`Error_ErrorException`](/llms-pages/http/models/exceptions/error-error.md) |
-| 404 | No live shop with that link name. | [`Error_ErrorException`](/llms-pages/http/models/exceptions/error-error.md) |
-| 429 | Over this network's cap for the call (see **Limits**). Retry after `Retry-After` seconds. | [`Error_ErrorException`](/llms-pages/http/models/exceptions/error-error.md) |
+| 400 | A missing or unknown option value, or sold out. `error` names the valid values. | [`ErrorResponse_ErrorException`](/llms-pages/http/models/exceptions/error-response-error.md) |
+| 403 | A known crawler or link previewer. They don't place orders. | [`ErrorResponse_ErrorException`](/llms-pages/http/models/exceptions/error-response-error.md) |
+| 404 | No live shop with that link name. | [`ErrorResponse_ErrorException`](/llms-pages/http/models/exceptions/error-response-error.md) |
+| 429 | Over this network's cap for the call (see **Limits**). Retry after `Retry-After` seconds. | [`ErrorResponse_ErrorException`](/llms-pages/http/models/exceptions/error-response-error.md) |
 
 
 

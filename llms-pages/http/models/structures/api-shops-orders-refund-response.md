@@ -2,12 +2,14 @@
 
 Source: /#/http/x-redirect/JTI0bSUyRkFwaSUyNTIwU2hvcHMlMjUyME9yZGVycyUyNTIwUmVmdW5kJTI1MjBSZXNwb25zZQ
 
+The refund.
+
 
 # Fields
 
 | Name | Type | Tags | Description |
 |  --- | --- | --- | --- |
-| `ok` | `Boolean` | Required | - |
+| `ok` | `Boolean` | Required | Always `true`. |
 | `refundId` | `String` | Optional | PayPal's refund id; null when `record` was used. |
 
 
@@ -15,8 +17,8 @@ Source: /#/http/x-redirect/JTI0bSUyRkFwaSUyNTIwU2hvcHMlMjUyME9yZGVycyUyNTIwUmVmd
 
 ```json
 {
-  "ok": false,
-  "refundId": "refundId6"
+  "ok": true,
+  "refundId": "1JU08902781691411"
 }
 ```
 

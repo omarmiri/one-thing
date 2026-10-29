@@ -2,6 +2,8 @@
 
 Source: /#/python/x-redirect/JTI0bSUyRlNob3BQaG90b3M
 
+The shop's photos.
+
 
 # Class Name
 
@@ -12,7 +14,7 @@ Source: /#/python/x-redirect/JTI0bSUyRlNob3BQaG90b3M
 
 | Name | Type | Tags | Description |
 |  --- | --- | --- | --- |
-| `photos` | [`List[Photo]`](/llms-pages/python/models/structures/photo.md) | Required | - |
+| `photos` | [`List[Photo]`](/llms-pages/python/models/structures/photo.md) | Required | Every photo, the cover first. |
 
 
 # Example
@@ -24,8 +26,8 @@ from onethingapi.models.shop_photos import ShopPhotos
 shop_photos = ShopPhotos(
     photos=[
         Photo(
-            id='id8',
-            url='url2'
+            id='LFRvGuTU3D8i334X',
+            url='/api/blobs/LFRvGuTU3D8i334X'
         )
     ]
 )

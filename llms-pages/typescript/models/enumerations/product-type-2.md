@@ -2,6 +2,8 @@
 
 Source: /#/typescript/x-redirect/JTI0bSUyRlByb2R1Y3RUeXBlMg
 
+What the AI decided the product is.
+
 
 # Enum Type Name
 

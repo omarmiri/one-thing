@@ -2,6 +2,8 @@
 
 Source: /#/python/x-redirect/JTI0bSUyRkFwaSUyNTIwU2hvcHMlMjUyME9yZGVycyUyNTIwU2hpcCUyNTIwUmVzcG9uc2U
 
+The order is marked shipped.
+
 
 # Class Name
 
@@ -12,7 +14,7 @@ Source: /#/python/x-redirect/JTI0bSUyRkFwaSUyNTIwU2hvcHMlMjUyME9yZGVycyUyNTIwU2h
 
 | Name | Type | Tags | Description |
 |  --- | --- | --- | --- |
-| `ok` | `bool` | Required | - |
+| `ok` | `bool` | Required | Always `true`. |
 | `synced` | `bool` | Required | Whether PayPal accepted the tracking number. |
 
 
@@ -22,8 +24,8 @@ Source: /#/python/x-redirect/JTI0bSUyRkFwaSUyNTIwU2hvcHMlMjUyME9yZGVycyUyNTIwU2h
 from onethingapi.models.api_shops_orders_ship_response import ApiShopsOrdersShipResponse
 
 api_shops_orders_ship_response = ApiShopsOrdersShipResponse(
-    ok=False,
-    synced=False
+    ok=True,
+    synced=True
 )
 ```
 

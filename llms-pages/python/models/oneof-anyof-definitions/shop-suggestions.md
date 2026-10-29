@@ -30,8 +30,13 @@ value = Suggestions(
             kind=Kind.SIZE,
             values=[
                 OptionValue(
-                    label='M',
-                    hex='#14171a'
+                    label='S'
+                ),
+                OptionValue(
+                    label='M'
+                ),
+                OptionValue(
+                    label='L'
                 )
             ]
         )

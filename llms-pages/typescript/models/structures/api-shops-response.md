@@ -2,6 +2,8 @@
 
 Source: /#/typescript/x-redirect/JTI0bSUyRkFwaSUyNTIwU2hvcHMlMjUyMFJlc3BvbnNl
 
+The shop was saved.
+
 
 # Interface Name
 
@@ -12,7 +14,7 @@ Source: /#/typescript/x-redirect/JTI0bSUyRkFwaSUyNTIwU2hvcHMlMjUyMFJlc3BvbnNl
 
 | Name | Type | Tags | Description |
 |  --- | --- | --- | --- |
-| `ok` | `boolean` | Required | - |
+| `ok` | `boolean` | Required | Always `true`. |
 | `slug` | `string` | Required | The shop's link name after this change. |
 
 
@@ -22,8 +24,8 @@ Source: /#/typescript/x-redirect/JTI0bSUyRkFwaSUyNTIwU2hvcHMlMjUyMFJlc3BvbnNl
 import { ApiShopsResponse } from 'one-thing-sdk';
 
 const apiShopsResponse: ApiShopsResponse = {
-  ok: false,
-  slug: 'slug8',
+  ok: true,
+  slug: 'vintageskates',
 };
 ```
 

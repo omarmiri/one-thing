@@ -25,7 +25,7 @@ This endpoint requires [AdminToken](/llms-pages/typescript/getting-started/sdk-q
 |  --- | --- | --- | --- |
 | `slug` | `string` | Template, Required | The shop's link name (current or former). |
 | `orderId` | `string` | Template, Required | OneThing's order id (`Order.id`). |
-| `body` | [`ApiShopsOrdersRefundRequest \| undefined`](/llms-pages/typescript/models/structures/api-shops-orders-refund-request.md) | Body, Optional | - |
+| `body` | [`ApiShopsOrdersRefundRequest \| undefined`](/llms-pages/typescript/models/structures/api-shops-orders-refund-request.md) | Body, Optional | Optional. `record: true` records a refund made in PayPal. |
 | `requestOptions` | `RequestOptions \| undefined` | Optional | Pass additional request options. |
 
 
@@ -39,7 +39,7 @@ This method returns an [`ApiResponse`](/llms-pages/typescript/sdk-infrastructure
 # Example Usage
 
 ```ts
-const slug = 'raptorrush';
+const slug = 'vintageskates';
 
 const orderId = 'pX4kR9tVb2nQ7sLe';
 
@@ -70,7 +70,7 @@ try {
     console.log(error.headers);
     // Extracting response error body of type `string | Stream`.
     console.log(error.body);
-    if (error instanceof CustomError) {
+    if (error instanceof ErrorResponseError) {
       console.log(error.result);
     } else if (error instanceof ApiShopsOrdersRefund409Error) {
       console.log(error.result);
@@ -94,7 +94,7 @@ try {
 
 | HTTP Status Code | Error Description | Exception Class |
 |  --- | --- | --- |
-| 404 | No such shop or order, or the token doesn't match the shop. | [`CustomError`](/llms-pages/typescript/models/exceptions/error.md) |
+| 404 | No such shop or order, or the token doesn't match the shop. | [`ErrorResponseError`](/llms-pages/typescript/models/exceptions/error-response.md) |
 | 409 | Not refundable here; `error` says why. | [`ApiShopsOrdersRefund409Error`](/llms-pages/typescript/models/exceptions/api-shops-orders-refund-409-error.md) |
 
 

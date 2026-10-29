@@ -1,6 +1,8 @@
-# Error Error
+# Error Response
 
-Source: /#/http/x-redirect/JTI0bSUyRkVycm9yX0Vycm9y
+Source: /#/http/x-redirect/JTI0bSUyRkVycm9yUmVzcG9uc2U
+
+An error reply.
 
 
 # Fields
@@ -10,6 +12,16 @@ Source: /#/http/x-redirect/JTI0bSUyRkVycm9yX0Vycm9y
 | `error` | `String` | Required | A sentence you can show to a person. |
 | `field` | `String` | Optional | The form field at fault, when there is one. |
 | `detail` | `String` | Optional | The upstream service's own message, for debugging. |
+
+
+# Example (as JSON)
+
+```json
+{
+  "error": "Choose a photo.",
+  "field": "photo"
+}
+```
 
 
 

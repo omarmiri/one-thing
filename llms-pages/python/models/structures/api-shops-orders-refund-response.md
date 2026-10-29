@@ -2,6 +2,8 @@
 
 Source: /#/python/x-redirect/JTI0bSUyRkFwaSUyNTIwU2hvcHMlMjUyME9yZGVycyUyNTIwUmVmdW5kJTI1MjBSZXNwb25zZQ
 
+The refund.
+
 
 # Class Name
 
@@ -12,7 +14,7 @@ Source: /#/python/x-redirect/JTI0bSUyRkFwaSUyNTIwU2hvcHMlMjUyME9yZGVycyUyNTIwUmV
 
 | Name | Type | Tags | Description |
 |  --- | --- | --- | --- |
-| `ok` | `bool` | Required | - |
+| `ok` | `bool` | Required | Always `true`. |
 | `refund_id` | `str` | Optional | PayPal's refund id; null when `record` was used. |
 
 
@@ -22,8 +24,8 @@ Source: /#/python/x-redirect/JTI0bSUyRkFwaSUyNTIwU2hvcHMlMjUyME9yZGVycyUyNTIwUmV
 from onethingapi.models.api_shops_orders_refund_response import ApiShopsOrdersRefundResponse
 
 api_shops_orders_refund_response = ApiShopsOrdersRefundResponse(
-    ok=False,
-    refund_id='refundId6'
+    ok=True,
+    refund_id='1JU08902781691411'
 )
 ```
 

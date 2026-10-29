@@ -2,6 +2,8 @@
 
 Source: /#/typescript/x-redirect/JTI0bSUyRkFwaSUyNTIwT3JkZXJzJTI1MjBDYXB0dXJlJTI1MjBSZXNwb25zZQ
 
+The paid order.
+
 
 # Interface Name
 
@@ -13,7 +15,7 @@ Source: /#/typescript/x-redirect/JTI0bSUyRkFwaSUyNTIwT3JkZXJzJTI1MjBDYXB0dXJlJTI
 | Name | Type | Tags | Description |
 |  --- | --- | --- | --- |
 | `orderId` | `string` | Required | OneThing's order id; the thank-you page is `/<slug>/thanks?order=<orderId>`. |
-| `status` | `string` | Required, Constant | **Value**: `'paid'` |
+| `status` | `string` | Required, Constant | Always `paid`.<br><br>**Value**: `'paid'` |
 
 
 # Example
@@ -22,7 +24,7 @@ Source: /#/typescript/x-redirect/JTI0bSUyRkFwaSUyNTIwT3JkZXJzJTI1MjBDYXB0dXJlJTI
 import { ApiOrdersCaptureResponse } from 'one-thing-sdk';
 
 const apiOrdersCaptureResponse: ApiOrdersCaptureResponse = {
-  orderId: 'orderId8',
+  orderId: 'pX4kR9tVb2nQ7sLe',
   status: 'paid',
 };
 ```

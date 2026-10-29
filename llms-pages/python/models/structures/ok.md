@@ -2,6 +2,8 @@
 
 Source: /#/python/x-redirect/JTI0bSUyRk9r
 
+Confirms the change.
+
 
 # Class Name
 
@@ -12,7 +14,7 @@ Source: /#/python/x-redirect/JTI0bSUyRk9r
 
 | Name | Type | Tags | Description |
 |  --- | --- | --- | --- |
-| `ok` | `bool` | Required | - |
+| `ok` | `bool` | Required | Always `true`. |
 
 
 # Example
@@ -21,7 +23,7 @@ Source: /#/python/x-redirect/JTI0bSUyRk9r
 from onethingapi.models.ok import Ok
 
 ok = Ok(
-    ok=False
+    ok=True
 )
 ```
 

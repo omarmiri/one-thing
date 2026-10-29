@@ -2,6 +2,8 @@
 
 Source: /#/typescript/x-redirect/JTI0bSUyRk9wdGlvbg
 
+A suggested option.
+
 
 # Interface Name
 
@@ -12,9 +14,9 @@ Source: /#/typescript/x-redirect/JTI0bSUyRk9wdGlvbg
 
 | Name | Type | Tags | Description |
 |  --- | --- | --- | --- |
-| `name` | `string` | Required | **Constraints**: *Maximum Length*: `20` |
+| `name` | `string` | Required | What the buyer is choosing.<br><br>**Constraints**: *Maximum Length*: `20` |
 | `kind` | [`Kind`](/llms-pages/typescript/models/enumerations/kind.md) | Required | `color` shows swatches, and the photo of the picked colour. |
-| `values` | [`OptionValue[]`](/llms-pages/typescript/models/structures/option-value.md) | Required | **Constraints**: *Minimum Items*: `1`, *Maximum Items*: `12` |
+| `values` | [`OptionValue[]`](/llms-pages/typescript/models/structures/option-value.md) | Required | The values to pick from.<br><br>**Constraints**: *Minimum Items*: `1`, *Maximum Items*: `12` |
 | `fromSeller` | `boolean \| undefined` | Optional | The seller's description or photo named these values; otherwise they're a guess. |
 
 
@@ -25,15 +27,18 @@ import { Kind, Option } from 'one-thing-sdk';
 
 const option: Option = {
   name: 'Size',
-  kind: Kind.Color,
+  kind: Kind.Size,
   values: [
     {
+      label: 'S',
+    },
+    {
       label: 'M',
-      hex: '#14171a',
-      photo: 'photo6',
+    },
+    {
+      label: 'L',
     }
   ],
-  fromSeller: false,
 };
 ```
 

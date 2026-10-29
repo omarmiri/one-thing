@@ -2,6 +2,8 @@
 
 Source: /#/http/x-redirect/JTI0bSUyRlN0YXR1cw
 
+`live` publishes the shop; `draft` takes it down.
+
 
 # Fields
 
@@ -9,6 +11,13 @@ Source: /#/http/x-redirect/JTI0bSUyRlN0YXR1cw
 |  --- |
 | `draft` |
 | `live` |
+
+
+# Example
+
+```
+draft
+```
 
 
 

@@ -19,7 +19,7 @@ def create_checkout_order(self,
 
 | Parameter | Type | Tags | Description |
 |  --- | --- | --- | --- |
-| `body` | [`ApiOrdersRequest`](/llms-pages/python/models/structures/api-orders-request.md) | Body, Required | - |
+| `body` | [`ApiOrdersRequest`](/llms-pages/python/models/structures/api-orders-request.md) | Body, Required | The shop and the buyer's pick. |
 
 
 # Response Type
@@ -54,12 +54,12 @@ print(result)
 
 | HTTP Status Code | Error Description | Exception Class |
 |  --- | --- | --- |
-| 400 | Something in the request needs fixing; `error` says what. | [`ErrorException`](/llms-pages/python/models/exceptions/error.md) |
-| 404 | No such shop, or the admin token or API key doesn't match it. | [`ErrorException`](/llms-pages/python/models/exceptions/error.md) |
-| 409 | Taken or unavailable (a link name, or a sold-out product). | [`ErrorException`](/llms-pages/python/models/exceptions/error.md) |
-| 429 | Over this network's cap for the call (see **Limits**). Retry after `Retry-After` seconds. | [`ErrorException`](/llms-pages/python/models/exceptions/error.md) |
-| 502 | Gemini, PayPal or Channel3 failed or isn't configured. | [`ErrorException`](/llms-pages/python/models/exceptions/error.md) |
-| 503 | Gemini, PayPal or Channel3 failed or isn't configured. | [`ErrorException`](/llms-pages/python/models/exceptions/error.md) |
+| 400 | Something in the request needs fixing; `error` says what. | [`ErrorResponseException`](/llms-pages/python/models/exceptions/error-response.md) |
+| 404 | No such shop, or the admin token or API key doesn't match it. | [`ErrorResponseException`](/llms-pages/python/models/exceptions/error-response.md) |
+| 409 | Taken or unavailable (a link name, or a sold-out product). | [`ErrorResponseException`](/llms-pages/python/models/exceptions/error-response.md) |
+| 429 | Over this network's cap for the call (see **Limits**). Retry after `Retry-After` seconds. | [`ErrorResponseException`](/llms-pages/python/models/exceptions/error-response.md) |
+| 502 | Gemini, PayPal or Channel3 failed or isn't configured. | [`ErrorResponseException`](/llms-pages/python/models/exceptions/error-response.md) |
+| 503 | Gemini, PayPal or Channel3 failed or isn't configured. | [`ErrorResponseException`](/llms-pages/python/models/exceptions/error-response.md) |
 
 
 

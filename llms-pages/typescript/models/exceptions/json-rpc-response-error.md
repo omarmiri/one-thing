@@ -2,6 +2,8 @@
 
 Source: /#/typescript/x-redirect/JTI0bSUyRkpzb25ScGNSZXNwb25zZV9FcnJvcg
 
+A JSON-RPC 2.0 reply from the MCP server.
+
 
 # Class Name
 
@@ -12,10 +14,10 @@ Source: /#/typescript/x-redirect/JTI0bSUyRkpzb25ScGNSZXNwb25zZV9FcnJvcg
 
 | Name | Type | Tags | Description |
 |  --- | --- | --- | --- |
-| `jsonrpc` | `string` | Required, Constant | **Value**: `'2.0'` |
+| `jsonrpc` | `string` | Required, Constant | Always `2.0`.<br><br>**Value**: `'2.0'` |
 | `id` | [`JsonRpcResponseErrorId \| null`](/llms-pages/typescript/models/oneof-anyof-definitions/json-rpc-response-error-id.md) | Required | This is a container for one-of cases. |
 | `result` | `unknown \| undefined` | Optional | For `tools/call`: `content` (the answer as JSON text), `structuredContent` (the same object) and `isError`. |
-| `error` | [`Error1 \| undefined`](/llms-pages/typescript/models/structures/error-1.md) | Optional | - |
+| `error` | [`Error \| undefined`](/llms-pages/typescript/models/structures/error.md) | Optional | Present when the call failed. |
 
 
 # Example

@@ -2,6 +2,8 @@
 
 Source: /#/typescript/x-redirect/JTI0bSUyRkFwaSUyNTIwU2hvcHMlMjUyME1hdGNoJTI1MjBQaG90b3MlMjUyMFJlc3BvbnNl
 
+Gemini's matches.
+
 
 # Interface Name
 
@@ -12,7 +14,7 @@ Source: /#/typescript/x-redirect/JTI0bSUyRkFwaSUyNTIwU2hvcHMlMjUyME1hdGNoJTI1MjB
 
 | Name | Type | Tags | Description |
 |  --- | --- | --- | --- |
-| `matches` | `Record<string, string>` | Required | - |
+| `matches` | `Record<string, string>` | Required | Colour label → photo id. |
 
 
 # Example

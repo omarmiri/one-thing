@@ -2,24 +2,26 @@
 
 Source: /#/http/x-redirect/JTI0bSUyRk9wdGlvbjE
 
+One option and its values.
+
 
 # Fields
 
 | Name | Type | Tags | Description |
 |  --- | --- | --- | --- |
-| `name` | `String` | Required | - |
-| `values` | `array<String>` | Required | - |
+| `name` | `String` | Required | The option's name, which is also its query parameter on `order_url`. |
+| `values` | `array<String>` | Required | The values the buyer can pick. |
 
 
 # Example (as JSON)
 
 ```json
 {
-  "name": "name8",
+  "name": "Size",
   "values": [
-    "values2",
-    "values1",
-    "values0"
+    "7",
+    "8",
+    "9"
   ]
 }
 ```

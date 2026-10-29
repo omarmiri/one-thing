@@ -2,21 +2,23 @@
 
 Source: /#/http/x-redirect/JTI0bSUyRkRldGFpbA
 
+One product fact.
+
 
 # Fields
 
 | Name | Type | Tags | Description |
 |  --- | --- | --- | --- |
-| `label` | `String` | Required | - |
-| `value` | `String` | Required | - |
+| `label` | `String` | Required | What the fact is about. |
+| `value` | `String` | Required | The fact. |
 
 
 # Example (as JSON)
 
 ```json
 {
-  "label": "label2",
-  "value": "value4"
+  "label": "Material",
+  "value": "Leather upper, walnut burl heel, rubber wheels"
 }
 ```
 

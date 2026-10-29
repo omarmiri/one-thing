@@ -33,7 +33,7 @@ def get_agent_product(self,
 # Example Usage
 
 ```python
-slug = 'raptorrush'
+slug = 'vintageskates'
 
 agent = 'ChatGPT'
 
@@ -140,7 +140,7 @@ print(result)
 
 | HTTP Status Code | Error Description | Exception Class |
 |  --- | --- | --- |
-| 404 | No live shop with that link name. | [`ErrorException`](/llms-pages/python/models/exceptions/error.md) |
+| 404 | No live shop with that link name. | [`ErrorResponseException`](/llms-pages/python/models/exceptions/error-response.md) |
 
 
 

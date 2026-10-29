@@ -9,8 +9,8 @@ A digital product unlocked with an access code.
 
 | Name | Type | Tags | Description |
 |  --- | --- | --- | --- |
-| `type` | `String` | Required, Constant | **Value**: `access_code` |
-| `access_code` | `String` | Required | - |
+| `type` | `String` | Required, Constant | Always `access_code`.<br><br>**Value**: `access_code` |
+| `access_code` | `String` | Required | The buyer's code, which unlocks the seller's app or game. |
 | `start_url` | `String` | Optional | The seller's app with the code filled in. |
 
 
@@ -19,8 +19,8 @@ A digital product unlocked with an access code.
 ```json
 {
   "type": "access_code",
-  "access_code": "access_code2",
-  "start_url": "start_url4"
+  "access_code": "K7QF-M2XP-9HTD",
+  "start_url": "https://www.miriogames.com/raptor-rush/?code=K7QF-M2XP-9HTD"
 }
 ```
 

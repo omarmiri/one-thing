@@ -2,6 +2,8 @@
 
 Source: /#/typescript/x-redirect/JTI0bSUyRkFwaSUyNTIwU2hvcHMlMjUyMFBheXBhbCUyNTIwUmVzcG9uc2Ux
 
+The shop's PayPal connection.
+
 
 # Interface Name
 
@@ -22,11 +24,11 @@ Source: /#/typescript/x-redirect/JTI0bSUyRkFwaSUyNTIwU2hvcHMlMjUyMFBheXBhbCUyNTI
 import { ApiShopsPaypalResponse1 } from 'one-thing-sdk';
 
 const apiShopsPaypalResponse1: ApiShopsPaypalResponse1 = {
-  merchantId: 'merchantId2',
+  merchantId: '7MZJ4QXN8K2LA',
   status: {
-    receivable: false,
-    emailConfirmed: false,
-    checkedAt: '2016-03-13T12:52:32.123Z',
+    receivable: true,
+    emailConfirmed: true,
+    checkedAt: '2026-10-22T02:41:37Z',
   },
 };
 ```

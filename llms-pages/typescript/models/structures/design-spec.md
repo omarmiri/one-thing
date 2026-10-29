@@ -14,23 +14,23 @@ What Gemini designed. OneThing's templates render it; Gemini never writes HTML.
 
 | Name | Type | Tags | Description |
 |  --- | --- | --- | --- |
-| `productType` | [`ProductType2`](/llms-pages/typescript/models/enumerations/product-type-2.md) | Required | - |
-| `productName` | `string` | Required | - |
-| `layout` | [`Layout`](/llms-pages/typescript/models/enumerations/layout.md) | Required | - |
-| `palette` | [`Palette`](/llms-pages/typescript/models/structures/palette.md) | Required | - |
-| `fonts` | [`Fonts`](/llms-pages/typescript/models/structures/fonts.md) | Required | - |
-| `eyebrow` | `string \| undefined` | Optional | - |
-| `headline` | `string` | Required | - |
-| `subheadline` | `string \| undefined` | Optional | - |
-| `story` | `string \| undefined` | Optional | - |
-| `bullets` | `string[]` | Required | - |
-| `details` | [`Detail[] \| undefined`](/llms-pages/typescript/models/structures/detail.md) | Optional | - |
-| `faq` | [`Faq[]`](/llms-pages/typescript/models/structures/faq.md) | Required | - |
-| `ctaLabel` | `string` | Required | - |
-| `suggestedPriceUsd` | `number \| undefined` | Optional | - |
-| `suggestedShippingUsd` | `number \| undefined` | Optional | - |
-| `imageAlt` | `string \| undefined` | Optional | - |
-| `heroPrompt` | `string \| undefined` | Optional | - |
+| `productType` | [`ProductType2`](/llms-pages/typescript/models/enumerations/product-type-2.md) | Required | What the AI decided the product is. |
+| `productName` | `string` | Required | The product's name. |
+| `layout` | [`Layout`](/llms-pages/typescript/models/enumerations/layout.md) | Required | The page template: `bold-hero` (image first, punchy), `editorial` (magazine), `minimal` (quiet, lots of space) or `playful`. |
+| `palette` | [`Palette`](/llms-pages/typescript/models/structures/palette.md) | Required | The page colours, taken from the photo. Text colours are checked for contrast. |
+| `fonts` | [`Fonts`](/llms-pages/typescript/models/structures/fonts.md) | Required | Google Fonts for the page. |
+| `eyebrow` | `string \| undefined` | Optional | A short label above the headline. |
+| `headline` | `string` | Required | The page's main headline. |
+| `subheadline` | `string \| undefined` | Optional | A line under the headline. |
+| `story` | `string \| undefined` | Optional | A short paragraph about the product. |
+| `bullets` | `string[]` | Required | Short selling points. |
+| `details` | [`Detail[] \| undefined`](/llms-pages/typescript/models/structures/detail.md) | Optional | Product facts shown on the page. |
+| `faq` | [`Faq[]`](/llms-pages/typescript/models/structures/faq.md) | Required | Questions buyers will ask, with answers. |
+| `ctaLabel` | `string` | Required | The buy button's text. |
+| `suggestedPriceUsd` | `number \| undefined` | Optional | The AI's price suggestion, in USD. |
+| `suggestedShippingUsd` | `number \| undefined` | Optional | The AI's shipping suggestion, in USD. |
+| `imageAlt` | `string \| undefined` | Optional | Alt text for the product photo. |
+| `heroPrompt` | `string \| undefined` | Optional | The prompt used to generate hero art for the page. |
 
 
 # Example
@@ -39,52 +39,46 @@ What Gemini designed. OneThing's templates render it; Gemini never writes HTML.
 import { DesignSpec, Layout, ProductType2 } from 'one-thing-sdk';
 
 const designSpec: DesignSpec = {
-  productType: ProductType2.Digital,
-  productName: 'productName0',
+  productType: ProductType2.Physical,
+  productName: 'Vintage Cream and Red Roller Skates',
   layout: Layout.Boldhero,
   palette: {
-    background: '#14171a',
-    surface: '#14171a',
-    text: '#14171a',
-    muted: '#14171a',
-    accent: '#14171a',
-    accentText: '#14171a',
+    background: '#f7f1e8',
+    surface: '#ffffff',
+    text: '#1f1a17',
+    muted: '#6b625b',
+    accent: '#b3262d',
+    accentText: '#ffffff',
   },
   fonts: {
-    heading: 'heading2',
-    body: 'body6',
+    heading: 'Playfair Display',
+    body: 'Inter',
   },
-  headline: 'headline0',
+  headline: 'Classic quad skates crafted with walnut burl heels',
   bullets: [
-    'bullets8',
-    'bullets9',
-    'bullets0'
+    'Walnut burl heels',
+    'Restored vintage leather'
   ],
   faq: [
     {
-      q: 'q0',
-      a: 'a8',
+      q: 'Are these suitable for outdoor skating?',
+      a: 'Yes, on indoor rink floors and paved outdoor paths.',
     }
   ],
-  ctaLabel: 'ctaLabel6',
-  eyebrow: 'eyebrow6',
-  subheadline: 'subheadline4',
-  story: 'story6',
+  ctaLabel: 'Buy the skates',
+  eyebrow: 'One pair, restored',
+  subheadline: 'A vintage pair of skates with cream leather, bold red trim and quad wheels.',
+  story: 'Each pair combines soft cream leather with distinct red accents and a sculpted walnut burl heel base.',
   details: [
     {
-      label: 'label0',
-      value: 'value2',
-    },
-    {
-      label: 'label0',
-      value: 'value2',
-    },
-    {
-      label: 'label0',
-      value: 'value2',
+      label: 'Material',
+      value: 'Leather upper, walnut burl heel, rubber wheels',
     }
   ],
-  suggestedPriceUsd: 123.02,
+  suggestedPriceUsd: 240,
+  suggestedShippingUsd: 15,
+  imageAlt: 'Cream leather quad roller skates with red trim',
+  heroPrompt: 'Cream roller skates on a sunlit boardwalk, in warm cream and red tones',
 };
 ```
 

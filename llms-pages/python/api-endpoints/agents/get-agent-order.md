@@ -70,7 +70,7 @@ print(result)
 
 | HTTP Status Code | Error Description | Exception Class |
 |  --- | --- | --- |
-| 404 | No order with that id. | [`ErrorException`](/llms-pages/python/models/exceptions/error.md) |
+| 404 | No order with that id. | [`ErrorResponseException`](/llms-pages/python/models/exceptions/error-response.md) |
 
 
 

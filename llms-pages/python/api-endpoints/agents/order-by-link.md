@@ -51,7 +51,7 @@ def order_by_link(self,
 # Example Usage
 
 ```python
-slug = 'raptorrush'
+slug = 'vintageskates'
 
 agent = 'ChatGPT'
 
@@ -88,10 +88,10 @@ print(result)
 
 | HTTP Status Code | Error Description | Exception Class |
 |  --- | --- | --- |
-| 400 | A missing or unknown option value, or sold out. `error` names the valid values. | [`ErrorException`](/llms-pages/python/models/exceptions/error.md) |
-| 403 | A known crawler or link previewer. They don't place orders. | [`ErrorException`](/llms-pages/python/models/exceptions/error.md) |
-| 404 | No live shop with that link name. | [`ErrorException`](/llms-pages/python/models/exceptions/error.md) |
-| 429 | Over this network's cap for the call (see **Limits**). Retry after `Retry-After` seconds. | [`ErrorException`](/llms-pages/python/models/exceptions/error.md) |
+| 400 | A missing or unknown option value, or sold out. `error` names the valid values. | [`ErrorResponseException`](/llms-pages/python/models/exceptions/error-response.md) |
+| 403 | A known crawler or link previewer. They don't place orders. | [`ErrorResponseException`](/llms-pages/python/models/exceptions/error-response.md) |
+| 404 | No live shop with that link name. | [`ErrorResponseException`](/llms-pages/python/models/exceptions/error-response.md) |
+| 429 | Over this network's cap for the call (see **Limits**). Retry after `Retry-After` seconds. | [`ErrorResponseException`](/llms-pages/python/models/exceptions/error-response.md) |
 
 
 

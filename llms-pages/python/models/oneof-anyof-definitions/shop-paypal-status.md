@@ -23,9 +23,9 @@ Source: /#/python/x-redirect/JTI0bSUyRlNob3BQYXlwYWxTdGF0dXM
 
 ```python
 value = PayPalStatus(
-    receivable=False,
-    email_confirmed=False,
-    checked_at=dateutil.parser.parse('2016-03-13T12:52:32.123Z')
+    receivable=True,
+    email_confirmed=True,
+    checked_at=dateutil.parser.parse('2026-10-22T02:41:37Z')
 )
 ```
 

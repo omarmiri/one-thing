@@ -2,6 +2,8 @@
 
 Source: /#/python/x-redirect/JTI0bSUyRkFwaSUyNTIwU2hvcHMlMjUyMENvbG9yJTI1MjBQaG90b3MlMjUyMFJlcXVlc3Q
 
+Which photo shows each colour.
+
 
 # Class Name
 
@@ -22,7 +24,8 @@ from onethingapi.models.api_shops_color_photos_request import ApiShopsColorPhoto
 
 api_shops_color_photos_request = ApiShopsColorPhotosRequest(
     photos={
-        'key0': 'photos4'
+        'Ice Blue': 'zrySajNyao6_j11x',
+        'Amber': None
     }
 )
 ```

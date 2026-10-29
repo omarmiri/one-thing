@@ -23,16 +23,18 @@ Source: /#/http/x-redirect/JTI0bSUyRlNob3BSZWZlcnJhbA
 
 ```bash
 {
-  "productId": "productId0",
-  "title": "title2",
+  "productId": "ch3_7f2a9c1e",
+  "title": "Trail Running Vest 5L",
+  "brand": "Salomon",
+  "image": "https://images.example.com/vest.jpg",
   "offers": [
     {
-      "domain": "domain0",
-      "url": "url8",
-      "price": 134.28,
-      "currency": "currency4",
-      "inStock": false,
-      "commission": 2.62
+      "domain": "rei.com",
+      "url": "https://buy.trychannel3.com/r/abc123",
+      "price": 240.0,
+      "currency": "USD",
+      "inStock": true,
+      "commission": 0.08
     }
   ]
 }

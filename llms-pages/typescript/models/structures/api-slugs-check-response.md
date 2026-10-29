@@ -2,6 +2,8 @@
 
 Source: /#/typescript/x-redirect/JTI0bSUyRkFwaSUyNTIwU2x1Z3MlMjUyMENoZWNrJTI1MjBSZXNwb25zZQ
 
+Whether the link name can be used.
+
 
 # Interface Name
 
@@ -12,8 +14,8 @@ Source: /#/typescript/x-redirect/JTI0bSUyRkFwaSUyNTIwU2x1Z3MlMjUyMENoZWNrJTI1MjB
 
 | Name | Type | Tags | Description |
 |  --- | --- | --- | --- |
-| `slug` | `string` | Required | - |
-| `available` | `boolean` | Required | - |
+| `slug` | `string` | Required | The name, normalised. |
+| `available` | `boolean` | Required | True if no other shop has it and it isn't reserved. |
 | `problem` | `string \| undefined` | Optional | Why not, when unavailable. |
 
 
@@ -23,9 +25,9 @@ Source: /#/typescript/x-redirect/JTI0bSUyRkFwaSUyNTIwU2x1Z3MlMjUyMENoZWNrJTI1MjB
 import { ApiSlugsCheckResponse } from 'one-thing-sdk';
 
 const apiSlugsCheckResponse: ApiSlugsCheckResponse = {
-  slug: 'slug8',
-  available: false,
-  problem: 'problem8',
+  slug: 'vintageskates',
+  available: true,
+  problem: 'Taken. Try another name.',
 };
 ```
 

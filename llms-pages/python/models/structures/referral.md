@@ -14,11 +14,11 @@ A recommended Channel3 product. Buy links are Channel3-tracked, credited to this
 
 | Name | Type | Tags | Description |
 |  --- | --- | --- | --- |
-| `product_id` | `str` | Required | - |
-| `title` | `str` | Required | - |
-| `brand` | `str` | Optional | - |
-| `image` | `str` | Optional | - |
-| `offers` | [`List[Offer]`](/llms-pages/python/models/structures/offer.md) | Required | - |
+| `product_id` | `str` | Required | Channel3's product id. |
+| `title` | `str` | Required | The product's name. |
+| `brand` | `str` | Optional | The brand, when known. |
+| `image` | `str` | Optional | The product image's URL. |
+| `offers` | [`List[Offer]`](/llms-pages/python/models/structures/offer.md) | Required | Stores that sell it, with tracked links. |
 
 
 # Example
@@ -28,20 +28,20 @@ from onethingapi.models.offer import Offer
 from onethingapi.models.referral import Referral
 
 referral = Referral(
-    product_id='productId6',
-    title='title8',
+    product_id='ch3_7f2a9c1e',
+    title='Trail Running Vest 5L',
     offers=[
         Offer(
-            domain='domain0',
-            url='url8',
-            price=134.28,
-            currency='currency4',
-            in_stock=False,
-            commission=2.62
+            domain='rei.com',
+            url='https://buy.trychannel3.com/r/abc123',
+            price=240,
+            currency='USD',
+            in_stock=True,
+            commission=0.08
         )
     ],
-    brand='brand6',
-    image='image4'
+    brand='Salomon',
+    image='https://images.example.com/vest.jpg'
 )
 ```
 

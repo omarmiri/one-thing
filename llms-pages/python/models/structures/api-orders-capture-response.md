@@ -2,6 +2,8 @@
 
 Source: /#/python/x-redirect/JTI0bSUyRkFwaSUyNTIwT3JkZXJzJTI1MjBDYXB0dXJlJTI1MjBSZXNwb25zZQ
 
+The paid order.
+
 
 # Class Name
 
@@ -13,7 +15,7 @@ Source: /#/python/x-redirect/JTI0bSUyRkFwaSUyNTIwT3JkZXJzJTI1MjBDYXB0dXJlJTI1MjB
 | Name | Type | Tags | Description |
 |  --- | --- | --- | --- |
 | `order_id` | `str` | Required | OneThing's order id; the thank-you page is `/<slug>/thanks?order=<orderId>`. |
-| `status` | `str` | Required, Constant | **Value**: `"paid"` |
+| `status` | `str` | Required, Constant | Always `paid`.<br><br>**Value**: `"paid"` |
 
 
 # Example
@@ -22,7 +24,7 @@ Source: /#/python/x-redirect/JTI0bSUyRkFwaSUyNTIwT3JkZXJzJTI1MjBDYXB0dXJlJTI1MjB
 from onethingapi.models.api_orders_capture_response import ApiOrdersCaptureResponse
 
 api_orders_capture_response = ApiOrdersCaptureResponse(
-    order_id='orderId8'
+    order_id='pX4kR9tVb2nQ7sLe'
 )
 ```
 

@@ -2,14 +2,16 @@
 
 Source: /#/http/x-redirect/JTI0bSUyRkFwaSUyNTIwU2hvcHMlMjUyME9yZGVycyUyNTIwU2hpcCUyNTIwUmVxdWVzdA
 
+The shipment's tracking.
+
 
 # Fields
 
 | Name | Type | Tags | Description |
 |  --- | --- | --- | --- |
-| `carrier` | [`Carrier`](/llms-pages/http/models/enumerations/carrier.md) | Required | - |
+| `carrier` | [`Carrier`](/llms-pages/http/models/enumerations/carrier.md) | Required | The carrier. `OTHER` needs `carrierName`. |
 | `carrierName` | `String` | Optional | Required when `carrier` is `OTHER`.<br><br>**Constraints**: *Maximum Length*: `60` |
-| `trackingNumber` | `String` | Required | **Constraints**: *Minimum Length*: `4`, *Maximum Length*: `64` |
+| `trackingNumber` | `String` | Required | The carrier's tracking number.<br><br>**Constraints**: *Minimum Length*: `4`, *Maximum Length*: `64` |
 
 
 # Example (as JSON)
@@ -17,8 +19,8 @@ Source: /#/http/x-redirect/JTI0bSUyRkFwaSUyNTIwU2hvcHMlMjUyME9yZGVycyUyNTIwU2hpc
 ```json
 {
   "carrier": "USPS",
-  "carrierName": "carrierName4",
-  "trackingNumber": "trackingNumber6"
+  "carrierName": "Canada Post",
+  "trackingNumber": "9400111899223197428490"
 }
 ```
 

@@ -2,6 +2,8 @@
 
 Source: /#/typescript/x-redirect/JTI0bSUyRkpzb25ScGNSZXF1ZXN0
 
+A JSON-RPC 2.0 request to the MCP server.
+
 
 # Interface Name
 
@@ -12,9 +14,9 @@ Source: /#/typescript/x-redirect/JTI0bSUyRkpzb25ScGNSZXF1ZXN0
 
 | Name | Type | Tags | Description |
 |  --- | --- | --- | --- |
-| `jsonrpc` | `string` | Required, Constant | **Value**: `'2.0'` |
+| `jsonrpc` | `string` | Required, Constant | Always `2.0`.<br><br>**Value**: `'2.0'` |
 | `id` | [`JsonRpcRequestId \| null \| undefined`](/llms-pages/typescript/models/oneof-anyof-definitions/json-rpc-request-id.md) | Optional | This is a container for one-of cases. |
-| `method` | [`Method`](/llms-pages/typescript/models/enumerations/method.md) | Required | - |
+| `method` | [`Method`](/llms-pages/typescript/models/enumerations/method.md) | Required | The MCP method. `tools/call` runs a tool; `tools/list` lists them. |
 | `params` | `unknown \| undefined` | Optional | For `tools/call`: `{ name, arguments }`. |
 
 
@@ -25,9 +27,9 @@ import { JsonRpcRequest, Method } from 'one-thing-sdk';
 
 const jsonRpcRequest: JsonRpcRequest = {
   jsonrpc: '2.0',
-  method: Method.EnumNotificationsinitialized,
-  id: 'String1',
-  params: { 'key1': 'val1', 'key2': 'val2' },
+  method: Method.EnumToolscall,
+  id: 1,
+  params: { 'name': 'get_product', 'arguments': { 'shop': 'vintageskates' } },
 };
 ```
 

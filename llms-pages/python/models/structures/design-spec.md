@@ -14,23 +14,23 @@ What Gemini designed. OneThing's templates render it; Gemini never writes HTML.
 
 | Name | Type | Tags | Description |
 |  --- | --- | --- | --- |
-| `product_type` | [`ProductType2`](/llms-pages/python/models/enumerations/product-type-2.md) | Required | - |
-| `product_name` | `str` | Required | - |
-| `layout` | [`Layout`](/llms-pages/python/models/enumerations/layout.md) | Required | - |
-| `palette` | [`Palette`](/llms-pages/python/models/structures/palette.md) | Required | - |
-| `fonts` | [`Fonts`](/llms-pages/python/models/structures/fonts.md) | Required | - |
-| `eyebrow` | `str` | Optional | - |
-| `headline` | `str` | Required | - |
-| `subheadline` | `str` | Optional | - |
-| `story` | `str` | Optional | - |
-| `bullets` | `List[str]` | Required | - |
-| `details` | [`List[Detail]`](/llms-pages/python/models/structures/detail.md) | Optional | - |
-| `faq` | [`List[Faq]`](/llms-pages/python/models/structures/faq.md) | Required | - |
-| `cta_label` | `str` | Required | - |
-| `suggested_price_usd` | `float` | Optional | - |
-| `suggested_shipping_usd` | `float` | Optional | - |
-| `image_alt` | `str` | Optional | - |
-| `hero_prompt` | `str` | Optional | - |
+| `product_type` | [`ProductType2`](/llms-pages/python/models/enumerations/product-type-2.md) | Required | What the AI decided the product is. |
+| `product_name` | `str` | Required | The product's name. |
+| `layout` | [`Layout`](/llms-pages/python/models/enumerations/layout.md) | Required | The page template: `bold-hero` (image first, punchy), `editorial` (magazine), `minimal` (quiet, lots of space) or `playful`. |
+| `palette` | [`Palette`](/llms-pages/python/models/structures/palette.md) | Required | The page colours, taken from the photo. Text colours are checked for contrast. |
+| `fonts` | [`Fonts`](/llms-pages/python/models/structures/fonts.md) | Required | Google Fonts for the page. |
+| `eyebrow` | `str` | Optional | A short label above the headline. |
+| `headline` | `str` | Required | The page's main headline. |
+| `subheadline` | `str` | Optional | A line under the headline. |
+| `story` | `str` | Optional | A short paragraph about the product. |
+| `bullets` | `List[str]` | Required | Short selling points. |
+| `details` | [`List[Detail]`](/llms-pages/python/models/structures/detail.md) | Optional | Product facts shown on the page. |
+| `faq` | [`List[Faq]`](/llms-pages/python/models/structures/faq.md) | Required | Questions buyers will ask, with answers. |
+| `cta_label` | `str` | Required | The buy button's text. |
+| `suggested_price_usd` | `float` | Optional | The AI's price suggestion, in USD. |
+| `suggested_shipping_usd` | `float` | Optional | The AI's shipping suggestion, in USD. |
+| `image_alt` | `str` | Optional | Alt text for the product photo. |
+| `hero_prompt` | `str` | Optional | The prompt used to generate hero art for the page. |
 
 
 # Example
@@ -45,47 +45,46 @@ from onethingapi.models.palette import Palette
 from onethingapi.models.product_type_2 import ProductType2
 
 design_spec = DesignSpec(
-    product_type=ProductType2.DIGITAL,
-    product_name='productName4',
-    layout=Layout.MINIMAL,
+    product_type=ProductType2.PHYSICAL,
+    product_name='Vintage Cream and Red Roller Skates',
+    layout=Layout.BOLDHERO,
     palette=Palette(
-        background='#14171a',
-        surface='#14171a',
-        text='#14171a',
-        muted='#14171a',
-        accent='#14171a',
-        accent_text='#14171a'
+        background='#f7f1e8',
+        surface='#ffffff',
+        text='#1f1a17',
+        muted='#6b625b',
+        accent='#b3262d',
+        accent_text='#ffffff'
     ),
     fonts=Fonts(
-        heading='heading2',
-        body='body6'
+        heading='Playfair Display',
+        body='Inter'
     ),
-    headline='headline4',
+    headline='Classic quad skates crafted with walnut burl heels',
     bullets=[
-        'bullets4',
-        'bullets5'
+        'Walnut burl heels',
+        'Restored vintage leather'
     ],
     faq=[
         Faq(
-            q='q0',
-            a='a8'
+            q='Are these suitable for outdoor skating?',
+            a='Yes, on indoor rink floors and paved outdoor paths.'
         )
     ],
-    cta_label='ctaLabel0',
-    eyebrow='eyebrow0',
-    subheadline='subheadline8',
-    story='story0',
+    cta_label='Buy the skates',
+    eyebrow='One pair, restored',
+    subheadline='A vintage pair of skates with cream leather, bold red trim and quad wheels.',
+    story='Each pair combines soft cream leather with distinct red accents and a sculpted walnut burl heel base.',
     details=[
         Detail(
-            label='label0',
-            value='value2'
-        ),
-        Detail(
-            label='label0',
-            value='value2'
+            label='Material',
+            value='Leather upper, walnut burl heel, rubber wheels'
         )
     ],
-    suggested_price_usd=168.88
+    suggested_price_usd=240,
+    suggested_shipping_usd=15,
+    image_alt='Cream leather quad roller skates with red trim',
+    hero_prompt='Cream roller skates on a sunlit boardwalk, in warm cream and red tones'
 )
 ```
 

@@ -54,7 +54,7 @@ This method returns an [`ApiResponse`](/llms-pages/typescript/sdk-infrastructure
 # Example Usage
 
 ```ts
-const slug = 'raptorrush';
+const slug = 'vintageskates';
 
 const agent = 'ChatGPT';
 
@@ -84,7 +84,7 @@ try {
     console.log(error.headers);
     // Extracting response error body of type `string | Stream`.
     console.log(error.body);
-    if (error instanceof CustomError) {
+    if (error instanceof ErrorResponseError) {
       console.log(error.result);
     }
   }
@@ -114,10 +114,10 @@ try {
 
 | HTTP Status Code | Error Description | Exception Class |
 |  --- | --- | --- |
-| 400 | A missing or unknown option value, or sold out. `error` names the valid values. | [`CustomError`](/llms-pages/typescript/models/exceptions/error.md) |
-| 403 | A known crawler or link previewer. They don't place orders. | [`CustomError`](/llms-pages/typescript/models/exceptions/error.md) |
-| 404 | No live shop with that link name. | [`CustomError`](/llms-pages/typescript/models/exceptions/error.md) |
-| 429 | Over this network's cap for the call (see **Limits**). Retry after `Retry-After` seconds. | [`CustomError`](/llms-pages/typescript/models/exceptions/error.md) |
+| 400 | A missing or unknown option value, or sold out. `error` names the valid values. | [`ErrorResponseError`](/llms-pages/typescript/models/exceptions/error-response.md) |
+| 403 | A known crawler or link previewer. They don't place orders. | [`ErrorResponseError`](/llms-pages/typescript/models/exceptions/error-response.md) |
+| 404 | No live shop with that link name. | [`ErrorResponseError`](/llms-pages/typescript/models/exceptions/error-response.md) |
+| 429 | Over this network's cap for the call (see **Limits**). Retry after `Retry-After` seconds. | [`ErrorResponseError`](/llms-pages/typescript/models/exceptions/error-response.md) |
 
 
 

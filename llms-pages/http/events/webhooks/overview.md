@@ -13,7 +13,7 @@ Events available in this group. Subscribe to receive webhook notifications when 
 
 | Name | Description |
 |  --- | --- |
-| [orderEvent](/llms-pages/http/events/webhooks/order-event.md) | If a shop sets `zapier_hook_url` (a `https://hooks.zapier.com/` Catch Hook), every paid<br>and shipped order is POSTed to it. Best effort: a failing hook never affects the sale. |
+| [orderEvent](/llms-pages/http/events/webhooks/order-event.md) | If a shop sets `zapier_hook_url` (a `https://hooks.zapier.com/` Catch Hook), every paid,<br>shipped and refunded order is POSTed to it. Best effort: a failing hook never affects the sale. |
 
 
 

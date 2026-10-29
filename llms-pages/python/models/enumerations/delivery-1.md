@@ -2,6 +2,8 @@
 
 Source: /#/python/x-redirect/JTI0bSUyRkRlbGl2ZXJ5MQ
 
+Digital products: `file` or `access_code`.
+
 
 # Enum Type Name
 

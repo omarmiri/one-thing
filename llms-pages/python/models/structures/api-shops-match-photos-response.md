@@ -2,6 +2,8 @@
 
 Source: /#/python/x-redirect/JTI0bSUyRkFwaSUyNTIwU2hvcHMlMjUyME1hdGNoJTI1MjBQaG90b3MlMjUyMFJlc3BvbnNl
 
+Gemini's matches.
+
 
 # Class Name
 
@@ -12,7 +14,7 @@ Source: /#/python/x-redirect/JTI0bSUyRkFwaSUyNTIwU2hvcHMlMjUyME1hdGNoJTI1MjBQaG9
 
 | Name | Type | Tags | Description |
 |  --- | --- | --- | --- |
-| `matches` | `Dict[str, str]` | Required | - |
+| `matches` | `Dict[str, str]` | Required | Colour label → photo id. |
 
 
 # Example

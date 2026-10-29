@@ -9,9 +9,9 @@ A digital file to download.
 
 | Name | Type | Tags | Description |
 |  --- | --- | --- | --- |
-| `type` | `String` | Required, Constant | **Value**: `download` |
-| `download_url` | `String` | Required | - |
-| `note` | `String` | Optional | - |
+| `type` | `String` | Required, Constant | Always `download`.<br><br>**Value**: `download` |
+| `download_url` | `String` | Required | A private link to the file. It works 5 times over 14 days. |
+| `note` | `String` | Optional | How long the link lasts and how many downloads it allows, in words. |
 
 
 # Example (as JSON)
@@ -19,8 +19,8 @@ A digital file to download.
 ```json
 {
   "type": "download",
-  "download_url": "download_url8",
-  "note": "note4"
+  "download_url": "https://one-thing-ash0.onrender.com/api/download/dl_4mQ8sT2vX9",
+  "note": "Works 5 times over 14 days."
 }
 ```
 

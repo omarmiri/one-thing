@@ -2,6 +2,8 @@
 
 Source: /#/typescript/x-redirect/JTI0bSUyRktpbmQx
 
+`physical` ships, `digital` downloads or unlocks with a code, `referral` is bought at another store.
+
 
 # Enum Type Name
 

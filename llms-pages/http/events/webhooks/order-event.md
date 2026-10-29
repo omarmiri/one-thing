@@ -5,8 +5,8 @@ Source: /#/http/x-redirect/JTI0aCUyRl9fV2ViaG9va3NfX3dlYmhvb2tzX29yZGVyZXZlbnQ
 
 # Order Event
 
-If a shop sets `zapier_hook_url` (a `https://hooks.zapier.com/` Catch Hook), every paid
-and shipped order is POSTed to it. Best effort: a failing hook never affects the sale.
+If a shop sets `zapier_hook_url` (a `https://hooks.zapier.com/` Catch Hook), every paid,
+shipped and refunded order is POSTed to it. Best effort: a failing hook never affects the sale.
 
 ## Headers
 

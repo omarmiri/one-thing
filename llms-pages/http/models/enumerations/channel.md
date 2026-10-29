@@ -13,4 +13,11 @@ Source: /#/http/x-redirect/JTI0bSUyRkNoYW5uZWw
 | `agent` |
 
 
+# Example
+
+```
+web
+```
+
+
 

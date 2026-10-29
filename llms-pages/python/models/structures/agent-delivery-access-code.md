@@ -14,8 +14,8 @@ A digital product unlocked with an access code.
 
 | Name | Type | Tags | Description |
 |  --- | --- | --- | --- |
-| `mtype` | `str` | Required, Constant | **Value**: `"access_code"` |
-| `access_code` | `str` | Required | - |
+| `mtype` | `str` | Required, Constant | Always `access_code`.<br><br>**Value**: `"access_code"` |
+| `access_code` | `str` | Required | The buyer's code, which unlocks the seller's app or game. |
 | `start_url` | `str` | Optional | The seller's app with the code filled in. |
 
 
@@ -25,8 +25,8 @@ A digital product unlocked with an access code.
 from onethingapi.models.agent_delivery_access_code import AgentDeliveryAccessCode
 
 agent_delivery_access_code = AgentDeliveryAccessCode(
-    access_code='access_code0',
-    start_url='start_url6'
+    access_code='K7QF-M2XP-9HTD',
+    start_url='https://www.miriogames.com/raptor-rush/?code=K7QF-M2XP-9HTD'
 )
 ```
 

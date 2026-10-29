@@ -2,25 +2,27 @@
 
 Source: /#/http/x-redirect/JTI0bSUyRkFtb3VudA
 
+What the order costs, as numbers.
+
 
 # Fields
 
 | Name | Type | Tags | Description |
 |  --- | --- | --- | --- |
-| `item` | `Decimal` | Required | - |
-| `shipping` | `Decimal` | Required | - |
-| `total` | `Decimal` | Required | - |
-| `currency` | `String` | Required | - |
+| `item` | `Decimal` | Required | The product's price. |
+| `shipping` | `Decimal` | Required | Shipping; 0 for digital products. |
+| `total` | `Decimal` | Required | Product plus shipping: what the buyer pays. |
+| `currency` | `String` | Required | ISO 4217 currency code. |
 
 
 # Example (as JSON)
 
 ```json
 {
-  "item": 177.0,
-  "shipping": 227.82,
-  "total": 70.22,
-  "currency": "currency2"
+  "item": 240,
+  "shipping": 15,
+  "total": 255,
+  "currency": "USD"
 }
 ```
 
