@@ -76,8 +76,11 @@ curl "https://one-thing-ash0.onrender.com/api/agent/shops?q=skates&limit=5"
 }
 ```
 
-Leave out `q` to list the newest gallery shops. Only shops approved for the gallery are listed;
-any live shop can still be read by its link name.
+Leave out `q` to list the newest gallery shops. Shops matching more of the words come first, and
+browsing words ("something interesting to buy") are ignored. A query that matches nothing gets
+the newest shops instead, with `"matched": false` and a `show_buyer` that says so, rather than an
+empty list. Only shops approved for the gallery are listed; any live shop can still be read by its
+link name.
 
 ### Read a product
 
@@ -113,7 +116,7 @@ also has an order link: a GET that places the order. The product JSON spells it 
 some assistants only open URLs they've been shown.
 
 ```bash
-curl "https://one-thing-ash0.onrender.com/api/agent/shops/vintageskates/order?Size=9"
+curl "https://one-thing-ash0.onrender.com/vintageskates/buy?Size=9"
 ```
 
 ```json
@@ -123,7 +126,7 @@ curl "https://one-thing-ash0.onrender.com/api/agent/shops/vintageskates/order?Si
   "total": "$255.00",
   "options": { "Size": "9" },
   "pay_url": "https://one-thing-ash0.onrender.com/o/pX4kR9tVb2nQ7sLe",
-  "status_url": "https://one-thing-ash0.onrender.com/api/agent/orders/pX4kR9tVb2nQ7sLe",
+  "status_url": "https://one-thing-ash0.onrender.com/o/pX4kR9tVb2nQ7sLe/status",
   "next_step": "Show pay_url to the buyer as a link. …"
 }
 ```
@@ -132,10 +135,15 @@ Nothing is charged: the assistant shows the buyer `pay_url`, and they pay at Pay
 request makes a new order, so open the link once, after the buyer says to buy. Option names and
 values aren't case-sensitive; a missing or unknown one gets a 400 that lists the valid values.
 
+The order link is `/<shop>/buy`, short so a buyer can read it; `/api/agent/shops/<shop>/order`
+is the same endpoint. Known crawlers and link previewers get a 403 (they're also kept out by
+`robots.txt`), and one network can place 120 orders per 10 minutes before getting a 429 with
+`Retry-After`.
+
 ### Check an order
 
 ```bash
-curl https://one-thing-ash0.onrender.com/api/agent/orders/pX4kR9tVb2nQ7sLe
+curl https://one-thing-ash0.onrender.com/o/pX4kR9tVb2nQ7sLe/status
 ```
 
 ```json
@@ -155,8 +163,17 @@ curl https://one-thing-ash0.onrender.com/api/agent/orders/pX4kR9tVb2nQ7sLe
 }
 ```
 
-This is the `status_url` an order link or `create_order` returns. An order the buyer placed on
-the shop page can be checked too, from the `?order=` in their thank-you page link.
+This is the `status_url` an order link or `create_order` returns (`/api/agent/orders/<id>` is the
+same endpoint). An order the buyer placed on the shop page can be checked too, from the
+`?order=` in their thank-you page link.
+
+### When a person clicks the link
+
+Assistants sometimes hand the buyer a link instead of opening it. A person clicking one in a
+browser gets a page, not JSON: the product link goes to the shop page (add `?view=json` to read
+the JSON), the order link goes straight to PayPal (or to the shop page if a size or colour is
+missing), and the status link goes to the receipt. A "person" is a browser navigation the user
+started (`Sec-Fetch-User: ?1`); known assistants and headless browsers always get JSON.
 
 ## The MCP server
 
@@ -193,6 +210,12 @@ There are four tools:
 3. `create_order` puts one unit on order (`shop`, `options`) and returns `pay_url`. Nothing is charged yet.
 4. `get_order` (`order_id`) reports where the order stands, and once it's paid, what the buyer got.
 
+Hosts that draw MCP Apps UI, such as ChatGPT, also get a product card: `resources/read` on
+`ui://onething/shop-card-v1.html` returns it, and the tools point to it. The card shows the real photos,
+options and a Pay with PayPal button, so for those hosts `show_buyer` is a one-line note instead of
+Markdown. Each tool says whether it only reads (`annotations.readOnlyHint`); only `create_order`
+changes anything.
+
 ### Find and read
 
 ```bash
@@ -225,7 +248,7 @@ curl -X POST https://one-thing-ash0.onrender.com/api/mcp \
   "total": "$255.00",
   "options": { "Size": "9" },
   "pay_url": "https://one-thing-ash0.onrender.com/o/pX4kR9tVb2nQ7sLe",
-  "status_url": "https://one-thing-ash0.onrender.com/api/agent/orders/pX4kR9tVb2nQ7sLe",
+  "status_url": "https://one-thing-ash0.onrender.com/o/pX4kR9tVb2nQ7sLe/status",
   "next_step": "Show pay_url to the buyer as a link. It opens PayPal, where they pay (and enter a shipping address for physical items). When they say they've paid, call get_order with order_id: it returns the access code, download link or shipping details."
 }
 ```
