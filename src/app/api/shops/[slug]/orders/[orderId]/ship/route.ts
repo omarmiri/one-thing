@@ -28,12 +28,12 @@ export async function POST(req: Request, ctx: RouteContext<"/api/shops/[slug]/or
   );
   if (!order) return NextResponse.json({ error: "Order not found." }, { status: 404 });
 
-  // Best-effort: the order is shipped either way. PayPal may refuse tracking on orders paid to
-  // another merchant's account (payee by email), so the dashboard shows whether it synced.
+  // Best-effort: the order is shipped either way. A connected seller's order is tracked as them;
+  // PayPal refuses one paid to an email the seller only typed, so the dashboard shows whether it synced.
   let synced = false;
   if (order.paypal_order_id && order.capture_id) {
     try {
-      await addTracking(order.paypal_order_id, { captureId: order.capture_id, ...t });
+      await addTracking(order.paypal_order_id, { captureId: order.capture_id, ...t }, r.shop.paypal_merchant_id);
       synced = true;
       await one("UPDATE orders SET tracking_synced = true WHERE id = $1", [order.id]);
     } catch (err) {

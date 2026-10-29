@@ -177,12 +177,13 @@ export const approveLink = (o: { links?: { rel: string; href: string }[] }) =>
 
 export const CARRIERS = ["USPS", "UPS", "FEDEX", "DHL", "OTHER"] as const;
 
-/** Shows the tracking number to the buyer inside PayPal. */
+/** Shows the tracking number to the buyer inside PayPal. Like a refund, it retries as a connected seller. */
 export const addTracking = (
   paypalOrderId: string,
   t: { captureId: string; trackingNumber: string; carrier: (typeof CARRIERS)[number]; carrierName?: string },
+  merchantId?: string | null,
 ) =>
-  call("add tracking", `/v2/checkout/orders/${encodeURIComponent(paypalOrderId)}/track`, {
+  callOrAsSeller("add tracking", `/v2/checkout/orders/${encodeURIComponent(paypalOrderId)}/track`, {
     method: "POST",
     body: {
       capture_id: t.captureId,
@@ -191,7 +192,28 @@ export const addTracking = (
       ...(t.carrier === "OTHER" && { carrier_name_other: t.carrierName || "Other" }),
       notify_payer: true,
     },
-  });
+  }, merchantId);
+
+/**
+ * Calls with our keys, and if PayPal says the money isn't ours, again as the connected seller:
+ * the Platform app with PayPal-Auth-Assertion, an unsigned JWT naming the app and the seller.
+ */
+async function callOrAsSeller<T>(
+  op: string,
+  path: string,
+  init: { method: string; body?: unknown; requestId?: string },
+  merchantId?: string | null,
+): Promise<T> {
+  try {
+    return await call<T>(op, path, init);
+  } catch (err) {
+    const notOurs = err instanceof PayPalError && (err.status === 403 || /NOT_AUTHORIZED|PERMISSION_DENIED|PAYEE/.test(err.body));
+    if (!notOurs || !merchantId || !paypalConnectEnabled()) throw err;
+    const b64 = (o: object) => Buffer.from(JSON.stringify(o)).toString("base64url");
+    const assertion = `${b64({ alg: "none" })}.${b64({ iss: process.env.PAYPAL_PARTNER_CLIENT_ID, payer_id: merchantId })}.`;
+    return call<T>(`${op} as seller`, path, { ...init, headers: { "PayPal-Auth-Assertion": assertion } }, partnerToken);
+  }
+}
 
 export type Refund = { id: string; status: string };
 
@@ -201,20 +223,13 @@ export type Refund = { id: string; status: string };
  * app refunds as them (Connect asked for the REFUND permission). A payment to an email the seller
  * only typed can't be refunded by anyone but them; that comes back as a PayPalError (403/422).
  */
-export async function refundCapture(captureId: string, localOrderId: string, merchantId?: string | null): Promise<Refund> {
-  const path = `/v2/payments/captures/${encodeURIComponent(captureId)}/refund`;
-  const init = { method: "POST", body: {}, requestId: `refund-${localOrderId}` };
-  try {
-    return await call<Refund>("refund", path, init);
-  } catch (err) {
-    const notOurs = err instanceof PayPalError && (err.status === 403 || /NOT_AUTHORIZED|PERMISSION_DENIED|PAYEE/.test(err.body));
-    if (!notOurs || !merchantId || !paypalConnectEnabled()) throw err;
-    // PayPal-Auth-Assertion: an unsigned JWT naming the partner app and the seller it acts for.
-    const b64 = (o: object) => Buffer.from(JSON.stringify(o)).toString("base64url");
-    const assertion = `${b64({ alg: "none" })}.${b64({ iss: process.env.PAYPAL_PARTNER_CLIENT_ID, payer_id: merchantId })}.`;
-    return call<Refund>("refund as seller", path, { ...init, headers: { "PayPal-Auth-Assertion": assertion } }, partnerToken);
-  }
-}
+export const refundCapture = (captureId: string, localOrderId: string, merchantId?: string | null) =>
+  callOrAsSeller<Refund>(
+    "refund",
+    `/v2/payments/captures/${encodeURIComponent(captureId)}/refund`,
+    { method: "POST", body: {}, requestId: `refund-${localOrderId}` },
+    merchantId,
+  );
 
 /** Asks PayPal whether a webhook delivery is genuine. */
 export async function verifyWebhook(headers: Headers, event: unknown): Promise<boolean> {

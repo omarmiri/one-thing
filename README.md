@@ -449,7 +449,7 @@ service URL.
 
 | Tool | How it's used |
 |---|---|
-| **PayPal** JS SDK v6, Orders v2 (create/capture, payee routing, shipping preference), Payments v2 refunds (as the seller via PayPal-Auth-Assertion for connected accounts), order tracking API, webhooks, Log in with PayPal (OpenID Connect), Partner Referrals and merchant integration status | All checkout and payment handling, seller sign-in, seller onboarding with a readiness check, and agent orders the buyer approves at PayPal |
+| **PayPal** JS SDK v6, Orders v2 (create/capture, payee routing, shipping preference), Payments v2 refunds and the order tracking API (both as the seller via PayPal-Auth-Assertion for connected accounts), webhooks, Log in with PayPal (OpenID Connect), Partner Referrals and merchant integration status | All checkout and payment handling, seller sign-in, seller onboarding with a readiness check, and agent orders the buyer approves at PayPal |
 | **Model Context Protocol** | `/api/mcp`, so AI agents can find shops and order through PayPal |
 | **Google Gemini** (`@google/genai`) | Reads the photo or page; guesses the product, delivery, price and link; generates the structured design spec and copy; edits it from chat; an image model makes the hero art |
 | **Channel3** | Product search, store-link lookup, and recommendation shops that earn through Channel3's tracked buy links |
