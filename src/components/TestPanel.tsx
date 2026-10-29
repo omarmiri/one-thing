@@ -220,24 +220,24 @@ export function TestPanel() {
 
   return (
     <div
-      className="fixed z-[60] flex flex-col bg-[#0d0b0a] font-sans text-white shadow-2xl transition-transform duration-300 ease-out"
+      className="fixed z-[60] flex flex-col bg-background font-sans text-foreground shadow-2xl transition-transform duration-300 ease-out"
       style={drawer}
       role="dialog"
       aria-label="Test panel"
     >
       <div
-        className={`absolute flex items-center gap-2 border-2 border-[#e8762b] bg-[#0d0b0a] p-2 ${side ? "flex-col" : "flex-row"} ${tabRound}`}
+        className={`absolute flex items-center gap-2 border-2 border-accent bg-background p-2 shadow-lg ${side ? "flex-col" : "flex-row"} ${tabRound}`}
         style={tab}
       >
         <button
           onClick={() => !dragging.current && toggle()}
           aria-label={open ? "Close test panel" : "Open test panel"}
-          className="grid size-7 place-items-center rounded-md text-lg leading-none hover:bg-white/10"
+          className="grid size-7 place-items-center rounded-md text-lg leading-none hover:bg-black/5"
           style={{ transform: `rotate(${turn}deg)` }}
         >
           «
         </button>
-        <span className="grid size-8 place-items-center rounded-lg border border-[#e8762b] font-mono text-xs text-[#e8762b]">
+        <span className="grid size-8 place-items-center rounded-lg border border-accent font-mono text-xs text-accent">
           &lt;/&gt;
         </span>
         <span
@@ -248,33 +248,33 @@ export function TestPanel() {
         <span
           onPointerDown={startDrag}
           title="Drag to move"
-          className={`grid cursor-grab touch-none grid-cols-3 gap-1 p-1.5 active:cursor-grabbing ${side ? "border-t border-white/15 pt-2" : "border-l border-white/15 pl-2"}`}
+          className={`grid cursor-grab touch-none grid-cols-3 gap-1 p-1.5 active:cursor-grabbing ${side ? "border-t border-line pt-2" : "border-l border-line pl-2"}`}
         >
           {Array.from({ length: 6 }, (_, i) => (
-            <i key={i} className="size-1 rounded-full bg-white/80" />
+            <i key={i} className="size-1 rounded-full bg-foreground/70" />
           ))}
         </span>
       </div>
 
       {/* Closed, the drawer is off screen: keep its links out of the tab order. */}
       <div className="flex min-h-0 flex-1 flex-col" inert={!open}>
-        <header className="flex items-center gap-3 border-b border-white/10 px-5 py-4">
-          <span className="grid size-8 place-items-center rounded-lg border border-[#e8762b] font-mono text-xs text-[#e8762b]">
+        <header className="flex items-center gap-3 border-b border-line px-5 py-4">
+          <span className="grid size-8 place-items-center rounded-lg border border-accent font-mono text-xs text-accent">
             &lt;/&gt;
           </span>
           <div className="min-w-0 flex-1">
-            <p className="text-xs text-white/50">OneThing</p>
+            <p className="text-xs text-muted">OneThing</p>
             <p className="font-semibold">Test Panel</p>
           </div>
           <button
             onClick={() => setOpen(false)}
             aria-label="Close"
-            className="grid size-9 place-items-center rounded-full border border-white/20 hover:bg-white/10"
+            className="grid size-9 place-items-center rounded-full border border-line hover:bg-black/5"
           >
             ✕
           </button>
         </header>
-        <nav className="flex gap-1 overflow-x-auto border-b border-white/10 px-4 py-2 text-sm">
+        <nav className="flex gap-1 overflow-x-auto border-b border-line px-4 py-2 text-sm">
           {(
             [
               ["ai", "Buy with AI"],
@@ -285,30 +285,30 @@ export function TestPanel() {
             <button
               key={id}
               onClick={() => setSection(id)}
-              className={`shrink-0 rounded-full px-4 py-1.5 ${section === id ? "border border-[#e8762b]/60 bg-[#e8762b]/15" : "text-white/70 hover:text-white"}`}
+              className={`shrink-0 rounded-full px-4 py-1.5 ${section === id ? "border border-foreground bg-foreground text-background" : "text-muted hover:text-foreground"}`}
             >
               {label}
             </button>
           ))}
         </nav>
 
-        <div className="flex-1 overflow-y-auto bg-gradient-to-b from-[#2a1608] to-[#0d0b0a] p-5 text-sm">
+        <div className="flex-1 overflow-y-auto bg-gradient-to-b from-accent/5 to-background p-5 text-sm">
           {section === "ai" && (
             <div className="space-y-4">
-              <p className="inline-block rounded-full border border-[#e8762b]/50 px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-[#f0a060]">
+              <p className="inline-block rounded-full border border-accent/50 px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-accent">
                 Agentic checkout
               </p>
               <h2 className="text-2xl font-bold">Let an AI assistant buy it</h2>
-              <p className="text-white/70">
+              <p className="text-muted">
                 Open an assistant with this prompt. It reads{" "}
                 {isShop ? "this shop" : "the gallery"}, makes the order and
                 hands back a PayPal link. You approve the payment; the assistant
                 can&apos;t pay for you.
               </p>
-              <div className="rounded-xl border border-white/15 bg-black/30 p-3">
+              <div className="rounded-xl border border-line bg-white p-3">
                 <label
                   htmlFor="tp-prompt"
-                  className="text-[11px] uppercase tracking-wider text-white/50"
+                  className="text-[11px] uppercase tracking-wider text-muted"
                 >
                   Prompt
                 </label>
@@ -321,7 +321,7 @@ export function TestPanel() {
                 />
                 <button
                   onClick={() => copy(prompt, "prompt")}
-                  className="text-xs text-[#f0a060] hover:underline"
+                  className="text-xs text-accent hover:underline"
                 >
                   {copied === "prompt" ? "Copied" : "Copy prompt"}
                 </button>
@@ -334,25 +334,25 @@ export function TestPanel() {
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={() => !a.url && copy(prompt, "prompt")}
-                    className="rounded-xl border border-white/15 bg-white/[0.04] p-3 hover:border-[#e8762b]/70"
+                    className="rounded-xl border border-line bg-white p-3 hover:border-accent/70"
                   >
                     <span className="font-semibold">{a.name} ↗</span>
-                    <span className="block text-xs text-white/55">
+                    <span className="block text-xs text-muted">
                       {a.note}
                     </span>
                   </a>
                 ))}
               </div>
-              <div className="rounded-xl border border-white/15 bg-white/[0.04] p-4">
+              <div className="rounded-xl border border-line bg-white p-4">
                 <p className="font-semibold">
                   ChatGPT, with the OneThing connector
                 </p>
-                <p className="mt-1 text-xs text-white/55">
+                <p className="mt-1 text-xs text-muted">
                   ChatGPT can&apos;t open our pages from its sandbox, so it
                   shops through our MCP server and shows a product card. Needs
                   ChatGPT Plus or higher.
                 </p>
-                <ol className="mt-3 list-decimal space-y-1 pl-5 text-white/80">
+                <ol className="mt-3 list-decimal space-y-1 pl-5 text-foreground/80">
                   <li>
                     Settings → Apps &amp; Connectors → Advanced → turn on
                     Developer mode.
@@ -362,18 +362,18 @@ export function TestPanel() {
                     URL:
                   </li>
                 </ol>
-                <div className="mt-2 flex items-center gap-2 rounded-lg bg-black/40 px-3 py-2 font-mono text-xs">
+                <div className="mt-2 flex items-center gap-2 rounded-lg bg-black/5 px-3 py-2 font-mono text-xs">
                   <span className="min-w-0 flex-1 truncate">{mcp}</span>
                   <button
                     onClick={() => copy(mcp, "mcp")}
-                    className="shrink-0 text-[#f0a060] hover:underline"
+                    className="shrink-0 text-accent hover:underline"
                   >
                     {copied === "mcp" ? "Copied" : "Copy"}
                   </button>
                 </div>
                 <ol
                   start={3}
-                  className="mt-2 list-decimal space-y-1 pl-5 text-white/80"
+                  className="mt-2 list-decimal space-y-1 pl-5 text-foreground/80"
                 >
                   <li>
                     Choose No authentication, save, and turn OneThing on in a
@@ -384,7 +384,7 @@ export function TestPanel() {
                   href={`https://chatgpt.com/?q=${encodeURIComponent(prompt)}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="mt-3 inline-block rounded-full border border-[#e8762b]/60 bg-[#e8762b]/15 px-4 py-1.5 hover:bg-[#e8762b]/25"
+                  className="mt-3 inline-block rounded-full border border-foreground bg-foreground text-background px-4 py-1.5 hover:opacity-90"
                 >
                   Open ChatGPT with the prompt ↗
                 </a>
@@ -397,11 +397,11 @@ export function TestPanel() {
               <h2 className="text-2xl font-bold">
                 Paying in the PayPal sandbox
               </h2>
-              <p className="text-white/70">
+              <p className="text-muted">
                 Every shop here runs on PayPal&apos;s sandbox. No real money
                 moves.
               </p>
-              <ul className="list-disc space-y-2 pl-5 text-white/80">
+              <ul className="list-disc space-y-2 pl-5 text-foreground/80">
                 <li>
                   <strong>Card:</strong> at PayPal choose{" "}
                   <em>Pay with Debit or Credit Card</em> and use a test card
@@ -410,7 +410,7 @@ export function TestPanel() {
                     href="https://developer.paypal.com/tools/sandbox/card-testing/"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-[#f0a060] underline"
+                    className="text-accent underline"
                   >
                     PayPal&apos;s card generator
                   </a>
@@ -466,11 +466,11 @@ export function TestPanel() {
                   href={url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="block rounded-xl border border-white/15 bg-white/[0.04] p-3 hover:border-[#e8762b]/70"
+                  className="block rounded-xl border border-line bg-white p-3 hover:border-accent/70"
                 >
                   <span className="font-semibold">{name} ↗</span>
-                  <span className="block text-xs text-white/55">{note}</span>
-                  <span className="block truncate font-mono text-xs text-white/40">
+                  <span className="block text-xs text-muted">{note}</span>
+                  <span className="block truncate font-mono text-xs text-muted">
                     {url}
                   </span>
                 </a>
