@@ -24,7 +24,11 @@ Source: /#/http/x-redirect/JTI0bSUyRk9yZGVy
 | `downloads` | `Number` | Optional | - |
 | `access_code` | `String` | Optional | - |
 | `code_uses` | `Number` | Optional | - |
-| `channel` | [`Channel`](/llms-pages/http/models/enumerations/channel.md) | Optional | `agent` for orders an AI agent placed through the MCP server. |
+| `code_last_used_at` | `DateTime` | Optional | - |
+| `channel` | [`Channel`](/llms-pages/http/models/enumerations/channel.md) | Optional | `agent` for orders an AI agent placed (MCP or an order link). |
+| `agent` | `String` | Optional | The agent credited with an agent order, such as `Grok`. |
+| `refund_id` | `String` | Optional | PayPal's refund id, once refunded through OneThing. |
+| `refunded_at` | `DateTime` | Optional | - |
 | `options` | `map<String>` | Optional | The buyer's pick, one value per option, keyed by option name (see `Choice`). |
 | `paid_at` | `DateTime` | Optional | - |
 | `created_at` | `DateTime` | Optional | - |
@@ -35,19 +39,20 @@ Source: /#/http/x-redirect/JTI0bSUyRk9yZGVy
 ```json
 {
   "id": "id2",
-  "paypal_order_id": "paypal_order_id2",
   "status": "created",
   "amount_cents": 124,
-  "shipping_cents": 70,
   "currency": "currency2",
+  "fulfillment_status": "none",
+  "agent": "Grok",
+  "paypal_order_id": "paypal_order_id2",
+  "shipping_cents": 70,
   "buyer_email": "buyer_email6",
   "buyer_name": "buyer_name0",
   "shipping_address": {
     "key0": "shipping_address2",
     "key1": "shipping_address1",
     "key2": "shipping_address0"
-  },
-  "fulfillment_status": "none"
+  }
 }
 ```
 

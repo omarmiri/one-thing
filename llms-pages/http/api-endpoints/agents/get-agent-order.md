@@ -2,7 +2,7 @@
 
 Source: /#/http/x-redirect/JTI0ZSUyRkFnZW50cyUyRmdldEFnZW50T3JkZXI
 
-Where an order stands and, once paid, what the buyer got: the access code, the download link, or the shipping address and tracking. The GET twin of the MCP `get_order` tool (and the `status_url` that `create_order` returns), for agents that can only fetch URLs. Public: anyone with the order id can already open its thank-you page. If the buyer has approved at PayPal but nothing has captured the payment yet, this captures it.
+Where an order stands and, once paid, what the buyer got: the access code, the download link, or the shipping address and tracking. The GET twin of the MCP `get_order` tool (and the `status_url` that `create_order` returns), for agents that can only fetch URLs. Public: anyone with the order id can already open its thank-you page. If the buyer has approved at PayPal but nothing has captured the payment yet, this captures it. `/o/<order_id>/status` is the same endpoint at a short URL, and the one `status_url` uses. A person clicking the link in a browser (`Sec-Fetch-User: ?1`) is redirected instead; known assistants and headless browsers always get JSON. It goes to the order's receipt page.
 
 :information_source: **Note** This endpoint does not require authentication.
 
@@ -22,6 +22,8 @@ GET /api/agent/orders/{orderId}
 # Response Type
 
 **200**: The order.
+
+**303**: A person clicked the link. Redirect to the order's page (`/o/<order_id>`).
 
 [`Agent Order`](/llms-pages/http/models/structures/agent-order.md)
 

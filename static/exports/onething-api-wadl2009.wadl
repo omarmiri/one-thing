@@ -22,7 +22,12 @@ before unlocking. Raptor Rush on miriogames.com is a live example.
 `/api/mcp` with `search_shops`, `get_product`, `create_order` and `get_order`, and the same
 four as plain GETs for assistants that can only fetch URLs (`listAgentShops`,
 `getAgentProduct`, `orderByLink`, `getAgentOrder`), with `/llms.txt` as the starting point.
+Order and status links also have short forms, `/&lt;slug&gt;/buy` and `/o/&lt;order_id&gt;/status`.
 An agent can find and order, but the buyer still approves every payment at PayPal.
+
+**Limits.** Calls that cost something are capped per network: 120 checkouts per 10 minutes,
+10 new shops an hour and 60 AI requests an hour. Over the cap the reply is a 429 with
+`Retry-After`.
 
 All money moves through PayPal (sandbox in this deployment). OneThing never holds card data.
 </doc>
@@ -73,6 +78,9 @@ All money moves through PayPal (sandbox in this deployment). OneThing never hold
       <xs:element name="ApiShopsFileResponse" type="schemas:ApiShopsFileResponse" />
       <xs:element name="ApiShopsMatchPhotosRequest" type="schemas:ApiShopsMatchPhotosRequest" />
       <xs:element name="ApiShopsMatchPhotosResponse" type="schemas:ApiShopsMatchPhotosResponse" />
+      <xs:element name="ApiShopsOrdersRefund409Error1" type="schemas:ApiShopsOrdersRefund409Error1" />
+      <xs:element name="ApiShopsOrdersRefundRequest" type="schemas:ApiShopsOrdersRefundRequest" />
+      <xs:element name="ApiShopsOrdersRefundResponse" type="schemas:ApiShopsOrdersRefundResponse" />
       <xs:element name="ApiShopsOrdersShipRequest" type="schemas:ApiShopsOrdersShipRequest" />
       <xs:element name="ApiShopsOrdersShipResponse" type="schemas:ApiShopsOrdersShipResponse" />
       <xs:element name="ApiShopsPaypalRequest" type="schemas:ApiShopsPaypalRequest" />
@@ -125,6 +133,7 @@ All money moves through PayPal (sandbox in this deployment). OneThing never hold
       <xs:element name="Tracking" type="schemas:Tracking" />
       <xs:element name="Type" type="schemas:Type" />
       <xs:element name="Variant" type="schemas:Variant" />
+      <xs:element name="view" type="schemas:view" />
       <xs:element name="signIn_Request" type="schemas:signIn_Request" />
       <xs:element name="signIn200_Response0" type="schemas:signIn200_Response0" />
       <xs:element name="signIn400_Response0" type="schemas:signIn400_Response0" />
@@ -134,6 +143,7 @@ All money moves through PayPal (sandbox in this deployment). OneThing never hold
       <xs:element name="createShop400_Response0" type="schemas:createShop400_Response0" />
       <xs:element name="createShop409_Response0" type="schemas:createShop409_Response0" />
       <xs:element name="createShop502_Response0" type="schemas:createShop502_Response0" />
+      <xs:element name="createShop429_Response0" type="schemas:createShop429_Response0" />
       <xs:element name="getShop200_Response0" type="schemas:getShop200_Response0" />
       <xs:element name="getShop404_Response0" type="schemas:getShop404_Response0" />
       <xs:element name="updateShop_Request" type="schemas:updateShop_Request" />
@@ -145,9 +155,11 @@ All money moves through PayPal (sandbox in this deployment). OneThing never hold
       <xs:element name="refineShopDesign400_Response0" type="schemas:refineShopDesign400_Response0" />
       <xs:element name="refineShopDesign404_Response0" type="schemas:refineShopDesign404_Response0" />
       <xs:element name="refineShopDesign502_Response0" type="schemas:refineShopDesign502_Response0" />
+      <xs:element name="refineShopDesign429_Response0" type="schemas:refineShopDesign429_Response0" />
       <xs:element name="regenerateHeroArt200_Response0" type="schemas:regenerateHeroArt200_Response0" />
       <xs:element name="regenerateHeroArt400_Response0" type="schemas:regenerateHeroArt400_Response0" />
       <xs:element name="regenerateHeroArt404_Response0" type="schemas:regenerateHeroArt404_Response0" />
+      <xs:element name="regenerateHeroArt429_Response0" type="schemas:regenerateHeroArt429_Response0" />
       <xs:element name="uploadDigitalFile200_Response0" type="schemas:uploadDigitalFile200_Response0" />
       <xs:element name="uploadDigitalFile400_Response0" type="schemas:uploadDigitalFile400_Response0" />
       <xs:element name="uploadDigitalFile404_Response0" type="schemas:uploadDigitalFile404_Response0" />
@@ -162,11 +174,13 @@ All money moves through PayPal (sandbox in this deployment). OneThing never hold
       <xs:element name="checkMissingDetails400_Response0" type="schemas:checkMissingDetails400_Response0" />
       <xs:element name="checkMissingDetails404_Response0" type="schemas:checkMissingDetails404_Response0" />
       <xs:element name="checkMissingDetails502_Response0" type="schemas:checkMissingDetails502_Response0" />
+      <xs:element name="checkMissingDetails429_Response0" type="schemas:checkMissingDetails429_Response0" />
       <xs:element name="matchColorPhotos_Request" type="schemas:matchColorPhotos_Request" />
       <xs:element name="matchColorPhotos200_Response0" type="schemas:matchColorPhotos200_Response0" />
       <xs:element name="matchColorPhotos400_Response0" type="schemas:matchColorPhotos400_Response0" />
       <xs:element name="matchColorPhotos404_Response0" type="schemas:matchColorPhotos404_Response0" />
       <xs:element name="matchColorPhotos502_Response0" type="schemas:matchColorPhotos502_Response0" />
+      <xs:element name="matchColorPhotos429_Response0" type="schemas:matchColorPhotos429_Response0" />
       <xs:element name="setColorPhotos_Request" type="schemas:setColorPhotos_Request" />
       <xs:element name="setColorPhotos200_Response0" type="schemas:setColorPhotos200_Response0" />
       <xs:element name="setColorPhotos400_Response0" type="schemas:setColorPhotos400_Response0" />
@@ -196,6 +210,7 @@ All money moves through PayPal (sandbox in this deployment). OneThing never hold
       <xs:element name="createCheckoutOrder409_Response0" type="schemas:createCheckoutOrder409_Response0" />
       <xs:element name="createCheckoutOrder502_Response0" type="schemas:createCheckoutOrder502_Response0" />
       <xs:element name="createCheckoutOrder503_Response0" type="schemas:createCheckoutOrder503_Response0" />
+      <xs:element name="createCheckoutOrder429_Response0" type="schemas:createCheckoutOrder429_Response0" />
       <xs:element name="captureCheckoutOrder200_Response0" type="schemas:captureCheckoutOrder200_Response0" />
       <xs:element name="captureCheckoutOrder402_Response0" type="schemas:captureCheckoutOrder402_Response0" />
       <xs:element name="captureCheckoutOrder404_Response0" type="schemas:captureCheckoutOrder404_Response0" />
@@ -211,6 +226,10 @@ All money moves through PayPal (sandbox in this deployment). OneThing never hold
       <xs:element name="markOrderShipped200_Response0" type="schemas:markOrderShipped200_Response0" />
       <xs:element name="markOrderShipped400_Response0" type="schemas:markOrderShipped400_Response0" />
       <xs:element name="markOrderShipped404_Response0" type="schemas:markOrderShipped404_Response0" />
+      <xs:element name="refundOrder_Request" type="schemas:refundOrder_Request" />
+      <xs:element name="refundOrder200_Response0" type="schemas:refundOrder200_Response0" />
+      <xs:element name="refundOrder404_Response0" type="schemas:refundOrder404_Response0" />
+      <xs:element name="refundOrder409_Response0" type="schemas:refundOrder409_Response0" />
       <xs:element name="listWebhookEvents200_Response0" type="schemas:listWebhookEvents200_Response0" />
       <xs:element name="listWebhookEvents404_Response0" type="schemas:listWebhookEvents404_Response0" />
       <xs:element name="response200" type="xs:hexBinary">
@@ -236,7 +255,9 @@ All money moves through PayPal (sandbox in this deployment). OneThing never hold
       <xs:element name="listAgentShops200_Response0" type="schemas:listAgentShops200_Response0" />
       <xs:element name="orderByLink200_Response0" type="schemas:orderByLink200_Response0" />
       <xs:element name="orderByLink400_Response0" type="schemas:orderByLink400_Response0" />
+      <xs:element name="orderByLink403_Response0" type="schemas:orderByLink403_Response0" />
       <xs:element name="orderByLink404_Response0" type="schemas:orderByLink404_Response0" />
+      <xs:element name="orderByLink429_Response0" type="schemas:orderByLink429_Response0" />
       <xs:element name="getAgentOrder200_Response0" type="schemas:getAgentOrder200_Response0" />
       <xs:element name="getAgentOrder404_Response0" type="schemas:getAgentOrder404_Response0" />
       <xs:element name="getAgentProduct200_Response0" type="schemas:getAgentProduct200_Response0" />
@@ -671,6 +692,11 @@ All money moves through PayPal (sandbox in this deployment). OneThing never hold
               <xs:documentation>The price label, e.g. `$2.99`; null for recommendations.</xs:documentation>
             </xs:annotation>
           </xs:element>
+          <xs:element minOccurs="1" name="image" nillable="true" type="xs:string">
+            <xs:annotation>
+              <xs:documentation>The cover photo's URL (WebP; the retailer's image for a recommendation), or null when there's none.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
           <xs:element minOccurs="1" name="url" type="xs:string">
             <xs:annotation>
               <xs:documentation>The shop page.</xs:documentation>
@@ -937,11 +963,23 @@ All money moves through PayPal (sandbox in this deployment). OneThing never hold
           <xs:element minOccurs="0" name="downloads" type="xs:integer" />
           <xs:element minOccurs="0" name="access_code" nillable="true" type="xs:string" />
           <xs:element minOccurs="0" name="code_uses" type="xs:integer" />
+          <xs:element minOccurs="0" name="code_last_used_at" nillable="true" type="xs:dateTime" />
           <xs:element minOccurs="0" name="channel" type="schemas:Channel">
             <xs:annotation>
-              <xs:documentation>`agent` for orders an AI agent placed through the MCP server.</xs:documentation>
+              <xs:documentation>`agent` for orders an AI agent placed (MCP or an order link).</xs:documentation>
             </xs:annotation>
           </xs:element>
+          <xs:element minOccurs="0" name="agent" nillable="true" type="xs:string">
+            <xs:annotation>
+              <xs:documentation>The agent credited with an agent order, such as `Grok`.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element minOccurs="0" name="refund_id" nillable="true" type="xs:string">
+            <xs:annotation>
+              <xs:documentation>PayPal's refund id, once refunded through OneThing.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element minOccurs="0" name="refunded_at" nillable="true" type="xs:dateTime" />
           <xs:element minOccurs="0" name="options" nillable="true" type="xs:string">
             <xs:annotation>
               <xs:documentation>The buyer's pick, one value per option, keyed by option name (see `Choice`).</xs:documentation>
@@ -1037,7 +1075,17 @@ All money moves through PayPal (sandbox in this deployment). OneThing never hold
       </xs:complexType>
       <xs:complexType name="ApiAgentShopsResponse">
         <xs:sequence>
+          <xs:element minOccurs="1" name="show_buyer" type="xs:string">
+            <xs:annotation>
+              <xs:documentation>A suggested reply to the buyer, in Markdown: each shop's cover photo as an image, its name, price and headline, then "Which one?". Chats that block images from other sites just leave the image lines out.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
           <xs:element minOccurs="1" maxOccurs="unbounded" name="shops" type="schemas:AgentShopSummary" />
+          <xs:element minOccurs="1" name="matched" type="xs:boolean">
+            <xs:annotation>
+              <xs:documentation>False when nothing matched the query and `shops` is the newest gallery shops instead; `show_buyer` then starts by saying so.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
           <xs:element minOccurs="1" name="mcp_server" type="xs:string">
             <xs:annotation>
               <xs:documentation>The MCP server to order through.</xs:documentation>
@@ -1126,6 +1174,49 @@ All money moves through PayPal (sandbox in this deployment). OneThing never hold
       <xs:complexType name="ApiShopsMatchPhotosResponse">
         <xs:sequence>
           <xs:element minOccurs="1" name="matches" type="xs:string" />
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="ApiShopsOrdersRefund409Error1">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="error" type="xs:string">
+            <xs:annotation>
+              <xs:documentation>A sentence you can show to a person.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element minOccurs="0" name="field" type="xs:string">
+            <xs:annotation>
+              <xs:documentation>The form field at fault, when there is one.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element minOccurs="0" name="detail" type="xs:string">
+            <xs:annotation>
+              <xs:documentation>The upstream service's own message, for debugging.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element minOccurs="0" name="refundInPayPal" type="xs:boolean">
+            <xs:annotation>
+              <xs:documentation>Refund it in PayPal yourself, then call again with `record: true`.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="ApiShopsOrdersRefundRequest">
+        <xs:sequence>
+          <xs:element minOccurs="0" default="false" name="record" type="xs:boolean">
+            <xs:annotation>
+              <xs:documentation>`true`: don't contact PayPal, just record that the seller refunded it themselves.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="ApiShopsOrdersRefundResponse">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="ok" type="xs:boolean" />
+          <xs:element minOccurs="0" name="refundId" nillable="true" type="xs:string">
+            <xs:annotation>
+              <xs:documentation>PayPal's refund id; null when `record` was used.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
         </xs:sequence>
       </xs:complexType>
       <xs:complexType name="ApiShopsOrdersShipRequest">
@@ -1253,7 +1344,7 @@ All money moves through PayPal (sandbox in this deployment). OneThing never hold
       </xs:simpleType>
       <xs:simpleType name="Channel">
         <xs:annotation>
-          <xs:documentation>`agent` for orders an AI agent placed through the MCP server.</xs:documentation>
+          <xs:documentation>`agent` for orders an AI agent placed (MCP or an order link).</xs:documentation>
         </xs:annotation>
         <xs:restriction base="xs:string">
           <xs:enumeration value="web" />
@@ -1309,6 +1400,7 @@ All money moves through PayPal (sandbox in this deployment). OneThing never hold
         <xs:restriction base="xs:string">
           <xs:enumeration value="order.paid" />
           <xs:enumeration value="order.shipped" />
+          <xs:enumeration value="order.refunded" />
         </xs:restriction>
       </xs:simpleType>
       <xs:complexType name="Fact">
@@ -1619,6 +1711,7 @@ All money moves through PayPal (sandbox in this deployment). OneThing never hold
           <xs:enumeration value="created" />
           <xs:enumeration value="paid" />
           <xs:enumeration value="failed" />
+          <xs:enumeration value="refunded" />
         </xs:restriction>
       </xs:simpleType>
       <xs:simpleType name="Status6">
@@ -1654,6 +1747,11 @@ All money moves through PayPal (sandbox in this deployment). OneThing never hold
           </xs:element>
         </xs:sequence>
       </xs:complexType>
+      <xs:simpleType name="view">
+        <xs:restriction base="xs:string">
+          <xs:enumeration value="json" />
+        </xs:restriction>
+      </xs:simpleType>
       <xs:complexType name="signIn_Request">
         <xs:sequence>
           <xs:element minOccurs="1" name="body" type="schemas:ApiAccountSigninRequest" />
@@ -1727,6 +1825,15 @@ All money moves through PayPal (sandbox in this deployment). OneThing never hold
           <xs:element minOccurs="1" name="response502" type="schemas:Error">
             <xs:annotation>
               <xs:documentation>Gemini, PayPal or Channel3 failed or isn't configured.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="createShop429_Response0">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="response429" type="schemas:Error">
+            <xs:annotation>
+              <xs:documentation>Over this network's cap for the call (see **Limits**). Retry after `Retry-After` seconds.</xs:documentation>
             </xs:annotation>
           </xs:element>
         </xs:sequence>
@@ -1822,6 +1929,15 @@ All money moves through PayPal (sandbox in this deployment). OneThing never hold
           </xs:element>
         </xs:sequence>
       </xs:complexType>
+      <xs:complexType name="refineShopDesign429_Response0">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="response429" type="schemas:Error">
+            <xs:annotation>
+              <xs:documentation>Over this network's cap for the call (see **Limits**). Retry after `Retry-After` seconds.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
       <xs:complexType name="regenerateHeroArt200_Response0">
         <xs:sequence>
           <xs:element minOccurs="1" name="response200" type="schemas:Ok">
@@ -1845,6 +1961,15 @@ All money moves through PayPal (sandbox in this deployment). OneThing never hold
           <xs:element minOccurs="1" name="response404" type="schemas:Error">
             <xs:annotation>
               <xs:documentation>No such shop, or the admin token or API key doesn't match it.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="regenerateHeroArt429_Response0">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="response429" type="schemas:Error">
+            <xs:annotation>
+              <xs:documentation>Over this network's cap for the call (see **Limits**). Retry after `Retry-After` seconds.</xs:documentation>
             </xs:annotation>
           </xs:element>
         </xs:sequence>
@@ -1971,6 +2096,15 @@ All money moves through PayPal (sandbox in this deployment). OneThing never hold
           </xs:element>
         </xs:sequence>
       </xs:complexType>
+      <xs:complexType name="checkMissingDetails429_Response0">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="response429" type="schemas:Error">
+            <xs:annotation>
+              <xs:documentation>Over this network's cap for the call (see **Limits**). Retry after `Retry-After` seconds.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
       <xs:complexType name="matchColorPhotos_Request">
         <xs:sequence>
           <xs:element minOccurs="1" name="body" type="schemas:ApiShopsMatchPhotosRequest" />
@@ -2008,6 +2142,15 @@ All money moves through PayPal (sandbox in this deployment). OneThing never hold
           <xs:element minOccurs="1" name="response502" type="schemas:Error">
             <xs:annotation>
               <xs:documentation>Gemini, PayPal or Channel3 failed or isn't configured.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="matchColorPhotos429_Response0">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="response429" type="schemas:Error">
+            <xs:annotation>
+              <xs:documentation>Over this network's cap for the call (see **Limits**). Retry after `Retry-After` seconds.</xs:documentation>
             </xs:annotation>
           </xs:element>
         </xs:sequence>
@@ -2261,6 +2404,15 @@ All money moves through PayPal (sandbox in this deployment). OneThing never hold
           </xs:element>
         </xs:sequence>
       </xs:complexType>
+      <xs:complexType name="createCheckoutOrder429_Response0">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="response429" type="schemas:Error">
+            <xs:annotation>
+              <xs:documentation>Over this network's cap for the call (see **Limits**). Retry after `Retry-After` seconds.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
       <xs:complexType name="captureCheckoutOrder200_Response0">
         <xs:sequence>
           <xs:element minOccurs="1" name="response200" type="schemas:ApiOrdersCaptureResponse">
@@ -2388,6 +2540,38 @@ All money moves through PayPal (sandbox in this deployment). OneThing never hold
           </xs:element>
         </xs:sequence>
       </xs:complexType>
+      <xs:complexType name="refundOrder_Request">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="body" type="schemas:ApiShopsOrdersRefundRequest" />
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="refundOrder200_Response0">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="response200" type="schemas:ApiShopsOrdersRefundResponse">
+            <xs:annotation>
+              <xs:documentation>Refunded.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="refundOrder404_Response0">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="response404" type="schemas:Error">
+            <xs:annotation>
+              <xs:documentation>No such shop or order, or the token doesn't match the shop.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="refundOrder409_Response0">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="response409" type="schemas:ApiShopsOrdersRefund409Error1">
+            <xs:annotation>
+              <xs:documentation>Not refundable here; `error` says why.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
       <xs:complexType name="listWebhookEvents200_Response0">
         <xs:sequence>
           <xs:element minOccurs="1" maxOccurs="unbounded" name="response200" type="schemas:WebhookEvent">
@@ -2433,11 +2617,29 @@ All money moves through PayPal (sandbox in this deployment). OneThing never hold
           </xs:element>
         </xs:sequence>
       </xs:complexType>
+      <xs:complexType name="orderByLink403_Response0">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="response403" type="schemas:Error">
+            <xs:annotation>
+              <xs:documentation>A known crawler or link previewer. They don't place orders.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
       <xs:complexType name="orderByLink404_Response0">
         <xs:sequence>
           <xs:element minOccurs="1" name="response404" type="schemas:Error">
             <xs:annotation>
               <xs:documentation>No live shop with that link name.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="orderByLink429_Response0">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="response429" type="schemas:Error">
+            <xs:annotation>
+              <xs:documentation>Over this network's cap for the call (see **Limits**). Retry after `Retry-After` seconds.</xs:documentation>
             </xs:annotation>
           </xs:element>
         </xs:sequence>
@@ -2670,6 +2872,13 @@ platform's sellers, so it inherits nothing from the account: set `paypal_email` 
           <doc title="502" xml:lang="en">Gemini, PayPal or Channel3 failed or isn't configured.</doc>
           <representation element="schemas:createShop502_Response0" mediaType="application/json" />
         </response>
+        <response status="429">
+          <doc title="429" xml:lang="en">Over this network's cap for the call (see **Limits**). Retry after `Retry-After` seconds.</doc>
+          <param name="Retry-After" style="plain" type="xsd:integer" required="true">
+            <doc title="Retry-After" xml:lang="en">Seconds until the window resets.</doc>
+          </param>
+          <representation element="schemas:createShop429_Response0" mediaType="application/json" />
+        </response>
       </method>
     </resource>
     <resource id="_apishopsslug" path="/api/shops/{slug}">
@@ -2744,6 +2953,13 @@ access codes, `access_url`) first.
           <doc title="502" xml:lang="en">Gemini, PayPal or Channel3 failed or isn't configured.</doc>
           <representation element="schemas:refineShopDesign502_Response0" mediaType="application/json" />
         </response>
+        <response status="429">
+          <doc title="429" xml:lang="en">Over this network's cap for the call (see **Limits**). Retry after `Retry-After` seconds.</doc>
+          <param name="Retry-After" style="plain" type="xsd:integer" required="true">
+            <doc title="Retry-After" xml:lang="en">Seconds until the window resets.</doc>
+          </param>
+          <representation element="schemas:refineShopDesign429_Response0" mediaType="application/json" />
+        </response>
       </method>
     </resource>
     <resource id="_apishopsslughero" path="/api/shops/{slug}/hero">
@@ -2764,6 +2980,13 @@ access codes, `access_url`) first.
         <response status="404">
           <doc title="404" xml:lang="en">No such shop, or the admin token or API key doesn't match it.</doc>
           <representation element="schemas:regenerateHeroArt404_Response0" mediaType="application/json" />
+        </response>
+        <response status="429">
+          <doc title="429" xml:lang="en">Over this network's cap for the call (see **Limits**). Retry after `Retry-After` seconds.</doc>
+          <param name="Retry-After" style="plain" type="xsd:integer" required="true">
+            <doc title="Retry-After" xml:lang="en">Seconds until the window resets.</doc>
+          </param>
+          <representation element="schemas:regenerateHeroArt429_Response0" mediaType="application/json" />
         </response>
       </method>
     </resource>
@@ -2874,6 +3097,13 @@ Nothing changes on the shop page until the seller confirms: save options with `u
           <doc title="502" xml:lang="en">Gemini, PayPal or Channel3 failed or isn't configured.</doc>
           <representation element="schemas:checkMissingDetails502_Response0" mediaType="application/json" />
         </response>
+        <response status="429">
+          <doc title="429" xml:lang="en">Over this network's cap for the call (see **Limits**). Retry after `Retry-After` seconds.</doc>
+          <param name="Retry-After" style="plain" type="xsd:integer" required="true">
+            <doc title="Retry-After" xml:lang="en">Seconds until the window resets.</doc>
+          </param>
+          <representation element="schemas:checkMissingDetails429_Response0" mediaType="application/json" />
+        </response>
       </method>
     </resource>
     <resource id="_apishopsslugmatch-photos" path="/api/shops/{slug}/match-photos">
@@ -2903,6 +3133,13 @@ Nothing changes on the shop page until the seller confirms: save options with `u
         <response status="502">
           <doc title="502" xml:lang="en">Gemini, PayPal or Channel3 failed or isn't configured.</doc>
           <representation element="schemas:matchColorPhotos502_Response0" mediaType="application/json" />
+        </response>
+        <response status="429">
+          <doc title="429" xml:lang="en">Over this network's cap for the call (see **Limits**). Retry after `Retry-After` seconds.</doc>
+          <param name="Retry-After" style="plain" type="xsd:integer" required="true">
+            <doc title="Retry-After" xml:lang="en">Seconds until the window resets.</doc>
+          </param>
+          <representation element="schemas:matchColorPhotos429_Response0" mediaType="application/json" />
         </response>
       </method>
     </resource>
@@ -3104,6 +3341,13 @@ If the shop has buyer `options`, send one value for each. A sold-out combination
           <doc title="503" xml:lang="en">Gemini, PayPal or Channel3 failed or isn't configured.</doc>
           <representation element="schemas:createCheckoutOrder503_Response0" mediaType="application/json" />
         </response>
+        <response status="429">
+          <doc title="429" xml:lang="en">Over this network's cap for the call (see **Limits**). Retry after `Retry-After` seconds.</doc>
+          <param name="Retry-After" style="plain" type="xsd:integer" required="true">
+            <doc title="Retry-After" xml:lang="en">Seconds until the window resets.</doc>
+          </param>
+          <representation element="schemas:createCheckoutOrder429_Response0" mediaType="application/json" />
+        </response>
       </method>
     </resource>
     <resource id="_apiorderspaypalOrderIdcapture" path="/api/orders/{paypalOrderId}/capture">
@@ -3209,6 +3453,35 @@ link names, and codes typed loosely (lower case, spaces, no dashes).
         </response>
       </method>
     </resource>
+    <resource id="_apishopsslugordersorderIdrefund" path="/api/shops/{slug}/orders/{orderId}/refund">
+      <param name="slug" style="template" type="xsd:string" required="true">
+        <doc title="slug" xml:lang="en">The shop's link name (current or former).</doc>
+      </param>
+      <param name="orderId" style="template" type="xsd:string" required="true">
+        <doc title="orderId" xml:lang="en">OneThing's order id (`Order.id`).</doc>
+      </param>
+      <method id="refundOrder" name="POST">
+        <doc title="refundOrder" xml:lang="en">Refunds the whole payment through PayPal and marks the order `refunded`. When PayPal only lets the paid account refund it (the money went to a PayPal email the seller typed in, not a connected account), the reply is a 409 with `refundInPayPal: true`. Refund it in your PayPal account, then call this again with `{"record": true}`, which only marks it refunded here. Sends the `order.refunded` event to the shop's Zapier hook.</doc>
+        <request>
+          <param name="Content-Type" style="header" type="xsd:string" default="application/json" required="true" fixed="application/json">
+            <doc title="Content-Type" xml:lang="en" />
+          </param>
+          <representation element="schemas:refundOrder_Request" mediaType="application/json" />
+        </request>
+        <response status="200">
+          <doc title="200" xml:lang="en">Refunded.</doc>
+          <representation element="schemas:refundOrder200_Response0" mediaType="application/json" />
+        </response>
+        <response status="404">
+          <doc title="404" xml:lang="en">No such shop or order, or the token doesn't match the shop.</doc>
+          <representation element="schemas:refundOrder404_Response0" mediaType="application/json" />
+        </response>
+        <response status="409">
+          <doc title="409" xml:lang="en">Not refundable here; `error` says why.</doc>
+          <representation element="schemas:refundOrder409_Response0" mediaType="application/json" />
+        </response>
+      </method>
+    </resource>
     <resource id="_apishopsslugwebhooks" path="/api/shops/{slug}/webhooks">
       <param name="slug" style="template" type="xsd:string" required="true">
         <doc title="slug" xml:lang="en">The shop's link name (current or former).</doc>
@@ -3277,7 +3550,7 @@ link names, and codes typed loosely (lower case, spaces, no dashes).
     </resource>
     <resource id="_apiagentshops" path="/api/agent/shops">
       <method id="listAgentShops" name="GET">
-        <doc title="listAgentShops" xml:lang="en">The gallery's live shops, newest first, filtered by keywords (every word must appear in the name or headline). The GET twin of the MCP `search_shops` tool, for agents that can only fetch URLs. Public. Read a shop with `getAgentProduct`; buy through the MCP server in `mcp_server`, or send the buyer to the shop's `url`.</doc>
+        <doc title="listAgentShops" xml:lang="en">The gallery's live shops for a query: shops matching more of its words first, newest first among equals. Browsing words ("something interesting to buy") are ignored, and a query that matches nothing returns the newest shops with `matched: false` rather than an empty list. The GET twin of the MCP `search_shops` tool, for agents that can only fetch URLs. Public. Read a shop with `getAgentProduct`; buy through the MCP server in `mcp_server`, or send the buyer to the shop's `url`.</doc>
         <request>
           <param name="q" style="query" type="xsd:string">
             <doc title="q" xml:lang="en">Keywords. Leave out to list the newest shops.</doc>
@@ -3308,9 +3581,14 @@ regard to case. You rarely build this URL yourself: `getAgentProduct` and `/llms
 write it out in full (`order_url`, or `variants[].order_url`), because some assistants
 only open URLs they have been shown.
 
-Every request makes a new order, so open it once, after the buyer says to buy. A link
-previewer opening it leaves an unpaid order at most: stock is only taken when a payment
-is captured. Replies are `no-store` and `X-Robots-Tag: noindex, nofollow`.
+Every request makes a new order, so open it once, after the buyer says to buy. Known
+crawlers and link previewers get a 403 (and are kept out by `robots.txt`); any other
+leaves an unpaid order at most, since stock is only taken when a payment is captured.
+Replies are `no-store` and `X-Robots-Tag: noindex, nofollow`.
+
+`/&lt;slug&gt;/buy` is the same endpoint at a short URL, and the one `order_url` uses.
+A person clicking the link in a browser (`Sec-Fetch-User: ?1`) is redirected instead; known assistants and headless browsers always get JSON. It goes straight to `pay_url`, or to the shop page when an option is missing
+or unknown.
 </doc>
         <request>
           <param name="agent" style="query" type="xsd:string">
@@ -3324,13 +3602,30 @@ is captured. Replies are `no-store` and `X-Robots-Tag: noindex, nofollow`.
           <doc title="200" xml:lang="en">The order, waiting for the buyer to pay.</doc>
           <representation element="schemas:orderByLink200_Response0" mediaType="application/json" />
         </response>
+        <response status="303">
+          <doc title="303" xml:lang="en">A person clicked the link. Redirect to PayPal (`pay_url`), or to the shop page to pick an option.</doc>
+          <param name="Location" style="plain" type="xsd:string" required="true">
+            <doc title="Location" xml:lang="en">Where the buyer goes next.</doc>
+          </param>
+        </response>
         <response status="400">
           <doc title="400" xml:lang="en">A missing or unknown option value, or sold out. `error` names the valid values.</doc>
           <representation element="schemas:orderByLink400_Response0" mediaType="application/json" />
         </response>
+        <response status="403">
+          <doc title="403" xml:lang="en">A known crawler or link previewer. They don't place orders.</doc>
+          <representation element="schemas:orderByLink403_Response0" mediaType="application/json" />
+        </response>
         <response status="404">
           <doc title="404" xml:lang="en">No live shop with that link name.</doc>
           <representation element="schemas:orderByLink404_Response0" mediaType="application/json" />
+        </response>
+        <response status="429">
+          <doc title="429" xml:lang="en">Over this network's cap for the call (see **Limits**). Retry after `Retry-After` seconds.</doc>
+          <param name="Retry-After" style="plain" type="xsd:integer" required="true">
+            <doc title="Retry-After" xml:lang="en">Seconds until the window resets.</doc>
+          </param>
+          <representation element="schemas:orderByLink429_Response0" mediaType="application/json" />
         </response>
       </method>
     </resource>
@@ -3339,7 +3634,7 @@ is captured. Replies are `no-store` and `X-Robots-Tag: noindex, nofollow`.
         <doc title="orderId" xml:lang="en">The `order_id` from the MCP `create_order` tool, or from a thank-you page link (`?order=`).</doc>
       </param>
       <method id="getAgentOrder" name="GET">
-        <doc title="getAgentOrder" xml:lang="en">Where an order stands and, once paid, what the buyer got: the access code, the download link, or the shipping address and tracking. The GET twin of the MCP `get_order` tool (and the `status_url` that `create_order` returns), for agents that can only fetch URLs. Public: anyone with the order id can already open its thank-you page. If the buyer has approved at PayPal but nothing has captured the payment yet, this captures it.</doc>
+        <doc title="getAgentOrder" xml:lang="en">Where an order stands and, once paid, what the buyer got: the access code, the download link, or the shipping address and tracking. The GET twin of the MCP `get_order` tool (and the `status_url` that `create_order` returns), for agents that can only fetch URLs. Public: anyone with the order id can already open its thank-you page. If the buyer has approved at PayPal but nothing has captured the payment yet, this captures it. `/o/&lt;order_id&gt;/status` is the same endpoint at a short URL, and the one `status_url` uses. A person clicking the link in a browser (`Sec-Fetch-User: ?1`) is redirected instead; known assistants and headless browsers always get JSON. It goes to the order's receipt page.</doc>
         <request>
           <param name="agent" style="query" type="xsd:string">
             <doc title="agent" xml:lang="en">Optional: the agent's name (`ChatGPT`, `Gemini`, `my-shopping-bot`), so the seller's stats show which agent sent the buyer. Only used when the user agent doesn't already say.</doc>
@@ -3348,6 +3643,9 @@ is captured. Replies are `no-store` and `X-Robots-Tag: noindex, nofollow`.
         <response status="200">
           <doc title="200" xml:lang="en">The order.</doc>
           <representation element="schemas:getAgentOrder200_Response0" mediaType="application/json" />
+        </response>
+        <response status="303">
+          <doc title="303" xml:lang="en">A person clicked the link. Redirect to the order's page (`/o/&lt;order_id&gt;`).</doc>
         </response>
         <response status="404">
           <doc title="404" xml:lang="en">No order with that id.</doc>
@@ -3360,15 +3658,24 @@ is captured. Replies are `no-store` and `X-Robots-Tag: noindex, nofollow`.
         <doc title="slug" xml:lang="en">The shop's link name (current or former).</doc>
       </param>
       <method id="getAgentProduct" name="GET">
-        <doc title="getAgentProduct" xml:lang="en">Everything an AI shopping agent needs to describe the product and decide to buy it: price, shipping, delivery, availability, options, images and FAQ. Public. Buying goes through the MCP server named in `mcp_server`. Shop pages also carry the same facts as schema.org `Product` JSON-LD.</doc>
+        <doc title="getAgentProduct" xml:lang="en">Everything an AI shopping agent needs to describe the product and decide to buy it: price, shipping, delivery, availability, options, images and FAQ. Public. Buying goes through the MCP server named in `mcp_server`, or the `order_url` links. Shop pages also carry the same facts as schema.org `Product` JSON-LD. A person clicking the link in a browser (`Sec-Fetch-User: ?1`) is redirected instead; known assistants and headless browsers always get JSON. It goes to the shop page, unless the link has `?view=json`.</doc>
         <request>
           <param name="agent" style="query" type="xsd:string">
             <doc title="agent" xml:lang="en">Optional: the agent's name (`ChatGPT`, `Gemini`, `my-shopping-bot`), so the seller's stats show which agent sent the buyer. Only used when the user agent doesn't already say.</doc>
+          </param>
+          <param name="view" style="query" default="">
+            <doc title="view" xml:lang="en">`json` keeps the JSON for a person opening the link in a browser.</doc>
+            <option value="json">
+              <doc title="json" xml:lang="en" />
+            </option>
           </param>
         </request>
         <response status="200">
           <doc title="200" xml:lang="en">The product.</doc>
           <representation element="schemas:getAgentProduct200_Response0" mediaType="application/json" />
+        </response>
+        <response status="303">
+          <doc title="303" xml:lang="en">A person clicked the link. Redirect to the shop page (`/&lt;slug&gt;`).</doc>
         </response>
         <response status="404">
           <doc title="404" xml:lang="en">No live shop with that link name.</doc>
@@ -3385,11 +3692,13 @@ plain JSON reply, with no event stream. The `initialize` reply's `Mcp-Session-Id
 carries the client's `clientInfo.name`; send it back on later requests (MCP clients do)
 so the seller's stats show which agent sent the buyer. Nothing else is kept.
 
-Methods: `initialize`, `ping`, `tools/list`, `tools/call`. Tools:
+Methods: `initialize`, `ping`, `tools/list`, `tools/call`, and `resources/list`,
+`resources/templates/list` and `resources/read` for the product card. Each tool carries
+`annotations` (only `create_order` isn't `readOnlyHint`). Tools:
 
 | Tool | Arguments | What it does |
 |---|---|---|
-| `search_shops` | `query?`, `limit?` (1–25) | Live gallery shops whose name or headline has every word |
+| `search_shops` | `query?`, `limit?` (1–25) | Live gallery shops, best match first; no match returns the newest with `matched: false` |
 | `get_product` | `shop` | The same object as `getAgentProduct` |
 | `create_order` | `shop`, `options?` | One unit on order; returns `order_id` and `pay_url` |
 | `get_order` | `order_id` | Status and `next_step`; once paid, the receipt and `delivery` |
@@ -3407,8 +3716,14 @@ A paid order carries `delivery`: `{type: access_code, access_code, start_url?}`,
 `amount` with item, shipping and total. Orders made this way show `channel: agent` in
 `listOrders`.
 
-Tool errors (an unknown shop, a sold-out size) come back as results with `isError: true`,
-so the model can read them and try something else.
+**The product card.** Hosts that draw MCP Apps UI (ChatGPT, or a client that declares the
+`io.modelcontextprotocol/ui` extension) get `search_shops`, `get_product` and
+`create_order` results as a card with the real photos, options and a Pay with PayPal button
+(`ui://onething/shop-card-v1.html`). For them `show_buyer` is a one-line note rather than
+Markdown, so the model doesn't repeat or invent what the card shows.
+
+Tool errors (an unknown shop, a sold-out size, over the checkout cap) come back as results
+with `isError: true`, so the model can read them and try something else.
 </doc>
         <request>
           <param name="Content-Type" style="header" type="xsd:string" default="application/json" required="true" fixed="application/json">

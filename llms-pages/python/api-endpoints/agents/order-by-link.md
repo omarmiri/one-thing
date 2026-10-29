@@ -13,9 +13,14 @@ regard to case. You rarely build this URL yourself: `getAgentProduct` and `/llms
 write it out in full (`order_url`, or `variants[].order_url`), because some assistants
 only open URLs they have been shown.
 
-Every request makes a new order, so open it once, after the buyer says to buy. A link
-previewer opening it leaves an unpaid order at most: stock is only taken when a payment
-is captured. Replies are `no-store` and `X-Robots-Tag: noindex, nofollow`.
+Every request makes a new order, so open it once, after the buyer says to buy. Known
+crawlers and link previewers get a 403 (and are kept out by `robots.txt`); any other
+leaves an unpaid order at most, since stock is only taken when a payment is captured.
+Replies are `no-store` and `X-Robots-Tag: noindex, nofollow`.
+
+`/<slug>/buy` is the same endpoint at a short URL, and the one `order_url` uses.
+A person clicking the link in a browser (`Sec-Fetch-User: ?1`) is redirected instead; known assistants and headless browsers always get JSON. It goes straight to `pay_url`, or to the shop page when an option is missing
+or unknown.
 
 :information_source: **Note** This endpoint does not require authentication.
 
@@ -65,7 +70,7 @@ print(result)
 
 ```json
 {
-  "show_buyer": "Vintage Cream and Red Roller Skates (9): $255.00 total.\n**[Pay $255.00 with PayPal](https://one-thing-ash0.onrender.com/o/pX4kR9tVb2nQ7sLe)**\nTell me once you've paid and I'll get you the shipping confirmation.",
+  "show_buyer": "![Vintage Cream and Red Roller Skates](https://one-thing-ash0.onrender.com/api/blobs/LFRvGuTU3D8i334X)\n\nVintage Cream and Red Roller Skates (9): $255.00 total.\n**[Pay $255.00 with PayPal](https://one-thing-ash0.onrender.com/o/pX4kR9tVb2nQ7sLe)**\nTell me once you've paid and I'll get you the shipping confirmation.",
   "order_id": "pX4kR9tVb2nQ7sLe",
   "status": "awaiting_buyer_approval",
   "total": "$255.00",
@@ -73,7 +78,7 @@ print(result)
     "Size": "9"
   },
   "pay_url": "https://one-thing-ash0.onrender.com/o/pX4kR9tVb2nQ7sLe",
-  "status_url": "https://one-thing-ash0.onrender.com/api/agent/orders/pX4kR9tVb2nQ7sLe",
+  "status_url": "https://one-thing-ash0.onrender.com/o/pX4kR9tVb2nQ7sLe/status",
   "next_step": "Show pay_url to the buyer as a link. It opens PayPal, where they pay (and enter a shipping address for physical items). When they say they've paid, open status_url (or with MCP, call get_order with order_id): it returns the access code, download link or shipping details."
 }
 ```
@@ -84,7 +89,9 @@ print(result)
 | HTTP Status Code | Error Description | Exception Class |
 |  --- | --- | --- |
 | 400 | A missing or unknown option value, or sold out. `error` names the valid values. | [`ErrorException`](/llms-pages/python/models/exceptions/error.md) |
+| 403 | A known crawler or link previewer. They don't place orders. | [`ErrorException`](/llms-pages/python/models/exceptions/error.md) |
 | 404 | No live shop with that link name. | [`ErrorException`](/llms-pages/python/models/exceptions/error.md) |
+| 429 | Over this network's cap for the call (see **Limits**). Retry after `Retry-After` seconds. | [`ErrorException`](/llms-pages/python/models/exceptions/error.md) |
 
 
 

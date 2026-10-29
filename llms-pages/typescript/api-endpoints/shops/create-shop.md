@@ -156,6 +156,7 @@ try {
 |  --- | --- | --- |
 | 400 | Something in the request needs fixing; `error` says what. | [`CustomError`](/llms-pages/typescript/models/exceptions/error.md) |
 | 409 | Taken or unavailable (a link name, or a sold-out product). | [`CustomError`](/llms-pages/typescript/models/exceptions/error.md) |
+| 429 | Over this network's cap for the call (see **Limits**). Retry after `Retry-After` seconds. | [`CustomError`](/llms-pages/typescript/models/exceptions/error.md) |
 | 502 | Gemini, PayPal or Channel3 failed or isn't configured. | [`CustomError`](/llms-pages/typescript/models/exceptions/error.md) |
 
 

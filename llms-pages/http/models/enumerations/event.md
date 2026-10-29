@@ -9,6 +9,7 @@ Source: /#/http/x-redirect/JTI0bSUyRkV2ZW50
 |  --- |
 | `order.paid` |
 | `order.shipped` |
+| `order.refunded` |
 
 
 

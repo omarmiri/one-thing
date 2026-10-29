@@ -23,7 +23,7 @@ Source: /#/typescript/x-redirect/JTI0bSUyRk9yZGVyRXZlbnQ
 import { Event, OrderEvent } from 'one-thing-sdk';
 
 const orderEvent: OrderEvent = {
-  event: Event.EnumOrderpaid,
+  event: Event.EnumOrdershipped,
   shop: {
     slug: 'slug4',
     name: 'name0',

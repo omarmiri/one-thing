@@ -29,7 +29,11 @@ Source: /#/typescript/x-redirect/JTI0bSUyRk9yZGVy
 | `downloads` | `number \| undefined` | Optional | - |
 | `accessCode` | `string \| null \| undefined` | Optional | - |
 | `codeUses` | `number \| undefined` | Optional | - |
-| `channel` | [`Channel \| undefined`](/llms-pages/typescript/models/enumerations/channel.md) | Optional | `agent` for orders an AI agent placed through the MCP server. |
+| `codeLastUsedAt` | `string \| null \| undefined` | Optional | - |
+| `channel` | [`Channel \| undefined`](/llms-pages/typescript/models/enumerations/channel.md) | Optional | `agent` for orders an AI agent placed (MCP or an order link). |
+| `agent` | `string \| null \| undefined` | Optional | The agent credited with an agent order, such as `Grok`. |
+| `refundId` | `string \| null \| undefined` | Optional | PayPal's refund id, once refunded through OneThing. |
+| `refundedAt` | `string \| null \| undefined` | Optional | - |
 | `options` | `Record<string, string> \| null \| undefined` | Optional | The buyer's pick, one value per option, keyed by option name (see `Choice`). |
 | `paidAt` | `string \| null \| undefined` | Optional | - |
 | `createdAt` | `string \| undefined` | Optional | - |
@@ -55,6 +59,7 @@ const order: Order = {
     'key1': 'shipping_address5',
     'key2': 'shipping_address4'
   },
+  agent: 'Grok',
 };
 ```
 

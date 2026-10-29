@@ -14,6 +14,7 @@ Source: /#/python/x-redirect/JTI0bSUyRkV2ZW50
 |  --- |
 | `ENUM_ORDERPAID` |
 | `ENUM_ORDERSHIPPED` |
+| `ENUM_ORDERREFUNDED` |
 
 
 # Example

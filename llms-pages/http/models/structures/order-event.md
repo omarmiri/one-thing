@@ -16,7 +16,7 @@ Source: /#/http/x-redirect/JTI0bSUyRk9yZGVyRXZlbnQ
 
 ```json
 {
-  "event": "order.paid",
+  "event": "order.shipped",
   "shop": {
     "slug": "slug4",
     "name": "name0",

@@ -15,6 +15,7 @@ Source: /#/typescript/x-redirect/JTI0bSUyRlN0YXR1czQ
 | `Created` |
 | `Paid` |
 | `Failed` |
+| `Refunded` |
 
 
 # Example
@@ -22,7 +23,7 @@ Source: /#/typescript/x-redirect/JTI0bSUyRlN0YXR1czQ
 ```ts
 import { Status4 } from 'one-thing-sdk';
 
-const status4 = Status4.Paid;
+const status4 = Status4.Failed;
 ```
 
 

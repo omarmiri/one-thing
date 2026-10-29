@@ -2,7 +2,7 @@
 
 Source: /#/typescript/x-redirect/JTI0ZSUyRkFnZW50cyUyRmdldEFnZW50UHJvZHVjdA
 
-Everything an AI shopping agent needs to describe the product and decide to buy it: price, shipping, delivery, availability, options, images and FAQ. Public. Buying goes through the MCP server named in `mcp_server`. Shop pages also carry the same facts as schema.org `Product` JSON-LD.
+Everything an AI shopping agent needs to describe the product and decide to buy it: price, shipping, delivery, availability, options, images and FAQ. Public. Buying goes through the MCP server named in `mcp_server`, or the `order_url` links. Shop pages also carry the same facts as schema.org `Product` JSON-LD. A person clicking the link in a browser (`Sec-Fetch-User: ?1`) is redirected instead; known assistants and headless browsers always get JSON. It goes to the shop page, unless the link has `?view=json`.
 
 :information_source: **Note** This endpoint does not require authentication.
 
@@ -10,6 +10,7 @@ Everything an AI shopping agent needs to describe the product and decide to buy 
 async getAgentProduct(
   slug: string,
   agent?: string,
+  view?: View,
   requestOptions?: RequestOptions
 ): Promise<ApiResponse<AgentProduct>>
 ```
@@ -21,6 +22,7 @@ async getAgentProduct(
 |  --- | --- | --- | --- |
 | `slug` | `string` | Template, Required | The shop's link name (current or former). |
 | `agent` | `string \| undefined` | Query, Optional | Optional: the agent's name (`ChatGPT`, `Gemini`, `my-shopping-bot`), so the seller's stats show which agent sent the buyer. Only used when the user agent doesn't already say.<br><br>**Constraints**: *Maximum Length*: `30` |
+| `view` | [`View \| undefined`](/llms-pages/typescript/models/enumerations/view.md) | Query, Optional | `json` keeps the JSON for a person opening the link in a browser. |
 | `requestOptions` | `RequestOptions \| undefined` | Optional | Pass additional request options. |
 
 
@@ -38,10 +40,13 @@ const slug = 'raptorrush';
 
 const agent = 'ChatGPT';
 
+const view = View.Json;
+
 try {
   const response = await agentsApi.getAgentProduct(
     slug,
-    agent
+    agent,
+    view
   );
 
   // Extracting fully parsed response body.
@@ -73,7 +78,7 @@ try {
 
 ```json
 {
-  "show_buyer": "**Vintage Cream and Red Roller Skates**: $240.00 + $15.00 shipping\nClassic quad skates crafted with walnut burl heels\nSize: 7 · 8 · 9\nWhich size?",
+  "show_buyer": "![Vintage Cream and Red Roller Skates](https://one-thing-ash0.onrender.com/api/blobs/LFRvGuTU3D8i334X)\n\n**Vintage Cream and Red Roller Skates**: $240.00 + $15.00 shipping\nClassic quad skates crafted with walnut burl heels\nSize: 7 · 8 · 9\nWhich size?",
   "shop": "vintageskates",
   "url": "https://one-thing-ash0.onrender.com/vintageskates",
   "name": "Vintage Cream and Red Roller Skates",
@@ -133,7 +138,7 @@ try {
         "Size": "7"
       },
       "availability": "in_stock (3 left)",
-      "order_url": "https://one-thing-ash0.onrender.com/api/agent/shops/vintageskates/order?Size=7"
+      "order_url": "https://one-thing-ash0.onrender.com/vintageskates/buy?Size=7"
     },
     {
       "choice": {
@@ -146,11 +151,11 @@ try {
         "Size": "9"
       },
       "availability": "in_stock (6 left)",
-      "order_url": "https://one-thing-ash0.onrender.com/api/agent/shops/vintageskates/order?Size=9"
+      "order_url": "https://one-thing-ash0.onrender.com/vintageskates/buy?Size=9"
     }
   ],
   "availability": "in_stock",
-  "how_to_buy": "Recommended: buyers have the best experience when you show show_buyer as written (it's Markdown, so the links stay clickable) and keep your own words to a minimum. Once the buyer has picked and said to buy, open the order_url of their variant (or call create_order on the OneThing MCP server with shop and options). Either returns show_buyer with the pay link.",
+  "how_to_buy": "Show show_buyer to the buyer exactly as written, photo included (it's Markdown, so the photo displays and the links stay clickable), and keep your own words to a minimum. Once the buyer has picked and said to buy, open the order_url of their variant (or call create_order on the OneThing MCP server with shop and options). Either returns show_buyer with the pay link.",
   "mcp_server": "https://one-thing-ash0.onrender.com/api/mcp",
   "agent_name": "ChatGPT"
 }

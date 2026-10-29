@@ -14,6 +14,7 @@ Source: /#/typescript/x-redirect/JTI0bSUyRkV2ZW50
 |  --- |
 | `EnumOrderpaid` |
 | `EnumOrdershipped` |
+| `EnumOrderrefunded` |
 
 
 # Example

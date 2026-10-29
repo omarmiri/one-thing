@@ -9,11 +9,13 @@ plain JSON reply, with no event stream. The `initialize` reply's `Mcp-Session-Id
 carries the client's `clientInfo.name`; send it back on later requests (MCP clients do)
 so the seller's stats show which agent sent the buyer. Nothing else is kept.
 
-Methods: `initialize`, `ping`, `tools/list`, `tools/call`. Tools:
+Methods: `initialize`, `ping`, `tools/list`, `tools/call`, and `resources/list`,
+`resources/templates/list` and `resources/read` for the product card. Each tool carries
+`annotations` (only `create_order` isn't `readOnlyHint`). Tools:
 
 | Tool | Arguments | What it does |
 |---|---|---|
-| `search_shops` | `query?`, `limit?` (1–25) | Live gallery shops whose name or headline has every word |
+| `search_shops` | `query?`, `limit?` (1–25) | Live gallery shops, best match first; no match returns the newest with `matched: false` |
 | `get_product` | `shop` | The same object as `getAgentProduct` |
 | `create_order` | `shop`, `options?` | One unit on order; returns `order_id` and `pay_url` |
 | `get_order` | `order_id` | Status and `next_step`; once paid, the receipt and `delivery` |
@@ -31,8 +33,14 @@ A paid order carries `delivery`: `{type: access_code, access_code, start_url?}`,
 `amount` with item, shipping and total. Orders made this way show `channel: agent` in
 `listOrders`.
 
-Tool errors (an unknown shop, a sold-out size) come back as results with `isError: true`,
-so the model can read them and try something else.
+**The product card.** Hosts that draw MCP Apps UI (ChatGPT, or a client that declares the
+`io.modelcontextprotocol/ui` extension) get `search_shops`, `get_product` and
+`create_order` results as a card with the real photos, options and a Pay with PayPal button
+(`ui://onething/shop-card-v1.html`). For them `show_buyer` is a one-line note rather than
+Markdown, so the model doesn't repeat or invent what the card shows.
+
+Tool errors (an unknown shop, a sold-out size, over the checkout cap) come back as results
+with `isError: true`, so the model can read them and try something else.
 
 :information_source: **Note** This endpoint does not require authentication.
 
@@ -80,10 +88,11 @@ print(result)
     "content": [
       {
         "type": "text",
-        "text": "{\n  \"shops\": [\n    {\n      \"shop\": \"vintageskates\",\n      \"name\": \"Vintage Cream and Red Roller Skates\",\n      \"kind\": \"physical\",\n      \"headline\": \"Classic quad skates crafted with walnut burl heels\",\n      \"price\": \"$240.00\",\n      \"url\": \"https://one-thing-ash0.onrender.com/vintageskates\"\n    },\n    {\n      \"shop\": \"raptorrush\",\n      \"name\": \"Raptor Rush: Browser Edition\",\n      \"kind\": \"digital\",\n      \"headline\": \"Grow from Tiny Hatchling to Giant Apex Predator\",\n      \"price\": \"$2.99\",\n      \"url\": \"https://one-thing-ash0.onrender.com/raptorrush\"\n    }\n  ]\n}"
+        "text": "{\n  \"show_buyer\": \"![Vintage Cream and Red Roller Skates](https://one-thing-ash0.onrender.com/api/blobs/LFRvGuTU3D8i334X)\\n\\n**Vintage Cream and Red Roller Skates**: $240.00. Classic quad skates crafted with walnut burl heels\\n\\nWant it?\",\n  \"shops\": [\n    {\n      \"shop\": \"vintageskates\",\n      \"name\": \"Vintage Cream and Red Roller Skates\",\n      \"kind\": \"physical\",\n      \"headline\": \"Classic quad skates crafted with walnut burl heels\",\n      \"price\": \"$240.00\",\n      \"image\": \"https://one-thing-ash0.onrender.com/api/blobs/LFRvGuTU3D8i334X\",\n      \"url\": \"https://one-thing-ash0.onrender.com/vintageskates\"\n    }\n  ],\n  \"agent_name\": \"Claude\"\n}"
       }
     ],
     "structuredContent": {
+      "show_buyer": "![Vintage Cream and Red Roller Skates](https://one-thing-ash0.onrender.com/api/blobs/LFRvGuTU3D8i334X)\n\n**Vintage Cream and Red Roller Skates**: $240.00. Classic quad skates crafted with walnut burl heels\n\nWant it?",
       "shops": [
         {
           "shop": "vintageskates",
@@ -91,17 +100,11 @@ print(result)
           "kind": "physical",
           "headline": "Classic quad skates crafted with walnut burl heels",
           "price": "$240.00",
+          "image": "https://one-thing-ash0.onrender.com/api/blobs/LFRvGuTU3D8i334X",
           "url": "https://one-thing-ash0.onrender.com/vintageskates"
-        },
-        {
-          "shop": "raptorrush",
-          "name": "Raptor Rush: Browser Edition",
-          "kind": "digital",
-          "headline": "Grow from Tiny Hatchling to Giant Apex Predator",
-          "price": "$2.99",
-          "url": "https://one-thing-ash0.onrender.com/raptorrush"
         }
-      ]
+      ],
+      "agent_name": "Claude"
     },
     "isError": false
   }

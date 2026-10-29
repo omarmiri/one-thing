@@ -28,7 +28,12 @@ before unlocking. Raptor Rush on miriogames.com is a live example.
 `/api/mcp` with `search_shops`, `get_product`, `create_order` and `get_order`, and the same
 four as plain GETs for assistants that can only fetch URLs (`listAgentShops`,
 `getAgentProduct`, `orderByLink`, `getAgentOrder`), with `/llms.txt` as the starting point.
+Order and status links also have short forms, `/<slug>/buy` and `/o/<order_id>/status`.
 An agent can find and order, but the buyer still approves every payment at PayPal.
+
+**Limits.** Calls that cost something are capped per network: 120 checkouts per 10 minutes,
+10 new shops an hour and 60 AI requests an hour. Over the cap the reply is a 429 with
+`Retry-After`.
 
 All money moves through PayPal (sandbox in this deployment). OneThing never holds card data.
 

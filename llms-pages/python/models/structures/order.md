@@ -29,7 +29,11 @@ Source: /#/python/x-redirect/JTI0bSUyRk9yZGVy
 | `downloads` | `int` | Optional | - |
 | `access_code` | `str` | Optional | - |
 | `code_uses` | `int` | Optional | - |
-| `channel` | [`Channel`](/llms-pages/python/models/enumerations/channel.md) | Optional | `agent` for orders an AI agent placed through the MCP server. |
+| `code_last_used_at` | `datetime` | Optional | - |
+| `channel` | [`Channel`](/llms-pages/python/models/enumerations/channel.md) | Optional | `agent` for orders an AI agent placed (MCP or an order link). |
+| `agent` | `str` | Optional | The agent credited with an agent order, such as `Grok`. |
+| `refund_id` | `str` | Optional | PayPal's refund id, once refunded through OneThing. |
+| `refunded_at` | `datetime` | Optional | - |
 | `options` | `Dict[str, str]` | Optional | The buyer's pick, one value per option, keyed by option name (see `Choice`). |
 | `paid_at` | `datetime` | Optional | - |
 | `created_at` | `datetime` | Optional | - |
@@ -56,7 +60,8 @@ order = Order(
         'key0': 'shipping_address6',
         'key1': 'shipping_address5',
         'key2': 'shipping_address4'
-    }
+    },
+    agent='Grok'
 )
 ```
 

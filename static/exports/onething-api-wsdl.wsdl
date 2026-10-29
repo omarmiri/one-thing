@@ -14,6 +14,7 @@
       <xs:element name="POST_createShop_400" type="schemas:POST_createShop_400" />
       <xs:element name="POST_createShop_409" type="schemas:POST_createShop_409" />
       <xs:element name="POST_createShop_502" type="schemas:POST_createShop_502" />
+      <xs:element name="POST_createShop_429" type="schemas:POST_createShop_429" />
       <xs:element name="GET_getShop_InputMessage" type="schemas:GET_getShop_InputMessage" />
       <xs:element name="GET_getShop_OutputMessage" type="schemas:GET_getShop_OutputMessage" />
       <xs:element name="GET_getShop_404" type="schemas:GET_getShop_404" />
@@ -26,10 +27,12 @@
       <xs:element name="POST_refineShopDesign_400" type="schemas:POST_refineShopDesign_400" />
       <xs:element name="POST_refineShopDesign_404" type="schemas:POST_refineShopDesign_404" />
       <xs:element name="POST_refineShopDesign_502" type="schemas:POST_refineShopDesign_502" />
+      <xs:element name="POST_refineShopDesign_429" type="schemas:POST_refineShopDesign_429" />
       <xs:element name="POST_regenerateHeroArt_InputMessage" type="schemas:POST_regenerateHeroArt_InputMessage" />
       <xs:element name="POST_regenerateHeroArt_OutputMessage" type="schemas:POST_regenerateHeroArt_OutputMessage" />
       <xs:element name="POST_regenerateHeroArt_400" type="schemas:POST_regenerateHeroArt_400" />
       <xs:element name="POST_regenerateHeroArt_404" type="schemas:POST_regenerateHeroArt_404" />
+      <xs:element name="POST_regenerateHeroArt_429" type="schemas:POST_regenerateHeroArt_429" />
       <xs:element name="POST_uploadDigitalFile_InputMessage" type="schemas:POST_uploadDigitalFile_InputMessage" />
       <xs:element name="POST_uploadDigitalFile_OutputMessage" type="schemas:POST_uploadDigitalFile_OutputMessage" />
       <xs:element name="POST_uploadDigitalFile_400" type="schemas:POST_uploadDigitalFile_400" />
@@ -47,11 +50,13 @@
       <xs:element name="POST_checkMissingDetails_400" type="schemas:POST_checkMissingDetails_400" />
       <xs:element name="POST_checkMissingDetails_404" type="schemas:POST_checkMissingDetails_404" />
       <xs:element name="POST_checkMissingDetails_502" type="schemas:POST_checkMissingDetails_502" />
+      <xs:element name="POST_checkMissingDetails_429" type="schemas:POST_checkMissingDetails_429" />
       <xs:element name="POST_matchColorPhotos_InputMessage" type="schemas:POST_matchColorPhotos_InputMessage" />
       <xs:element name="POST_matchColorPhotos_OutputMessage" type="schemas:POST_matchColorPhotos_OutputMessage" />
       <xs:element name="POST_matchColorPhotos_400" type="schemas:POST_matchColorPhotos_400" />
       <xs:element name="POST_matchColorPhotos_404" type="schemas:POST_matchColorPhotos_404" />
       <xs:element name="POST_matchColorPhotos_502" type="schemas:POST_matchColorPhotos_502" />
+      <xs:element name="POST_matchColorPhotos_429" type="schemas:POST_matchColorPhotos_429" />
       <xs:element name="PUT_setColorPhotos_InputMessage" type="schemas:PUT_setColorPhotos_InputMessage" />
       <xs:element name="PUT_setColorPhotos_OutputMessage" type="schemas:PUT_setColorPhotos_OutputMessage" />
       <xs:element name="PUT_setColorPhotos_400" type="schemas:PUT_setColorPhotos_400" />
@@ -86,6 +91,7 @@
       <xs:element name="POST_createCheckoutOrder_409" type="schemas:POST_createCheckoutOrder_409" />
       <xs:element name="POST_createCheckoutOrder_502" type="schemas:POST_createCheckoutOrder_502" />
       <xs:element name="POST_createCheckoutOrder_503" type="schemas:POST_createCheckoutOrder_503" />
+      <xs:element name="POST_createCheckoutOrder_429" type="schemas:POST_createCheckoutOrder_429" />
       <xs:element name="POST_captureCheckoutOrder_InputMessage" type="schemas:POST_captureCheckoutOrder_InputMessage" />
       <xs:element name="POST_captureCheckoutOrder_OutputMessage" type="schemas:POST_captureCheckoutOrder_OutputMessage" />
       <xs:element name="POST_captureCheckoutOrder_402" type="schemas:POST_captureCheckoutOrder_402" />
@@ -103,6 +109,10 @@
       <xs:element name="POST_markOrderShipped_OutputMessage" type="schemas:POST_markOrderShipped_OutputMessage" />
       <xs:element name="POST_markOrderShipped_400" type="schemas:POST_markOrderShipped_400" />
       <xs:element name="POST_markOrderShipped_404" type="schemas:POST_markOrderShipped_404" />
+      <xs:element name="POST_refundOrder_InputMessage" type="schemas:POST_refundOrder_InputMessage" />
+      <xs:element name="POST_refundOrder_OutputMessage" type="schemas:POST_refundOrder_OutputMessage" />
+      <xs:element name="POST_refundOrder_404" type="schemas:POST_refundOrder_404" />
+      <xs:element name="POST_refundOrder_409" type="schemas:POST_refundOrder_409" />
       <xs:element name="GET_listWebhookEvents_InputMessage" type="schemas:GET_listWebhookEvents_InputMessage" />
       <xs:element name="GET_listWebhookEvents_OutputMessage" type="schemas:GET_listWebhookEvents_OutputMessage" />
       <xs:element name="GET_listWebhookEvents_404" type="schemas:GET_listWebhookEvents_404" />
@@ -119,7 +129,9 @@
       <xs:element name="GET_orderByLink_InputMessage" type="schemas:GET_orderByLink_InputMessage" />
       <xs:element name="GET_orderByLink_OutputMessage" type="schemas:GET_orderByLink_OutputMessage" />
       <xs:element name="GET_orderByLink_400" type="schemas:GET_orderByLink_400" />
+      <xs:element name="GET_orderByLink_403" type="schemas:GET_orderByLink_403" />
       <xs:element name="GET_orderByLink_404" type="schemas:GET_orderByLink_404" />
+      <xs:element name="GET_orderByLink_429" type="schemas:GET_orderByLink_429" />
       <xs:element name="GET_getAgentOrder_InputMessage" type="schemas:GET_getAgentOrder_InputMessage" />
       <xs:element name="GET_getAgentOrder_OutputMessage" type="schemas:GET_getAgentOrder_OutputMessage" />
       <xs:element name="GET_getAgentOrder_404" type="schemas:GET_getAgentOrder_404" />
@@ -553,6 +565,11 @@
               <xs:documentation>The price label, e.g. `$2.99`; null for recommendations.</xs:documentation>
             </xs:annotation>
           </xs:element>
+          <xs:element minOccurs="1" name="image" nillable="true" type="xs:string">
+            <xs:annotation>
+              <xs:documentation>The cover photo's URL (WebP; the retailer's image for a recommendation), or null when there's none.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
           <xs:element minOccurs="1" name="url" type="xs:string">
             <xs:annotation>
               <xs:documentation>The shop page.</xs:documentation>
@@ -819,11 +836,23 @@
           <xs:element minOccurs="0" name="downloads" type="xs:integer" />
           <xs:element minOccurs="0" name="access_code" nillable="true" type="xs:string" />
           <xs:element minOccurs="0" name="code_uses" type="xs:integer" />
+          <xs:element minOccurs="0" name="code_last_used_at" nillable="true" type="xs:dateTime" />
           <xs:element minOccurs="0" name="channel" type="schemas:Channel">
             <xs:annotation>
-              <xs:documentation>`agent` for orders an AI agent placed through the MCP server.</xs:documentation>
+              <xs:documentation>`agent` for orders an AI agent placed (MCP or an order link).</xs:documentation>
             </xs:annotation>
           </xs:element>
+          <xs:element minOccurs="0" name="agent" nillable="true" type="xs:string">
+            <xs:annotation>
+              <xs:documentation>The agent credited with an agent order, such as `Grok`.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element minOccurs="0" name="refund_id" nillable="true" type="xs:string">
+            <xs:annotation>
+              <xs:documentation>PayPal's refund id, once refunded through OneThing.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element minOccurs="0" name="refunded_at" nillable="true" type="xs:dateTime" />
           <xs:element minOccurs="0" name="options" nillable="true" type="xs:string">
             <xs:annotation>
               <xs:documentation>The buyer's pick, one value per option, keyed by option name (see `Choice`).</xs:documentation>
@@ -919,7 +948,17 @@
       </xs:complexType>
       <xs:complexType name="ApiAgentShopsResponse">
         <xs:sequence>
+          <xs:element minOccurs="1" name="show_buyer" type="xs:string">
+            <xs:annotation>
+              <xs:documentation>A suggested reply to the buyer, in Markdown: each shop's cover photo as an image, its name, price and headline, then "Which one?". Chats that block images from other sites just leave the image lines out.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
           <xs:element minOccurs="1" maxOccurs="unbounded" name="shops" type="schemas:AgentShopSummary" />
+          <xs:element minOccurs="1" name="matched" type="xs:boolean">
+            <xs:annotation>
+              <xs:documentation>False when nothing matched the query and `shops` is the newest gallery shops instead; `show_buyer` then starts by saying so.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
           <xs:element minOccurs="1" name="mcp_server" type="xs:string">
             <xs:annotation>
               <xs:documentation>The MCP server to order through.</xs:documentation>
@@ -1008,6 +1047,49 @@
       <xs:complexType name="ApiShopsMatchPhotosResponse">
         <xs:sequence>
           <xs:element minOccurs="1" name="matches" type="xs:string" />
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="ApiShopsOrdersRefund409Error1">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="error" type="xs:string">
+            <xs:annotation>
+              <xs:documentation>A sentence you can show to a person.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element minOccurs="0" name="field" type="xs:string">
+            <xs:annotation>
+              <xs:documentation>The form field at fault, when there is one.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element minOccurs="0" name="detail" type="xs:string">
+            <xs:annotation>
+              <xs:documentation>The upstream service's own message, for debugging.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element minOccurs="0" name="refundInPayPal" type="xs:boolean">
+            <xs:annotation>
+              <xs:documentation>Refund it in PayPal yourself, then call again with `record: true`.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="ApiShopsOrdersRefundRequest">
+        <xs:sequence>
+          <xs:element minOccurs="0" default="false" name="record" type="xs:boolean">
+            <xs:annotation>
+              <xs:documentation>`true`: don't contact PayPal, just record that the seller refunded it themselves.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="ApiShopsOrdersRefundResponse">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="ok" type="xs:boolean" />
+          <xs:element minOccurs="0" name="refundId" nillable="true" type="xs:string">
+            <xs:annotation>
+              <xs:documentation>PayPal's refund id; null when `record` was used.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
         </xs:sequence>
       </xs:complexType>
       <xs:complexType name="ApiShopsOrdersShipRequest">
@@ -1135,7 +1217,7 @@
       </xs:simpleType>
       <xs:simpleType name="Channel">
         <xs:annotation>
-          <xs:documentation>`agent` for orders an AI agent placed through the MCP server.</xs:documentation>
+          <xs:documentation>`agent` for orders an AI agent placed (MCP or an order link).</xs:documentation>
         </xs:annotation>
         <xs:restriction base="xs:string">
           <xs:enumeration value="web" />
@@ -1191,6 +1273,7 @@
         <xs:restriction base="xs:string">
           <xs:enumeration value="order.paid" />
           <xs:enumeration value="order.shipped" />
+          <xs:enumeration value="order.refunded" />
         </xs:restriction>
       </xs:simpleType>
       <xs:complexType name="Fact">
@@ -1501,6 +1584,7 @@
           <xs:enumeration value="created" />
           <xs:enumeration value="paid" />
           <xs:enumeration value="failed" />
+          <xs:enumeration value="refunded" />
         </xs:restriction>
       </xs:simpleType>
       <xs:simpleType name="Status6">
@@ -1536,6 +1620,11 @@
           </xs:element>
         </xs:sequence>
       </xs:complexType>
+      <xs:simpleType name="view">
+        <xs:restriction base="xs:string">
+          <xs:enumeration value="json" />
+        </xs:restriction>
+      </xs:simpleType>
       <xs:complexType name="POST_signIn_InputMessage">
         <xs:sequence>
           <xs:element minOccurs="1" fixed="application/json" name="Content-Type" type="xs:string" />
@@ -1694,6 +1783,15 @@
           </xs:element>
         </xs:sequence>
       </xs:complexType>
+      <xs:complexType name="POST_createShop_429">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="response429" type="schemas:Error">
+            <xs:annotation>
+              <xs:documentation>Over this network's cap for the call (see **Limits**). Retry after `Retry-After` seconds.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
       <xs:complexType name="GET_getShop_InputMessage">
         <xs:sequence>
           <xs:element minOccurs="1" name="slug" type="xs:string">
@@ -1806,6 +1904,15 @@
           </xs:element>
         </xs:sequence>
       </xs:complexType>
+      <xs:complexType name="POST_refineShopDesign_429">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="response429" type="schemas:Error">
+            <xs:annotation>
+              <xs:documentation>Over this network's cap for the call (see **Limits**). Retry after `Retry-After` seconds.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
       <xs:complexType name="POST_regenerateHeroArt_InputMessage">
         <xs:sequence>
           <xs:element minOccurs="1" name="slug" type="xs:string">
@@ -1838,6 +1945,15 @@
           <xs:element minOccurs="1" name="response404" type="schemas:Error">
             <xs:annotation>
               <xs:documentation>No such shop, or the admin token or API key doesn't match it.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="POST_regenerateHeroArt_429">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="response429" type="schemas:Error">
+            <xs:annotation>
+              <xs:documentation>Over this network's cap for the call (see **Limits**). Retry after `Retry-After` seconds.</xs:documentation>
             </xs:annotation>
           </xs:element>
         </xs:sequence>
@@ -2007,6 +2123,15 @@
           </xs:element>
         </xs:sequence>
       </xs:complexType>
+      <xs:complexType name="POST_checkMissingDetails_429">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="response429" type="schemas:Error">
+            <xs:annotation>
+              <xs:documentation>Over this network's cap for the call (see **Limits**). Retry after `Retry-After` seconds.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
       <xs:complexType name="POST_matchColorPhotos_InputMessage">
         <xs:sequence>
           <xs:element minOccurs="1" name="slug" type="xs:string">
@@ -2050,6 +2175,15 @@
           <xs:element minOccurs="1" name="response502" type="schemas:Error">
             <xs:annotation>
               <xs:documentation>Gemini, PayPal or Channel3 failed or isn't configured.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="POST_matchColorPhotos_429">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="response429" type="schemas:Error">
+            <xs:annotation>
+              <xs:documentation>Over this network's cap for the call (see **Limits**). Retry after `Retry-After` seconds.</xs:documentation>
             </xs:annotation>
           </xs:element>
         </xs:sequence>
@@ -2362,6 +2496,15 @@
           </xs:element>
         </xs:sequence>
       </xs:complexType>
+      <xs:complexType name="POST_createCheckoutOrder_429">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="response429" type="schemas:Error">
+            <xs:annotation>
+              <xs:documentation>Over this network's cap for the call (see **Limits**). Retry after `Retry-After` seconds.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
       <xs:complexType name="POST_captureCheckoutOrder_InputMessage">
         <xs:sequence>
           <xs:element minOccurs="1" name="paypalOrderId" type="xs:string">
@@ -2515,6 +2658,49 @@
           <xs:element minOccurs="1" name="response404" type="schemas:Error">
             <xs:annotation>
               <xs:documentation>No such shop, or the admin token or API key doesn't match it.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="POST_refundOrder_InputMessage">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="slug" type="xs:string">
+            <xs:annotation>
+              <xs:documentation>The shop's link name (current or former).</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element minOccurs="1" name="orderId" type="xs:string">
+            <xs:annotation>
+              <xs:documentation>OneThing's order id (`Order.id`).</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element minOccurs="1" fixed="application/json" name="Content-Type" type="xs:string" />
+          <xs:element minOccurs="0" name="body" type="schemas:ApiShopsOrdersRefundRequest" />
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="POST_refundOrder_OutputMessage">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="response200" type="schemas:ApiShopsOrdersRefundResponse">
+            <xs:annotation>
+              <xs:documentation>Refunded.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="POST_refundOrder_404">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="response404" type="schemas:Error">
+            <xs:annotation>
+              <xs:documentation>No such shop or order, or the token doesn't match the shop.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="POST_refundOrder_409">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="response409" type="schemas:ApiShopsOrdersRefund409Error1">
+            <xs:annotation>
+              <xs:documentation>Not refundable here; `error` says why.</xs:documentation>
             </xs:annotation>
           </xs:element>
         </xs:sequence>
@@ -2694,11 +2880,29 @@
           </xs:element>
         </xs:sequence>
       </xs:complexType>
+      <xs:complexType name="GET_orderByLink_403">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="response403" type="schemas:Error">
+            <xs:annotation>
+              <xs:documentation>A known crawler or link previewer. They don't place orders.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
       <xs:complexType name="GET_orderByLink_404">
         <xs:sequence>
           <xs:element minOccurs="1" name="response404" type="schemas:Error">
             <xs:annotation>
               <xs:documentation>No live shop with that link name.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="GET_orderByLink_429">
+        <xs:sequence>
+          <xs:element minOccurs="1" name="response429" type="schemas:Error">
+            <xs:annotation>
+              <xs:documentation>Over this network's cap for the call (see **Limits**). Retry after `Retry-After` seconds.</xs:documentation>
             </xs:annotation>
           </xs:element>
         </xs:sequence>
@@ -2756,6 +2960,11 @@
                 <xs:maxLength value="30" />
               </xs:restriction>
             </xs:simpleType>
+          </xs:element>
+          <xs:element minOccurs="0" name="view" type="schemas:view">
+            <xs:annotation>
+              <xs:documentation>`json` keeps the JSON for a person opening the link in a browser.</xs:documentation>
+            </xs:annotation>
           </xs:element>
         </xs:sequence>
       </xs:complexType>
@@ -2866,6 +3075,9 @@
   <message name="POST_createShop_502">
     <part name="POST_createShop_502" element="schemas:POST_createShop_502" />
   </message>
+  <message name="POST_createShop_429">
+    <part name="POST_createShop_429" element="schemas:POST_createShop_429" />
+  </message>
   <message name="GET_getShop_InputMessage">
     <part name="GET_getShop_InputMessage" element="schemas:GET_getShop_InputMessage" />
   </message>
@@ -2902,6 +3114,9 @@
   <message name="POST_refineShopDesign_502">
     <part name="POST_refineShopDesign_502" element="schemas:POST_refineShopDesign_502" />
   </message>
+  <message name="POST_refineShopDesign_429">
+    <part name="POST_refineShopDesign_429" element="schemas:POST_refineShopDesign_429" />
+  </message>
   <message name="POST_regenerateHeroArt_InputMessage">
     <part name="POST_regenerateHeroArt_InputMessage" element="schemas:POST_regenerateHeroArt_InputMessage" />
   </message>
@@ -2913,6 +3128,9 @@
   </message>
   <message name="POST_regenerateHeroArt_404">
     <part name="POST_regenerateHeroArt_404" element="schemas:POST_regenerateHeroArt_404" />
+  </message>
+  <message name="POST_regenerateHeroArt_429">
+    <part name="POST_regenerateHeroArt_429" element="schemas:POST_regenerateHeroArt_429" />
   </message>
   <message name="POST_uploadDigitalFile_InputMessage">
     <part name="POST_uploadDigitalFile_InputMessage" element="schemas:POST_uploadDigitalFile_InputMessage" />
@@ -2965,6 +3183,9 @@
   <message name="POST_checkMissingDetails_502">
     <part name="POST_checkMissingDetails_502" element="schemas:POST_checkMissingDetails_502" />
   </message>
+  <message name="POST_checkMissingDetails_429">
+    <part name="POST_checkMissingDetails_429" element="schemas:POST_checkMissingDetails_429" />
+  </message>
   <message name="POST_matchColorPhotos_InputMessage">
     <part name="POST_matchColorPhotos_InputMessage" element="schemas:POST_matchColorPhotos_InputMessage" />
   </message>
@@ -2979,6 +3200,9 @@
   </message>
   <message name="POST_matchColorPhotos_502">
     <part name="POST_matchColorPhotos_502" element="schemas:POST_matchColorPhotos_502" />
+  </message>
+  <message name="POST_matchColorPhotos_429">
+    <part name="POST_matchColorPhotos_429" element="schemas:POST_matchColorPhotos_429" />
   </message>
   <message name="PUT_setColorPhotos_InputMessage">
     <part name="PUT_setColorPhotos_InputMessage" element="schemas:PUT_setColorPhotos_InputMessage" />
@@ -3082,6 +3306,9 @@
   <message name="POST_createCheckoutOrder_503">
     <part name="POST_createCheckoutOrder_503" element="schemas:POST_createCheckoutOrder_503" />
   </message>
+  <message name="POST_createCheckoutOrder_429">
+    <part name="POST_createCheckoutOrder_429" element="schemas:POST_createCheckoutOrder_429" />
+  </message>
   <message name="POST_captureCheckoutOrder_InputMessage">
     <part name="POST_captureCheckoutOrder_InputMessage" element="schemas:POST_captureCheckoutOrder_InputMessage" />
   </message>
@@ -3133,6 +3360,18 @@
   <message name="POST_markOrderShipped_404">
     <part name="POST_markOrderShipped_404" element="schemas:POST_markOrderShipped_404" />
   </message>
+  <message name="POST_refundOrder_InputMessage">
+    <part name="POST_refundOrder_InputMessage" element="schemas:POST_refundOrder_InputMessage" />
+  </message>
+  <message name="POST_refundOrder_OutputMessage">
+    <part name="POST_refundOrder_OutputMessage" element="schemas:POST_refundOrder_OutputMessage" />
+  </message>
+  <message name="POST_refundOrder_404">
+    <part name="POST_refundOrder_404" element="schemas:POST_refundOrder_404" />
+  </message>
+  <message name="POST_refundOrder_409">
+    <part name="POST_refundOrder_409" element="schemas:POST_refundOrder_409" />
+  </message>
   <message name="GET_listWebhookEvents_InputMessage">
     <part name="GET_listWebhookEvents_InputMessage" element="schemas:GET_listWebhookEvents_InputMessage" />
   </message>
@@ -3181,8 +3420,14 @@
   <message name="GET_orderByLink_400">
     <part name="GET_orderByLink_400" element="schemas:GET_orderByLink_400" />
   </message>
+  <message name="GET_orderByLink_403">
+    <part name="GET_orderByLink_403" element="schemas:GET_orderByLink_403" />
+  </message>
   <message name="GET_orderByLink_404">
     <part name="GET_orderByLink_404" element="schemas:GET_orderByLink_404" />
+  </message>
+  <message name="GET_orderByLink_429">
+    <part name="GET_orderByLink_429" element="schemas:GET_orderByLink_429" />
   </message>
   <message name="GET_getAgentOrder_InputMessage">
     <part name="GET_getAgentOrder_InputMessage" element="schemas:GET_getAgentOrder_InputMessage" />
@@ -3278,6 +3523,9 @@ platform's sellers, so it inherits nothing from the account: set `paypal_email` 
       <fault name="POST_createShop_502" message="wsdl:POST_createShop_502">
         <documentation>Gemini, PayPal or Channel3 failed or isn't configured.</documentation>
       </fault>
+      <fault name="POST_createShop_429" message="wsdl:POST_createShop_429">
+        <documentation>Over this network's cap for the call (see **Limits**). Retry after `Retry-After` seconds.</documentation>
+      </fault>
     </operation>
     <operation name="GET_getShop">
       <documentation>Everything about the shop, including the AI's design spec and guesses.</documentation>
@@ -3320,6 +3568,9 @@ access codes, `access_url`) first.
       <fault name="POST_refineShopDesign_502" message="wsdl:POST_refineShopDesign_502">
         <documentation>Gemini, PayPal or Channel3 failed or isn't configured.</documentation>
       </fault>
+      <fault name="POST_refineShopDesign_429" message="wsdl:POST_refineShopDesign_429">
+        <documentation>Over this network's cap for the call (see **Limits**). Retry after `Retry-After` seconds.</documentation>
+      </fault>
     </operation>
     <operation name="POST_regenerateHeroArt">
       <documentation>Starts generation in the background. Poll `getShop` for `hero_status`.</documentation>
@@ -3332,6 +3583,9 @@ access codes, `access_url`) first.
       </fault>
       <fault name="POST_regenerateHeroArt_404" message="wsdl:POST_regenerateHeroArt_404">
         <documentation>No such shop, or the admin token or API key doesn't match it.</documentation>
+      </fault>
+      <fault name="POST_regenerateHeroArt_429" message="wsdl:POST_regenerateHeroArt_429">
+        <documentation>Over this network's cap for the call (see **Limits**). Retry after `Retry-After` seconds.</documentation>
       </fault>
     </operation>
     <operation name="POST_uploadDigitalFile">
@@ -3394,6 +3648,9 @@ Nothing changes on the shop page until the seller confirms: save options with `u
       <fault name="POST_checkMissingDetails_502" message="wsdl:POST_checkMissingDetails_502">
         <documentation>Gemini, PayPal or Channel3 failed or isn't configured.</documentation>
       </fault>
+      <fault name="POST_checkMissingDetails_429" message="wsdl:POST_checkMissingDetails_429">
+        <documentation>Over this network's cap for the call (see **Limits**). Retry after `Retry-After` seconds.</documentation>
+      </fault>
     </operation>
     <operation name="POST_matchColorPhotos">
       <documentation>Gemini looks at the shop's photos and says which one shows each colour, so buyers who pick a colour see it. Suggests only; save the matches with `setColorPhotos`. Needs at least two photos.</documentation>
@@ -3409,6 +3666,9 @@ Nothing changes on the shop page until the seller confirms: save options with `u
       </fault>
       <fault name="POST_matchColorPhotos_502" message="wsdl:POST_matchColorPhotos_502">
         <documentation>Gemini, PayPal or Channel3 failed or isn't configured.</documentation>
+      </fault>
+      <fault name="POST_matchColorPhotos_429" message="wsdl:POST_matchColorPhotos_429">
+        <documentation>Over this network's cap for the call (see **Limits**). Retry after `Retry-After` seconds.</documentation>
       </fault>
     </operation>
     <operation name="PUT_setColorPhotos">
@@ -3537,6 +3797,9 @@ If the shop has buyer `options`, send one value for each. A sold-out combination
       <fault name="POST_createCheckoutOrder_503" message="wsdl:POST_createCheckoutOrder_503">
         <documentation>Gemini, PayPal or Channel3 failed or isn't configured.</documentation>
       </fault>
+      <fault name="POST_createCheckoutOrder_429" message="wsdl:POST_createCheckoutOrder_429">
+        <documentation>Over this network's cap for the call (see **Limits**). Retry after `Retry-After` seconds.</documentation>
+      </fault>
     </operation>
     <operation name="POST_captureCheckoutOrder">
       <documentation>Call after the buyer approves. Records the sale; digital orders get a download link or access code.
@@ -3598,6 +3861,19 @@ link names, and codes typed loosely (lower case, spaces, no dashes).
         <documentation>No such shop, or the admin token or API key doesn't match it.</documentation>
       </fault>
     </operation>
+    <operation name="POST_refundOrder">
+      <documentation>Refunds the whole payment through PayPal and marks the order `refunded`. When PayPal only lets the paid account refund it (the money went to a PayPal email the seller typed in, not a connected account), the reply is a 409 with `refundInPayPal: true`. Refund it in your PayPal account, then call this again with `{"record": true}`, which only marks it refunded here. Sends the `order.refunded` event to the shop's Zapier hook.</documentation>
+      <input message="wsdl:POST_refundOrder_InputMessage" />
+      <output message="wsdl:POST_refundOrder_OutputMessage">
+        <documentation>Refunded.</documentation>
+      </output>
+      <fault name="POST_refundOrder_404" message="wsdl:POST_refundOrder_404">
+        <documentation>No such shop or order, or the token doesn't match the shop.</documentation>
+      </fault>
+      <fault name="POST_refundOrder_409" message="wsdl:POST_refundOrder_409">
+        <documentation>Not refundable here; `error` says why.</documentation>
+      </fault>
+    </operation>
     <operation name="GET_listWebhookEvents">
       <documentation>The last 50 PayPal webhook deliveries about this shop's orders, with signature results.</documentation>
       <input message="wsdl:GET_listWebhookEvents_InputMessage" />
@@ -3636,7 +3912,7 @@ link names, and codes typed loosely (lower case, spaces, no dashes).
       </fault>
     </operation>
     <operation name="GET_listAgentShops">
-      <documentation>The gallery's live shops, newest first, filtered by keywords (every word must appear in the name or headline). The GET twin of the MCP `search_shops` tool, for agents that can only fetch URLs. Public. Read a shop with `getAgentProduct`; buy through the MCP server in `mcp_server`, or send the buyer to the shop's `url`.</documentation>
+      <documentation>The gallery's live shops for a query: shops matching more of its words first, newest first among equals. Browsing words ("something interesting to buy") are ignored, and a query that matches nothing returns the newest shops with `matched: false` rather than an empty list. The GET twin of the MCP `search_shops` tool, for agents that can only fetch URLs. Public. Read a shop with `getAgentProduct`; buy through the MCP server in `mcp_server`, or send the buyer to the shop's `url`.</documentation>
       <input message="wsdl:GET_listAgentShops_InputMessage" />
       <output message="wsdl:GET_listAgentShops_OutputMessage">
         <documentation>The matching shops.</documentation>
@@ -3654,9 +3930,14 @@ regard to case. You rarely build this URL yourself: `getAgentProduct` and `/llms
 write it out in full (`order_url`, or `variants[].order_url`), because some assistants
 only open URLs they have been shown.
 
-Every request makes a new order, so open it once, after the buyer says to buy. A link
-previewer opening it leaves an unpaid order at most: stock is only taken when a payment
-is captured. Replies are `no-store` and `X-Robots-Tag: noindex, nofollow`.
+Every request makes a new order, so open it once, after the buyer says to buy. Known
+crawlers and link previewers get a 403 (and are kept out by `robots.txt`); any other
+leaves an unpaid order at most, since stock is only taken when a payment is captured.
+Replies are `no-store` and `X-Robots-Tag: noindex, nofollow`.
+
+`/&lt;slug&gt;/buy` is the same endpoint at a short URL, and the one `order_url` uses.
+A person clicking the link in a browser (`Sec-Fetch-User: ?1`) is redirected instead; known assistants and headless browsers always get JSON. It goes straight to `pay_url`, or to the shop page when an option is missing
+or unknown.
 </documentation>
       <input message="wsdl:GET_orderByLink_InputMessage" />
       <output message="wsdl:GET_orderByLink_OutputMessage">
@@ -3665,12 +3946,18 @@ is captured. Replies are `no-store` and `X-Robots-Tag: noindex, nofollow`.
       <fault name="GET_orderByLink_400" message="wsdl:GET_orderByLink_400">
         <documentation>A missing or unknown option value, or sold out. `error` names the valid values.</documentation>
       </fault>
+      <fault name="GET_orderByLink_403" message="wsdl:GET_orderByLink_403">
+        <documentation>A known crawler or link previewer. They don't place orders.</documentation>
+      </fault>
       <fault name="GET_orderByLink_404" message="wsdl:GET_orderByLink_404">
         <documentation>No live shop with that link name.</documentation>
       </fault>
+      <fault name="GET_orderByLink_429" message="wsdl:GET_orderByLink_429">
+        <documentation>Over this network's cap for the call (see **Limits**). Retry after `Retry-After` seconds.</documentation>
+      </fault>
     </operation>
     <operation name="GET_getAgentOrder">
-      <documentation>Where an order stands and, once paid, what the buyer got: the access code, the download link, or the shipping address and tracking. The GET twin of the MCP `get_order` tool (and the `status_url` that `create_order` returns), for agents that can only fetch URLs. Public: anyone with the order id can already open its thank-you page. If the buyer has approved at PayPal but nothing has captured the payment yet, this captures it.</documentation>
+      <documentation>Where an order stands and, once paid, what the buyer got: the access code, the download link, or the shipping address and tracking. The GET twin of the MCP `get_order` tool (and the `status_url` that `create_order` returns), for agents that can only fetch URLs. Public: anyone with the order id can already open its thank-you page. If the buyer has approved at PayPal but nothing has captured the payment yet, this captures it. `/o/&lt;order_id&gt;/status` is the same endpoint at a short URL, and the one `status_url` uses. A person clicking the link in a browser (`Sec-Fetch-User: ?1`) is redirected instead; known assistants and headless browsers always get JSON. It goes to the order's receipt page.</documentation>
       <input message="wsdl:GET_getAgentOrder_InputMessage" />
       <output message="wsdl:GET_getAgentOrder_OutputMessage">
         <documentation>The order.</documentation>
@@ -3680,7 +3967,7 @@ is captured. Replies are `no-store` and `X-Robots-Tag: noindex, nofollow`.
       </fault>
     </operation>
     <operation name="GET_getAgentProduct">
-      <documentation>Everything an AI shopping agent needs to describe the product and decide to buy it: price, shipping, delivery, availability, options, images and FAQ. Public. Buying goes through the MCP server named in `mcp_server`. Shop pages also carry the same facts as schema.org `Product` JSON-LD.</documentation>
+      <documentation>Everything an AI shopping agent needs to describe the product and decide to buy it: price, shipping, delivery, availability, options, images and FAQ. Public. Buying goes through the MCP server named in `mcp_server`, or the `order_url` links. Shop pages also carry the same facts as schema.org `Product` JSON-LD. A person clicking the link in a browser (`Sec-Fetch-User: ?1`) is redirected instead; known assistants and headless browsers always get JSON. It goes to the shop page, unless the link has `?view=json`.</documentation>
       <input message="wsdl:GET_getAgentProduct_InputMessage" />
       <output message="wsdl:GET_getAgentProduct_OutputMessage">
         <documentation>The product.</documentation>
@@ -3697,11 +3984,13 @@ plain JSON reply, with no event stream. The `initialize` reply's `Mcp-Session-Id
 carries the client's `clientInfo.name`; send it back on later requests (MCP clients do)
 so the seller's stats show which agent sent the buyer. Nothing else is kept.
 
-Methods: `initialize`, `ping`, `tools/list`, `tools/call`. Tools:
+Methods: `initialize`, `ping`, `tools/list`, `tools/call`, and `resources/list`,
+`resources/templates/list` and `resources/read` for the product card. Each tool carries
+`annotations` (only `create_order` isn't `readOnlyHint`). Tools:
 
 | Tool | Arguments | What it does |
 |---|---|---|
-| `search_shops` | `query?`, `limit?` (1–25) | Live gallery shops whose name or headline has every word |
+| `search_shops` | `query?`, `limit?` (1–25) | Live gallery shops, best match first; no match returns the newest with `matched: false` |
 | `get_product` | `shop` | The same object as `getAgentProduct` |
 | `create_order` | `shop`, `options?` | One unit on order; returns `order_id` and `pay_url` |
 | `get_order` | `order_id` | Status and `next_step`; once paid, the receipt and `delivery` |
@@ -3719,8 +4008,14 @@ A paid order carries `delivery`: `{type: access_code, access_code, start_url?}`,
 `amount` with item, shipping and total. Orders made this way show `channel: agent` in
 `listOrders`.
 
-Tool errors (an unknown shop, a sold-out size) come back as results with `isError: true`,
-so the model can read them and try something else.
+**The product card.** Hosts that draw MCP Apps UI (ChatGPT, or a client that declares the
+`io.modelcontextprotocol/ui` extension) get `search_shops`, `get_product` and
+`create_order` results as a card with the real photos, options and a Pay with PayPal button
+(`ui://onething/shop-card-v1.html`). For them `show_buyer` is a one-line note rather than
+Markdown, so the model doesn't repeat or invent what the card shows.
+
+Tool errors (an unknown shop, a sold-out size, over the checkout cap) come back as results
+with `isError: true`, so the model can read them and try something else.
 </documentation>
       <input message="wsdl:POST_callMcp_InputMessage" />
       <output message="wsdl:POST_callMcp_OutputMessage">
@@ -3790,6 +4085,9 @@ so the model can read them and try something else.
       <fault name="POST_createShop_502">
         <soap:fault use="literal" name="POST_createShop_502" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
       </fault>
+      <fault name="POST_createShop_429">
+        <soap:fault use="literal" name="POST_createShop_429" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+      </fault>
     </operation>
     <operation name="GET_getShop">
       <soap:operation soapAction="GET_getShop" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
@@ -3835,6 +4133,9 @@ so the model can read them and try something else.
       <fault name="POST_refineShopDesign_502">
         <soap:fault use="literal" name="POST_refineShopDesign_502" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
       </fault>
+      <fault name="POST_refineShopDesign_429">
+        <soap:fault use="literal" name="POST_refineShopDesign_429" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+      </fault>
     </operation>
     <operation name="POST_regenerateHeroArt">
       <soap:operation soapAction="POST_regenerateHeroArt" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
@@ -3849,6 +4150,9 @@ so the model can read them and try something else.
       </fault>
       <fault name="POST_regenerateHeroArt_404">
         <soap:fault use="literal" name="POST_regenerateHeroArt_404" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+      </fault>
+      <fault name="POST_regenerateHeroArt_429">
+        <soap:fault use="literal" name="POST_regenerateHeroArt_429" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
       </fault>
     </operation>
     <operation name="POST_uploadDigitalFile">
@@ -3913,6 +4217,9 @@ so the model can read them and try something else.
       <fault name="POST_checkMissingDetails_502">
         <soap:fault use="literal" name="POST_checkMissingDetails_502" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
       </fault>
+      <fault name="POST_checkMissingDetails_429">
+        <soap:fault use="literal" name="POST_checkMissingDetails_429" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+      </fault>
     </operation>
     <operation name="POST_matchColorPhotos">
       <soap:operation soapAction="POST_matchColorPhotos" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
@@ -3930,6 +4237,9 @@ so the model can read them and try something else.
       </fault>
       <fault name="POST_matchColorPhotos_502">
         <soap:fault use="literal" name="POST_matchColorPhotos_502" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+      </fault>
+      <fault name="POST_matchColorPhotos_429">
+        <soap:fault use="literal" name="POST_matchColorPhotos_429" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
       </fault>
     </operation>
     <operation name="PUT_setColorPhotos">
@@ -4057,6 +4367,9 @@ so the model can read them and try something else.
       <fault name="POST_createCheckoutOrder_503">
         <soap:fault use="literal" name="POST_createCheckoutOrder_503" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
       </fault>
+      <fault name="POST_createCheckoutOrder_429">
+        <soap:fault use="literal" name="POST_createCheckoutOrder_429" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+      </fault>
     </operation>
     <operation name="POST_captureCheckoutOrder">
       <soap:operation soapAction="POST_captureCheckoutOrder" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
@@ -4119,6 +4432,21 @@ so the model can read them and try something else.
       </fault>
       <fault name="POST_markOrderShipped_404">
         <soap:fault use="literal" name="POST_markOrderShipped_404" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+      </fault>
+    </operation>
+    <operation name="POST_refundOrder">
+      <soap:operation soapAction="POST_refundOrder" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+      <input>
+        <soap:body use="literal" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+      </input>
+      <output>
+        <soap:body use="literal" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+      </output>
+      <fault name="POST_refundOrder_404">
+        <soap:fault use="literal" name="POST_refundOrder_404" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+      </fault>
+      <fault name="POST_refundOrder_409">
+        <soap:fault use="literal" name="POST_refundOrder_409" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
       </fault>
     </operation>
     <operation name="GET_listWebhookEvents">
@@ -4186,8 +4514,14 @@ so the model can read them and try something else.
       <fault name="GET_orderByLink_400">
         <soap:fault use="literal" name="GET_orderByLink_400" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
       </fault>
+      <fault name="GET_orderByLink_403">
+        <soap:fault use="literal" name="GET_orderByLink_403" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+      </fault>
       <fault name="GET_orderByLink_404">
         <soap:fault use="literal" name="GET_orderByLink_404" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
+      </fault>
+      <fault name="GET_orderByLink_429">
+        <soap:fault use="literal" name="GET_orderByLink_429" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" />
       </fault>
     </operation>
     <operation name="GET_getAgentOrder">
@@ -4262,7 +4596,12 @@ before unlocking. Raptor Rush on miriogames.com is a live example.
 `/api/mcp` with `search_shops`, `get_product`, `create_order` and `get_order`, and the same
 four as plain GETs for assistants that can only fetch URLs (`listAgentShops`,
 `getAgentProduct`, `orderByLink`, `getAgentOrder`), with `/llms.txt` as the starting point.
+Order and status links also have short forms, `/&lt;slug&gt;/buy` and `/o/&lt;order_id&gt;/status`.
 An agent can find and order, but the buyer still approves every payment at PayPal.
+
+**Limits.** Calls that cost something are capped per network: 120 checkouts per 10 minutes,
+10 new shops an hour and 60 AI requests an hour. Over the cap the reply is a 429 with
+`Retry-After`.
 
 All money moves through PayPal (sandbox in this deployment). OneThing never holds card data.
 </documentation>

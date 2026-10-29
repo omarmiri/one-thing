@@ -15,6 +15,7 @@ Source: /#/python/x-redirect/JTI0bSUyRlN0YXR1czQ
 | `CREATED` |
 | `PAID` |
 | `FAILED` |
+| `REFUNDED` |
 
 
 # Example

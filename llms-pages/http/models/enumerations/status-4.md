@@ -10,6 +10,7 @@ Source: /#/http/x-redirect/JTI0bSUyRlN0YXR1czQ
 | `created` |
 | `paid` |
 | `failed` |
+| `refunded` |
 
 
 
