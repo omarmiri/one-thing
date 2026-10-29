@@ -48,5 +48,20 @@
         }
       }
     }
+  },
+  "apiCopilotConfig": {
+    "isEnabled": true,
+    "key": "ae7006fb-3f66-4dec-bf23-816ce3465697",
+    "welcomeMessage": "Hi there! I'm your API Integration Assistant, here to help you learn and integrate with this API.\n\nAsk me anything about this API or try one of these example prompts:\n\n- `What authentication methods does this API support?`\n- `What is this API about?`\n"
+  },
+  "recipes": {
+    "workflows": [
+      {
+        "name": "An AI agent buys a product",
+        "permalink": "page:recipes/AnAiAgentBuysAProduct",
+        "functionName": "AnAiAgentBuysAProduct",
+        "scriptPath": "./static/scripts/recipes/AnAiAgentBuysAProduct.js"
+      }
+    ]
   }
 }

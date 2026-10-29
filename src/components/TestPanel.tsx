@@ -254,8 +254,8 @@ const promptFor = (isShop: boolean, origin: string, path: string) =>
 
 /**
  * A "Test Panel" tab on the screen edge for judges and testers: buy through an AI assistant,
- * pay in the PayPal sandbox, find the agent endpoints, and watch the page's API calls. It only
- * shows in test mode (the footer switch, or ?test=1), and then on every page but the admin ones.
+ * pay in the PayPal sandbox, find the agent endpoints, and watch the page's API calls. It shows in
+ * test mode (on by default; the footer switch or ?test=0 turns it off), on every page but the admin ones.
  * Drag the grip to move it along an edge or to another one; « opens it. Its place is remembered
  * in this browser only.
  */

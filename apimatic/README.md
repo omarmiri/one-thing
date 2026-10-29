@@ -6,8 +6,9 @@
 |---|---|
 | `src/spec/openapi.yaml` | The OneThing API (OpenAPI 3.1). Also served live at `/openapi.yaml`. |
 | `src/spec/APIMATIC-META.json` | Code generation settings |
-| `src/APIMATIC-BUILD.json` | Portal settings: title, colours, SDK languages (TypeScript, Python, HTTP) |
-| `src/content/` | Hand-written guides and the portal's table of contents |
+| `src/APIMATIC-BUILD.json` | Portal settings: title, colours, SDK languages (TypeScript, Python, HTTP), API Copilot (the "Ask AI" chat, set with `apimatic portal copilot`) and recipes |
+| `src/content/` | Hand-written guides, the recipe page and the portal's table of contents |
+| `src/static/scripts/recipes/` | The API Recipe "An AI agent buys a product": a guided walkthrough whose steps call the live agent endpoints. Registered under `recipes` in `APIMATIC-BUILD.json` |
 
 ## Generate
 
@@ -27,7 +28,7 @@ Output (`portal/`, `sdk/`, `plugin/`) is git-ignored; regenerate it from `src/`.
 The portal is published at https://omarmiri.github.io/one-thing/ from the `gh-pages` branch,
 which holds only the contents of `portal/` (without `apimatic-debug/`) plus an empty `.nojekyll`.
 To republish after a spec change, run `apimatic portal generate --force` and push a fresh commit
-of that folder to `gh-pages`. Its "Try it" calls work because `src/proxy.ts` allows CORS from that origin on `/api/*`.
+of that folder to `gh-pages`. Its "Try it" calls (and the recipe's steps) work because `src/proxy.ts` allows CORS from that origin on `/api/*`.
 
 When you change an API route in `src/app/api/`, update `src/spec/openapi.yaml` in the same
 commit, then run `apimatic api validate --file=src/spec/openapi.yaml` from `apimatic/`.

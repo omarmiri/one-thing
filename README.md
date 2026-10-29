@@ -277,10 +277,11 @@ Every live shop is agent-ready:
   engines already read.
 
 **Test Panel** ([src/components/TestPanel.tsx](src/components/TestPanel.tsx)): a small "Test Panel" tab on the
-screen edge, shown only in **test mode**: a "Test mode" switch in the footer of the home page, the gallery and
-every shop, or `?test=1` on any link (`?test=0` turns it off). The choice is kept in the browser
-(`localStorage`), so normal visitors never see the panel and the page design stays as it is. In test mode it
-shows on every page but the admin ones, including `/new` and the manage page. Its **API log** tab lists every
+screen edge, shown in **test mode**. Test mode is on by default, with the panel closed, so judges find it
+without looking (this is a sandbox demo). The "Test mode" switch in the footer of the home page, the gallery
+and every shop turns it off, as does `?test=0` on any link; `?test=1` turns it back on and opens the panel. The
+choice is kept in the browser (`localStorage`), and with the panel closed the page design stays as it is. In test
+mode it shows on every page but the admin ones, including `/new` and the manage page. Its **API log** tab lists every
 call the page makes to our `/api/*` (method, path, status, time, and the request and response with tokens
 masked), each matched to its operation in `/openapi.yaml` and linked to that page in the APIMatic docs: the site
 runs on the same API it documents. It wraps `window.fetch` while test mode is on and keeps the last 40 calls in
@@ -313,7 +314,10 @@ valid. The image below recreates that session ([source](docs/muse-checkout-demo.
 - **SDKs and a docs portal** generated with APIMatic (TypeScript and Python), published at
   [omarmiri.github.io/one-thing](https://omarmiri.github.io/one-thing/). See
   [apimatic/README.md](apimatic/README.md). It includes the agent endpoints (product JSON and the
-  MCP server, with a "Let AI agents buy" guide), buyer options and Connect PayPal.
+  MCP server, with a "Let AI agents buy" guide), buyer options and Connect PayPal. It also has
+  APIMatic's **API Copilot** (an "Ask AI" chat trained on the docs and SDKs) and an **API Recipe**,
+  [An AI agent buys a product](https://omarmiri.github.io/one-thing/#/http/api-recipes/an-ai-agent-buys-a-product):
+  a guided walkthrough that makes an agent's four calls against the live sandbox, one step at a time.
 - **Postman collection:** [postman/one-thing.postman_collection.json](postman/one-thing.postman_collection.json),
   with Seller, Buyer and Agents (MCP) folders.
 - **Platform API keys** for marketplaces that make shops for their own sellers:

@@ -21,6 +21,10 @@ toc:
         file: guides/access-codes.md
       - page: Let AI agents buy
         file: guides/agents.md
+  - group: API Recipes
+    items:
+      - page: An AI agent buys a product
+        file: recipes/AnAiAgentBuysAProduct.md
   - generate: API Endpoints
     from: endpoints
   - group: Events

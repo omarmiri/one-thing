@@ -2,8 +2,9 @@
 
 import { useSyncExternalStore } from "react";
 
-// Test mode: a per-browser switch (footer of the home page, gallery and shops, or ?test=1 on any
-// link) that shows the Test Panel and records the page's API calls for its API log.
+// Test mode: a per-browser switch (footer of the home page, gallery and shops, or ?test=1 / ?test=0
+// on any link) that shows the Test Panel and records the page's API calls for its API log. It's on
+// by default, with the panel closed, so judges find the panel without looking for the switch.
 
 const KEY = "onething-test-mode";
 const CHANGED = "onething-test-mode";
@@ -12,9 +13,9 @@ export const OPEN_PANEL = "onething-test-panel:open";
 
 const read = () => {
   try {
-    return localStorage.getItem(KEY) === "1";
+    return localStorage.getItem(KEY) !== "0";
   } catch {
-    return false;
+    return true;
   }
 };
 
@@ -31,8 +32,7 @@ export const isTestMode = read;
 
 export function setTestMode(on: boolean) {
   try {
-    if (on) localStorage.setItem(KEY, "1");
-    else localStorage.removeItem(KEY);
+    localStorage.setItem(KEY, on ? "1" : "0");
   } catch {}
   window.dispatchEvent(new Event(CHANGED));
   if (on) window.dispatchEvent(new Event(OPEN_PANEL));
