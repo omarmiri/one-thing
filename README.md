@@ -114,7 +114,10 @@ the AI's guesses and clicks **Go live**. The choices behind it:
   reports (connected, email confirmed, can receive payments), with **Check again** and
   **Disconnect**. **Go live** waits until PayPal says the account can be paid, or a PayPal email is
   entered as a fallback. A connected account carries over to the seller's other and new shops.
-- **A manage page** (open from Your shops, or by its private link): settings, publish, photos, and an
+- **A manage page** (open from Your shops, or by its private link): a summary strip (visitors, paid
+  orders, revenue, the share bought by AI agents, the last webhook), the live preview with visitors and
+  sales and the webhook log under it, and the settings beside it. Once the shop is live, finished
+  settings (buyer options, buyer questions, photos, design, A/B test) fold away. Below them, an
   [AG Grid](https://www.ag-grid.com/) orders table with sort, filter, search, **Mark shipped** and
   **Refund**. Refund sends the full amount back through PayPal's refund API. When a seller
   connected PayPal, the Platform app refunds on their behalf, since Connect asks for the `REFUND`
@@ -152,7 +155,7 @@ the AI's guesses and clicks **Go live**. The choices behind it:
   - **Access code:** each order gets a code like `K7QF-M2XP-9HTD` and a **Start now** link into the
     seller's app or game, which checks the code with one API call.
 - **PayPal webhook log** on the manage page: every delivery for the shop's orders, whether its
-  signature verified, and what it changed.
+  signature verified, and what it changed (the last 5, with Show all).
 - **Zapier:** paste a Catch Hook URL and every paid or shipped order is posted to it (Sheets,
   Slack, label printing).
 

@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import type { PayPalStatus } from "@/lib/paypal";
 import type { OptionStock, ShopOption, Suggestions } from "@/lib/options";
 import { activeOptions, BuyerQuestions, initialOptions, OptionsEditor } from "./OptionsPanel";
+import { FoldGroup, openInvalid } from "./Fold";
 
 // Onboarding, step 2: the AI's guesses, laid out to check and change. The same panel stays as
 // the shop's settings after it goes live.
@@ -57,8 +58,9 @@ function Segmented<T extends string>(props: { value: T; options: [T, string][]; 
 }
 
 // A labelled field. Rows holding a single input use a real <label>; rows of buttons use a group.
-function Row({ label, hint, group, children }: { label: string; hint?: React.ReactNode; group?: boolean; children: React.ReactNode }) {
-  const title = <span className="block text-xs font-semibold uppercase tracking-wider text-muted">{label}</span>;
+// `untitled`: the label is already shown, by the folded group around it.
+function Row({ label, hint, group, untitled, children }: { label: string; hint?: React.ReactNode; group?: boolean; untitled?: boolean; children: React.ReactNode }) {
+  const title = untitled ? null : <span className="block text-xs font-semibold uppercase tracking-wider text-muted">{label}</span>;
   return group ? (
     <div role="group" aria-label={label} className="space-y-1.5">
       {title}
@@ -351,7 +353,7 @@ export function SetupPanel(props: {
   }
 
   return (
-    <form id="setup" onSubmit={submit} className="space-y-5 rounded-2xl border border-line bg-white p-5">
+    <form id="setup" onSubmit={submit} onInvalidCapture={openInvalid} className="space-y-5 rounded-2xl border border-line bg-white p-5">
       <div>
         <h2 className="font-semibold">{props.draft ? "Check what we guessed" : "Shop settings"}</h2>
         {props.draft && <p className="mt-0.5 text-sm text-muted">Change anything that&apos;s off, then go live.</p>}
@@ -444,7 +446,8 @@ export function SetupPanel(props: {
       )}
 
       {kind === "physical" && (
-        <Row label="Buyer options" group hint={opts.length ? undefined : "Sizes, colours or other choices buyers pick. Add one if your product comes in variants."}>
+        <FoldGroup fold={!props.draft} label="Buyer options" note={activeOptions(opts).map((o) => o.name).join(", ") || "none"}>
+        <Row label="Buyer options" group untitled={!props.draft} hint={opts.length ? undefined : "Sizes, colours or other choices buyers pick. Add one if your product comes in variants."}>
           <OptionsEditor
             options={opts}
             onOptions={setOpts}
@@ -455,12 +458,15 @@ export function SetupPanel(props: {
             onPhotoPicked={(label, photo, before) => void setColourPhotos({ [label]: photo }, photo ? `Photo set for ${label}` : `Photo removed from ${label}`, { [label]: before })}
           />
         </Row>
+        </FoldGroup>
       )}
 
       {kind !== "referral" && (
-        <Row label="Buyers will ask" group>
-          <BuyerQuestions suggestions={suggestions} answers={answers} onAnswer={(l, v) => setAnswers((a) => ({ ...a, [l]: v }))} onCheck={checkDetails} />
-        </Row>
+        <FoldGroup fold={!props.draft} label="Buyers will ask">
+          <Row label="Buyers will ask" group untitled={!props.draft}>
+            <BuyerQuestions suggestions={suggestions} answers={answers} onAnswer={(l, v) => setAnswers((a) => ({ ...a, [l]: v }))} onCheck={checkDetails} />
+          </Row>
+        </FoldGroup>
       )}
 
       {kind !== "referral" && s.paypal && (

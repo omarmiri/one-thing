@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import { photoDataUrl, Unreachable } from "@/lib/uploadFallback";
+import { FoldPanel } from "./Fold";
 
 // More photos, added while refining: the shop starts from one snapshot, and the seller adds the
 // other angles here. Buyers swipe through them on the shop page. The first photo is the cover.
@@ -58,12 +59,9 @@ export function PhotosPanel(props: { api: Api; initial: Photo[]; onChanged(photo
   };
 
   return (
-    <div className="rounded-2xl border border-line bg-white p-5">
-      <div className="flex items-baseline justify-between">
-        <h2 className="font-semibold">Photos</h2>
-        <span className="text-xs text-muted">{photos.length} / {MAX}</span>
-      </div>
-      <p className="mt-1 text-sm text-muted">Add other angles and details. Buyers swipe through them; the first is the cover.</p>
+    // Open while the shop has only its first snapshot.
+    <FoldPanel title="Photos" note={`${photos.length} / ${MAX}`} open={props.initial.length < 2}>
+      <p className="text-sm text-muted">Add other angles and details. Buyers swipe through them; the first is the cover.</p>
 
       <ul className="mt-3 grid grid-cols-3 gap-2" aria-busy={busy}>
         {photos.map((p, i) => (
@@ -132,6 +130,6 @@ export function PhotosPanel(props: { api: Api; initial: Photo[]; onChanged(photo
           e.target.value = "";
         }}
       />
-    </div>
+    </FoldPanel>
   );
 }

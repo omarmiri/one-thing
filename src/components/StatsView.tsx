@@ -3,7 +3,7 @@ import type { Funnel, Stats } from "@/lib/stats";
 // The visitors-and-conversion report, shared by the seller's manage page and /admin/stats.
 // Plain markup, no hooks, so it renders on the server and in the client alike.
 
-const fmtMoney = (cents: number, currency: string) =>
+export const fmtMoney = (cents: number, currency: string) =>
   new Intl.NumberFormat("en-US", { style: "currency", currency, maximumFractionDigits: cents % 100 ? 2 : 0 }).format(cents / 100);
 const pct = (paid: number, visitors: number) => (visitors ? `${((paid / visitors) * 100).toFixed(1)}%` : "–");
 

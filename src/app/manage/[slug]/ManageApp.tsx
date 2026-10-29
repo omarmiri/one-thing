@@ -8,7 +8,8 @@ import { PhotosPanel, type Photo } from "./PhotosPanel";
 import { SetupPanel, type SetupInitial, type ToastAction } from "./SetupPanel";
 import type { WebhookEvent } from "@/lib/shops";
 import type { Stats } from "@/lib/stats";
-import { StatsView } from "@/components/StatsView";
+import { fmtMoney, StatsView } from "@/components/StatsView";
+import { FoldPanel } from "./Fold";
 import { Unreachable } from "@/lib/uploadFallback";
 
 type Initial = {
@@ -40,6 +41,8 @@ export function ManageApp(props: {
   const [orders, setOrders] = useState(props.orders);
   const [webhooks, setWebhooks] = useState(props.webhooks);
   const [frameKey, setFrameKey] = useState(0);
+  const [days, setDays] = useState(30);
+  const [stats, setStats] = useState<ShopStats | null>(null);
   // Shared with the setup panel, where each colour can point at one of these photos.
   const [photos, setPhotos] = useState(initial.photos ?? []);
   const [toast, setToastState] = useState<{ text: string; action?: ToastAction } | null>(null);
@@ -85,15 +88,23 @@ export function ManageApp(props: {
     return () => clearInterval(t);
   }, [heroStatus, api]);
 
-  // New sales show up without a reload.
   useEffect(() => {
-    if (status !== "live") return;
-    const t = setInterval(() => {
-      api("/orders").then(setOrders).catch(() => {});
-      api("/webhooks").then(setWebhooks).catch(() => {});
-    }, 15000);
-    return () => clearInterval(t);
-  }, [status, api]);
+    let stale = false;
+    const load = () => (api(`/stats?days=${days}`) as Promise<unknown>).then((s) => !stale && setStats(s as ShopStats), () => {});
+    load();
+    // New sales show up without a reload.
+    const t =
+      status === "live" &&
+      setInterval(() => {
+        api("/orders").then(setOrders).catch(() => {});
+        api("/webhooks").then(setWebhooks).catch(() => {});
+        load();
+      }, 15000);
+    return () => {
+      stale = true;
+      if (t) clearInterval(t);
+    };
+  }, [status, api, days]);
 
   async function publish(next: "live" | "draft") {
     try {
@@ -145,8 +156,14 @@ export function ManageApp(props: {
         </div>
       )}
 
-      <div className="mx-auto grid max-w-7xl gap-6 px-4 py-6 lg:grid-cols-[1fr_400px]">
-        <section className="overflow-hidden rounded-2xl border border-line bg-white">
+      <div className="mx-auto max-w-7xl px-4 pt-6">
+        <Summary stats={stats} days={days} webhooks={webhooks} />
+      </div>
+
+      {/* Wide screens: preview, then stats and webhooks, beside the settings; orders full width below.
+          Phones, in page order: preview, settings, orders, stats, webhooks. */}
+      <div className="mx-auto grid max-w-7xl gap-6 px-4 py-6 lg:grid-cols-[minmax(0,1fr)_400px] lg:grid-rows-[auto_auto_1fr]">
+        <section className="self-start overflow-hidden rounded-2xl border border-line bg-white lg:col-start-1 lg:row-start-1">
           <div className="flex items-center gap-2 border-b border-line px-4 py-2 text-xs text-muted">
             <span className="truncate">{shopPath}</span>
             <a href={`/${slug}?token=${token}`} target="_blank" className="ml-auto underline">Open</a>
@@ -154,8 +171,7 @@ export function ManageApp(props: {
           <iframe key={frameKey} src={`/${slug}?token=${token}`} title="Shop preview" className="h-[78vh] w-full" />
         </section>
 
-        <aside className="space-y-6">
-
+        <aside className="space-y-6 lg:col-start-2 lg:row-span-3 lg:row-start-1">
           <SetupPanel
             api={api}
             initial={initial.setup}
@@ -188,6 +204,7 @@ export function ManageApp(props: {
           )}
           <DesignPanel
             api={api}
+            draft={status === "draft"}
             geminiReady={props.geminiReady}
             aiSource={initial.aiSource}
             heroStatus={heroStatus}
@@ -197,57 +214,57 @@ export function ManageApp(props: {
           />
           {props.ab && <AbPanel api={api} initial={props.ab} onChanged={() => setFrameKey((k) => k + 1)} onToast={setToast} />}
         </aside>
+
+        <section className="min-w-0 lg:col-span-2 lg:row-start-4">
+          <h2 className="mb-3 text-xl font-semibold">Orders</h2>
+          <OrdersGrid
+            orders={orders}
+            physical={initial.setup.productType === "physical"}
+            onShip={async (orderId, carrier, trackingNumber, carrierName) => {
+              try {
+                const r = await api(`/orders/${orderId}/ship`, { method: "POST", body: JSON.stringify({ carrier, trackingNumber, carrierName }) });
+                setOrders(await api("/orders"));
+                setToast(r.synced ? "Shipped — tracking sent to the buyer's PayPal" : "Marked shipped");
+                return null;
+              } catch (e) {
+                return (e as Error).message;
+              }
+            }}
+            onRefund={async (o) => {
+              const total = `${(o.amount_cents / 100).toFixed(2)}`;
+              if (!window.confirm(`Refund ${total} to ${o.buyer_name ?? o.buyer_email ?? "the buyer"}? PayPal sends it back in full. Their download link or access code stops working.`)) return;
+              const refund = async (record: boolean) => {
+                // Not through api(): a 409 here carries refundInPayPal, which the caller needs.
+                const res = await fetch(`/api/shops/${slug}/orders/${o.id}/refund`, {
+                  method: "POST",
+                  headers: { "x-admin-token": token, "content-type": "application/json" },
+                  body: JSON.stringify({ record }),
+                }).catch(() => null);
+                return res ? ((await res.json().catch(() => ({}))) as { ok?: boolean; error?: string; refundInPayPal?: boolean }) : { error: "Couldn't reach OneThing. Try again." };
+              };
+              let r = await refund(false);
+              if (r.refundInPayPal && window.confirm(`${r.error}
+
+  Already refunded it in PayPal? OK marks it refunded here.`)) r = await refund(true);
+              else if (r.refundInPayPal) return;
+              if (r.ok) {
+                setOrders(await api("/orders"));
+                setToast(`Refunded ${total}`);
+              } else setToast(r.error ?? "The refund didn't go through.");
+            }}
+          />
+        </section>
+
+        <StatsSection stats={stats} days={days} onDays={setDays} live={status === "live"} />
+
+        <section className="min-w-0 self-start lg:col-start-1 lg:row-start-3">
+          <div className="mb-3 flex flex-wrap items-baseline gap-x-3">
+            <h2 className="text-xl font-semibold">PayPal webhooks</h2>
+            <span className="text-sm text-muted">Events PayPal sent about this shop&apos;s orders, newest first</span>
+          </div>
+          <WebhookLog events={webhooks} />
+        </section>
       </div>
-
-      <StatsSection api={api} live={status === "live"} />
-
-      <section className="mx-auto max-w-7xl px-4 pb-16">
-        <h2 className="mb-3 text-xl font-semibold">Orders</h2>
-        <OrdersGrid
-          orders={orders}
-          physical={initial.setup.productType === "physical"}
-          onShip={async (orderId, carrier, trackingNumber, carrierName) => {
-            try {
-              const r = await api(`/orders/${orderId}/ship`, { method: "POST", body: JSON.stringify({ carrier, trackingNumber, carrierName }) });
-              setOrders(await api("/orders"));
-              setToast(r.synced ? "Shipped — tracking sent to the buyer's PayPal" : "Marked shipped");
-              return null;
-            } catch (e) {
-              return (e as Error).message;
-            }
-          }}
-          onRefund={async (o) => {
-            const total = `${(o.amount_cents / 100).toFixed(2)}`;
-            if (!window.confirm(`Refund ${total} to ${o.buyer_name ?? o.buyer_email ?? "the buyer"}? PayPal sends it back in full. Their download link or access code stops working.`)) return;
-            const refund = async (record: boolean) => {
-              // Not through api(): a 409 here carries refundInPayPal, which the caller needs.
-              const res = await fetch(`/api/shops/${slug}/orders/${o.id}/refund`, {
-                method: "POST",
-                headers: { "x-admin-token": token, "content-type": "application/json" },
-                body: JSON.stringify({ record }),
-              }).catch(() => null);
-              return res ? ((await res.json().catch(() => ({}))) as { ok?: boolean; error?: string; refundInPayPal?: boolean }) : { error: "Couldn't reach OneThing. Try again." };
-            };
-            let r = await refund(false);
-            if (r.refundInPayPal && window.confirm(`${r.error}
-
-Already refunded it in PayPal? OK marks it refunded here.`)) r = await refund(true);
-            else if (r.refundInPayPal) return;
-            if (r.ok) {
-              setOrders(await api("/orders"));
-              setToast(`Refunded ${total}`);
-            } else setToast(r.error ?? "The refund didn't go through.");
-          }}
-        />
-      </section>
-
-      <section className="mx-auto max-w-7xl px-4 pb-16">
-        <div className="mb-3 flex items-baseline gap-3">
-          <h2 className="text-xl font-semibold">PayPal webhooks</h2>
-          <span className="text-sm text-muted">Events PayPal sent about this shop&apos;s orders, newest first</span>
-        </div>
-        <WebhookLog events={webhooks} />
-      </section>
 
       {toast && (
         <div role="status" className="fixed bottom-6 left-1/2 z-30 flex -translate-x-1/2 items-center gap-4 rounded-full bg-foreground px-5 py-3 text-sm text-background shadow-lg">
@@ -269,7 +286,10 @@ Already refunded it in PayPal? OK marks it refunded here.`)) r = await refund(tr
   );
 }
 
+const WEBHOOKS_SHOWN = 5;
+
 function WebhookLog({ events }: { events: WebhookEvent[] }) {
+  const [all, setAll] = useState(false);
   if (!events.length) {
     return (
       <p className="rounded-2xl border border-dashed border-line bg-white p-6 text-sm text-muted">
@@ -280,7 +300,7 @@ function WebhookLog({ events }: { events: WebhookEvent[] }) {
   }
   return (
     <ul className="divide-y divide-line overflow-hidden rounded-2xl border border-line bg-white">
-      {events.map((e) => (
+      {(all ? events : events.slice(0, WEBHOOKS_SHOWN)).map((e) => (
         <li key={e.id} className="flex flex-wrap items-center gap-x-4 gap-y-1 px-4 py-3 text-sm">
           <code className="font-semibold">{e.event_type}</code>
           <span
@@ -296,6 +316,13 @@ function WebhookLog({ events }: { events: WebhookEvent[] }) {
           </span>
         </li>
       ))}
+      {events.length > WEBHOOKS_SHOWN && (
+        <li>
+          <button onClick={() => setAll(!all)} className="w-full px-4 py-2.5 text-left text-sm text-muted hover:text-foreground">
+            {all ? "Show fewer" : `Show all ${events.length}`}
+          </button>
+        </li>
+      )}
     </ul>
   );
 }
@@ -307,6 +334,7 @@ const input = "w-full rounded-lg border border-line px-3 py-2 text-sm outline-no
 
 function DesignPanel(props: {
   api: Api;
+  draft: boolean;
   geminiReady: boolean;
   aiSource: "gemini" | "fallback";
   heroStatus: Initial["heroStatus"];
@@ -333,13 +361,12 @@ function DesignPanel(props: {
   }
 
   return (
-    <div className={panel}>
-      <h2 className="font-semibold">Design with Gemini</h2>
+    <FoldPanel title="Design with Gemini" open={props.draft}>
       {!props.geminiReady ? (
-        <p className="mt-2 text-sm text-muted">Add GEMINI_API_KEY to .env.local to redesign by chatting.</p>
+        <p className="text-sm text-muted">Add GEMINI_API_KEY to .env.local to redesign by chatting.</p>
       ) : (
         <>
-          <p className="mt-1 text-sm text-muted">
+          <p className="text-sm text-muted">
             {props.aiSource === "fallback" ? "This shop has placeholder copy — ask for anything." : "Ask for any change and the page updates."}
           </p>
           {history.length > 0 && (
@@ -385,41 +412,74 @@ function DesignPanel(props: {
           </div>
         </>
       )}
-    </div>
+    </FoldPanel>
   );
 }
 
 // ---- Visitors and sales ----------------------------------------------------------------------
 
-function StatsSection({ api, live }: { api: Api; live: boolean }) {
-  const [days, setDays] = useState(30);
-  const [stats, setStats] = useState<(Stats & { currency: string }) | null>(null);
-  useEffect(() => {
-    let stale = false;
-    (api(`/stats?days=${days}`) as Promise<unknown>).then(
-      (s) => !stale && setStats(s as Stats & { currency: string }),
-      () => {},
-    );
-    return () => {
-      stale = true;
-    };
-  }, [api, days]);
+type ShopStats = Stats & { currency: string };
 
+function StatsSection(props: { stats: ShopStats | null; days: number; onDays(d: number): void; live: boolean }) {
   return (
-    <section className="mx-auto max-w-7xl px-4 pb-16">
-      <div className="mb-3 flex flex-wrap items-baseline gap-3">
+    <section className="min-w-0 self-start lg:col-start-1 lg:row-start-2">
+      <div className="mb-3 flex flex-wrap items-baseline gap-x-3 gap-y-1">
         <h2 className="text-xl font-semibold">Visitors and sales</h2>
-        <span className="text-sm text-muted">{live ? "No cookies: each visitor is counted once a day" : "Counting starts when you go live"}</span>
+        <span className="text-sm text-muted">{props.live ? "No cookies: each visitor is counted once a day" : "Counting starts when you go live"}</span>
         <div className="ml-auto flex gap-1 text-sm">
           {[7, 30, 90].map((d) => (
-            <button key={d} onClick={() => setDays(d)} className={`rounded-full px-3 py-1 ${d === days ? "bg-foreground text-background" : "border border-line"}`}>
+            <button key={d} onClick={() => props.onDays(d)} className={`rounded-full px-3 py-1 ${d === props.days ? "bg-foreground text-background" : "border border-line"}`}>
               {d} days
             </button>
           ))}
         </div>
       </div>
-      <div className={panel}>{stats ? <StatsView stats={stats} currency={stats.currency} /> : <p className="text-sm text-muted">Loading…</p>}</div>
+      <div className={panel}>{props.stats ? <StatsView stats={props.stats} currency={props.stats.currency} /> : <p className="text-sm text-muted">Loading…</p>}</div>
     </section>
+  );
+}
+
+// ---- Summary strip: the shop at a glance, above everything -------------------------------------
+
+const ago = (iso: string) => {
+  const min = Math.round((Date.now() - new Date(iso).getTime()) / 60000);
+  return min < 1 ? "just now" : min < 60 ? `${min} min ago` : min < 1440 ? `${Math.round(min / 60)} h ago` : `${Math.round(min / 1440)} d ago`;
+};
+
+function Summary({ stats, days, webhooks }: { stats: ShopStats | null; days: number; webhooks: WebhookEvent[] }) {
+  const paid = stats ? stats.web.paid + stats.agent.paid : 0;
+  const last = webhooks[0];
+  const tiles: [string, React.ReactNode][] = [
+    ["Visitors", stats ? stats.web.visitors + stats.agent.visitors : "–"],
+    ["Paid orders", stats ? paid : "–"],
+    ["Revenue", stats ? fmtMoney(stats.web.revenueCents + stats.agent.revenueCents, stats.currency) : "–"],
+    ["Bought by agents", stats && paid ? `${Math.round((stats.agent.paid / paid) * 100)}%` : "–"],
+    [
+      "Last webhook",
+      last ? (
+        <span className="flex items-center gap-2">
+          <span className={`size-2 shrink-0 rounded-full ${last.verified ? "bg-green-600" : "bg-red-600"}`} />
+          <span className="sr-only">{last.verified ? "Signature verified, " : "Not verified, "}</span>
+          {/* Relative to this browser's clock: the server's render would differ by a moment. */}
+          <span suppressHydrationWarning>{ago(last.received_at)}</span>
+        </span>
+      ) : (
+        "None yet"
+      ),
+    ],
+  ];
+  return (
+    <dl className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+      {tiles.map(([label, value], i) => (
+        <div key={label} className={`rounded-xl border border-line bg-white px-4 py-3 ${i === tiles.length - 1 ? "col-span-2 sm:col-span-1" : ""}`}>
+          <dt className="truncate text-xs text-muted">
+            {label}
+            {i < 4 && ` · ${days}d`}
+          </dt>
+          <dd className="mt-0.5 text-xl font-semibold tabular-nums">{value}</dd>
+        </div>
+      ))}
+    </dl>
   );
 }
 
@@ -453,9 +513,8 @@ function AbPanel(props: { api: Api; initial: AbInitial; onChanged(): void; onToa
   }
 
   return (
-    <div className={`${panel} border-dashed`}>
-      <h2 className="font-semibold">A/B test</h2>
-      <p className="mt-1 text-sm text-muted">
+    <FoldPanel title="A/B test" open={false} dashed>
+      <p className="text-sm text-muted">
         Have another AI model design your page from the same words and photo, then compare. Your page only changes when you
         press Show version B, and you can swap back any time. The hero art stays.
       </p>
@@ -499,6 +558,6 @@ function AbPanel(props: { api: Api; initial: AbInitial; onChanged(): void; onToa
           {busy === "swap" ? "…" : "Show version B"}
         </button>
       </div>
-    </div>
+    </FoldPanel>
   );
 }
