@@ -281,10 +281,10 @@ edge of the home page, the gallery and every shop, so the page design stays as i
 drags it along an edge or to any other edge, and the browser remembers where. It opens Grok and Kimi with
 a buying prompt for that shop already typed (both ask before sending), copies the prompt and
 opens Muse (muse.ai, by Meta), and walks through adding the MCP connector to ChatGPT and to Gemini, one step at a time: each step has a button that opens the right settings page (`chatgpt.com/plugins`, `gemini.google.com/customize/connectors`) or copies what to paste, and a short looping clip of the click (`public/connect/chatgpt-1.webm` … `gemini-3.webm`, cropped VP9 WebM made from the recordings in `docs/videos`; a step without its clip shows text only). It also explains paying in the PayPal
-sandbox and links the agent endpoints. Those links open pages for people rather than raw files: `/llms` says what
-`/llms.txt` is for and what's in it, `/mcp` sets up the MCP server (URL to copy, no authentication, steps for
-ChatGPT, Gemini, Claude, Cursor and VS Code, the tools, a curl check), and OpenAPI opens the agent endpoints in the
-APIMatic portal; llms.txt and the spec each have a download icon beside them. The prompt is short ("Buy me … from <shop link>"): the
+sandbox and lists the agent endpoints. The llms.txt and MCP rows open in place with the essentials (what llms.txt is,
+with open and download; the MCP URL to copy, no authentication, Claude's steps and the tools) and link to the full
+pages, `/llms` and `/mcp` (which adds Cursor, VS Code and a curl check). OpenAPI opens the agent endpoints in the
+APIMatic portal, with a download icon for the spec. The prompt is short ("Buy me … from <shop link>"): the
 assistants that work find `/llms.txt` or the MCP tools themselves. Assistants are listed only if they finish a purchase in one conversation:
 Perplexity was dropped on 2026-10-28 (its fetches of `/llms.txt` started failing while ours got a 200), and so was
 meta.ai, which won't open order links.

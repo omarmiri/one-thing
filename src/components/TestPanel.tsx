@@ -76,6 +76,32 @@ const Url = ({ children }: { children: string }) => (
   </span>
 );
 
+/** A developer row that opens in place: the essentials here, the full page one link away. */
+const Fold = ({ title, note, children }: { title: string; note: string; children: React.ReactNode }) => (
+  <details className="group rounded-xl border border-line bg-white hover:border-accent/70 open:border-accent/70">
+    <summary className="flex cursor-pointer list-none items-start gap-2 p-3 [&::-webkit-details-marker]:hidden">
+      <span className="min-w-0 flex-1">
+        <span className="font-semibold">{title}</span>
+        <span className="block text-xs text-muted">{note}</span>
+      </span>
+      <span aria-hidden="true" className="mt-0.5 text-muted transition-transform group-open:rotate-180">
+        ▾
+      </span>
+    </summary>
+    <div className="space-y-3 border-t border-line p-3 text-muted [&_strong]:text-foreground">{children}</div>
+  </details>
+);
+
+const LinkButton = ({ href, primary, download, children }: { href: string; primary?: boolean; download?: boolean; children: React.ReactNode }) => (
+  <a
+    href={href}
+    {...(download ? { download: true } : { target: "_blank", rel: "noopener noreferrer" })}
+    className={`inline-block rounded-full px-4 py-2 text-xs font-semibold ${primary ? "bg-foreground text-background" : "border border-line text-foreground hover:border-accent/70"}`}
+  >
+    {children}
+  </a>
+);
+
 /**
  * A connector's setup one step at a time: a short looping clip of the click, one line saying what
  * to do, and the one button that step needs (open the right settings page, or copy what to paste).
@@ -572,14 +598,79 @@ export function TestPanel() {
           {section === "dev" && (
             <div className="space-y-3">
               <h2 className="text-2xl font-bold">How agents shop here</h2>
+
+              <Fold title="llms.txt" note="Instructions any assistant can read">
+                <p>
+                  A plain-text guide written for models. Assistants that read web
+                  pages (Grok, Kimi) learn from it how to shop here, with no
+                  plugin or key: every live gallery shop with its price and
+                  order links, how to talk to the buyer, and how to check an
+                  order. It&apos;s built live from the gallery.
+                </p>
+                <Url>{`${origin}/llms.txt`}</Url>
+                <div className="flex flex-wrap gap-2">
+                  <LinkButton href={`${origin}/llms.txt`} primary>
+                    Open llms.txt ↗
+                  </LinkButton>
+                  <LinkButton href={`${origin}/llms.txt`} download>
+                    Download
+                  </LinkButton>
+                  <LinkButton href={`${origin}/llms`}>Full page ↗</LinkButton>
+                </div>
+              </Fold>
+
+              <Fold
+                title="MCP server"
+                note="Add it to ChatGPT, Gemini, Claude or an editor"
+              >
+                <Url>{mcp}</Url>
+                <div className="flex flex-wrap items-center gap-2">
+                  <button
+                    onClick={() => copy(mcp, "mcp")}
+                    className="rounded-full bg-foreground px-4 py-2 text-xs font-semibold text-background"
+                  >
+                    {copied === "mcp" ? "Copied" : "Copy the server URL"}
+                  </button>
+                  <span className="text-xs">
+                    No authentication · Streamable HTTP · name it OneThing
+                  </span>
+                </div>
+                <p>
+                  <strong>ChatGPT and Gemini:</strong> step by step, with clips,
+                  on{" "}
+                  <button
+                    onClick={() => setSection("ai")}
+                    className="text-accent hover:underline"
+                  >
+                    Buy with AI
+                  </button>
+                  .
+                </p>
+                <p>
+                  <strong>Claude:</strong> Settings → Connectors → Add custom
+                  connector, and paste the URL. In Claude Code (click to copy):
+                </p>
+                <button
+                  onClick={() =>
+                    copy(`claude mcp add --transport http onething ${mcp}`, "cc")
+                  }
+                  className="block w-full truncate rounded-lg bg-black/5 px-3 py-2 text-left font-mono text-xs text-foreground hover:bg-black/10"
+                >
+                  {copied === "cc"
+                    ? "Copied"
+                    : `claude mcp add --transport http onething ${mcp}`}
+                </button>
+                <p>
+                  <strong>Tools:</strong> search_shops, get_product and get_order
+                  only read; create_order starts a PayPal checkout and charges
+                  nothing.
+                </p>
+                <LinkButton href={`${origin}/mcp`}>
+                  Full setup page, with Cursor and VS Code ↗
+                </LinkButton>
+              </Fold>
+
               {[
-                [
-                  "llms.txt",
-                  `${origin}/llms`,
-                  "Instructions any assistant can read",
-                  `${origin}/llms.txt`,
-                  `${origin}/llms.txt`,
-                ],
                 ...(isShop
                   ? [
                       [
@@ -589,13 +680,6 @@ export function TestPanel() {
                       ],
                     ]
                   : []),
-                [
-                  "MCP server",
-                  `${origin}/mcp`,
-                  "How to add it to ChatGPT, Gemini, Claude or an editor",
-                  undefined,
-                  mcp,
-                ],
                 [
                   "OpenAPI",
                   "https://omarmiri.github.io/one-thing/#/http/api-endpoints/agents/overview",
