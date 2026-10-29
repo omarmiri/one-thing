@@ -58,7 +58,8 @@ const slug = z.string().min(1).max(60).describe("The shop's link name, e.g. \"bl
 
 const TOOLS = {
   search_shops: {
-    description: "Find live OneThing shops by keywords (product name, category, what it's for). Empty query lists recent shops.",
+    description:
+      "Browse or search the OneThing gallery: one-product shops you can buy from with PayPal. Use it whenever the buyer asks what's on OneThing or wants something from it. Leave query empty to browse (e.g. \"find me something interesting\"); give keywords (product name, category, what it's for) to search. A query that matches nothing returns the whole gallery with matched: false.",
     input: z.object({ query: z.string().max(200).optional(), limit: z.number().int().min(1).max(25).optional() }),
     run: async (a: { query?: string; limit?: number }) => searchShops(a.query, a.limit),
     annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },

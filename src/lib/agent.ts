@@ -138,30 +138,42 @@ export function agentProduct(shop: Shop, agent?: string | null) {
   };
 }
 
+// Words agents put in browsing queries ("find me something interesting to buy") that say nothing
+// about the product. Left in, they matched no shop and the agent told the buyer the gallery was empty.
+const FILLER = new Set(
+  "a an the some any something anything thing things stuff item items product products me my i to for of on in at with and or find show buy get see browse shop shops store gallery onething sale sell selling available interesting cool nice good great fun unique random new popular best what's whats what is are there".split(" "),
+);
+
 /**
- * Live shops in the public gallery matching a query (every word must appear), newest first, with
- * show_buyer: each one's photo, name, price and headline, and "Which one?".
+ * Live shops in the public gallery for a query, with show_buyer: each one's photo, name, price and
+ * headline, and "Which one?". Shops matching more of the query's words come first, newest first
+ * among equals. A query that matches nothing (or only says "something to buy") gets the newest
+ * shops instead, with matched: false, rather than an empty list.
  */
 export async function searchShops(q: string | undefined, limit = 10) {
-  const words = (q ?? "").toLowerCase().split(/\s+/).filter(Boolean);
+  const words = (q ?? "").toLowerCase().split(/[^\p{L}\p{N}'-]+/u).filter((w) => w && !FILLER.has(w));
   const live = await listLiveShops(200);
-  const found = live
-    .filter((shop) => {
+  const scored = live
+    .map((shop) => {
       const text = [shop.spec.productName, shop.spec.headline, shop.spec.subheadline, shop.spec.eyebrow, shop.description].join(" ").toLowerCase();
-      return words.every((w) => text.includes(w));
+      return { shop, score: words.filter((w) => text.includes(w)).length };
     })
-    .slice(0, limit);
+    .filter((s) => s.score > 0)
+    .sort((a, b) => b.score - a.score);
+  const matched = !words.length || scored.length > 0;
+  const found = (words.length && scored.length ? scored.map((s) => s.shop) : live).slice(0, limit);
   const shops = found.map((shop) => {
     const p = agentProduct(shop);
     return { shop: p.shop, name: p.name, kind: p.kind, headline: p.headline, price: "price" in p ? p.price?.label : null, image: coverImage(shop), url: p.url };
   });
   const show_buyer = shops.length
     ? [
+        ...(matched ? [] : [`Nothing matched "${q?.trim()}", so here's what's in the gallery:`, ""]),
         ...found.flatMap((shop, i) => [...coverForBuyer(shop), `**${shops[i].name}**${shops[i].price ? `: ${shops[i].price}` : ""}. ${shops[i].headline}`, ""]),
         shops.length > 1 ? "Which one?" : "Want it?",
       ].join("\n")
-    : "Nothing in the OneThing gallery matches that yet.";
-  return { show_buyer, shops };
+    : "Nothing in the OneThing gallery yet.";
+  return { show_buyer, shops, matched };
 }
 
 export class AgentError extends Error {}

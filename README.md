@@ -204,7 +204,7 @@ the AI's guesses and clicks **Go live**. The choices behind it:
 Every live shop is agent-ready:
 
 - **An MCP server** at `/api/mcp` (Streamable HTTP, stateless JSON, no auth) with four tools:
-  `search_shops` (gallery shops by keyword, each with its cover `image`), `get_product` (with options and stock per
+  `search_shops` (gallery shops by keyword, each with its cover `image`; filler like "something interesting to buy" is ignored, and a search that matches nothing returns the gallery with `matched: false`, since Gemini told a buyer the gallery was empty), `get_product` (with options and stock per
   combination), `create_order` (takes the buyer's pick, e.g. `{"Size": "M"}`, and returns a
   `pay_url` for the buyer) and `get_order` (captures the payment once the buyer has approved, then
   returns what they bought in `delivery`: access code, download link, or shipping address and
