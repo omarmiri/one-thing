@@ -13,10 +13,13 @@ import {
 } from "react";
 
 type Edge = "left" | "right" | "top" | "bottom";
-type Dock = { edge: Edge; at: number };
+// size: the drawer's width on a side edge, or its height on the top or bottom, in pixels.
+type Dock = { edge: Edge; at: number; w?: number; h?: number };
 type Section = "ai" | "sandbox" | "dev" | "log";
 
 const STORE = "onething-test-panel";
+const MIN_W = 300;
+const MIN_H = 200;
 const DEFAULT: Dock = { edge: "right", at: 0.5 };
 // Routes that aren't storefronts: there the prompt is about the gallery, not this page.
 const NOT_SHOPS = new Set([
@@ -218,7 +221,12 @@ const parseDock = (raw: string | null): Dock => {
       d.at >= 0 &&
       d.at <= 1
     )
-      return d;
+      return {
+        edge: d.edge,
+        at: d.at,
+        ...(typeof d.w === "number" && { w: d.w }),
+        ...(typeof d.h === "number" && { h: d.h }),
+      };
   } catch {}
   return DEFAULT;
 };
@@ -266,6 +274,7 @@ export function TestPanel() {
   const [prompt, setPrompt] = useState("");
   const [copied, setCopied] = useState("");
   const dragging = useRef(false);
+  const [resizing, setResizing] = useState(false);
   const testMode = useTestMode();
   const logged = useSyncExternalStore(subscribeApiLog, () => apiCalls().length, () => 0);
 
@@ -319,18 +328,53 @@ export function TestPanel() {
     } catch {}
   };
 
+  const keep = (d: Dock) => {
+    try {
+      localStorage.setItem(STORE, JSON.stringify(d));
+    } catch {}
+  };
+
   const startDrag = (e: ReactPointerEvent) => {
     e.preventDefault();
     dragging.current = true;
     setOpen(false);
-    const move = (ev: PointerEvent) => setDock(dockAt(ev.clientX, ev.clientY));
+    // Moving keeps the size the panel was given.
+    const at = (ev: PointerEvent) => ({ ...dock, ...dockAt(ev.clientX, ev.clientY) });
+    const move = (ev: PointerEvent) => setDock(at(ev));
     const up = (ev: PointerEvent) => {
       dragging.current = false;
-      const d = dockAt(ev.clientX, ev.clientY);
+      const d = at(ev);
       setDock(d);
-      try {
-        localStorage.setItem(STORE, JSON.stringify(d));
-      } catch {}
+      keep(d);
+      window.removeEventListener("pointermove", move);
+      window.removeEventListener("pointerup", up);
+    };
+    window.addEventListener("pointermove", move);
+    window.addEventListener("pointerup", up);
+  };
+
+  // The inner edge resizes: narrower, so the page beside it stays in view (the create flow
+  // with its API log, say), or wider for reading.
+  const startResize = (e: ReactPointerEvent) => {
+    e.preventDefault();
+    setResizing(true);
+    const sized = (ev: PointerEvent): Dock => {
+      const { innerWidth: vw, innerHeight: vh } = window;
+      const clamp = (n: number, lo: number, hi: number) => Math.round(Math.min(hi, Math.max(lo, n)));
+      return dock.edge === "right"
+        ? { ...dock, w: clamp(vw - ev.clientX, MIN_W, vw) }
+        : dock.edge === "left"
+          ? { ...dock, w: clamp(ev.clientX, MIN_W, vw) }
+          : dock.edge === "bottom"
+            ? { ...dock, h: clamp(vh - ev.clientY, MIN_H, vh * 0.9) }
+            : { ...dock, h: clamp(ev.clientY, MIN_H, vh * 0.9) };
+    };
+    const move = (ev: PointerEvent) => setDock(sized(ev));
+    const up = (ev: PointerEvent) => {
+      setResizing(false);
+      const d = sized(ev);
+      setDock(d);
+      keep(d);
       window.removeEventListener("pointermove", move);
       window.removeEventListener("pointerup", up);
     };
@@ -345,7 +389,7 @@ export function TestPanel() {
         top: 0,
         bottom: 0,
         [dock.edge]: 0,
-        width: "min(560px, 100vw)",
+        width: `min(${dock.w ?? 560}px, 100vw)`,
         transform: open
           ? "none"
           : `translateX(${dock.edge === "right" ? "100%" : "-100%"})`,
@@ -354,7 +398,7 @@ export function TestPanel() {
         left: 0,
         right: 0,
         [dock.edge]: 0,
-        maxHeight: "80vh",
+        height: `min(${dock.h ?? 440}px, 90vh)`,
         transform: open
           ? "none"
           : `translateY(${dock.edge === "bottom" ? "100%" : "-100%"})`,
@@ -390,6 +434,27 @@ export function TestPanel() {
       role="dialog"
       aria-label="Test panel"
     >
+      {/* The resize handle: the drawer's inner edge, with a grip at its middle. */}
+      <div
+        onPointerDown={startResize}
+        title="Drag to resize"
+        aria-hidden="true"
+        className={`group absolute z-10 flex touch-none items-center justify-center ${
+          side ? "inset-y-0 w-2 cursor-col-resize" : "inset-x-0 h-2 cursor-row-resize"
+        }`}
+        style={{ [{ right: "left", left: "right", bottom: "top", top: "bottom" }[dock.edge]]: -4 }}
+      >
+        <span
+          className={`rounded-full bg-line transition-colors group-hover:bg-accent ${resizing ? "bg-accent" : ""} ${
+            side ? "h-12 w-1" : "h-1 w-12"
+          }`}
+        />
+      </div>
+      {resizing && (
+        <div
+          className={`fixed inset-0 z-[70] ${side ? "cursor-col-resize" : "cursor-row-resize"}`}
+        />
+      )}
       <div
         className={`absolute flex items-center gap-2 border-2 border-accent bg-background p-2 shadow-lg ${side ? "flex-col" : "flex-row"} ${tabRound}`}
         style={tab}
@@ -445,7 +510,7 @@ export function TestPanel() {
             ✕
           </button>
         </header>
-        <nav className="flex gap-1 overflow-x-auto border-b border-line px-4 py-2 text-sm">
+        <nav className="flex flex-wrap gap-1 border-b border-line px-4 py-2 text-sm">
           {(
             [
               ["ai", "Buy with AI"],
