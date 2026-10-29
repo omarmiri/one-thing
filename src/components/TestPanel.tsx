@@ -46,7 +46,9 @@ const ASSISTANTS: {
   },
   {
     name: "Kimi",
-    note: "Prompt typed, press Send",
+    // Its prefill link can't pick a model (only model=k2 or k1.5, which falls back to the default),
+    // but the model menu remembers a choice, so one switch to Instant sticks.
+    note: "Prompt typed, press Send. If it's busy, pick Instant in the model menu",
     url: (p) =>
       `https://www.kimi.ai/_prefill_chat?prefill_prompt=${encodeURIComponent(p)}&send_immediately=false`,
     home: "https://www.kimi.ai",
