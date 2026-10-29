@@ -125,14 +125,14 @@ export function TestPanel() {
   const hidden = NOT_SHOPS.has(first) || path.split("/").length > 2;
 
   // Opening writes a fresh prompt: this shop on a shop page (its title is the product name), else the
-  // gallery. Assistants given only a page link tend to give up on it, so the prompt sends them to
-  // /llms.txt, the plain-text instructions for AI assistants, first.
+  // gallery. Kept short: the assistants that work find /llms.txt or the MCP tools themselves, and
+  // pointing them at llms.txt didn't help the ones that don't.
   const toggle = () => {
     if (!open)
       setPrompt(
         isShop
-          ? `I want to buy ${document.title.split(" — ")[0]} from ${origin}${path}. First read the instructions for AI assistants at ${origin}/llms.txt, then follow them to make the order and give me the PayPal link to pay.`
-          : `Read the instructions for AI assistants at ${origin}/llms.txt, show me what's for sale on OneThing, and help me buy one with a PayPal link.`,
+          ? `Buy me ${document.title.split(" — ")[0]} from ${origin}${path}`
+          : `Find me something interesting to buy from the OneThing gallery at ${origin}/gallery`,
       );
     setOpen(!open);
   };
@@ -387,6 +387,52 @@ export function TestPanel() {
                   className="mt-3 inline-block rounded-full border border-foreground bg-foreground text-background px-4 py-1.5 hover:opacity-90"
                 >
                   Open ChatGPT with the prompt ↗
+                </a>
+              </div>
+              <div className="rounded-xl border border-line bg-white p-4">
+                <p className="font-semibold">
+                  Gemini, with the OneThing connector
+                </p>
+                <p className="mt-1 text-xs text-muted">
+                  Gemini shops through our MCP server as a custom app. Custom
+                  apps may need a paid Google AI plan.
+                </p>
+                <ol className="mt-3 list-decimal space-y-1 pl-5 text-foreground/80">
+                  <li>
+                    On gemini.google.com: Settings → Connected Apps → Add a
+                    custom app.
+                  </li>
+                  <li>Name it OneThing and paste the server URL:</li>
+                </ol>
+                <div className="mt-2 flex items-center gap-2 rounded-lg bg-black/5 px-3 py-2 font-mono text-xs">
+                  <span className="min-w-0 flex-1 truncate">{mcp}</span>
+                  <button
+                    onClick={() => copy(mcp, "mcp-gemini")}
+                    className="shrink-0 text-accent hover:underline"
+                  >
+                    {copied === "mcp-gemini" ? "Copied" : "Copy"}
+                  </button>
+                </div>
+                <ol
+                  start={3}
+                  className="mt-2 list-decimal space-y-1 pl-5 text-foreground/80"
+                >
+                  <li>
+                    Approve the connection, then start your message with
+                    @OneThing so Gemini uses it.
+                  </li>
+                </ol>
+                {/* Gemini has no link that types a prompt, so the button copies it. */}
+                <a
+                  href="https://gemini.google.com/app"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => copy(`@OneThing ${prompt}`, "gemini")}
+                  className="mt-3 inline-block rounded-full border border-foreground bg-foreground text-background px-4 py-1.5 hover:opacity-90"
+                >
+                  {copied === "gemini"
+                    ? "Prompt copied: paste it in Gemini"
+                    : "Copy the prompt and open Gemini ↗"}
                 </a>
               </div>
             </div>
