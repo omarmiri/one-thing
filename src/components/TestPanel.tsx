@@ -126,13 +126,15 @@ export function TestPanel() {
   const isShop = !!first && first !== "gallery" && path.split("/").length === 2;
   const hidden = NOT_SHOPS.has(first) || path.split("/").length > 2;
 
-  // Opening writes a fresh prompt: this shop on a shop page (its title is the product name), else the gallery.
+  // Opening writes a fresh prompt: this shop on a shop page (its title is the product name), else the
+  // gallery. Assistants given only a page link tend to give up on it, so the prompt sends them to
+  // /llms.txt, the plain-text instructions for AI assistants, first.
   const toggle = () => {
     if (!open)
       setPrompt(
         isShop
-          ? `Buy me ${document.title.split(" — ")[0]} from ${origin}${path}`
-          : `Find me something to buy at ${origin}/gallery and help me check out with PayPal`,
+          ? `I want to buy ${document.title.split(" — ")[0]} from ${origin}${path}. First read the instructions for AI assistants at ${origin}/llms.txt, then follow them to make the order and give me the PayPal link to pay.`
+          : `Read the instructions for AI assistants at ${origin}/llms.txt, show me what's for sale on OneThing, and help me buy one with a PayPal link.`,
       );
     setOpen(!open);
   };
