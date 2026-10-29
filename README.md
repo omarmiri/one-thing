@@ -311,8 +311,13 @@ valid. The image below recreates that session ([source](docs/muse-checkout-demo.
 - **A documented REST API** for everything the app does: [OpenAPI 3.1 spec](apimatic/src/spec/openapi.yaml),
   served live at `/openapi.yaml`. Every endpoint has a sample request and reply, which the docs
   portal shows as code in each SDK language.
-- **SDKs and a docs portal** generated with APIMatic (TypeScript and Python), published at
-  [omarmiri.github.io/one-thing](https://omarmiri.github.io/one-thing/). See
+- **SDKs and a docs portal** generated with APIMatic (TypeScript and Python). The SDKs' source is
+  published to GitHub by APIMatic: [one-thing-sdk-typescript](https://github.com/omarmiri/one-thing-sdk-typescript)
+  and [one-thing-sdk-python-sdk](https://github.com/omarmiri/one-thing-sdk-python-sdk). The portal is at
+  [omarmiri.github.io/one-thing](https://omarmiri.github.io/one-thing/). An APIMatic **Context Plugin**,
+  [one-thing-context-plugin](https://github.com/omarmiri/one-thing-context-plugin), teaches coding agents
+  (Claude Code, Cursor, VS Code, Codex) to install and call those SDKs: in Claude Code,
+  `/plugin marketplace add omarmiri/one-thing-context-plugin` then `/plugin install onething@onething`. See
   [apimatic/README.md](apimatic/README.md). It includes the agent endpoints (product JSON and the
   MCP server, with a "Let AI agents buy" guide), buyer options and Connect PayPal. It also has
   APIMatic's **API Copilot** (an "Ask AI" chat trained on the docs and SDKs) and an **API Recipe**,
@@ -451,7 +456,7 @@ service URL.
 | **Render** | Hosting and Postgres via `render.yaml` |
 | **AG Grid** | The seller's orders table (sort, filter, search, mark shipped, refund) |
 | **Zapier** | Optional per-shop Catch Hook: every paid or shipped order is posted to it |
-| **APIMatic** | Generates the TypeScript and Python SDKs and the [docs portal](https://omarmiri.github.io/one-thing/) from the OpenAPI spec. Its PayPal Context Plugin gave Claude Code PayPal's API reference while building the PayPal features |
+| **APIMatic** | Generates the TypeScript and Python SDKs (published to GitHub) and the [docs portal](https://omarmiri.github.io/one-thing/) from the OpenAPI spec, with API Copilot and an API Recipe, plus a [Context Plugin](https://github.com/omarmiri/one-thing-context-plugin) for coding agents. Its PayPal Context Plugin gave Claude Code PayPal's API reference while building the PayPal features |
 | **Postman** | A collection covering the whole API |
 | Next.js 16, PostgreSQL / PGlite, Tailwind, zod | App framework and data |
 

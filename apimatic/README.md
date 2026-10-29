@@ -23,7 +23,24 @@ apimatic sdk generate --language=typescript          # SDK into sdk/typescript
 apimatic portal generate --zip                       # static portal to host anywhere
 ```
 
-Output (`portal/`, `sdk/`, `plugin/`) is git-ignored; regenerate it from `src/`.
+Output (`portal/`, `sdk/`, `sdk-publish/`, `plugin/`) is git-ignored; regenerate it from `src/`.
+
+## Publish the SDKs and the Context Plugin
+
+The SDK source is published to GitHub (no npm or PyPI packages) through the APIMatic publishing
+profile `OneThing`, made in the APIMatic app under Publishing Center with a GitHub credential:
+
+```bash
+apimatic publishing profile list                     # shows the profile id
+apimatic sdk publish -p <id> -l typescript -v 1.0.0 --publish-type sourcecode -d ./sdk-publish/typescript
+apimatic sdk publish -p <id> -l python -v 1.0.0 --publish-type sourcecode -d ./sdk-publish/python
+apimatic plugin generate --force                     # Context Plugin into plugin/
+```
+
+Each publish replaces everything in the target repo. `sdk publish` records each repo in
+`src/plugin-config.json`, which also holds the plugin's id, name and version, so `plugin generate`
+runs without prompts. The plugin's skills teach a coding agent (Claude Code, Cursor, VS Code, Codex)
+to install and call the SDKs from those repos.
 
 The portal is published at https://omarmiri.github.io/one-thing/ from the `gh-pages` branch,
 which holds only the contents of `portal/` (without `apimatic-debug/`) plus an empty `.nojekyll`.

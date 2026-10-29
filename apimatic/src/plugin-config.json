@@ -1,0 +1,26 @@
+{
+  "pluginId": "onething",
+  "pluginName": "OneThing",
+  "pluginVersion": "1.0.0",
+  "author": {
+    "name": "Omar Miri",
+    "email": "omarmiri@gmail.com"
+  },
+  "license": "MIT",
+  "languages": {
+    "python": {
+      "source": {
+        "repositoryUrl": "https://github.com/omarmiri/one-thing-sdk-python-sdk",
+        "branch": "main"
+      },
+      "codegenVersion": "v3"
+    },
+    "typescript": {
+      "source": {
+        "repositoryUrl": "https://github.com/omarmiri/one-thing-sdk-typescript",
+        "branch": "main"
+      },
+      "codegenVersion": "v3"
+    }
+  }
+}
