@@ -48,8 +48,8 @@ const ASSISTANTS: {
     name: "Kimi",
     note: "Prompt typed, press Send",
     url: (p) =>
-      `https://www.kimi.com/_prefill_chat?prefill_prompt=${encodeURIComponent(p)}&send_immediately=false`,
-    home: "https://www.kimi.com",
+      `https://www.kimi.ai/_prefill_chat?prefill_prompt=${encodeURIComponent(p)}&send_immediately=false`,
+    home: "https://www.kimi.ai",
   },
   // Since 2026-10-28 Perplexity's free plan answers from search results without opening the
   // link, so it's last and says so.
