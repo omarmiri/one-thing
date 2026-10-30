@@ -138,10 +138,15 @@ export default function McpPage() {
           </p>
         </Client>
 
-        <Client name="Claude">
+        <Client name="Claude" clip="/connect/claude-1.webm">
           <p>
-            In Claude, open <strong>Settings → Connectors</strong>, choose <strong>Add custom connector</strong>, name it
-            OneThing and paste the server URL. Leave the OAuth fields empty.
+            In Claude, open{" "}
+            <a href="https://claude.ai/customize/connectors" target="_blank" rel="noopener noreferrer" className="text-accent underline">
+              Customize → Connectors
+            </a>
+            , click <strong>Add</strong>, then <strong>Add custom connector</strong>. Name it <strong>OneThing</strong>, paste
+            the server URL and click <strong>Continue</strong>. Then ask in a new chat: products show as a card with a Pay
+            with PayPal button.
           </p>
           <p>In Claude Code, run:</p>
           <Code>{`claude mcp add --transport http onething ${url}`}</Code>

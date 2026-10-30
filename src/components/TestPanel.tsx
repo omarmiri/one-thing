@@ -68,12 +68,6 @@ const ASSISTANTS: {
     note: "Prompt copied: paste it",
     home: "https://muse.ai",
   },
-  {
-    name: "Claude",
-    note: "Prompt typed, press Send",
-    url: (p) => `https://claude.ai/new?q=${encodeURIComponent(p)}`,
-    home: "https://claude.ai",
-  },
 ];
 
 type Step = {
@@ -672,6 +666,45 @@ export function TestPanel() {
                   },
                 ]}
               />
+              <ConnectorSteps
+                title="Claude, with the OneThing connector"
+                note="Claude's web fetch won't open links it builds itself, so it shops through our MCP server and shows a product card."
+                steps={[
+                  {
+                    clip: "/connect/claude-1.webm",
+                    text: (
+                      <>
+                        Open Claude&apos;s Connectors (Customize → Connectors),
+                        click Add, then Add custom connector. Name it OneThing,
+                        paste the server URL and click Continue:{" "}
+                        <Url>{mcp}</Url>
+                      </>
+                    ),
+                    action: {
+                      label: "Copy the server URL and open Connectors ↗",
+                      href: "https://claude.ai/customize/connectors",
+                      copy: mcp,
+                      copied: "Copied: now paste it in Claude",
+                    },
+                  },
+                  {
+                    clip: "/connect/claude-2.webm",
+                    text: "Set its tools to Always allow, so Claude doesn't stop to ask before each one.",
+                    action: {
+                      label: "Open Connectors ↗",
+                      href: "https://claude.ai/customize/connectors",
+                    },
+                  },
+                  {
+                    clip: "/connect/claude-3.webm",
+                    text: "Ask for something in a new chat: OneThing shows its card with a PayPal button.",
+                    action: {
+                      label: "Open Claude with the prompt ↗",
+                      href: `https://claude.ai/new?q=${encodeURIComponent(prompt)}`,
+                    },
+                  },
+                ]}
+              />
             </div>
           )}
 
@@ -767,8 +800,8 @@ export function TestPanel() {
                   .
                 </p>
                 <p>
-                  <strong>Claude:</strong> Settings → Connectors → Add custom
-                  connector, and paste the URL. In Claude Code (click to copy):
+                  <strong>Claude:</strong> Customize → Connectors → Add → Add
+                  custom connector, and paste the URL. In Claude Code (click to copy):
                 </p>
                 <button
                   onClick={() =>
