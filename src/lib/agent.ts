@@ -164,7 +164,7 @@ export async function searchShops(q: string | undefined, limit = 10) {
   const found = (words.length && scored.length ? scored.map((s) => s.shop) : live).slice(0, limit);
   const shops = found.map((shop) => {
     const p = agentProduct(shop);
-    return { shop: p.shop, name: p.name, kind: p.kind, headline: p.headline, price: "price" in p ? p.price?.label : null, image: coverImage(shop), url: p.url };
+    return { shop: p.shop, name: p.name, kind: p.kind, headline: p.headline, price: "price" in p ? p.price?.label : null, image: coverImage(shop), url: p.url, product_url: `${appUrl()}/api/agent/shops/${p.shop}` };
   });
   const show_buyer = shops.length
     ? [
