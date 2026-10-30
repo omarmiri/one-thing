@@ -629,7 +629,7 @@ export function TestPanel() {
               />
               <ConnectorSteps
                 title="Gemini, with the OneThing connector"
-                note="Gemini shops through our MCP server as a custom app. Custom apps may need a paid Google AI plan."
+                note="Gemini shops through our MCP server as a custom app."
                 steps={[
                   {
                     clip: "/connect/gemini-1.webm",
