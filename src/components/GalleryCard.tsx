@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { appUrl } from "@/lib/ids";
 import { money, shopView, type Shop } from "@/lib/shops";
 
 const KIND = { physical: "Physical", digital: "Digital", referral: "Recommended" } as const;
@@ -12,7 +13,8 @@ export function GalleryCard({ shop }: { shop: Shop }) {
 
   return (
     <Link
-      href={`/${shop.slug}`}
+      // In full: some assistants' fetch tools only open URLs that appeared on a page in full.
+      href={`${appUrl()}/${shop.slug}`}
       className="group flex flex-col overflow-hidden rounded-xl border border-black/5 transition hover:-translate-y-0.5 hover:shadow-lg"
       style={{ background: p.background, color: p.text }}
     >
