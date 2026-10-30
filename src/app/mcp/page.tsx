@@ -119,7 +119,7 @@ export default function McpPage() {
           </p>
         </Client>
 
-        <Client name="Gemini" plan="custom apps may need a paid Google AI plan" clip="/connect/gemini-2.webm">
+        <Client name="Gemini" clip="/connect/gemini-2.webm">
           <p>
             Open{" "}
             <a
