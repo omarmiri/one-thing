@@ -592,7 +592,7 @@ export function TestPanel() {
               </div>
               <ConnectorSteps
                 title="ChatGPT, with the OneThing connector"
-                note="ChatGPT can't open our pages from its sandbox, so it shops through our MCP server and shows a product card. Works on a free ChatGPT account too."
+                note="ChatGPT can't open our pages from its sandbox, so it shops through our MCP server and shows a product card.."
                 steps={[
                   {
                     clip: "/connect/chatgpt-1.webm",
