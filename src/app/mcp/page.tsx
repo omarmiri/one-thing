@@ -104,7 +104,7 @@ export default function McpPage() {
       <section className="mx-auto max-w-4xl space-y-4 px-4 pb-10 sm:px-6">
         <h2 className="text-2xl font-bold">Add it to your assistant</h2>
 
-        <Client name="ChatGPT" plan="Plus or higher, on the web" clip="/connect/chatgpt-2.webm">
+        <Client name="ChatGPT" plan="any plan, free included, on the web" clip="/connect/chatgpt-2.webm">
           <p>
             Open{" "}
             <a href="https://chatgpt.com/plugins" target="_blank" rel="noopener noreferrer" className="text-accent underline">
