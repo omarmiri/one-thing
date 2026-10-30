@@ -294,8 +294,8 @@ runs on the same API it documents. It wraps `window.fetch` while test mode is on
 `sessionStorage`, so the calls that make a shop on `/new` are still there on the manage page
 ([src/lib/apiLog.ts](src/lib/apiLog.ts)). « slides it open; the grip
 drags it along an edge or to any other edge, its inner edge drags to resize it (narrow it to keep the page in
-view beside it), and the browser remembers both. It opens Grok and Kimi with
-a buying prompt for that shop already typed (both ask before sending), copies the prompt and
+view beside it), and the browser remembers both. It opens Grok, Kimi and Claude (claude.ai) with
+a buying prompt for that shop already typed (each waits for Send), copies the prompt and
 opens Muse (muse.ai, by Meta), and walks through adding the MCP connector to ChatGPT and to Gemini, one step at a time: each step has a button that opens the right settings page (`chatgpt.com/plugins`, `gemini.google.com/customize/connectors`) or copies what to paste, and a short looping clip of the click (`public/connect/chatgpt-1.webm` … `gemini-3.webm`, cropped VP9 WebM made from the recordings in `docs/videos`; a step without its clip shows text only). It also explains paying in the PayPal
 sandbox and lists the agent endpoints. The llms.txt and MCP rows open in place with the essentials (what llms.txt is,
 with open and download; the MCP URL to copy, no authentication, Claude's steps and the tools) and link to the full

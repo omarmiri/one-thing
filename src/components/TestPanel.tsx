@@ -68,6 +68,12 @@ const ASSISTANTS: {
     note: "Prompt copied: paste it",
     home: "https://muse.ai",
   },
+  {
+    name: "Claude",
+    note: "Prompt typed, press Send",
+    url: (p) => `https://claude.ai/new?q=${encodeURIComponent(p)}`,
+    home: "https://claude.ai",
+  },
 ];
 
 type Step = {
