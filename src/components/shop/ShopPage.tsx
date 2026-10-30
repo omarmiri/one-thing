@@ -33,6 +33,7 @@ export type ShopView = {
   heroUrl: string | null;
   referral: Referral | null; // a recommendation: buyers purchase at the retailer
   shareUrl?: string | null; // absolute link, for the pay-on-your-phone QR code
+  agentUrl?: string | null; // absolute product JSON link, written out for assistants that only open URLs they've seen
   showcase?: ShowcaseView | null; // a playable teaser built from the seller's game art
 };
 
@@ -130,6 +131,12 @@ export function ShopPage({ view, buy, motion }: { view: ShopView; buy: ReactNode
           OneThing
         </Link>{" "}
         · Payments by PayPal · <TestModeSwitch byHand />
+        {view.agentUrl && (
+          // Written out in full: some assistants' fetch tools only open URLs that appeared on a page.
+          <p className="mx-auto mt-2 max-w-xl break-all px-4 text-xs">
+            AI assistant? This product with its order links: <a href={view.agentUrl}>{view.agentUrl}</a>
+          </p>
+        )}
       </footer>
     </div>
   );

@@ -55,7 +55,7 @@ export default async function Shop(props: PageProps<"/[slug]">) {
         />
       )}
       <MotionRoot feel="calm" enabled={Boolean(motion)}>
-        <ShopPage view={{ ...shopView(shop), shareUrl: `${appUrl()}/${shop.slug}` }} buy={<ShopBuy shop={shop} />} motion={motion} />
+        <ShopPage view={{ ...shopView(shop), shareUrl: `${appUrl()}/${shop.slug}`, agentUrl: live ? `${appUrl()}/api/agent/shops/${shop.slug}` : null }} buy={<ShopBuy shop={shop} />} motion={motion} />
       </MotionRoot>
     </>
   );

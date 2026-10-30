@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { GalleryCard } from "@/components/GalleryCard";
 import { TestModeSwitch } from "@/components/TestModeSwitch";
+import { appUrl } from "@/lib/ids";
 import { listLiveShops } from "@/lib/shops";
 
 // Reads live shops: render per request, not once at build time.
@@ -35,9 +36,10 @@ export default async function Gallery() {
         <p className="mt-4 max-w-2xl text-lg text-muted">
           Every page here started as one photo, link or pick. Gemini designed it; PayPal takes the payments.
         </p>
-        {/* Plain text so it survives the HTML-to-text step AI browse tools run. */}
-        <p className="mt-2 text-sm text-muted">
-          AI assistant? Read <a href="/llms.txt" className="underline hover:text-foreground">/llms.txt</a> to search, read and buy from these shops.
+        {/* Plain text so it survives the HTML-to-text step AI browse tools run, and the full URL because
+            some assistants' fetch tools only open URLs that appeared somewhere in full. */}
+        <p className="mt-2 break-all text-sm text-muted">
+          AI assistant? Read <a href={`${appUrl()}/llms.txt`} className="underline hover:text-foreground">{`${appUrl()}/llms.txt`}</a> to search, read and buy from these shops.
         </p>
       </section>
 
