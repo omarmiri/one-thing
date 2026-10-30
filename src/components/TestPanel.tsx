@@ -68,6 +68,12 @@ const ASSISTANTS: {
     note: "Prompt copied: paste it",
     home: "https://muse.ai",
   },
+  {
+    // Bought on 2026-10-30, but only once asked: it first only describes the shops.
+    name: "Qwen",
+    note: "Prompt copied: paste it. If it only describes the shops, ask it to use the site's GET API",
+    home: "https://chat.qwen.ai",
+  },
 ];
 
 type Step = {
