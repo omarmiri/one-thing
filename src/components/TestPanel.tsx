@@ -234,7 +234,8 @@ const parseDock = (raw: string | null): Dock => {
       d.at <= 1
     )
       return {
-        edge: d.edge,
+        // A bottom dock saved before (or on a desktop) moves to the right edge on a touch screen.
+        edge: d.edge === "bottom" && touchScreen() ? "right" : d.edge,
         at: d.at,
         ...(typeof d.w === "number" && { w: d.w }),
         ...(typeof d.h === "number" && { h: d.h }),
@@ -242,6 +243,10 @@ const parseDock = (raw: string | null): Dock => {
   } catch {}
   return DEFAULT;
 };
+
+// On a touch screen the bottom edge is where a swipe up pulls the browser's own toolbar or app
+// switcher, which drags the whole browser instead of the panel, so the tab never docks there.
+const touchScreen = () => window.matchMedia?.("(pointer: coarse)").matches ?? false;
 
 /** The nearest screen edge to a point, and how far along it the point is (0 to 1). */
 const dockAt = (x: number, y: number): Dock => {
@@ -251,7 +256,7 @@ const dockAt = (x: number, y: number): Dock => {
     ["left", x],
     ["right", w - x],
     ["top", y],
-    ["bottom", h - y],
+    ...(touchScreen() ? [] : [["bottom", h - y] as [Edge, number]]),
   ];
   const edge = gaps.sort((a, b) => a[1] - b[1])[0][0];
   const at = edge === "left" || edge === "right" ? y / h : x / w;
