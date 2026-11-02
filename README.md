@@ -116,7 +116,11 @@ the AI's guesses and clicks **Go live**. The choices behind it:
   copy, and the shop page gets a short canvas game in the game's own art.
 - **Hero art** made in the background by a Gemini image model. If the configured model isn't on
   the key, OneThing finds one that is, and records why if none works.
-- **Chat to redesign** ("make it warmer", "shorter copy") with a live preview.
+- **Chat to redesign** ("make it warmer", "shorter copy") with a live preview. A redesign changes
+  the layout, colours, fonts, text and hero art. Ask for more (a page preview, an animation, a
+  widget) and Gemini applies what it can and says what it couldn't add (`cantDo` in the API), so
+  the copy never promises a feature the page doesn't have. New section types are coming after the
+  hackathon.
 - **Short links the seller picks**, like `/raptorrush`, with a live availability check. Renamed
   shops keep their old links working (308 redirects).
 - **Connect PayPal.** On the manage page, one button takes the seller through PayPal's onboarding

@@ -327,7 +327,7 @@ function WebhookLog({ events }: { events: WebhookEvent[] }) {
   );
 }
 
-type Api = (path: string, init?: RequestInit) => Promise<{ synced?: boolean; hero_status?: Initial["heroStatus"] }>;
+type Api = (path: string, init?: RequestInit) => Promise<{ synced?: boolean; hero_status?: Initial["heroStatus"]; cantDo?: string | null }>;
 
 const panel = "rounded-2xl border border-line bg-white p-5";
 const input = "w-full rounded-lg border border-line px-3 py-2 text-sm outline-none focus:border-accent";
@@ -344,13 +344,13 @@ function DesignPanel(props: {
 }) {
   const [text, setText] = useState("");
   const [busy, setBusy] = useState(false);
-  const [history, setHistory] = useState<string[]>([]);
+  const [history, setHistory] = useState<{ ask: string; cantDo: string | null }[]>([]);
 
   async function refine(instruction: string) {
     setBusy(true);
     try {
-      await props.api("/refine", { method: "POST", body: JSON.stringify({ instruction }) });
-      setHistory((h) => [...h, instruction]);
+      const r = await props.api("/refine", { method: "POST", body: JSON.stringify({ instruction }) });
+      setHistory((h) => [...h, { ask: instruction, cantDo: r.cantDo ?? null }]);
       setText("");
       props.onChanged();
     } catch (e) {
@@ -372,7 +372,15 @@ function DesignPanel(props: {
           {history.length > 0 && (
             <ul className="mt-3 space-y-1 text-sm">
               {history.map((h, i) => (
-                <li key={i} className="rounded-lg bg-background px-3 py-1.5">&ldquo;{h}&rdquo;</li>
+                <li key={i} className="rounded-lg bg-background px-3 py-1.5">
+                  &ldquo;{h.ask}&rdquo;
+                  {h.cantDo && (
+                    <span className="mt-1 block text-xs text-amber-800">
+                      {h.cantDo} For the hackathon, Design with Gemini changes the layout, colours, fonts, text and
+                      hero art. New sections like page previews and animations are coming soon.
+                    </span>
+                  )}
+                </li>
               ))}
             </ul>
           )}

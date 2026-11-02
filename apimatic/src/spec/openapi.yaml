@@ -516,13 +516,22 @@ paths:
                   suggestedPriceUsd: 240
                   suggestedShippingUsd: 15
                   imageAlt: Cream leather quad roller skates with red trim
+                cantDo: null
               schema:
                 type: object
                 description: The redesigned page.
-                required: [spec]
+                required: [spec, cantDo]
                 properties:
                   spec:
                     $ref: '#/components/schemas/DesignSpec'
+                  cantDo:
+                    type: [string, 'null']
+                    description: >-
+                      What part of the instruction the design can't do, in one sentence for the seller
+                      (for example a new section or an animation), or null when all of it was applied.
+                      The design changes layout, palette, fonts, copy and hero art.
+                    maxLength: 240
+                    examples: [I can't add an animated page preview to the page.]
         '400':
           $ref: '#/components/responses/BadRequest'
         '404':

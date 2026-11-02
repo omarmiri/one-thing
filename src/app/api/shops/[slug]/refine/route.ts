@@ -18,9 +18,9 @@ export async function POST(req: Request, ctx: RouteContext<"/api/shops/[slug]/re
     return NextResponse.json({ error: "Say what to change, in a sentence." }, { status: 400 });
   }
   try {
-    const spec = await refineShop(r.shop.spec, instruction);
+    const { spec, cantDo } = await refineShop(r.shop.spec, instruction);
     await updateShop(r.shop.id, { spec });
-    return NextResponse.json({ spec });
+    return NextResponse.json({ spec, cantDo });
   } catch (err) {
     console.error("refine failed:", err);
     return NextResponse.json({ error: (err as Error).message || "The AI designer hit a snag." }, { status: 502 });

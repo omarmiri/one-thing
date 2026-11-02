@@ -54,6 +54,9 @@ export const Generated = DesignSpec.extend({
 });
 export type Generated = z.infer<typeof Generated>;
 
+/** A redesign also says what part of the seller's ask the spec can't express (empty when none). */
+export const Refined = Generated.extend({ cantDo: z.string().max(240) });
+
 /** JSON Schema for Gemini's responseJsonSchema, derived from the zod schema so they can't drift. */
 export function designJsonSchema(schema: z.ZodType = Generated): object {
   const strip = (node: unknown): unknown => {

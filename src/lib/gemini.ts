@@ -1,6 +1,7 @@
 import "server-only";
 import { GoogleGenAI, ThinkingLevel } from "@google/genai";
-import { DesignSpec, designJsonSchema, ensureReadable, fallbackSpec, Generated, LAYOUTS, repairPalette } from "./design";
+import type { z } from "zod";
+import { DesignSpec, designJsonSchema, ensureReadable, fallbackSpec, Generated, LAYOUTS, Refined, repairPalette } from "./design";
 import { ShopOption, type Suggestions } from "./options";
 import { qwenEnabled, qwenJson } from "./qwen";
 import { Direction } from "./showcase";
@@ -155,7 +156,7 @@ async function generate(parts: object[], extra: object) {
   throw last;
 }
 
-function parseDesign(text: string): Generated {
+function parseDesign(text: string): Generated & { cantDo?: string } {
   let raw = JSON.parse(text);
   // Qwen now and then wraps the spec in a one-item array.
   if (Array.isArray(raw) && raw.length === 1) raw = raw[0];
@@ -163,16 +164,22 @@ function parseDesign(text: string): Generated {
   if (fixed.length) console.warn(`design: repaired palette (${fixed.join("; ")})`);
   // Qwen leaves digitalDelivery null for physical goods, where it's unused; Gemini's enum forces a pick.
   if (raw && typeof raw === "object" && !["file", "access_code"].includes(raw.digitalDelivery)) raw.digitalDelivery = "file";
-  return Generated.parse(raw);
+  // Only a redesign asks for cantDo; Generated.parse would drop it, so carry it across.
+  const cantDo = typeof raw?.cantDo === "string" ? raw.cantDo.trim().slice(0, 240) : "";
+  return { ...Generated.parse(raw), ...(cantDo && { cantDo }) };
 }
 
-async function generateDesign(parts: object[], only?: Designer): Promise<{ spec: Generated; model: string }> {
+async function generateDesign(
+  parts: object[],
+  only?: Designer,
+  schema: z.ZodType = Generated,
+): Promise<{ spec: Generated & { cantDo?: string }; model: string }> {
   const t0 = Date.now();
-  let out: Generated | undefined;
+  let out: (Generated & { cantDo?: string }) | undefined;
   let model = TEXT_MODEL;
   if ((only ?? defaultDesigner()) === "qwen") {
     try {
-      const res = await qwenJson(parts, designJsonSchema(), 0.8);
+      const res = await qwenJson(parts, designJsonSchema(schema), 0.8);
       out = parseDesign(res.text);
       model = res.modelVersion;
     } catch (err) {
@@ -184,7 +191,7 @@ async function generateDesign(parts: object[], only?: Designer): Promise<{ spec:
   if (!out) {
     const res = await generate(parts, {
       responseMimeType: "application/json",
-      responseJsonSchema: designJsonSchema(),
+      responseJsonSchema: designJsonSchema(schema),
       temperature: 0.8,
     });
     out = parseDesign(res.text ?? "");
@@ -384,20 +391,35 @@ export const listingText = (spec: DesignSpec, extra: string[] = []) =>
   ].join("\n");
 
 /** "Make it warmer" → the same spec with that change applied. */
-export async function refineShop(spec: DesignSpec, instruction: string): Promise<DesignSpec> {
+/**
+ * "Make it warmer" → a new spec. The spec can only change layout, palette, fonts, copy and the hero
+ * prompt, so an ask for more (a page preview, an animation, a widget) comes back in cantDo, for
+ * the seller to see, rather than quietly becoming copy that promises something the page lacks.
+ */
+export async function refineShop(spec: DesignSpec, instruction: string): Promise<{ spec: DesignSpec; cantDo: string | null }> {
   if (!designerEnabled()) throw new Error("Set GEMINI_API_KEY to edit the design with AI.");
-  const { spec: refined } = await generateDesign([
-    { text: DESIGNER_BRIEF },
-    { text: `Current spec:\n${JSON.stringify(spec)}` },
-    {
-      text:
-        `The seller asks: """${instruction}"""\n` +
-        "Return the full spec with that change applied. Keep everything they didn't ask to change, " +
-        "including productType and productName. Keep suggestedLink and digitalDelivery as they were if present.",
-    },
-  ]);
-  const { suggestedLink: _l, digitalDelivery: _d, ...rest } = refined;
-  return { ...rest, productType: spec.productType };
+  const { spec: refined } = await generateDesign(
+    [
+      { text: DESIGNER_BRIEF },
+      { text: `Current spec:\n${JSON.stringify(spec)}` },
+      {
+        text:
+          `The seller asks: """${instruction}"""\n` +
+          "Return the full spec with that change applied. Keep everything they didn't ask to change, " +
+          "including productType and productName. Keep suggestedLink and digitalDelivery as they were if present.\n" +
+          "The page can only change through the spec's fields: one of the layouts, the palette, the listed fonts, " +
+          "the copy and the hero prompt. If the seller asks for anything else (a new section, a preview of pages, " +
+          "an animation, a video, a widget, custom code), apply whatever part the fields can express and put one " +
+          "short sentence in cantDo telling the seller what couldn't be added, e.g. \"I can't add an animated page " +
+          "preview to the page.\" Never let the copy claim the page has a feature it doesn't. Never write out text " +
+          "from a book, song or other work the seller didn't supply. Leave cantDo empty when everything was applied.",
+      },
+    ],
+    undefined,
+    Refined,
+  );
+  const { suggestedLink: _l, digitalDelivery: _d, cantDo, ...rest } = refined;
+  return { spec: { ...rest, productType: spec.productType }, cantDo: cantDo || null };
 }
 
 // ---- Showcase ---------------------------------------------------------------------------------
