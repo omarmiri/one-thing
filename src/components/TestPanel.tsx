@@ -21,6 +21,14 @@ const STORE = "onething-test-panel";
 const MIN_W = 300;
 const MIN_H = 200;
 const DEFAULT: Dock = { edge: "right", at: 0.5 };
+// Half the tab's length along its edge plus a margin, in px: it's about 160px long on any edge.
+const TAB_HALF = 96;
+// Keep a drag's moves coming once the finger leaves the tab (it throws if the pointer is gone).
+const capture = (e: ReactPointerEvent) => {
+  try {
+    e.currentTarget.setPointerCapture(e.pointerId);
+  } catch {}
+};
 // Routes that aren't storefronts: there the prompt is about the gallery, not this page.
 const NOT_SHOPS = new Set([
   "account",
@@ -347,30 +355,37 @@ export function TestPanel() {
     } catch {}
   };
 
+  // On a phone, a drag toward the screen's edge can be taken over by the browser (its toolbar,
+  // pull to refresh), which cancels the pointer instead of lifting it. A cancel ends the drag where
+  // it last was, or the tab stays "dragging" and ignores taps from then on.
   const startDrag = (e: ReactPointerEvent) => {
     e.preventDefault();
+    capture(e);
     dragging.current = true;
     setOpen(false);
     // Moving keeps the size the panel was given.
-    const at = (ev: PointerEvent) => ({ ...dock, ...dockAt(ev.clientX, ev.clientY) });
-    const move = (ev: PointerEvent) => setDock(at(ev));
-    const up = (ev: PointerEvent) => {
+    let last = dock;
+    const move = (ev: PointerEvent) => setDock((last = { ...dock, ...dockAt(ev.clientX, ev.clientY) }));
+    const end = () => {
       dragging.current = false;
-      const d = at(ev);
-      setDock(d);
-      keep(d);
+      setDock(last);
+      keep(last);
       window.removeEventListener("pointermove", move);
-      window.removeEventListener("pointerup", up);
+      window.removeEventListener("pointerup", end);
+      window.removeEventListener("pointercancel", end);
     };
     window.addEventListener("pointermove", move);
-    window.addEventListener("pointerup", up);
+    window.addEventListener("pointerup", end);
+    window.addEventListener("pointercancel", end);
   };
 
   // The inner edge resizes: narrower, so the page beside it stays in view (the create flow
   // with its API log, say), or wider for reading.
   const startResize = (e: ReactPointerEvent) => {
     e.preventDefault();
+    capture(e);
     setResizing(true);
+    let last = dock;
     const sized = (ev: PointerEvent): Dock => {
       const { innerWidth: vw, innerHeight: vh } = window;
       const clamp = (n: number, lo: number, hi: number) => Math.round(Math.min(hi, Math.max(lo, n)));
@@ -382,17 +397,18 @@ export function TestPanel() {
             ? { ...dock, h: clamp(vh - ev.clientY, MIN_H, vh * 0.9) }
             : { ...dock, h: clamp(ev.clientY, MIN_H, vh * 0.9) };
     };
-    const move = (ev: PointerEvent) => setDock(sized(ev));
-    const up = (ev: PointerEvent) => {
+    const move = (ev: PointerEvent) => setDock((last = sized(ev)));
+    const end = () => {
       setResizing(false);
-      const d = sized(ev);
-      setDock(d);
-      keep(d);
+      setDock(last);
+      keep(last);
       window.removeEventListener("pointermove", move);
-      window.removeEventListener("pointerup", up);
+      window.removeEventListener("pointerup", end);
+      window.removeEventListener("pointercancel", end);
     };
     window.addEventListener("pointermove", move);
-    window.addEventListener("pointerup", up);
+    window.addEventListener("pointerup", end);
+    window.addEventListener("pointercancel", end);
   };
 
   const side = dock.edge === "left" || dock.edge === "right";
@@ -417,15 +433,17 @@ export function TestPanel() {
           : `translateY(${dock.edge === "bottom" ? "100%" : "-100%"})`,
       };
   // The tab sits just outside the drawer's inner edge (right: 100% on a right-hand drawer puts
-  // it to the drawer's left), at its place along the screen edge.
+  // it to the drawer's left), at its place along the screen edge. Its centre stays at least half
+  // the tab (plus a margin) from either end, so the whole tab and its grip are always on screen,
+  // on a short phone screen too, or after the screen turns.
   const tab: React.CSSProperties = side
     ? {
-        top: `${dock.at * 100}%`,
+        top: `clamp(${TAB_HALF}px, ${dock.at * 100}%, calc(100% - ${TAB_HALF}px))`,
         [dock.edge]: "100%",
         transform: "translateY(-50%)",
       }
     : {
-        left: `${dock.at * 100}%`,
+        left: `clamp(${TAB_HALF}px, ${dock.at * 100}%, calc(100% - ${TAB_HALF}px))`,
         [dock.edge]: "100%",
         transform: "translateX(-50%)",
       };
