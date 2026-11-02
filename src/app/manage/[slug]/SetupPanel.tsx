@@ -97,6 +97,10 @@ function PayPalConnect(props: {
   const [status, setStatus] = useState(props.initial.status);
   const [busy, setBusy] = useState<false | "connect" | "check" | "disconnect">(false);
   const ready = Boolean(merchantId && status?.receivable && status.emailConfirmed);
+  // Until the connected account can be paid, the email is how the shop goes live, so start it
+  // from the email the seller used at PayPal. They still see it and can change it before saving.
+  const [email, setEmail] = useState(props.email ?? (ready ? "" : status?.email) ?? "");
+  const fromPayPal = !props.email && Boolean(email) && email === status?.email;
   const { returned } = props.initial;
   const { onToast } = props;
 
@@ -121,6 +125,7 @@ function PayPalConnect(props: {
         const r = await props.api("/paypal");
         setMerchantId(r.merchantId ?? null);
         setStatus(r.status ?? null);
+        if (!email && r.status?.email && !(r.status.receivable && r.status.emailConfirmed)) setEmail(r.status.email);
         props.onToast(!r.merchantId ? "PayPal hasn't finished connecting yet." : r.status?.receivable && r.status.emailConfirmed ? "All set at PayPal." : "Checked with PayPal.");
       } else {
         await props.api("/paypal", { method: "DELETE" });
@@ -177,14 +182,18 @@ function PayPalConnect(props: {
           <p className="text-xs text-muted">Already use PayPal? Sign in. New to it? Create a free account in the same step.</p>
         </div>
       )}
-      <details open={!merchantId && Boolean(props.email)} className="text-sm">
+      <details open={merchantId ? !ready : Boolean(props.email)} className="text-sm">
         <summary className="cursor-pointer text-xs text-muted">
-          {merchantId ? "Backup: a PayPal email" : "Or send payments to a PayPal email"}
+          {!merchantId ? "Or send payments to a PayPal email" : ready ? "Backup: a PayPal email" : "Go live now with your PayPal email"}
         </summary>
         <div className="mt-2 space-y-1">
-          <input name="paypal_email" type="email" aria-label="PayPal email" defaultValue={props.email ?? ""} placeholder="you@example.com" className={input} />
+          <input name="paypal_email" type="email" aria-label="PayPal email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" className={input} />
           <p className="text-xs text-muted">
-            {ready ? "Only used if your connected account can't be paid." : "PayPal can't confirm this one for you, so double-check it."}
+            {ready
+              ? "Only used if your connected account can't be paid."
+              : merchantId
+                ? `${fromPayPal ? "Filled in from your PayPal account. " : ""}Sales are paid to this email until PayPal confirms your connected account; then Check again and they go there.`
+                : "PayPal can't confirm this one for you, so double-check it."}
           </p>
         </div>
       </details>

@@ -65,7 +65,7 @@ export async function PATCH(req: Request, ctx: RouteContext<"/api/shops/[slug]">
       const error = !shop.paypal_merchant_id
         ? "Connect PayPal (or enter a PayPal email) so your sales have somewhere to go."
         : !st?.emailConfirmed
-          ? "Confirm your email at PayPal first, then Check again."
+          ? "PayPal hasn't confirmed your email yet. Enter your PayPal email under Payments go to and go live now, or confirm it at PayPal and Check again."
           : "PayPal says your account can't receive payments yet. Finish setting it up at PayPal, then Check again.";
       return NextResponse.json({ error, field: "paypal" }, { status: 400 });
     }

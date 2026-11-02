@@ -271,8 +271,8 @@ async function partnerToken(): Promise<string> {
   return partnerCached.token;
 }
 
-/** What PayPal says about a connected seller, as of checkedAt. */
-export type PayPalStatus = { receivable: boolean; emailConfirmed: boolean; checkedAt: string };
+/** What PayPal says about a connected seller, as of checkedAt. email: their PayPal login, when PayPal shares it. */
+export type PayPalStatus = { receivable: boolean; emailConfirmed: boolean; email?: string; checkedAt: string };
 
 export const paypalReadyToPay = (shop: Pick<Shop, "paypal_merchant_id" | "paypal_status">) =>
   Boolean(shop.paypal_merchant_id && shop.paypal_status?.receivable && shop.paypal_status.emailConfirmed);
@@ -331,13 +331,18 @@ export async function connectedMerchant(trackingId: string): Promise<{ merchantI
 
 export async function merchantStatus(merchantId: string): Promise<PayPalStatus> {
   const partner = encodeURIComponent(process.env.PAYPAL_PARTNER_MERCHANT_ID!);
-  const s = await call<{ payments_receivable?: boolean; primary_email_confirmed?: boolean }>(
+  const s = await call<{ payments_receivable?: boolean; primary_email_confirmed?: boolean; primary_email?: string }>(
     "merchant status",
     `/v1/customer/partners/${partner}/merchant-integrations/${encodeURIComponent(merchantId)}`,
     { method: "GET" },
     partnerToken,
   );
-  return { receivable: Boolean(s.payments_receivable), emailConfirmed: Boolean(s.primary_email_confirmed), checkedAt: new Date().toISOString() };
+  return {
+    receivable: Boolean(s.payments_receivable),
+    emailConfirmed: Boolean(s.primary_email_confirmed),
+    ...(s.primary_email && { email: s.primary_email }),
+    checkedAt: new Date().toISOString(),
+  };
 }
 
 export const sdkUrl = () =>

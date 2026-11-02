@@ -124,7 +124,10 @@ the AI's guesses and clicks **Go live**. The choices behind it:
   upgraded to business inside PayPal's flow. Back on the manage page, a checklist shows what PayPal
   reports (connected, email confirmed, can receive payments), with **Check again** and
   **Disconnect**. **Go live** waits until PayPal says the account can be paid, or a PayPal email is
-  entered as a fallback. A connected account carries over to the seller's other and new shops.
+  entered as a fallback. While PayPal hasn't confirmed the account (in the sandbox, an account made
+  during onboarding never gets its confirmation email), the email field opens with the seller's
+  PayPal email filled in, so they can go live now; sales switch to the connected account once
+  **Check again** finds it ready. A connected account carries over to the seller's other and new shops.
 - **A manage page** (open from Your shops, or by its private link): a summary strip (visitors, paid
   orders, revenue, the share bought by AI agents, the last webhook), the live preview with visitors and
   sales and the webhook log under it, and the settings beside it. Once the shop is live, finished
