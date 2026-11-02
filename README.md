@@ -37,9 +37,20 @@ order was captured, PayPal's shipping address was saved, and it landed in the se
 
 ## Why
 
-Someone with *one* thing to sell (a handmade item, an ebook, a preset pack, a small game)
-doesn't need Shopify. Today they glue together a page builder, a PayPal button and copy they
-write themselves, or they pay Gumroad-style fees for a page that looks like everyone else's.
+**Who it's for:** someone with *one* thing to sell and no wish to run a store: a potter with a
+mug, an illustrator with a print, an indie developer with a small game. One product, maybe a few
+sizes or colours, often a side project, with no designer, no copywriter and thin margins.
+
+**The problem has two halves.**
+
+1. **Selling one thing is over-tooled or under-built.** A store platform is built for catalogs. A
+   marketplace page takes a cut and looks like everyone else's. The alternative is gluing
+   together a page builder, a PayPal button and copy you write yourself. None of them start from
+   what the seller already has: a photo of the thing.
+2. **Shoppers are moving to AI assistants, and small sellers can't be reached there.** People now
+   ask ChatGPT, Gemini or Grok to find and buy things. A hand-made product page is built for human
+   eyes, so an assistant can't reliably read it, order from it or hand off payment, and agent
+   checkout so far is arriving through big platforms and catalogs, not one-product sellers.
 
 OneThing makes the whole shop from what the seller already has, and the seller only checks
 the AI's guesses and clicks **Go live**. The choices behind it:
