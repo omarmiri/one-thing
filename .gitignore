@@ -53,6 +53,7 @@ next-env.d.ts
 # private submission notes
 SUBMISSION.md
 PLAN.md
+docs/VIDEO-SCRIPT.md
 
 # npm run compare:designers output
 /compare-designers.json
