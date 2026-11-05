@@ -480,7 +480,7 @@ service URL.
 | **Render** | Hosting and Postgres via `render.yaml` |
 | **AG Grid** | The seller's orders table (sort, filter, search, mark shipped, refund) |
 | **Zapier** | Optional per-shop Catch Hook: every paid or shipped order is posted to it |
-| **APIMatic** | Generates the TypeScript and Python SDKs (published to GitHub) and the [docs portal](https://omarmiri.github.io/one-thing/) from the OpenAPI spec, with API Copilot and an API Recipe, plus a [Context Plugin](https://github.com/omarmiri/one-thing-context-plugin) for coding agents. Its PayPal Context Plugin gave Claude Code PayPal's API reference while building the PayPal features |
+| **APIMatic** | Generates the TypeScript and Python SDKs (published to GitHub) and the [docs portal](https://omarmiri.github.io/one-thing/) from the OpenAPI spec, with API Copilot and an API Recipe, plus a [Context Plugin](https://github.com/omarmiri/one-thing-context-plugin) for coding agents |
 | **Postman** | A collection covering the whole API |
 | Next.js 16, PostgreSQL / PGlite, Tailwind, zod | App framework and data |
 
